@@ -4,15 +4,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace KapalKlik
+namespace TiketLaut
 {
     public class Notifikasi
     {
         public int notifikasi_id { get; set; }
-        public JenisNotifikasi jenis { get; set; }
+        public JenisNotifikasi jenis_enum_penumpang_update_status { get; set; }
         public string pesan { get; set; } = string.Empty;
         public DateTime waktu_kirim { get; set; }
-        public string status_baca { get; set; } = string.Empty;
+        public bool status_baca { get; set; } = false;
         public bool is_broadcast { get; set; } = false; // Menandakan apakah ini broadcast
         
         // Navigational properties
@@ -27,7 +27,7 @@ namespace KapalKlik
         {
             // Implementasi kirim notifikasi
             waktu_kirim = DateTime.Now;
-            status_baca = "Belum dibaca";
+            status_baca = false;
         }
 
         public void kirimBroadcastNotifikasi()
@@ -35,13 +35,28 @@ namespace KapalKlik
             // Implementasi kirim broadcast notifikasi ke semua pengguna
             is_broadcast = true;
             waktu_kirim = DateTime.Now;
-            status_baca = "Belum dibaca";
+            status_baca = false;
         }
 
         public void tandaiBacaan()
         {
             // Implementasi tandai sebagai sudah dibaca
-            status_baca = "Sudah dibaca";
+            status_baca = true;
+        }
+        
+        public void tampilkanNotifikasi()
+        {
+            Console.WriteLine($"[{waktu_kirim:dd/MM/yyyy HH:mm}] {pesan}");
+            if (!status_baca)
+            {
+                Console.WriteLine("(Belum dibaca)");
+            }
+        }
+        
+        public void updateStatusBaca()
+        {
+            status_baca = true;
+            Console.WriteLine("Status notifikasi diupdate menjadi sudah dibaca.");
         }
     }
 }

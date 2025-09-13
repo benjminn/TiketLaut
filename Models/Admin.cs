@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace KapalKlik
+namespace TiketLaut
 {
     public class Admin
     {
@@ -57,7 +57,7 @@ namespace KapalKlik
             {
                 admin = this,
                 admin_id = this.admin_id,
-                jenis = jenis,
+                jenis_enum_penumpang_update_status = jenis,
                 pesan = pesan,
                 is_broadcast = true,
                 jadwal = jadwal,
@@ -70,12 +70,11 @@ namespace KapalKlik
         {
             // Implementasi khusus untuk notifikasi perubahan jadwal
             string pesanNotifikasi = $"PEMBERITAHUAN PERUBAHAN JADWAL: " +
-                                   $"Jadwal keberangkatan dari Pelabuhan ID {jadwal.pelabuhan_asal_id} " +
-                                   $"ke Pelabuhan ID {jadwal.pelabuhan_tujuan_id} " +
-                                   $"pada {jadwal.tanggal_berangkat:dd/MM/yyyy} jam {jadwal.waktu_berangkat} " +
-                                   $"mengalami perubahan. Alasan: {alasanPerubahan}. " +
-                                   $"Mohon cek aplikasi untuk update terbaru.";
-            
+                $"Jadwal keberangkatan dari Pelabuhan ID {jadwal.pelabuhan_asal_id} " +
+                $"ke Pelabuhan ID {jadwal.pelabuhan_tujuan_id} " +
+                $"pada {jadwal.tanggal_berangkat:dd/MM/yyyy} jam {jadwal.waktu_berangkat} " +
+                $"mengalami perubahan. Alasan: {alasanPerubahan}. " +
+                $"Mohon cek aplikasi untuk update terbaru.";
             kirimNotifikasiBroadcast(pesanNotifikasi, JenisNotifikasi.Update, jadwal);
         }
     }

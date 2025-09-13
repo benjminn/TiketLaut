@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace KapalKlik
+namespace TiketLaut
 {
     public class Pengguna
     {
@@ -12,6 +12,7 @@ namespace KapalKlik
         public string nama { get; set; } = string.Empty;
         public string email { get; set; } = string.Empty;
         public string password { get; set; } = string.Empty;
+        public string no_hp { get; set; } = string.Empty;
         public int umur { get; set; }
         public string jenis_kelamin { get; set; } = string.Empty;
         public DateTime tanggal_lahir { get; set; }
