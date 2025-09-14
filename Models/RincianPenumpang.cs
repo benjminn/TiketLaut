@@ -8,16 +8,32 @@ namespace TiketLaut
 {
     public class RincianPenumpang
     {
-        public int rincian_penumpang_id { get; set; }
-        
-        // Foreign key ke Penumpang
-        public int NIK_penumpang { get; set; }
-        
-        // Navigation property
+        public int rincian_penumpang_id { get; set; } // Primary Key
+        public int tiket_id { get; set; } // Foreign Key ke Tiket
+        public int penumpang_id { get; set; } // Foreign Key ke Penumpang
+
+        // Navigation properties
+        public Tiket tiket { get; set; } = null!;
         public Penumpang penumpang { get; set; } = null!;
-        
-        // Additional properties yang mungkin diperlukan
-        public string keterangan { get; set; } = string.Empty;
-        public DateTime tanggal_registrasi { get; set; } = DateTime.Now;
+
+        public void tampilkanRincianPenumpang()
+        {
+            Console.WriteLine($"=== RINCIAN PENUMPANG ===");
+            Console.WriteLine($"ID Rincian: {rincian_penumpang_id}");
+            Console.WriteLine($"ID Tiket: {tiket_id}");
+            Console.WriteLine($"ID Penumpang: {penumpang_id}");
+
+            if (penumpang != null)
+            {
+                Console.WriteLine($"Nama Penumpang: {penumpang.nama}");
+                Console.WriteLine($"NIK: {penumpang.NIK_penumpang}");
+            }
+
+            if (tiket != null)
+            {
+                Console.WriteLine($"Status Tiket: {tiket.status}");
+                Console.WriteLine($"Total Harga: Rp {tiket.total_harga:N0}");
+            }
+        }
     }
 }

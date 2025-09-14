@@ -8,11 +8,21 @@ namespace TiketLaut
 {
     public class Penumpang
     {
-        public int NIK_penumpang { get; set; }
+        public int penumpang_id { get; set; } // Primary Key  
+        public int pengguna_id { get; set; } // Foreign Key ke Pengguna (user yang menambahkan)
         public string nama { get; set; } = string.Empty;
-        public int no_hp { get; set; }
+        public string NIK_penumpang { get; set; } = string.Empty;
 
-        // Navigational properties untuk relationship
-        public List<RincianPenumpang> rincianPenumpangs { get; set; } = new List<RincianPenumpang>();
+        // Navigation property
+        public Pengguna pengguna { get; set; } = null!;
+
+        public void tampilkanInfoPenumpang()
+        {
+            Console.WriteLine($"=== INFO PENUMPANG ===");
+            Console.WriteLine($"ID: {penumpang_id}");
+            Console.WriteLine($"Nama: {nama}");
+            Console.WriteLine($"NIK: {NIK_penumpang}");
+            Console.WriteLine($"Ditambahkan oleh: {pengguna?.nama ?? "Unknown"}");
+        }
     }
 }
