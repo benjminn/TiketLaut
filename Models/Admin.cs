@@ -8,7 +8,7 @@ namespace TiketLaut
 {
     public class Admin
     {
-        public int admin_id { get; set; }
+        public int admin_id { get; set; } // Primary Key
         public string nama { get; set; } = string.Empty;
         public string username { get; set; } = string.Empty;
         public string email { get; set; } = string.Empty;
@@ -55,15 +55,13 @@ namespace TiketLaut
             // Implementasi kirim notifikasi broadcast ke semua pengguna
             var notifikasi = new Notifikasi
             {
-                admin = this,
-                admin_id = this.admin_id,
-                jenis_enum_penumpang_update_status = jenis,
+                pengguna_id = 0, // 0 untuk broadcast
+                jenis_enum_penumpang_update_status = jenis.ToString(),
                 pesan = pesan,
-                is_broadcast = true,
-                jadwal = jadwal,
-                jadwal_id = jadwal?.jadwal_id
+                waktu_kirim = DateTime.Now,
+                status_baca = false
             };
-            notifikasi.kirimBroadcastNotifikasi();
+            notifikasi.kirimNotifikasi();
         }
 
         public void kirimNotifikasiPerubahanJadwal(Jadwal jadwal, string alasanPerubahan)
