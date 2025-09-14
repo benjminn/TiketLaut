@@ -8,10 +8,10 @@ namespace TiketLaut
 {
     public class Jadwal
     {
-        public int jadwal_id { get; set; }
-        public int pelabuhan_asal_id { get; set; }
-        public int pelabuhan_tujuan_id { get; set; }
-        public int kapal_id { get; set; } // Foreign key ke Kapal
+        public int jadwal_id { get; set; } // Primary Key
+        public int pelabuhan_asal_id { get; set; } // Foreign Key ke Pelabuhan
+        public int pelabuhan_tujuan_id { get; set; } // Foreign Key ke Pelabuhan 
+        public int kapal_id { get; set; } // Foreign Key ke Kapal
         public string kelas { get; set; } = string.Empty;
         public DateTime tanggal_berangkat { get; set; }
         public TimeSpan waktu_berangkat { get; set; }
@@ -21,7 +21,7 @@ namespace TiketLaut
         // Harga tiket untuk pejalan kaki (per penumpang)
         public decimal harga_penumpang { get; set; }
         
-        // Harga tiket berdasarkan golongan kendaraan (sudah termasuk 1 penumpang)
+        // Harga tiket berdasarkan golongan kendaraan (sudah termasuk penumpang)
         public decimal harga_golongan_I { get; set; }       // Sepeda
         public decimal harga_golongan_II { get; set; }      // Motor <500cc
         public decimal harga_golongan_III { get; set; }     // Motor >500cc, roda 3
@@ -45,8 +45,8 @@ namespace TiketLaut
 
         // Calculated properties
         public TimeSpan DurasiPerjalanan => waktu_tiba - waktu_berangkat;
-        public int SisaKapasitasPenumpang => kapal?.SisaKapasitasPenumpang ?? 0;
-        public int SisaKapasitasKendaraan => kapal?.SisaKapasitasKendaraan ?? 0;
+        public int SisaKapasitasPenumpang => kapal?.kapasitas_penumpang_max ?? 0;
+        public int SisaKapasitasKendaraan => kapal?.kapasitas_kendaraan_max ?? 0;
 
         // Method untuk mendapatkan harga berdasarkan jenis kendaraan
         public decimal GetHargaByJenisKendaraan(JenisKendaraan jenisKendaraan)
@@ -154,39 +154,30 @@ namespace TiketLaut
             return DurasiPerjalanan;
         }
 
-        public bool konfirmasiKetersediaan(int jumlahPenumpang = 1, List<BookingKendaraan>? kendaraan = null)
+        public bool konfirmasiKetersediaan(int jumlahPenumpang = 1, JenisKendaraan? jenisKendaraan = null)
         {
             if (kapal == null) return false;
 
             // Untuk pejalan kaki, cek kapasitas penumpang
-            if (kendaraan == null || !kendaraan.Any())
+            if (!jenisKendaraan.HasValue || jenisKendaraan == JenisKendaraan.Jalan_Kaki)
             {
-                return kapal.CekKapasitasPenumpang(jumlahPenumpang);
+                return jumlahPenumpang <= (kapal?.kapasitas_penumpang_max ?? 0);
             }
 
-            // Untuk kendaraan, cek kapasitas kendaraan saja
-            int totalBobotKendaraan = kendaraan.Sum(k => k.total_bobot);
-            return kapal.CekKapasitasKendaraan(totalBobotKendaraan);
+            // Untuk kendaraan, cek kapasitas kendaraan berdasarkan bobot
+            var detailKendaraan = DetailKendaraan.GetDetailKendaraan(jenisKendaraan.Value);
+            return detailKendaraan.Bobot <= (kapal?.kapasitas_kendaraan_max ?? 0);
         }
 
         // Method untuk mendapatkan estimasi harga total
-        public decimal EstimasiHargaTotal(int jumlahPenumpang, List<BookingKendaraan>? kendaraan = null)
+        public decimal EstimasiHargaTotal(int jumlahPenumpang, JenisKendaraan? jenisKendaraan = null)
         {
             decimal total = 0;
 
-            // Jika ada kendaraan, hitung berdasarkan golongan kendaraan
-            if (kendaraan != null && kendaraan.Any())
+            // Jika ada kendaraan, hitung berdasarkan golongan kendaraan (sudah include semua penumpang)
+            if (jenisKendaraan.HasValue && jenisKendaraan != JenisKendaraan.Jalan_Kaki)
             {
-                foreach (var booking in kendaraan)
-                {
-                    total += GetHargaByJenisKendaraan(booking.jenis_kendaraan) * booking.jumlah;
-                    
-                    // Tambahan penumpang di atas 1 (karena harga kendaraan sudah include 1 penumpang)
-                    if (jumlahPenumpang > 1)
-                    {
-                        total += harga_penumpang * (jumlahPenumpang - 1);
-                    }
-                }
+                total = GetHargaByJenisKendaraan(jenisKendaraan.Value);
             }
             else
             {

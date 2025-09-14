@@ -6,9 +6,9 @@ namespace TiketLaut
     // Class untuk detail kendaraan per jadwal - harga berbeda per rute
     public class DetailKendaraan
     {
-        public int detail_kendaraan_id { get; set; }
+        public int detail_kendaraan_id { get; set; } // Primary Key
         
-        // Foreign Key ke Jadwal (BUKAN ke Tiket!)
+        // Foreign Key ke Jadwal
         public int jadwal_id { get; set; }
         public Jadwal jadwal { get; set; } = null!;
         
@@ -88,34 +88,6 @@ namespace TiketLaut
                 return $"{jenis_kendaraan} - {deskripsi}";
             }
             return $"{jenis_kendaraan} (Bobot: {bobot_unit}) - {deskripsi} | {spesifikasi_ukuran}";
-        }
-    }
-
-    // Class untuk tracking kendaraan yang di-booking di tiket
-    public class BookingKendaraan
-    {
-        public int booking_kendaraan_id { get; set; }
-        public int tiket_id { get; set; }
-        public JenisKendaraan jenis_kendaraan { get; set; }
-        public int jumlah { get; set; } = 1;
-        public int total_bobot { get; set; }
-        public string plat_nomor { get; set; } = string.Empty;
-        public string merk_kendaraan { get; set; } = string.Empty;
-
-        // Navigation properties
-        public Tiket tiket { get; set; } = null!;
-
-        // Method untuk menghitung total bobot (tanpa tarif karena sekarang per jadwal)
-        public void HitungTotalBobot()
-        {
-            var detail = DetailKendaraan.GetDetailKendaraan(jenis_kendaraan);
-            total_bobot = detail.Bobot * jumlah;
-        }
-
-        public override string ToString()
-        {
-            var detail = DetailKendaraan.GetDetailKendaraan(jenis_kendaraan);
-            return $"{jenis_kendaraan} x{jumlah} - Bobot: {total_bobot} | {detail.SpesifikasiUkuran}";
         }
     }
 }
