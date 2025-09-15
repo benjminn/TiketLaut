@@ -13,11 +13,18 @@ namespace TiketLaut
         public string username { get; set; } = string.Empty;
         public string email { get; set; } = string.Empty;
         public string password { get; set; } = string.Empty;
+        public AdminRole role { get; set; } = AdminRole.OperationAdmin; // Default role pake operationadmin
 
         public bool login()
         {
             // Implementasi login admin
             return true;
+        }
+
+        public bool canCreateAdmin()
+        {
+            // SuperAdmin bisa buat admin baru
+            return role == AdminRole.SuperAdmin;
         }
 
         public void kelolaPembayaran()
