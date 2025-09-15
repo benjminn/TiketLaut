@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("TiketLaut")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+49668de82ba46c27e3b5207b7133d28d357db8b6")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+06fbed54349a07a1b1a6a5d32ce56ed9d3f29996")]
 [assembly: System.Reflection.AssemblyProductAttribute("TiketLaut")]
 [assembly: System.Reflection.AssemblyTitleAttribute("TiketLaut")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

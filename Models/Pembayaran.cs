@@ -8,7 +8,8 @@ namespace TiketLaut
 {
     public class Pembayaran
     {
-        public int pembayaran_id { get; set; }
+        public int pembayaran_id { get; set; } // Primary Key
+        public int tiket_id { get; set; } // Foreign Key ke Tiket
         public string metode_pembayaran { get; set; } = string.Empty;
         public double jumlah_bayar { get; set; }
         public DateTime tanggal_bayar { get; set; }

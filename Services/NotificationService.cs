@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace KapalKlik
+namespace TiketLaut
 {
     /// <summary>
     /// Class untuk menangani sistem broadcast notifikasi dari admin
@@ -21,18 +21,14 @@ namespace KapalKlik
             var broadcast = new Notifikasi
             {
                 notifikasi_id = GenerateNotificationId(),
-                admin = admin,
-                admin_id = admin.admin_id,
-                jenis = type,
+                pengguna_id = 0, // 0 untuk broadcast
+                jenis_enum_penumpang_update_status = type.ToString(),
                 pesan = message,
-                is_broadcast = true,
-                jadwal = relatedSchedule,
-                jadwal_id = relatedSchedule?.jadwal_id,
                 waktu_kirim = DateTime.Now,
-                status_baca = "Terkirim"
+                status_baca = false
             };
             
-            broadcast.kirimBroadcastNotifikasi();
+            broadcast.kirimNotifikasi();
             broadcastHistory.Add(broadcast);
             
             Console.WriteLine($"📢 BROADCAST: {broadcast.pesan}");
@@ -67,7 +63,7 @@ namespace KapalKlik
         /// </summary>
         private int GenerateNotificationId()
         {
-            return broadcastHistory.Count + 1;
+            return broadcastHistory.Count + 1000; // Offset untuk broadcast notifications
         }
     }
 }

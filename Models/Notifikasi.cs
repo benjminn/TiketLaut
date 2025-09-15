@@ -8,32 +8,17 @@ namespace TiketLaut
 {
     public class Notifikasi
     {
-        public int notifikasi_id { get; set; }
-        public JenisNotifikasi jenis_enum_penumpang_update_status { get; set; }
+        public int notifikasi_id { get; set; } // Primary Key
+        public int pengguna_id { get; set; } // Foreign Key ke Pengguna
+        public string jenis_enum_penumpang_update_status { get; set; } = string.Empty;
         public string pesan { get; set; } = string.Empty;
         public DateTime waktu_kirim { get; set; }
         public bool status_baca { get; set; } = false;
-        public bool is_broadcast { get; set; } = false; // Menandakan apakah ini broadcast
-        
-        // Navigational properties
-        public Admin admin { get; set; } = null!; // Admin yang mengirim notifikasi
-        public int admin_id { get; set; }
-        public Pengguna? pengguna { get; set; } = null; // Null jika broadcast ke semua
-        public int? pengguna_id { get; set; } = null; // Null jika broadcast ke semua
-        public Jadwal? jadwal { get; set; } = null; // Jadwal yang berubah (jika ada)
-        public int? jadwal_id { get; set; } = null;
+        public int kirimNotifikasiId { get; set; }
 
         public void kirimNotifikasi()
         {
             // Implementasi kirim notifikasi
-            waktu_kirim = DateTime.Now;
-            status_baca = false;
-        }
-
-        public void kirimBroadcastNotifikasi()
-        {
-            // Implementasi kirim broadcast notifikasi ke semua pengguna
-            is_broadcast = true;
             waktu_kirim = DateTime.Now;
             status_baca = false;
         }
