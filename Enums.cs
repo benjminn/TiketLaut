@@ -6,10 +6,9 @@ using System.Threading.Tasks;
 
 namespace TiketLaut
 {
-    // Enum untuk jenis kendaraan sesuai golongan PT ASDP Indonesia Ferry (Persero)
     public enum JenisKendaraan
     {
-        Jalan_Kaki,           // Tanpa kendaraan (pejalan kaki)
+        Jalan_Kaki,           // Jalan kaki
         Golongan_I,           // Sepeda
         Golongan_II,          // Sepeda motor <500cc dan gerobak dorong
         Golongan_III,         // Sepeda motor besar >500cc dan kendaraan roda tiga
@@ -44,5 +43,12 @@ namespace TiketLaut
         Pembayaran,     // Notifikasi terkait pembayaran
         Jadwal,         // Perubahan jadwal keberangkatan
         Pembatalan      // Pembatalan jadwal atau tiket
+    }
+
+    // Enum untuk role admin
+    public enum AdminRole
+    {
+        SuperAdmin,     // Full access - bisa menambah admin baru
+        OperationAdmin  // Operasional biasa - tidak bisa menambah admin
     }
 }
