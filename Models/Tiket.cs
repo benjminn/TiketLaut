@@ -10,7 +10,7 @@ namespace TiketLaut
     {
         public int tiket_id { get; set; } // Primary Key
         public int jadwal_id { get; set; } // Foreign Key ke Jadwal
-        public double total_harga { get; set; }
+        public decimal total_harga { get; set; }
         public DateTime tanggal_pemesanan { get; set; }
         public StatusTiket status { get; set; }
         
@@ -61,7 +61,7 @@ namespace TiketLaut
                 totalHarga = jadwal.harga_penumpang * JumlahPenumpang;
             }
 
-            total_harga = (double)totalHarga;
+            total_harga = totalHarga;
         }
 
         // Method untuk set kendaraan pada tiket

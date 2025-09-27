@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using TiketLaut;
+using TiketLaut.Data;
 
 namespace TiketLaut.Controllers
 {
@@ -8,121 +10,217 @@ namespace TiketLaut.Controllers
     [Produces("application/json")]
     public class PelabuhanController : ControllerBase
     {
-        // SINGLE SOURCE OF TRUTH - Data pelabuhan (sesuai dengan atribut class Pelabuhan)
-        public static readonly List<object> AllPelabuhanData = new List<object>
-        {
-            new {
-                pelabuhan_id = 1,
-                nama_pelabuhan = "Pelabuhan Merak",
-                kota = "Cilegon",
-                provinsi = "Banten",
-                fasilitas = "Parkir, Toilet, Mushola, Kantin, ATM",
-                deskripsi = "Pelabuhan utama penghubung Pulau Jawa dan Sumatera di Selat Sunda"
-            },
-            new {
-                pelabuhan_id = 2,
-                nama_pelabuhan = "Pelabuhan Bakauheni",
-                kota = "Lampung Selatan",
-                provinsi = "Lampung",
-                fasilitas = "Parkir, Toilet, Mushola, Kantin, ATM, Ruang VIP",
-                deskripsi = "Pelabuhan tersibuk di Lampung untuk penyeberangan ke Pulau Jawa"
-            },
-            new {
-                pelabuhan_id = 3,
-                nama_pelabuhan = "Pelabuhan Gilimanuk",
-                kota = "Jembrana",
-                provinsi = "Bali",
-                fasilitas = "Parkir, Toilet, Mushola, Restoran, Toko Souvenir",
-                deskripsi = "Pelabuhan di ujung barat Pulau Bali penghubung ke Pulau Jawa"
-            },
-            new {
-                pelabuhan_id = 4,
-                nama_pelabuhan = "Pelabuhan Ketapang",
-                kota = "Banyuwangi",
-                provinsi = "Jawa Timur",
-                fasilitas = "Parkir, Toilet, Mushola, Kantin, Mini Market",
-                deskripsi = "Pelabuhan di ujung timur Pulau Jawa penghubung ke Pulau Bali"
-            },
-            new {
-                pelabuhan_id = 5,
-                nama_pelabuhan = "Pelabuhan Lembar",
-                kota = "Lombok Barat",
-                provinsi = "Nusa Tenggara Barat",
-                fasilitas = "Parkir, Toilet, Mushola, Restoran, ATM, Wifi",
-                deskripsi = "Pelabuhan utama di Pulau Lombok untuk penyeberangan antar pulau"
-            },
-            new {
-                pelabuhan_id = 6,
-                nama_pelabuhan = "Pelabuhan Padangbai",
-                kota = "Karangasem",
-                provinsi = "Bali",
-                fasilitas = "Parkir, Toilet, Mushola, Warung, Penginapan",
-                deskripsi = "Pelabuhan di timur Bali penghubung ke Lombok dan Gili"
-            }
-        };
+        private readonly TiketLautDbContext _context;
+        private readonly ILogger<PelabuhanController> _logger;
 
+        public PelabuhanController(TiketLautDbContext context, ILogger<PelabuhanController> logger)
+        {
+            _context = context;
+            _logger = logger;
+        }
+
+        /// <summary>
+        /// Get all harbors/ports
+        /// </summary>
         [HttpGet]
-        public ActionResult<IEnumerable<object>> GetAllPelabuhan()
+        public async Task<ActionResult<IEnumerable<Pelabuhan>>> GetAllPelabuhan()
         {
-            return Ok(AllPelabuhanData);
+            try
+            {
+                var pelabuhans = await _context.Pelabuhans.ToListAsync();
+                _logger.LogInformation("Retrieved {Count} pelabuhans from database", pelabuhans.Count);
+                return Ok(pelabuhans);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving pelabuhans from database");
+                return StatusCode(500, "Internal server error while retrieving pelabuhans");
+            }
         }
 
+        /// <summary>
+        /// Get harbor by ID
+        /// </summary>
         [HttpGet("{id}")]
-        public ActionResult<object> GetPelabuhan(int id)
+        public async Task<ActionResult<Pelabuhan>> GetPelabuhan(int id)
         {
-            var pelabuhan = AllPelabuhanData.FirstOrDefault(p => ((dynamic)p).pelabuhan_id == id);
-            if (pelabuhan == null) return NotFound($"Pelabuhan dengan ID {id} tidak ditemukan");
-            return Ok(pelabuhan);
+            try
+            {
+                var pelabuhan = await _context.Pelabuhans.FindAsync(id);
+                if (pelabuhan == null)
+                {
+                    _logger.LogWarning("Pelabuhan with ID {Id} not found", id);
+                    return NotFound($"Pelabuhan dengan ID {id} tidak ditemukan");
+                }
+                return Ok(pelabuhan);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving pelabuhan with ID {Id}", id);
+                return StatusCode(500, "Internal server error while retrieving pelabuhan");
+            }
         }
 
-        [HttpGet("kode/{kode}")]
-        public ActionResult<object> GetPelabuhanByKode(string kode)
-        {
-            var pelabuhan = AllPelabuhanData.FirstOrDefault(p => 
-                ((dynamic)p).kode_pelabuhan.ToString()
-                .Equals(kode, StringComparison.OrdinalIgnoreCase));
-            if (pelabuhan == null) return NotFound($"Pelabuhan dengan kode {kode} tidak ditemukan");
-            return Ok(pelabuhan);
-        }
-
+        /// <summary>
+        /// Get harbors by province
+        /// </summary>
         [HttpGet("provinsi/{provinsi}")]
-        public ActionResult<IEnumerable<object>> GetPelabuhanByProvinsi(string provinsi)
+        public async Task<ActionResult<IEnumerable<Pelabuhan>>> GetPelabuhanByProvinsi(string provinsi)
         {
-            var pelabuhanList = AllPelabuhanData.Where(p => 
+            try
             {
-                var dynamic_p = (dynamic)p;
-                return dynamic_p.provinsi.ToString()
-                    .Contains(provinsi, StringComparison.OrdinalIgnoreCase);
-            }).ToList();
-            return Ok(pelabuhanList);
+                var pelabuhanList = await _context.Pelabuhans
+                    .Where(p => p.provinsi.ToLower().Contains(provinsi.ToLower()))
+                    .ToListAsync();
+                
+                _logger.LogInformation("Found {Count} pelabuhans in province {Province}", pelabuhanList.Count, provinsi);
+                return Ok(pelabuhanList);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving pelabuhans by province {Province}", provinsi);
+                return StatusCode(500, "Internal server error while retrieving pelabuhans by province");
+            }
         }
 
+        /// <summary>
+        /// Get harbors by city
+        /// </summary>
         [HttpGet("kota/{kota}")]
-        public ActionResult<IEnumerable<object>> GetPelabuhanByKota(string kota)
+        public async Task<ActionResult<IEnumerable<Pelabuhan>>> GetPelabuhanByKota(string kota)
         {
-            var pelabuhanList = AllPelabuhanData.Where(p => 
+            try
             {
-                var dynamic_p = (dynamic)p;
-                return dynamic_p.kota.ToString()
-                    .Contains(kota, StringComparison.OrdinalIgnoreCase);
-            }).ToList();
-            return Ok(pelabuhanList);
+                var pelabuhanList = await _context.Pelabuhans
+                    .Where(p => p.kota.ToLower().Contains(kota.ToLower()))
+                    .ToListAsync();
+                
+                _logger.LogInformation("Found {Count} pelabuhans in city {City}", pelabuhanList.Count, kota);
+                return Ok(pelabuhanList);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving pelabuhans by city {City}", kota);
+                return StatusCode(500, "Internal server error while retrieving pelabuhans by city");
+            }
         }
 
+        /// <summary>
+        /// Search harbors by name and/or city
+        /// </summary>
         [HttpGet("search")]
-        public ActionResult<IEnumerable<object>> SearchPelabuhan([FromQuery] string? nama = null, [FromQuery] string? kota = null)
+        public async Task<ActionResult<IEnumerable<Pelabuhan>>> SearchPelabuhan([FromQuery] string? nama = null, [FromQuery] string? kota = null)
         {
-            var result = AllPelabuhanData.Where(p => 
+            try
             {
-                var dynamic_p = (dynamic)p;
-                bool matchNama = string.IsNullOrEmpty(nama) || 
-                    dynamic_p.nama_pelabuhan.ToString().Contains(nama, StringComparison.OrdinalIgnoreCase);
-                bool matchKota = string.IsNullOrEmpty(kota) || 
-                    dynamic_p.kota.ToString().Contains(kota, StringComparison.OrdinalIgnoreCase);
-                return matchNama && matchKota;
-            }).ToList();
+                var query = _context.Pelabuhans.AsQueryable();
 
-            return Ok(result);
+                if (!string.IsNullOrEmpty(nama))
+                {
+                    query = query.Where(p => p.nama_pelabuhan.ToLower().Contains(nama.ToLower()));
+                }
+
+                if (!string.IsNullOrEmpty(kota))
+                {
+                    query = query.Where(p => p.kota.ToLower().Contains(kota.ToLower()));
+                }
+
+                var result = await query.ToListAsync();
+                _logger.LogInformation("Search found {Count} pelabuhans (nama: {Nama}, kota: {Kota})", result.Count, nama, kota);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error searching pelabuhans (nama: {Nama}, kota: {Kota})", nama, kota);
+                return StatusCode(500, "Internal server error while searching pelabuhans");
+            }
+        }
+
+        /// <summary>
+        /// Create new harbor
+        /// </summary>
+        [HttpPost]
+        public async Task<ActionResult<Pelabuhan>> CreatePelabuhan(Pelabuhan pelabuhan)
+        {
+            try
+            {
+                _context.Pelabuhans.Add(pelabuhan);
+                await _context.SaveChangesAsync();
+                
+                _logger.LogInformation("Created new pelabuhan with ID {Id}: {Name}", pelabuhan.pelabuhan_id, pelabuhan.nama_pelabuhan);
+                return CreatedAtAction(nameof(GetPelabuhan), new { id = pelabuhan.pelabuhan_id }, pelabuhan);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error creating pelabuhan {Name}", pelabuhan.nama_pelabuhan);
+                return StatusCode(500, "Internal server error while creating pelabuhan");
+            }
+        }
+
+        /// <summary>
+        /// Update existing harbor
+        /// </summary>
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdatePelabuhan(int id, Pelabuhan pelabuhan)
+        {
+            if (id != pelabuhan.pelabuhan_id)
+            {
+                return BadRequest("ID mismatch");
+            }
+
+            try
+            {
+                _context.Entry(pelabuhan).State = EntityState.Modified;
+                await _context.SaveChangesAsync();
+                
+                _logger.LogInformation("Updated pelabuhan with ID {Id}: {Name}", id, pelabuhan.nama_pelabuhan);
+                return NoContent();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!await PelabuhanExists(id))
+                {
+                    return NotFound();
+                }
+                throw;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating pelabuhan with ID {Id}", id);
+                return StatusCode(500, "Internal server error while updating pelabuhan");
+            }
+        }
+
+        /// <summary>
+        /// Delete harbor
+        /// </summary>
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeletePelabuhan(int id)
+        {
+            try
+            {
+                var pelabuhan = await _context.Pelabuhans.FindAsync(id);
+                if (pelabuhan == null)
+                {
+                    return NotFound();
+                }
+
+                _context.Pelabuhans.Remove(pelabuhan);
+                await _context.SaveChangesAsync();
+                
+                _logger.LogInformation("Deleted pelabuhan with ID {Id}: {Name}", id, pelabuhan.nama_pelabuhan);
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error deleting pelabuhan with ID {Id}", id);
+                return StatusCode(500, "Internal server error while deleting pelabuhan");
+            }
+        }
+
+        private async Task<bool> PelabuhanExists(int id)
+        {
+            return await _context.Pelabuhans.AnyAsync(e => e.pelabuhan_id == id);
         }
     }
 }
