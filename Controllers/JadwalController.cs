@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using TiketLaut;
+using TiketLaut.Data;
 using TiketLaut.Controllers;
 
 namespace TiketLaut.Controllers
@@ -108,12 +109,12 @@ namespace TiketLaut.Controllers
                 var jadwal = (dynamic)j;
                 
                 // Ambil nama pelabuhan asal via FK
-                var pelabuhanAsal = PelabuhanController.AllPelabuhanData
+                var pelabuhanAsal = StaticDataHelper.AllPelabuhanData
                     .FirstOrDefault(p => ((dynamic)p).pelabuhan_id == jadwal.pelabuhan_asal_id);
                 var namaAsalData = (dynamic)pelabuhanAsal!;
                 
                 // Ambil nama pelabuhan tujuan via FK
-                var pelabuhanTujuan = PelabuhanController.AllPelabuhanData
+                var pelabuhanTujuan = StaticDataHelper.AllPelabuhanData
                     .FirstOrDefault(p => ((dynamic)p).pelabuhan_id == jadwal.pelabuhan_tujuan_id);
                 var namaTujuanData = (dynamic)pelabuhanTujuan!;
                 

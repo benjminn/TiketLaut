@@ -95,12 +95,17 @@ static async Task InitializeDatabaseAsync(WebApplication app)
 
         logger.LogInformation("✅ Database connection successful");
 
-        // Ensure database is created and up to date
+        // In development, apply migrations and seed data
         if (app.Environment.IsDevelopment())
         {
             logger.LogInformation("🔄 Applying database migrations...");
             await context.Database.MigrateAsync();
             logger.LogInformation("✅ Database migrations applied successfully");
+
+            // Seed initial data
+            logger.LogInformation("🌱 Seeding initial data...");
+            await DbSeeder.SeedAsync(context, logger);
+            logger.LogInformation("✅ Database seeding completed");
         }
         else
         {
