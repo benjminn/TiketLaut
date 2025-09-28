@@ -1,6 +1,4 @@
 # 🚢 TiketLaut - Aplikasi Tiket Kapal Laut
-
-Sistem pemesanan tiket kapal laut berbasis API dengan integrasi database Supabase. Aplikasi ini menyediakan layanan booking tiket online.
 Nggak perlu lagi antre panjang di pelabuhan atau bingung cari jadwal kapal. Dengan KapalKlik (TiketLaut), kamu bisa cek jadwal, pilih rute, booking tiket, sampai bayar, all in one click!
 
 ## 👥 Tim Pengembang - Ikan Asap Pak Be
@@ -105,7 +103,7 @@ Contoh: feat(api): Creating booking endpoint
 Berikut adalah rancangan class diagram yang dibuat
 
 <div style="text-align: center;">
-  <img alt="Class Diagram" src="./.docs/class-diagram.png" width="550px" style="display: block; margin: auto;"/>
+  <img alt="Class Diagram" src="./.docs/class-diagram.jpg" width="550px" style="display: block; margin: auto;"/>
 </div>
 
 ## Entity Relation Diagram
@@ -113,6 +111,6 @@ Berikut adalah rancangan class diagram yang dibuat
 Berikut adalah rancangan erd yang dibuat
 
 <div style="text-align: center;">
-  <img alt="ERD" src="./.docs/erd.jpg" width="550px" style="display: block; margin: auto;"/>
+  <img alt="ERD" src="./.docs/ERD.jpg" width="550px" style="display: block; margin: auto;"/>
 </div>
 
