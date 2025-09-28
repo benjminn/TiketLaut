@@ -1,73 +1,108 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace KapalKlik
+namespace TiketLaut.Services
 {
     /// <summary>
-    /// Class untuk menangani sistem broadcast notifikasi dari admin
+    /// Service untuk menangani sistem notifikasi broadcast dan personal
+    /// Mendukung notifikasi untuk perubahan jadwal, pembatalan, dan informasi umum
     /// </summary>
     public class NotificationService
     {
+        // Storage untuk history broadcast notifications
         private List<Notifikasi> broadcastHistory = new List<Notifikasi>();
-        
+
         /// <summary>
         /// Mengirim notifikasi broadcast ke semua pengguna
         /// </summary>
-        public void SendBroadcastNotification(Admin admin, string message, JenisNotifikasi type, Jadwal? relatedSchedule = null)
+        public void SendBroadcastNotification(Admin admin, string message, string type, Jadwal? relatedSchedule = null)
         {
             var broadcast = new Notifikasi
             {
-                notifikasi_id = GenerateNotificationId(),
-                admin = admin,
+                notifikasi_id = broadcastHistory.Count + 1,
                 admin_id = admin.admin_id,
-                jenis = type,
                 pesan = message,
-                is_broadcast = true,
-                jadwal = relatedSchedule,
-                jadwal_id = relatedSchedule?.jadwal_id,
                 waktu_kirim = DateTime.Now,
-                status_baca = "Terkirim"
+                jadwal_id = relatedSchedule?.jadwal_id
             };
-            
-            broadcast.kirimBroadcastNotifikasi();
+
             broadcastHistory.Add(broadcast);
+
+            // Simulasi pengiriman ke semua pengguna
+            Console.WriteLine($"[BROADCAST] {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
+            Console.WriteLine($"Dari: {admin.nama} ({admin.username})");
+            Console.WriteLine($"Tipe: {type}");
+            Console.WriteLine($"Pesan: {message}");
             
-            Console.WriteLine($"📢 BROADCAST: {broadcast.pesan}");
-            Console.WriteLine($"   Dikirim oleh: {admin.nama} pada {broadcast.waktu_kirim:yyyy-MM-dd HH:mm:ss}");
+            if (relatedSchedule != null)
+            {
+                Console.WriteLine($"Terkait Jadwal ID: {relatedSchedule.jadwal_id}");
+            }
+            
+            Console.WriteLine("Status: Terkirim ke semua pengguna");
+            Console.WriteLine(new string('-', 50));
         }
-        
+
         /// <summary>
-        /// Mengirim notifikasi perubahan jadwal secara khusus
+        /// Mengirim notifikasi untuk perubahan jadwal
         /// </summary>
         public void SendScheduleChangeNotification(Admin admin, Jadwal oldSchedule, Jadwal newSchedule, string reason)
         {
-            string message = $"🚨 PERUBAHAN JADWAL:\n" +
-                           $"Rute: Pelabuhan ID {oldSchedule.pelabuhan_asal_id} → {oldSchedule.pelabuhan_tujuan_id}\n" +
-                           $"Jadwal LAMA: {oldSchedule.tanggal_berangkat:dd/MM/yyyy} pukul {oldSchedule.waktu_berangkat}\n" +
-                           $"Jadwal BARU: {newSchedule.tanggal_berangkat:dd/MM/yyyy} pukul {newSchedule.waktu_berangkat}\n" +
-                           $"Alasan: {reason}\n" +
-                           $"Mohon cek kembali tiket Anda dan lakukan penyesuaian jika diperlukan.";
-            
-            SendBroadcastNotification(admin, message, JenisNotifikasi.Update, newSchedule);
+            var message = $"PERUBAHAN JADWAL - Jadwal ID {oldSchedule.jadwal_id} telah diubah. " +
+                         $"Waktu baru: {newSchedule.waktu_berangkat} - {newSchedule.waktu_tiba}. " +
+                         $"Alasan: {reason}";
+
+            SendBroadcastNotification(admin, message, "Update", newSchedule);
+
+            // Log khusus untuk perubahan jadwal
+            Console.WriteLine($"[SCHEDULE CHANGE] Jadwal {oldSchedule.jadwal_id} diubah oleh {admin.nama}");
         }
-        
+
         /// <summary>
-        /// Mendapatkan riwayat notifikasi broadcast
+        /// Mendapatkan history broadcast notifications
         /// </summary>
         public List<Notifikasi> GetBroadcastHistory()
         {
-            return broadcastHistory.OrderByDescending(n => n.waktu_kirim).ToList();
+            return broadcastHistory.OrderByDescending(x => x.waktu_kirim).ToList();
         }
-        
+
         /// <summary>
-        /// Generate ID unik untuk notifikasi
+        /// Mengirim notifikasi personal ke pengguna tertentu
         /// </summary>
-        private int GenerateNotificationId()
+        public void SendPersonalNotification(Pengguna pengguna, string message, string type = "Info")
         {
-            return broadcastHistory.Count + 1;
+            var notification = new Notifikasi
+            {
+                notifikasi_id = new Random().Next(1000, 9999),
+                pengguna_id = pengguna.pengguna_id,
+                pesan = message,
+                waktu_kirim = DateTime.Now
+            };
+
+            Console.WriteLine($"[PERSONAL] {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
+            Console.WriteLine($"Kepada: {pengguna.nama} ({pengguna.email})");
+            Console.WriteLine($"Tipe: {type}");
+            Console.WriteLine($"Pesan: {message}");
+            Console.WriteLine("Status: Terkirim");
+            Console.WriteLine(new string('-', 50));
+        }
+
+        /// <summary>
+        /// Menampilkan statistik notifikasi
+        /// </summary>
+        public void ShowNotificationStats()
+        {
+            Console.WriteLine("=== STATISTIK NOTIFIKASI ===");
+            Console.WriteLine($"Total Broadcast Terkirim: {broadcastHistory.Count}");
+            Console.WriteLine($"Notifikasi Hari Ini: {broadcastHistory.Count(x => x.waktu_kirim.Date == DateTime.Today)}");
+            
+            if (broadcastHistory.Any())
+            {
+                var latest = broadcastHistory.OrderByDescending(x => x.waktu_kirim).First();
+                Console.WriteLine($"Broadcast Terakhir: {latest.waktu_kirim:yyyy-MM-dd HH:mm:ss}");
+                Console.WriteLine($"Pesan Terakhir: {latest.pesan.Substring(0, Math.Min(50, latest.pesan.Length))}...");
+            }
         }
     }
 }

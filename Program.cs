@@ -1,6 +1,6 @@
-﻿using System;
+using System;
 
-namespace KapalKlik
+namespace TiketLaut
 {
     class Program
     {
@@ -8,15 +8,23 @@ namespace KapalKlik
         {
             Console.WriteLine("=== APLIKASI TIKET KAPAL LAUT ===");
             Console.WriteLine("Selamat datang di aplikasi KapalKlik!");
-            
-            // Contoh penggunaan class-class yang telah dibuat
-            DemostrateClasses();
-            
-            Console.WriteLine("\nTekan sembarang tombol untuk keluar...");
+            Console.WriteLine();
+
+            try
+            {
+                // Demo penggunaan models yang sudah disesuaikan dengan schema
+                DemoModels();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+            }
+
+            Console.WriteLine("\nTekan any key untuk keluar...");
             Console.ReadKey();
         }
-        
-        static void DemostrateClasses()
+
+        static void DemoModels()
         {
             // Membuat instance Admin
             var admin = new Admin
@@ -25,7 +33,8 @@ namespace KapalKlik
                 nama = "Admin System",
                 username = "admin",
                 email = "admin@kapalklik.com",
-                password = "admin123"
+                password = "admin123",
+                role = "SuperAdmin"
             };
             
             // Membuat instance Pengguna
@@ -34,32 +43,34 @@ namespace KapalKlik
                 pengguna_id = 1,
                 nama = "John Doe",
                 email = "john@email.com",
-                umur = 25,
+                password = "password123",
                 jenis_kelamin = "Laki-laki",
-                tanggal_lahir = new DateTime(1999, 5, 15),
+                tanggal_lahir = new DateOnly(1999, 5, 15),
                 kewarganegaraan = "Indonesia",
+                no_hp = "081234567890",
                 alamat = "Jakarta"
             };
             
-            // Membuat instance Pelabuhan
+            // Membuat instance Pelabuhan Asal
             var pelabuhanAsal = new Pelabuhan
             {
                 pelabuhan_id = 1,
                 nama_pelabuhan = "Pelabuhan Merak",
                 kota = "Cilegon",
                 provinsi = "Banten",
-                fasilitas = "Parkir, Toilet, Mushola, Kantin",
+                fasilitas = "Terminal penumpang, parkir kendaraan, mushola",
                 deskripsi = "Pelabuhan utama penyeberangan Jawa-Sumatera"
             };
             
+            // Membuat instance Pelabuhan Tujuan
             var pelabuhanTujuan = new Pelabuhan
             {
                 pelabuhan_id = 2,
                 nama_pelabuhan = "Pelabuhan Bakauheni",
                 kota = "Lampung Selatan",
                 provinsi = "Lampung",
-                fasilitas = "Parkir, Toilet, Mushola, Kantin, Ruang Tunggu",
-                deskripsi = "Pelabuhan penyeberangan di ujung selatan Sumatera"
+                fasilitas = "Terminal penumpang, area tunggu ber-AC, food court",
+                deskripsi = "Pintu gerbang Pulau Sumatera"
             };
             
             // Membuat instance Kapal
@@ -67,8 +78,8 @@ namespace KapalKlik
             {
                 kapal_id = 1,
                 nama_kapal = "KMP Legundi",
-                kapasitas_penumpang_id = 500,
-                kapasitas_kendaraan = 50,
+                kapasitas_penumpang_max = 500,
+                kapasitas_kendaraan_max = 50,
                 fasilitas = "AC, Mushola, Kantin, Ruang VIP",
                 deskripsi = "Kapal ferry modern dengan fasilitas lengkap"
             };
@@ -79,68 +90,78 @@ namespace KapalKlik
                 jadwal_id = 1,
                 pelabuhan_asal_id = pelabuhanAsal.pelabuhan_id,
                 pelabuhan_tujuan_id = pelabuhanTujuan.pelabuhan_id,
-                kelas = "Ekonomi",
-                tanggal_berangkat = DateTime.Today.AddDays(1),
-                waktu_berangkat = new TimeSpan(8, 0, 0),
-                waktu_tiba = new TimeSpan(10, 30, 0),
-                status = StatusTiket.Successful
+                kapal_id = kapal.kapal_id,
+                waktu_berangkat = new TimeOnly(8, 0, 0),
+                waktu_tiba = new TimeOnly(10, 30, 0),
+                sisa_kapasitas_penumpang = 450, // Max 500, sudah terisi 50
+                sisa_kapasitas_kendaraan = 48,  // Max 50, sudah terisi 2
+                status = "Active"
+            };
+            
+            // Membuat instance DetailKendaraan untuk jadwal
+            var detailKendaraan = new DetailKendaraan
+            {
+                detail_kendaraan_id = 1,
+                jadwal_id = jadwal.jadwal_id,
+                jenis_kendaraan = (int)JenisKendaraan.Jalan_Kaki,
+                harga_kendaraan = 150000,
+                bobot_unit = 1,
+                deskripsi = "Penumpang pejalan kaki",
+                spesifikasi_ukuran = "1 orang dewasa"
             };
             
             // Membuat instance Tiket
             var tiket = new Tiket
             {
                 tiket_id = 1,
-                total_harga = 25000,
+                pengguna_id = pengguna.pengguna_id,
+                jadwal_id = jadwal.jadwal_id,
+                total_harga = 150000,
                 tanggal_pemesanan = DateTime.Now,
-                jenis_kendaraan = JenisKendaraan.Sepeda_Motor,
-                status = StatusTiket.Successful
+                jumlah_penumpang = 1,
+                jenis_kendaraan_enum = "Jalan Kaki",
+                status_tiket = "Booked",
+                kode_tiket = "TKT20240101000001"
             };
-            
+
             // Membuat instance Pembayaran
             var pembayaran = new Pembayaran
             {
                 pembayaran_id = 1,
+                tiket_id = tiket.tiket_id,
                 metode_pembayaran = "Transfer Bank",
                 jumlah_bayar = tiket.total_harga,
-                tanggal_bayar = DateTime.Now
+                tanggal_bayar = DateTime.Now,
+                status_bayar = "Confirmed"
             };
-            
-            // Membuat instance Notifikasi broadcast dari admin
-            Console.WriteLine("\n=== DEMO NOTIFIKASI BROADCAST ===");
-            
-            // Admin mengirim notifikasi broadcast umum
-            admin.kirimNotifikasiBroadcast(
-                "Selamat datang di KapalKlik! Nikmati kemudahan booking tiket online.", 
-                JenisNotifikasi.Update
-            );
-            
-            // Admin mengirim notifikasi perubahan jadwal
-            admin.kirimNotifikasiPerubahanJadwal(jadwal, "Cuaca buruk");
-            
-            // Contoh notifikasi personal (bukan broadcast)
-            var notifikasiPersonal = new Notifikasi
-            {
-                notifikasi_id = 2,
-                jenis = JenisNotifikasi.Pengingatkan,
-                pesan = "Jangan lupa keberangkatan Anda besok pukul 08:00",
-                admin = admin,
-                admin_id = admin.admin_id,
-                pengguna = pengguna,
-                pengguna_id = pengguna.pengguna_id,
-                is_broadcast = false
-            };
-            notifikasiPersonal.kirimNotifikasi();
-            
-            // Menampilkan informasi
-            Console.WriteLine($"Admin: {admin.nama} berhasil login: {admin.login()}");
-            Console.WriteLine($"Pengguna: {pengguna.nama} terdaftar dengan email: {pengguna.email}");
-            Console.WriteLine($"Kapal: {kapal.nama_kapal} dengan kapasitas {kapal.kapasitas_penumpang_id} penumpang");
-            Console.WriteLine($"Rute: {pelabuhanAsal.nama_pelabuhan} -> {pelabuhanTujuan.nama_pelabuhan}");
-            Console.WriteLine($"Jadwal: {jadwal.tanggal_berangkat:dd/MM/yyyy} pukul {jadwal.waktu_berangkat}");
-            Console.WriteLine($"Tiket: {tiket.tiket_id} dengan harga Rp {tiket.total_harga:N0}");
-            Console.WriteLine($"Pembayaran: {pembayaran.metode_pembayaran} sebesar Rp {pembayaran.jumlah_bayar:N0}");
-            Console.WriteLine($"Notifikasi Personal: {notifikasiPersonal.pesan}");
-            Console.WriteLine($"Status Broadcast: Admin dapat mengirim notifikasi ke semua pengguna");
+
+            // Demo output
+            Console.WriteLine("=== DEMO APLIKASI TIKET KAPAL LAUT ===");
+            Console.WriteLine();
+
+            pengguna.tampilkanProfil();
+            Console.WriteLine();
+
+            pelabuhanAsal.tampilkanInfoPelabuhan();
+            Console.WriteLine();
+
+            pelabuhanTujuan.tampilkanInfoPelabuhan();
+            Console.WriteLine();
+
+            kapal.tampilkanInfoKapal();
+            Console.WriteLine();
+
+            jadwal.tampilkanDetailJadwal();
+            Console.WriteLine();
+
+            tiket.tampilkanDetailTiket();
+            Console.WriteLine();
+
+            Console.WriteLine($"Kapal: {kapal.nama_kapal} dengan kapasitas {kapal.kapasitas_penumpang_max} penumpang");
+            Console.WriteLine($"Rute: {pelabuhanAsal.nama_pelabuhan} → {pelabuhanTujuan.nama_pelabuhan}");
+            Console.WriteLine($"Status Pembayaran: {pembayaran.status_bayar}");
+            Console.WriteLine();
+            Console.WriteLine("=== SEMUA MODELS BERHASIL DISESUAIKAN DENGAN SCHEMA ===");
         }
     }
 }

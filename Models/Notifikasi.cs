@@ -3,25 +3,46 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TiketLaut
 {
+    [Table("Notifikasi")]
     public class Notifikasi
     {
-        public int notifikasi_id { get; set; }
-        public JenisNotifikasi jenis_enum_penumpang_update_status { get; set; }
-        public string pesan { get; set; } = string.Empty;
-        public DateTime waktu_kirim { get; set; }
-        public bool status_baca { get; set; } = false;
-        public bool is_broadcast { get; set; } = false; // Menandakan apakah ini broadcast
+        [Key]                                           // PRIMARY KEY
+        public int notifikasi_id { get; set; }          // integer GENERATED ALWAYS AS IDENTITY
         
-        // Navigational properties
-        public Admin admin { get; set; } = null!; // Admin yang mengirim notifikasi
-        public int admin_id { get; set; }
-        public Pengguna? pengguna { get; set; } = null; // Null jika broadcast ke semua
-        public int? pengguna_id { get; set; } = null; // Null jika broadcast ke semua
-        public Jadwal? jadwal { get; set; } = null; // Jadwal yang berubah (jika ada)
-        public int? jadwal_id { get; set; } = null;
+        [Required]                                      // integer NOT NULL
+        public int pengguna_id { get; set; }            // FK to Pengguna
+        
+        [Required]                                      // character varying NOT NULL
+        public string jenis_enum_penumpang_update_status { get; set; } = string.Empty;
+        
+        [Required]                                      // text NOT NULL
+        public string pesan { get; set; } = string.Empty;
+        
+        [Required]                                      // timestamp with time zone NOT NULL DEFAULT now()
+        public DateTime waktu_kirim { get; set; } = DateTime.Now;
+        
+        [Required]                                      // boolean NOT NULL DEFAULT false
+        public bool status_baca { get; set; } = false;
+        
+        [Required]                                      // integer NOT NULL
+        public int admin_id { get; set; }               // FK to Admin
+        
+        public int? jadwal_id { get; set; }             // integer (nullable)
+        
+        // Navigation properties
+        [ForeignKey("pengguna_id")]
+        public Pengguna Pengguna { get; set; } = null!;
+        
+        [ForeignKey("admin_id")]
+        public Admin Admin { get; set; } = null!;
+        
+        [ForeignKey("jadwal_id")]
+        public Jadwal? Jadwal { get; set; }
 
         public void kirimNotifikasi()
         {
@@ -33,7 +54,7 @@ namespace TiketLaut
         public void kirimBroadcastNotifikasi()
         {
             // Implementasi kirim broadcast notifikasi ke semua pengguna
-            is_broadcast = true;
+            // Broadcast ditandai dengan pengguna_id = 0
             waktu_kirim = DateTime.Now;
             status_baca = false;
         }

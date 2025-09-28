@@ -1,23 +1,26 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TiketLaut
 {
+    [Table("rincian_penumpang")]
     public class RincianPenumpang
     {
+        [Key]
         public int rincian_penumpang_id { get; set; }
         
-        // Foreign key ke Penumpang
-        public int NIK_penumpang { get; set; }
+        [ForeignKey("tiket")]
+        public int tiket_id { get; set; }
         
-        // Navigation property
-        public Penumpang penumpang { get; set; } = null!;
+        [ForeignKey("penumpang")]
+        public string NIK_penumpang { get; set; } = string.Empty;
         
-        // Additional properties yang mungkin diperlukan
+        [StringLength(200)]
         public string keterangan { get; set; } = string.Empty;
-        public DateTime tanggal_registrasi { get; set; } = DateTime.Now;
+
+        // Navigation properties
+        public Tiket tiket { get; set; } = null!;
+        public Penumpang penumpang { get; set; } = null!;
     }
 }

@@ -3,164 +3,81 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TiketLaut
 {
+    [Table("Tiket")]
     public class Tiket
     {
-        public int tiket_id { get; set; }
-        public double total_harga { get; private set; }
-        public DateTime tanggal_pemesanan { get; set; }
-        public string jenis_kendaraan { get; set; } = string.Empty;
-        public StatusTiket status { get; set; }
+        [Key]                                           // PRIMARY KEY
+        public int tiket_id { get; set; }               // integer GENERATED ALWAYS AS IDENTITY
         
-        // Data penumpang
-        public int jumlah_penumpang { get; set; } = 1;
+        [Required]                                      // integer NOT NULL
+        public int pengguna_id { get; set; }            // FK to Pengguna
+        
+        [Required]                                      // integer NOT NULL  
+        public int jadwal_id { get; set; }              // FK to Jadwal
+        
+        [Required]                                      // character varying NOT NULL UNIQUE
+        public string kode_tiket { get; set; } = string.Empty;
+        
+        [Required]                                      // integer NOT NULL CHECK >= 0
+        public int jumlah_penumpang { get; set; }
+        
+        [Required]                                      // numeric NOT NULL CHECK > 0
+        public decimal total_harga { get; set; }
+        
+        [Required]                                      // timestamp with time zone NOT NULL DEFAULT now()
+        public DateTime tanggal_pemesanan { get; set; } = DateTime.Now;
+        
+        [Required]                                      // character varying NOT NULL
+        public string status_tiket { get; set; } = string.Empty;
+        
+        [Required]                                      // character varying NOT NULL
+        public string jenis_kendaraan_enum { get; set; } = string.Empty;
         
         // Navigation properties
-        public List<BookingKendaraan> booking_kendaraans { get; set; } = new List<BookingKendaraan>();
+        [ForeignKey("pengguna_id")]
+        public Pengguna Pengguna { get; set; } = null!;
         
-        // Foreign keys
-        public int jadwal_id { get; set; }
-        public int pengguna_id { get; set; }
+        [ForeignKey("jadwal_id")]
+        public Jadwal Jadwal { get; set; } = null!;
+
         
-        // Navigation properties
-        public Jadwal jadwal { get; set; } = null!;
-        public Pengguna pengguna { get; set; } = null!;
+        public List<RincianPenumpang> RincianPenumpangs { get; set; } = new List<RincianPenumpang>();
+        
+        public List<Pembayaran> Pembayarans { get; set; } = new List<Pembayaran>();
 
         public bool buatTiket()
         {
-            // Validasi kapasitas kapal
-            if (jadwal?.kapal != null)
-            {
-                // Cek kapasitas penumpang
-                if (!jadwal.kapal.CekKapasitasPenumpang(jumlah_penumpang))
-                {
-                    Console.WriteLine("Kapasitas penumpang tidak mencukupi!");
-                    return false;
-                }
-
-                // Cek kapasitas kendaraan
-                int totalBobotKendaraan = booking_kendaraans.Sum(bk => bk.total_bobot);
-                if (totalBobotKendaraan > 0 && !jadwal.kapal.CekKapasitasKendaraan(totalBobotKendaraan))
-                {
-                    Console.WriteLine("Kapasitas kendaraan tidak mencukupi!");
-                    return false;
-                }
-
-                // Book kapasitas jika tersedia
-                if (jadwal.kapal.BookingPenumpang(jumlah_penumpang))
-                {
-                    foreach (var bookingKendaraan in booking_kendaraans)
-                    {
-                        if (!jadwal.kapal.BookingKendaraan(bookingKendaraan.jenis_kendaraan, bookingKendaraan.jumlah))
-                        {
-                            // Rollback jika gagal booking kendaraan
-                            jadwal.kapal.CancelBookingPenumpang(jumlah_penumpang);
-                            return false;
-                        }
-                    }
-                    
-                    status = StatusTiket.Pending;
-                    tanggal_pemesanan = DateTime.Now;
-                    HitungTotalHarga();
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        // Method untuk menambah kendaraan ke tiket
-        public bool TambahKendaraan(JenisKendaraan jenisKendaraan, int jumlah = 1, string platNomor = "", string merkKendaraan = "")
-        {
-            var bookingKendaraan = new BookingKendaraan
-            {
-                tiket_id = this.tiket_id,
-                jenis_kendaraan = jenisKendaraan,
-                jumlah = jumlah,
-                plat_nomor = platNomor,
-                merk_kendaraan = merkKendaraan,
-                tiket = this
-            };
-            
-            bookingKendaraan.HitungTotalBobot();
-            booking_kendaraans.Add(bookingKendaraan);
-            
-            HitungTotalHarga();
+            // Generate kode tiket unik
+            kode_tiket = $"TKT{DateTime.Now:yyyyMMdd}{tiket_id:D6}";
+            tanggal_pemesanan = DateTime.Now;
+            status_tiket = "Booked";
             return true;
         }
 
-        // Method untuk menghitung total harga berdasarkan sistem baru
-        public void HitungTotalHarga()
+        public void konfirmasiPembayaran()
         {
-            if (jadwal == null)
-            {
-                total_harga = 0;
-                return;
-            }
+            status_tiket = "Paid";
+            Console.WriteLine($"Pembayaran tiket {kode_tiket} telah dikonfirmasi.");
+        }
 
-            // Jika ada kendaraan, hitung berdasarkan golongan kendaraan
-            if (booking_kendaraans.Any())
-            {
-                total_harga = 0;
-                foreach (var booking in booking_kendaraans)
-                {
-                    // Harga kendaraan sudah include 1 penumpang
-                    total_harga += (double)jadwal.GetHargaByJenisKendaraan(booking.jenis_kendaraan) * booking.jumlah;
-                }
-                
-                // Tambahan penumpang di atas 1 (karena harga kendaraan sudah include 1 penumpang)
-                if (jumlah_penumpang > 1)
-                {
-                    total_harga += (double)jadwal.harga_penumpang * (jumlah_penumpang - 1);
-                }
-            }
-            else
-            {
-                // Jika jalan kaki, hitung berdasarkan jumlah penumpang
-                total_harga = (double)jadwal.harga_penumpang * jumlah_penumpang;
-            }
+        public void batalkanTiket()
+        {
+            status_tiket = "Cancelled";
+            Console.WriteLine($"Tiket {kode_tiket} telah dibatalkan.");
         }
 
         public void tampilkanDetailTiket()
         {
-            Console.WriteLine($"=== DETAIL TIKET {tiket_id} ===");
+            Console.WriteLine($"=== DETAIL TIKET {kode_tiket} ===");
             Console.WriteLine($"Tanggal Pemesanan: {tanggal_pemesanan:dd/MM/yyyy HH:mm}");
-            Console.WriteLine($"Status: {status}");
+            Console.WriteLine($"Status: {status_tiket}");
             Console.WriteLine($"Jumlah Penumpang: {jumlah_penumpang}");
-            
-            if (jadwal != null)
-            {
-                Console.WriteLine($"Kelas: {jadwal.kelas}");
-                Console.WriteLine($"Tanggal Keberangkatan: {jadwal.tanggal_berangkat:dd/MM/yyyy}");
-                Console.WriteLine($"Jam Keberangkatan: {jadwal.waktu_berangkat}");
-            }
-            
-            if (booking_kendaraans.Any())
-            {
-                Console.WriteLine("Kendaraan:");
-                foreach (var booking in booking_kendaraans)
-                {
-                    var detail = DetailKendaraan.GetDetailKendaraan(booking.jenis_kendaraan);
-                    decimal hargaKendaraan = jadwal?.GetHargaByJenisKendaraan(booking.jenis_kendaraan) ?? 0;
-                    
-                    Console.WriteLine($"  - {detail.Deskripsi} (x{booking.jumlah})");
-                    Console.WriteLine($"    Harga: Rp {hargaKendaraan:N0} (sudah termasuk 1 penumpang)");
-                }
-                
-                // Tambahan penumpang
-                if (jumlah_penumpang > 1)
-                {
-                    Console.WriteLine($"Tambahan Penumpang: {jumlah_penumpang - 1} orang");
-                    Console.WriteLine($"Harga per penumpang: Rp {jadwal?.harga_penumpang ?? 0:N0}");
-                }
-            }
-            else
-            {
-                Console.WriteLine($"Penumpang Jalan Kaki: {jumlah_penumpang} orang");
-                Console.WriteLine($"Harga per penumpang: Rp {jadwal?.harga_penumpang ?? 0:N0}");
-            }
-            
+            Console.WriteLine($"Jenis Kendaraan: {jenis_kendaraan_enum}");
             Console.WriteLine($"TOTAL HARGA: Rp {total_harga:N0}");
         }
 
@@ -169,32 +86,6 @@ namespace TiketLaut
             Console.WriteLine("=== TIKET KAPAL LAUT ===");
             tampilkanDetailTiket();
             Console.WriteLine("Simpan tiket ini sebagai bukti pembayaran.");
-        }
-
-        public void konfirmasiPembayaran()
-        {
-            if (status == StatusTiket.Pending)
-            {
-                status = StatusTiket.Successful;
-                Console.WriteLine($"Pembayaran tiket {tiket_id} telah dikonfirmasi.");
-            }
-        }
-
-        public void batalkanTiket()
-        {
-            if (status != StatusTiket.Cancelled && jadwal?.kapal != null)
-            {
-                // Kembalikan kapasitas kapal
-                jadwal.kapal.CancelBookingPenumpang(jumlah_penumpang);
-                
-                foreach (var booking in booking_kendaraans)
-                {
-                    jadwal.kapal.CancelBookingKendaraan(booking.jenis_kendaraan, booking.jumlah);
-                }
-                
-                status = StatusTiket.Cancelled;
-                Console.WriteLine($"Tiket {tiket_id} telah dibatalkan.");
-            }
         }
     }
 }

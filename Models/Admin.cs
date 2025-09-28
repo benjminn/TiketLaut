@@ -3,17 +3,31 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TiketLaut
 {
+    [Table("Admin")]  // Sesuai schema: public.Admin
     public class Admin
     {
-        public int admin_id { get; set; } // Primary Key
+        [Key]                                           // PRIMARY KEY
+        public int admin_id { get; set; }               // integer GENERATED ALWAYS AS IDENTITY
+        
+        [Required]                                      // character varying NOT NULL
         public string nama { get; set; } = string.Empty;
+        
+        [Required]                                      // character varying NOT NULL UNIQUE
         public string username { get; set; } = string.Empty;
+        
+        [Required]                                      // character varying NOT NULL UNIQUE
         public string email { get; set; } = string.Empty;
+        
+        [Required]                                      // character varying NOT NULL
         public string password { get; set; } = string.Empty;
-        public AdminRole role { get; set; } = AdminRole.OperationAdmin; // Default role pake operationadmin
+        
+        [Required]                                      // character varying NOT NULL
+        public string role { get; set; } = string.Empty;
 
         public bool login()
         {
@@ -23,8 +37,8 @@ namespace TiketLaut
 
         public bool canCreateAdmin()
         {
-            // SuperAdmin bisa buat admin baru
-            return role == AdminRole.SuperAdmin;
+            // SuperAdmin bisa buat admin baru 
+            return role == "SuperAdmin" || role == "super_admin";
         }
 
         public void kelolaPembayaran()
@@ -57,16 +71,18 @@ namespace TiketLaut
             // Implementasi kelola pelabuhan
         }
 
-        public void kirimNotifikasiBroadcast(string pesan, JenisNotifikasi jenis, Jadwal? jadwal = null)
+        public void kirimNotifikasiBroadcast(string pesan, string jenisNotifikasi, Jadwal? jadwal = null)
         {
             // Implementasi kirim notifikasi broadcast ke semua pengguna
             var notifikasi = new Notifikasi
             {
                 pengguna_id = 0, // 0 untuk broadcast
-                jenis_enum_penumpang_update_status = jenis.ToString(),
+                jenis_enum_penumpang_update_status = jenisNotifikasi,
                 pesan = pesan,
                 waktu_kirim = DateTime.Now,
-                status_baca = false
+                status_baca = false,
+                admin_id = this.admin_id,
+                jadwal_id = jadwal?.jadwal_id
             };
             notifikasi.kirimNotifikasi();
         }
@@ -77,10 +93,9 @@ namespace TiketLaut
             string pesanNotifikasi = $"PEMBERITAHUAN PERUBAHAN JADWAL: " +
                 $"Jadwal keberangkatan dari Pelabuhan ID {jadwal.pelabuhan_asal_id} " +
                 $"ke Pelabuhan ID {jadwal.pelabuhan_tujuan_id} " +
-                $"pada {jadwal.tanggal_berangkat:dd/MM/yyyy} jam {jadwal.waktu_berangkat} " +
                 $"mengalami perubahan. Alasan: {alasanPerubahan}. " +
                 $"Mohon cek aplikasi untuk update terbaru.";
-            kirimNotifikasiBroadcast(pesanNotifikasi, JenisNotifikasi.Update, jadwal);
+            kirimNotifikasiBroadcast(pesanNotifikasi, "Update", jadwal);
         }
     }
 }
