@@ -69,6 +69,7 @@ namespace TiketLaut
         {
             status_tiket = "Cancelled";
             Console.WriteLine($"Tiket {kode_tiket} telah dibatalkan.");
+
         }
 
         public void tampilkanDetailTiket()
@@ -86,6 +87,7 @@ namespace TiketLaut
             Console.WriteLine("=== TIKET KAPAL LAUT ===");
             tampilkanDetailTiket();
             Console.WriteLine("Simpan tiket ini sebagai bukti pembayaran.");
+
         }
     }
 }

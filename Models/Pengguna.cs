@@ -13,6 +13,7 @@ namespace TiketLaut
         
         [Required]
         [StringLength(100)]
+
         public string nama { get; set; } = string.Empty;
         
         [Required]

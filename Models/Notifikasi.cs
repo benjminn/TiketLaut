@@ -21,6 +21,7 @@ namespace TiketLaut
         public string jenis_enum_penumpang_update_status { get; set; } = string.Empty;
         
         [Required]                                      // text NOT NULL
+
         public string pesan { get; set; } = string.Empty;
         
         [Required]                                      // timestamp with time zone NOT NULL DEFAULT now()
@@ -44,6 +45,7 @@ namespace TiketLaut
         [ForeignKey("jadwal_id")]
         public Jadwal? Jadwal { get; set; }
 
+
         public void kirimNotifikasi()
         {
             // Implementasi kirim notifikasi
@@ -64,7 +66,7 @@ namespace TiketLaut
             // Implementasi tandai sebagai sudah dibaca
             status_baca = true;
         }
-        
+
         public void tampilkanNotifikasi()
         {
             Console.WriteLine($"[{waktu_kirim:dd/MM/yyyy HH:mm}] {pesan}");
@@ -73,7 +75,7 @@ namespace TiketLaut
                 Console.WriteLine("(Belum dibaca)");
             }
         }
-        
+
         public void updateStatusBaca()
         {
             status_baca = true;

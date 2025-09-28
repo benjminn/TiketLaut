@@ -15,6 +15,7 @@ namespace TiketLaut
         public int tiket_id { get; set; }
         
         [StringLength(50)]
+
         public string metode_pembayaran { get; set; } = string.Empty;
         
         [Column(TypeName = "decimal(15,2)")]
