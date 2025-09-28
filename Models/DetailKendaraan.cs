@@ -1,27 +1,37 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TiketLaut
 {
-    // Class untuk detail kendaraan per jadwal - harga berbeda per rute
+    [Table("DetailKendaraan")]
     public class DetailKendaraan
     {
-        public int detail_kendaraan_id { get; set; } // Primary Key
+        [Key]                                           // PRIMARY KEY
+        public int detail_kendaraan_id { get; set; }    // integer GENERATED ALWAYS AS IDENTITY
         
-        // Foreign Key ke Jadwal
-        public int jadwal_id { get; set; }
-        public Jadwal jadwal { get; set; } = null!;
+        [Required]                                      // integer NOT NULL
+        public int jadwal_id { get; set; }              // FK to Jadwal
         
-        // Jenis kendaraan
-        public JenisKendaraan jenis_kendaraan { get; set; }
+        [Required]                                      // integer NOT NULL (enum as int)
+        public int jenis_kendaraan { get; set; }        // Enum as integer
         
-        // Harga untuk jenis kendaraan ini di jadwal ini
+        [Required]                                      // numeric NOT NULL
         public decimal harga_kendaraan { get; set; }
         
-        // Bobot dan spesifikasi
+        [Required]                                      // integer NOT NULL
         public int bobot_unit { get; set; }
+        
+        [Required]                                      // text NOT NULL
         public string deskripsi { get; set; } = string.Empty;
+        
+        [Required]                                      // text NOT NULL
         public string spesifikasi_ukuran { get; set; } = string.Empty;
+        
+        // Navigation property
+        [ForeignKey("jadwal_id")]
+        public Jadwal Jadwal { get; set; } = null!;
         
         // Method untuk membuat detail kendaraan per jadwal
         public static DetailKendaraan CreateForJadwal(int jadwalId, JenisKendaraan jenis, decimal harga)
@@ -31,7 +41,7 @@ namespace TiketLaut
             return new DetailKendaraan
             {
                 jadwal_id = jadwalId,
-                jenis_kendaraan = jenis,
+                jenis_kendaraan = (int)jenis,  // Cast enum to int
                 harga_kendaraan = harga,
                 bobot_unit = specs.Bobot,
                 deskripsi = specs.Deskripsi,
@@ -67,7 +77,7 @@ namespace TiketLaut
             var specs = GetSpecificationByJenis(jenis);
             return new DetailKendaraan
             {
-                jenis_kendaraan = jenis,
+                jenis_kendaraan = (int)jenis,  // Cast enum to int
                 bobot_unit = specs.Bobot,
                 deskripsi = specs.Deskripsi,
                 spesifikasi_ukuran = specs.SpesifikasiUkuran,
@@ -79,15 +89,15 @@ namespace TiketLaut
         public int Bobot => bobot_unit;
         public string Deskripsi => deskripsi;
         public string SpesifikasiUkuran => spesifikasi_ukuran;
-        public JenisKendaraan JenisKendaraan => jenis_kendaraan;
+        public JenisKendaraan JenisKendaraan => (JenisKendaraan)jenis_kendaraan;  // Cast int to enum
 
         public override string ToString()
         {
-            if (jenis_kendaraan == JenisKendaraan.Jalan_Kaki)
+            if (jenis_kendaraan == (int)JenisKendaraan.Jalan_Kaki)  // Cast enum to int for comparison
             {
-                return $"{jenis_kendaraan} - {deskripsi}";
+                return $"{(JenisKendaraan)jenis_kendaraan} - {deskripsi}";
             }
-            return $"{jenis_kendaraan} (Bobot: {bobot_unit}) - {deskripsi} | {spesifikasi_ukuran}";
+            return $"{(JenisKendaraan)jenis_kendaraan} (Bobot: {bobot_unit}) - {deskripsi} | {spesifikasi_ukuran}";
         }
     }
 }

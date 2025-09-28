@@ -1,16 +1,20 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TiketLaut
 {
+    [Table("rincian_penumpang")]
     public class RincianPenumpang
     {
-        public int rincian_penumpang_id { get; set; } // Primary Key
-        public int tiket_id { get; set; } // Foreign Key ke Tiket
-        public int penumpang_id { get; set; } // Foreign Key ke Penumpang
+        [Key]
+        public int rincian_penumpang_id { get; set; }
+        
+        [ForeignKey("tiket")]
+        public int tiket_id { get; set; }
+        
+        [ForeignKey("penumpang")]
+        public int penumpang_id { get; set; };
 
         // Navigation properties
         public Tiket tiket { get; set; } = null!;
