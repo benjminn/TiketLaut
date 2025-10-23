@@ -14,7 +14,7 @@ namespace TiketLaut
         public int tiket_id { get; set; }
         
         [ForeignKey("penumpang")]
-        public int penumpang_id { get; set; };
+        public int penumpang_id { get; set; }
 
         // Navigation properties
         public Tiket tiket { get; set; } = null!;
@@ -35,7 +35,7 @@ namespace TiketLaut
 
             if (tiket != null)
             {
-                Console.WriteLine($"Status Tiket: {tiket.status}");
+                Console.WriteLine($"Status Tiket: {tiket.status_tiket}");
                 Console.WriteLine($"Total Harga: Rp {tiket.total_harga:N0}");
             }
         }
