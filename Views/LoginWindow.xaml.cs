@@ -63,6 +63,11 @@ namespace TiketLaut.Views
         {
 
         }
+
+        private void txtEmail_TextChanged_1()
+        {
+
+        }
     }
 }
 
