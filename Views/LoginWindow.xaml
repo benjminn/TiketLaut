@@ -2,11 +2,11 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="TiketLaut - Login" 
-        Height="1080" 
-        Width="1920"
+        MinHeight="800" 
+        MinWidth="1200"
         WindowState="Maximized"
         WindowStartupLocation="CenterScreen"
-        ResizeMode="NoResize" 
+        ResizeMode="CanResize" 
         ShowInTaskbar="True">
 
     <!-- Background dengan gradient seperti gambar -->
@@ -17,20 +17,18 @@
     <Grid>
         <!-- Grid dengan 2 kolom: kiri untuk logo, kanan untuk form login -->
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="960*"/>
-            <ColumnDefinition Width="959*"/>
+            <ColumnDefinition Width="5*" MinWidth="600"/>
+            <ColumnDefinition Width="5*" MinWidth="500"/>
         </Grid.ColumnDefinitions>
 
         <!-- Panel Kiri - Logo dan Deskripsi -->
-        <Grid HorizontalAlignment="Left" Width="970" Height="1080" VerticalAlignment="Center" Margin="0,0,0,0">
+        <Grid Grid.Column="0">
+
             <!-- Background putih dengan rounded corner -->
             <Border Background="White"
-                        CornerRadius="0,90,90,0"
-                        HorizontalAlignment="Left"
-                        Width="700"
-                        Height="850"
-                        
-                        >
+                    CornerRadius="0,90,90,0"
+                    MaxWidth="1000"
+                    Margin="0,0,0,0">
                 <Border.Effect>
                     <DropShadowEffect 
                         Direction="0" 
@@ -40,24 +38,30 @@
                         Opacity="0.36"/>
                 </Border.Effect>
 
-                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                <StackPanel HorizontalAlignment="Center" 
+                           VerticalAlignment="Center"
+                           Margin="40">
                     <!-- Logo -->
-                    <Viewbox Width="300" Height="250" Margin="0,0,0,30">
+                    <Viewbox MaxWidth="300" 
+                             MaxHeight="250" 
+                             MinWidth="200"
+                             MinHeight="150"
+                             Margin="0,0,0,30">
                         <Image Source="pack://application:,,,/Views/Assets/Images/logo.png"
-                         Stretch="Uniform"
-                         HorizontalAlignment="Center"
-                         VerticalAlignment="Center"/>
+                               Stretch="Uniform"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"/>
                     </Viewbox>
 
                     <!-- Deskripsi -->
-                    <TextBlock 
-                               FontSize="20"
+                    <TextBlock FontSize="20"
                                FontFamily="Plus Jakarta Sans"
                                FontWeight="Bold"
                                Foreground="#042769"
                                HorizontalAlignment="Center"
                                TextAlignment="Center"
-                               Margin="40,0,40,5">
+                               Margin="20,0,20,5"
+                               TextWrapping="Wrap">
                         <Run Text="Pesan tiket kapal ferry ke berbagai pelabuhan"/>
                         <LineBreak/>
                         <Run Text="tujuan hanya dengan sekali klik!"/>
@@ -67,200 +71,210 @@
         </Grid>
 
         <!-- Panel Kanan - Form Login -->
-        <Grid Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Height="650" Width="450">
+        <Grid Grid.Column="1" 
+              HorizontalAlignment="Center" 
+              VerticalAlignment="Stretch"
+              Margin="20">
+
             <!-- Background form login -->
-            <Border Background="White" 
+            <Border Background="White"
+                    BorderBrush="#042769"
+                    BorderThickness="2"
                     CornerRadius="36" 
-                    Width="450" 
-                    Height="650"
-                    HorizontalAlignment="Center">
-                <Border.Effect>
-                    <DropShadowEffect BlurRadius="15" ShadowDepth="3" Opacity="0.2"/>
-                </Border.Effect>
+                    MaxWidth="500"
+                    MinWidth="400"
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Center">
 
-                <StackPanel Margin="32,48,32,48">
-                    <!-- Header Form -->
-                    <TextBlock Text="Masuk" 
-                               FontSize="45" 
-                               Foreground="#352555" 
-                               FontFamily="Plus Jakarta Sans"
-                               FontWeight="Bold"
-                               HorizontalAlignment="Center"/>
+                <ScrollViewer VerticalScrollBarVisibility="Auto" 
+                             HorizontalScrollBarVisibility="Disabled"
+                             Padding="0">
+                    <StackPanel Margin="32,40,32,40">
+                        <!-- Header Form -->
+                        <TextBlock Text="Masuk" 
+                                   FontSize="45"
+                                   Foreground="#352555" 
+                                   FontFamily="Plus Jakarta Sans"
+                                   FontWeight="Bold"
+                                   HorizontalAlignment="Center"
+                                   TextAlignment="Center"/>
 
-                    <TextBlock FontSize="16"
-                               FontFamily="Plus Jakarta Sans"
-                               FontWeight="Medium"
-                               Foreground="#3E4958"
-                               TextAlignment="Center"
-                               Width="380"
-                               Height="40"
-                               Margin="0,8,0,32">
-                        <Run Text="Untuk mendapatkan segala akses dan fasilitas"/>
-                        <LineBreak/>
-                        <Run Text="Tiket Laut, harap login terlebih dahulu"/>
-                    </TextBlock>
+                        <TextBlock FontSize="16"
+                                   FontFamily="Plus Jakarta Sans"
+                                   FontWeight="Medium"
+                                   Foreground="#3E4958"
+                                   TextAlignment="Center"
+                                   TextWrapping="Wrap"
+                                   Margin="0,8,0,25">
+                            <Run Text="Untuk mendapatkan segala akses dan fasilitas"/>
+                            <LineBreak/>
+                            <Run Text="Tiket Laut, harap login terlebih dahulu"/>
+                        </TextBlock>
 
-                    <!-- Input Email -->
-                    <TextBlock Text="Email atau Nomor Handphone" 
-                               FontSize="16"
-                               FontFamily="Plus Jakarta Sans"
-                               Foreground="#011C4B"
-                               Margin="0,0,0,5.25"/>
+                        <!-- Input Email -->
+                        <TextBlock Text="Email atau Nomor Handphone" 
+                                   FontSize="16"
+                                   FontFamily="Plus Jakarta Sans"
+                                   Foreground="#011C4B"
+                                   Margin="0,0,0,5"/>
 
-                    <TextBox x:Name="txtEmail"
-                             Height="40"
-                             Padding="15,10"
-                             FontSize="14"
-                             BorderBrush="#A2A2A2"
-                             BorderThickness="0.5"
-                             Background="#F3F3F3"
-                             Margin="0,0,0,17.63">
-                        <TextBox.Style>
-                            <Style TargetType="{x:Type TextBox}">
-                                <Setter Property="Template">
-                                    <Setter.Value>
-                                        <ControlTemplate TargetType="{x:Type TextBox}">
-                                            <Border Background="{TemplateBinding Background}"
-                                                    BorderBrush="{TemplateBinding BorderBrush}"
-                                                    BorderThickness="{TemplateBinding BorderThickness}"
-                                                    CornerRadius="8">
-                                                <ScrollViewer x:Name="PART_ContentHost" 
-                                                              VerticalAlignment="Center"
-                                                              Margin="10,0"/>
-                                            </Border>
-                                        </ControlTemplate>
-                                    </Setter.Value>
-                                </Setter>
-                            </Style>
-                        </TextBox.Style>
-                    </TextBox>
-
-                    <!-- Input Password -->
-                    <TextBlock Text="Password" 
-                               FontSize="16"
-                               FontFamily="Plus Jakarta Sans"
-                               Foreground="#011C4B"
-                               Margin="0,0,0,5.25"/>
-
-                    <PasswordBox x:Name="txtPassword"
+                        <TextBox x:Name="txtEmail"
                                  Height="40"
                                  Padding="15,10"
                                  FontSize="14"
                                  BorderBrush="#A2A2A2"
                                  BorderThickness="0.5"
                                  Background="#F3F3F3"
-                                 Margin="0,0,0,5.38">
-                        <PasswordBox.Style>
-                            <Style TargetType="{x:Type PasswordBox}">
-                                <Setter Property="Template">
-                                    <Setter.Value>
-                                        <ControlTemplate TargetType="{x:Type PasswordBox}">
-                                            <Border Background="{TemplateBinding Background}"
-                                                    BorderBrush="{TemplateBinding BorderBrush}"
-                                                    BorderThickness="{TemplateBinding BorderThickness}"
-                                                    CornerRadius="8">
-                                                <ScrollViewer x:Name="PART_ContentHost" 
-                                                              VerticalAlignment="Center"
-                                                              Margin="10,0"/>
-                                            </Border>
-                                        </ControlTemplate>
-                                    </Setter.Value>
-                                </Setter>
-                            </Style>
-                        </PasswordBox.Style>
-                    </PasswordBox>
-
-                    <!-- Lupa Kata Sandi -->
-                    <TextBlock Text="Lupa Kata Sandi" 
-                               FontSize="16" 
-                               FontFamily="Plus Jakarta Sans"
-                               Foreground="#0041B3"
-                               HorizontalAlignment="Right"
-                               Margin="0,0,0,26.5"
-                               Cursor="Hand"/>
-
-                    <TextBlock Text="atau" 
-                               FontSize="16"
-                               FontFamily="Plus Jakarta Sans" 
-                               Foreground="#717182"
-                               HorizontalAlignment="Center"
-                               FontStyle="Italic"
-                               Margin="0,0,0,23"/>
-
-                    <!-- Tombol Social Login -->
-                    <Grid Margin="0,0,0,25">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="32"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-
-                        <!-- Tombol Facebook -->
-                        <Button Grid.Column="0" 
-                                x:Name="btnFacebook"
-                                Height="47.26"
-                                Background="#144AE9"
-                                Foreground="White"
-                                FontSize="12"
-                                Click="BtnFacebook_Click">
-                            <Button.Style>
-                                <Style TargetType="{x:Type Button}">
+                                 Margin="0,0,0,15"
+                                 HorizontalAlignment="Stretch" TextChanged="txtEmail_TextChanged_1">
+                            <TextBox.Style>
+                                <Style TargetType="{x:Type TextBox}">
                                     <Setter Property="Template">
                                         <Setter.Value>
-                                            <ControlTemplate TargetType="{x:Type Button}">
-                                                <Border Background="{TemplateBinding Background}"
-                                                        CornerRadius="26">
-                                                    <ContentPresenter HorizontalAlignment="Center"
-                                                                      VerticalAlignment="Center"/>
-                                                </Border>
-                                            </ControlTemplate>
-                                        </Setter.Value>
-                                    </Setter>
-                                </Style>
-                            </Button.Style>
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="f" FontSize="16" FontWeight="Bold" Margin="0,0,5,0" Width="15"/>
-                                <TextBlock Text="Facebook" FontSize="16" FontFamily="Plus Jakarta Sans"/>
-                            </StackPanel>
-                        </Button>
-
-                        <!-- Tombol Google -->
-                        <Button Grid.Column="2" 
-                                x:Name="btnGoogle"
-                                Height="47.26"
-                                Background="White"
-                                BorderBrush="#352555"
-                                BorderThickness="0.88"
-                                Foreground="#001B4A"
-                                Click="BtnGoogle_Click">
-                            <Button.Style>
-                                <Style TargetType="{x:Type Button}">
-                                    <Setter Property="Template">
-                                        <Setter.Value>
-                                            <ControlTemplate TargetType="{x:Type Button}">
+                                            <ControlTemplate TargetType="{x:Type TextBox}">
                                                 <Border Background="{TemplateBinding Background}"
                                                         BorderBrush="{TemplateBinding BorderBrush}"
                                                         BorderThickness="{TemplateBinding BorderThickness}"
-                                                        CornerRadius="26">
-                                                    <ContentPresenter HorizontalAlignment="Center"
-                                                                      VerticalAlignment="Center"/>
+                                                        CornerRadius="8">
+                                                    <ScrollViewer x:Name="PART_ContentHost" 
+                                                                  VerticalAlignment="Center"
+                                                                  Margin="10,0"/>
                                                 </Border>
                                             </ControlTemplate>
                                         </Setter.Value>
                                     </Setter>
                                 </Style>
-                            </Button.Style>
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="G" FontSize="16" FontWeight="Bold" Margin="0,0,5,0" Width="15"/>
-                                <TextBlock Text="Google" FontSize="16" FontFamily="Plus Jakarta Sans"/>
-                            </StackPanel>
-                        </Button>
-                    </Grid>
+                            </TextBox.Style>
+                        </TextBox>
 
-                    <!-- Tombol Masuk -->
-                    <Button x:Name="btnLogin"
+                        <!-- Input Password -->
+                        <TextBlock Text="Password" 
+                                   FontSize="16"
+                                   FontFamily="Plus Jakarta Sans"
+                                   Foreground="#011C4B"
+                                   Margin="0,0,0,5"/>
+
+                        <PasswordBox x:Name="txtPassword"
+                                     Height="40"
+                                     Padding="15,10"
+                                     FontSize="14"
+                                     BorderBrush="#A2A2A2"
+                                     BorderThickness="0.5"
+                                     Background="#F3F3F3"
+                                     Margin="0,0,0,5"
+                                     HorizontalAlignment="Stretch">
+                            <PasswordBox.Style>
+                                <Style TargetType="{x:Type PasswordBox}">
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="{x:Type PasswordBox}">
+                                                <Border Background="{TemplateBinding Background}"
+                                                        BorderBrush="{TemplateBinding BorderBrush}"
+                                                        BorderThickness="{TemplateBinding BorderThickness}"
+                                                        CornerRadius="8">
+                                                    <ScrollViewer x:Name="PART_ContentHost" 
+                                                                  VerticalAlignment="Center"
+                                                                  Margin="10,0"/>
+                                                </Border>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </PasswordBox.Style>
+                        </PasswordBox>
+
+                        <!-- Lupa Kata Sandi -->
+                        <TextBlock Text="Lupa Kata Sandi" 
+                                   FontSize="16" 
+                                   FontFamily="Plus Jakarta Sans"
+                                   Foreground="#0041B3"
+                                   HorizontalAlignment="Right"
+                                   Margin="0,0,0,20"
+                                   Cursor="Hand"/>
+
+                        <TextBlock Text="atau" 
+                                   FontSize="16"
+                                   FontFamily="Plus Jakarta Sans" 
+                                   Foreground="#717182"
+                                   HorizontalAlignment="Center"
+                                   FontStyle="Italic"
+                                   Margin="0,0,0,20"/>
+
+                        <!-- Tombol Social Login -->
+                        <Grid Margin="0,0,0,20">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="20"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Tombol Facebook -->
+                            <Button Grid.Column="0" 
+                                    x:Name="btnFacebook"
+                                    Height="47"
+                                    Background="#144AE9"
+                                    Foreground="White"
+                                    FontSize="12"
+                                    HorizontalAlignment="Stretch"
+                                    Click="BtnFacebook_Click">
+                                <Button.Style>
+                                    <Style TargetType="{x:Type Button}">
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate TargetType="{x:Type Button}">
+                                                    <Border Background="{TemplateBinding Background}"
+                                                            CornerRadius="26">
+                                                        <ContentPresenter HorizontalAlignment="Center"
+                                                                          VerticalAlignment="Center"/>
+                                                    </Border>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </Button.Style>
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                    <TextBlock Text="f" FontSize="16" FontWeight="Bold" Margin="0,0,5,0"/>
+                                    <TextBlock Text="Facebook" FontSize="14" FontFamily="Plus Jakarta Sans"/>
+                                </StackPanel>
+                            </Button>
+
+                            <!-- Tombol Google -->
+                            <Button Grid.Column="2" 
+                                    x:Name="btnGoogle"
+                                    Height="47"
+                                    Background="White"
+                                    BorderBrush="#352555"
+                                    BorderThickness="0.88"
+                                    Foreground="#001B4A"
+                                    HorizontalAlignment="Stretch"
+                                    Click="BtnGoogle_Click">
+                                <Button.Style>
+                                    <Style TargetType="{x:Type Button}">
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate TargetType="{x:Type Button}">
+                                                    <Border Background="{TemplateBinding Background}"
+                                                            BorderBrush="{TemplateBinding BorderBrush}"
+                                                            BorderThickness="{TemplateBinding BorderThickness}"
+                                                            CornerRadius="26">
+                                                        <ContentPresenter HorizontalAlignment="Center"
+                                                                          VerticalAlignment="Center"/>
+                                                    </Border>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </Button.Style>
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                    <TextBlock Text="G" FontSize="16" FontWeight="Bold" Margin="0,0,5,0"/>
+                                    <TextBlock Text="Google" FontSize="14" FontFamily="Plus Jakarta Sans"/>
+                                </StackPanel>
+                            </Button>
+                        </Grid>
+
+                        <!-- Tombol Masuk -->
+                        <Button x:Name="btnLogin"
                             Height="50"
-                            Width="380"
                             Background="#D9A494"
                             Foreground="White"
                             FontSize="20"
@@ -268,37 +282,42 @@
                             FontWeight="SemiBold"
                             Content="Masuk"
                             Margin="0,0,0,15"
+                            HorizontalAlignment="Stretch"
                             Click="BtnLogin_Click">
-                        <Button.Style>
-                            <Style TargetType="{x:Type Button}">
-                                <Setter Property="Template">
-                                    <Setter.Value>
-                                        <ControlTemplate TargetType="{x:Type Button}">
-                                            <Border Background="{TemplateBinding Background}"
+                            <Button.Style>
+                                <Style TargetType="{x:Type Button}">
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="{x:Type Button}">
+                                                <Border Background="{TemplateBinding Background}"
                                                     CornerRadius="25">
-                                                <ContentPresenter HorizontalAlignment="Center"
+                                                    <ContentPresenter HorizontalAlignment="Center"
                                                                   VerticalAlignment="Center"/>
-                                            </Border>
-                                        </ControlTemplate>
-                                    </Setter.Value>
-                                </Setter>
-                            </Style>
-                        </Button.Style>
-                    </Button>
+                                                </Border>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </Button.Style>
+                        </Button>
 
-                    <!-- Link Daftar -->
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,0">
-                        <TextBlock Text="Belum punya akun? " 
-                                   FontSize="14"
-                                   FontFamily="Plus Jakarta Sans"
-                                   Foreground="#011C4B"/>
-                        <TextBlock Text="Buat Akun" 
-                                   FontSize="14"
-                                   FontFamily="Plus Jakarta Sans"
-                                   Foreground="#0041B3"
-                                   Cursor="Hand"/>
+                        <!-- Link Daftar -->
+                        <StackPanel Orientation="Horizontal" 
+                                   HorizontalAlignment="Center" 
+                                   Margin="0,10,0,20">
+                            <TextBlock Text="Belum punya akun? " 
+                                       FontSize="14"
+                                       FontFamily="Plus Jakarta Sans"
+                                       Foreground="#011C4B"/>
+                            <TextBlock Text="Buat Akun" 
+                                       FontSize="14"
+                                       FontFamily="Plus Jakarta Sans"
+                                       FontWeight="Bold"
+                                       Foreground="#0041B3"
+                                       Cursor="Hand"/>
+                        </StackPanel>
                     </StackPanel>
-                </StackPanel>
+                </ScrollViewer>
             </Border>
         </Grid>
     </Grid>
