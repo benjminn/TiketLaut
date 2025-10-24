@@ -11,6 +11,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using TiketLaut.Views;  // UBAH dari TiketLaut.Views.Assets
 
 namespace TiketLaut.Views
 {
@@ -38,7 +39,13 @@ namespace TiketLaut.Views
             {
                 MessageBox.Show("Login berhasil!", "Sukses",
                     MessageBoxButton.OK, MessageBoxImage.Information);
-                // Nanti bisa navigasi ke halaman utama
+                
+                // Buka HomePage (dari namespace TiketLaut.Views, bukan Assets)
+                HomePage homePage = new HomePage();
+                homePage.Show();
+                
+                // Tutup LoginWindow
+                this.Close();
             }
             else
             {
@@ -61,12 +68,10 @@ namespace TiketLaut.Views
 
         private void txtEmail_TextChanged(object sender, TextChangedEventArgs e)
         {
-
         }
 
         private void txtEmail_TextChanged_1(object sender, TextChangedEventArgs e)
         {
-
         }
 
         private void TxtBuatAkun_Click(object sender, MouseButtonEventArgs e)
