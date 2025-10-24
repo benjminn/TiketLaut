@@ -1,0 +1,450 @@
+﻿<Window x:Class="TiketLaut.Views.RegisterWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="TiketLaut - Buat Akun" 
+        MinHeight="800" 
+        MinWidth="1200"
+        WindowState="Maximized"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="CanResize" 
+        ShowInTaskbar="True">
+
+    <!-- Background dengan gradient seperti gambar -->
+    <Window.Background>
+        <ImageBrush ImageSource="pack://application:,,,/Views/Assets/Images/background.png" Stretch="UniformToFill"/>
+    </Window.Background>
+
+    <!-- ScrollViewer untuk seluruh window -->
+    <ScrollViewer VerticalScrollBarVisibility="Auto" 
+                  HorizontalScrollBarVisibility="Disabled"
+                  Padding="0">
+        <Grid MinHeight="1080">
+            <!-- Form Register -->
+            <Grid HorizontalAlignment="Center" 
+                  VerticalAlignment="Center"
+                  Margin="20">
+
+                <!-- Background form register -->
+                <Border Background="White"
+                        BorderBrush="#042769"
+                        BorderThickness="2"
+                        CornerRadius="36" 
+                        MaxWidth="600"
+                        MinWidth="550"
+                        HorizontalAlignment="Stretch"
+                        VerticalAlignment="Center">
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="15" ShadowDepth="3" Opacity="0.2"/>
+                    </Border.Effect>
+
+                    <!-- Konten form langsung tanpa ScrollViewer -->
+                    <StackPanel Margin="32,40,32,40">
+                        <!-- Header Form -->
+                        <TextBlock Text="Buat Akun" 
+                                   FontSize="45"
+                                   Foreground="#352555" 
+                                   FontFamily="Plus Jakarta Sans"
+                                   FontWeight="Bold"
+                                   HorizontalAlignment="Center"
+                                   TextAlignment="Center"/>
+
+                        <TextBlock FontSize="16"
+                                   FontFamily="Plus Jakarta Sans"
+                                   FontWeight="Medium"
+                                   Foreground="#3E4958"
+                                   TextAlignment="Center"
+                                   TextWrapping="Wrap"
+                                   Margin="0,8,0,25">
+                            <Run Text="Pendaftaran akun dapat dilakukan melalui"/>
+                        </TextBlock>
+
+                        <!-- Tombol Social Register -->
+                        <Grid Margin="0,0,0,20">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="20"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Tombol Facebook -->
+                            <Button Grid.Column="0" 
+                                    x:Name="btnFacebookRegister"
+                                    Height="47"
+                                    Background="#144AE9"
+                                    Foreground="White"
+                                    FontSize="12"
+                                    HorizontalAlignment="Stretch"
+                                    Click="BtnFacebookRegister_Click">
+                                <Button.Style>
+                                    <Style TargetType="{x:Type Button}">
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate TargetType="{x:Type Button}">
+                                                    <Border Background="{TemplateBinding Background}"
+                                                            CornerRadius="26">
+                                                        <ContentPresenter HorizontalAlignment="Center"
+                                                                          VerticalAlignment="Center"/>
+                                                    </Border>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </Button.Style>
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                    <TextBlock Text="f" FontSize="16" FontWeight="Bold" Margin="0,0,5,0"/>
+                                    <TextBlock Text="Facebook" FontSize="14" FontFamily="Plus Jakarta Sans"/>
+                                </StackPanel>
+                            </Button>
+
+                            <!-- Tombol Google -->
+                            <Button Grid.Column="2" 
+                                    x:Name="btnGoogleRegister"
+                                    Height="47"
+                                    Background="White"
+                                    BorderBrush="#352555"
+                                    BorderThickness="0.88"
+                                    Foreground="#001B4A"
+                                    HorizontalAlignment="Stretch"
+                                    Click="BtnGoogleRegister_Click">
+                                <Button.Style>
+                                    <Style TargetType="{x:Type Button}">
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate TargetType="{x:Type Button}">
+                                                    <Border Background="{TemplateBinding Background}"
+                                                            BorderBrush="{TemplateBinding BorderBrush}"
+                                                            BorderThickness="{TemplateBinding BorderThickness}"
+                                                            CornerRadius="26">
+                                                        <ContentPresenter HorizontalAlignment="Center"
+                                                                          VerticalAlignment="Center"/>
+                                                    </Border>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </Button.Style>
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                    <TextBlock Text="G" FontSize="16" FontWeight="Bold" Margin="0,0,5,0"/>
+                                    <TextBlock Text="Google" FontSize="14" FontFamily="Plus Jakarta Sans"/>
+                                </StackPanel>
+                            </Button>
+                        </Grid>
+
+                        <TextBlock Text="atau" 
+                                   FontSize="16"
+                                   FontFamily="Plus Jakarta Sans" 
+                                   Foreground="#717182"
+                                   HorizontalAlignment="Center"
+                                   FontStyle="Italic"
+                                   Margin="0,0,0,20"/>
+
+                        <!-- Input Nama Lengkap -->
+                        <TextBlock Text="Nama Lengkap" 
+                                   FontSize="16"
+                                   FontFamily="Plus Jakarta Sans"
+                                   Foreground="#011C4B"
+                                   Margin="0,0,0,5"/>
+
+                        <TextBox x:Name="txtNamaLengkap"
+                                 Height="40"
+                                 Padding="15,10"
+                                 FontSize="14"
+                                 BorderBrush="#A2A2A2"
+                                 BorderThickness="0.5"
+                                 Background="#F3F3F3"
+                                 Margin="0,0,0,15"
+                                 HorizontalAlignment="Stretch" TextChanged="txtNamaLengkap_TextChanged">
+                            <TextBox.Style>
+                                <Style TargetType="{x:Type TextBox}">
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="{x:Type TextBox}">
+                                                <Border Background="{TemplateBinding Background}"
+                                                        BorderBrush="{TemplateBinding BorderBrush}"
+                                                        BorderThickness="{TemplateBinding BorderThickness}"
+                                                        CornerRadius="8">
+                                                    <ScrollViewer x:Name="PART_ContentHost" 
+                                                                  VerticalAlignment="Center"
+                                                                  Margin="10,0"/>
+                                                </Border>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </TextBox.Style>
+                        </TextBox>
+
+                        <!-- ComboBox Jenis Kelamin -->
+                        <TextBlock Text="Jenis Kelamin" 
+                                   FontSize="16"
+                                   FontFamily="Plus Jakarta Sans"
+                                   Foreground="#011C4B"
+                                   Margin="0,0,0,5"/>
+
+                        <Border BorderBrush="#A2A2A2"
+                                BorderThickness="0.5"
+                                Background="#F3F3F3"
+                                CornerRadius="8"
+                                Height="40"
+                                Margin="0,0,0,15">
+                            <ComboBox x:Name="cmbJenisKelamin"
+                                      FontSize="14"
+                                      Background="#F3F3F3"
+                                      BorderThickness="0"
+                                      HorizontalAlignment="Stretch"
+                                      VerticalAlignment="Center"
+                                      Margin="20,0">
+                                <ComboBoxItem Content="Laki-laki" />
+                                <ComboBoxItem Content="Perempuan" />
+                            </ComboBox>
+                        </Border>
+
+                        <!-- DatePicker Tanggal Lahir -->
+                        <TextBlock Text="Tanggal Lahir" 
+                                   FontSize="16"
+                                   FontFamily="Plus Jakarta Sans"
+                                   Foreground="#011C4B"
+                                   Margin="0,0,0,5"/>
+
+                        <Border BorderBrush="#A2A2A2"
+                                BorderThickness="0.5"
+                                Background="#F3F3F3"
+                                CornerRadius="8"
+                                Height="40"
+                                Margin="0,0,0,15"
+                                Padding="20,0">
+                            <DatePicker x:Name="dpTanggalLahir"
+                                        FontSize="14"
+                                        BorderThickness="0"
+                                        Background="Transparent"
+                                        HorizontalAlignment="Stretch"
+                                        VerticalAlignment="Center"
+                                        SelectedDateFormat="Short"
+                                        DisplayDateStart="1950-01-01"
+                                        DisplayDateEnd="2010-12-31"
+                                        IsTodayHighlighted="True">
+                                <DatePicker.Resources>
+                                    <Style TargetType="DatePickerTextBox">
+                                        <Setter Property="Background" Value="Transparent"/>
+                                        <Setter Property="BorderThickness" Value="0"/>
+                                        <Setter Property="Padding" Value="0"/>
+                                    </Style>
+                                </DatePicker.Resources>
+                            </DatePicker>
+                        </Border>
+
+                        <!-- Input NIK -->
+                        <TextBlock Text="Nomor Induk Kependudukan" 
+                                   FontSize="16"
+                                   FontFamily="Plus Jakarta Sans"
+                                   Foreground="#011C4B"
+                                   Margin="0,0,0,5"/>
+
+                        <TextBox x:Name="txtNIK"
+                                 Height="40"
+                                 Padding="15,10"
+                                 FontSize="14"
+                                 BorderBrush="#A2A2A2"
+                                 BorderThickness="0.5"
+                                 Background="#F3F3F3"
+                                 Margin="0,0,0,15"
+                                 HorizontalAlignment="Stretch">
+                            <TextBox.Style>
+                                <Style TargetType="{x:Type TextBox}">
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="{x:Type TextBox}">
+                                                <Border Background="{TemplateBinding Background}"
+                                                        BorderBrush="{TemplateBinding BorderBrush}"
+                                                        BorderThickness="{TemplateBinding BorderThickness}"
+                                                        CornerRadius="8">
+                                                    <ScrollViewer x:Name="PART_ContentHost" 
+                                                                  VerticalAlignment="Center"
+                                                                  Margin="10,0"/>
+                                                </Border>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </TextBox.Style>
+                        </TextBox>
+
+                        <!-- Input Email -->
+                        <TextBlock Text="Email atau Nomor Handphone" 
+                                   FontSize="16"
+                                   FontFamily="Plus Jakarta Sans"
+                                   Foreground="#011C4B"
+                                   Margin="0,0,0,5"/>
+
+                        <TextBox x:Name="txtEmail"
+                                 Height="40"
+                                 Padding="15,10"
+                                 FontSize="14"
+                                 BorderBrush="#A2A2A2"
+                                 BorderThickness="0.5"
+                                 Background="#F3F3F3"
+                                 Margin="0,0,0,15"
+                                 HorizontalAlignment="Stretch">
+                            <TextBox.Style>
+                                <Style TargetType="{x:Type TextBox}">
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="{x:Type TextBox}">
+                                                <Border Background="{TemplateBinding Background}"
+                                                        BorderBrush="{TemplateBinding BorderBrush}"
+                                                        BorderThickness="{TemplateBinding BorderThickness}"
+                                                        CornerRadius="8">
+                                                    <ScrollViewer x:Name="PART_ContentHost" 
+                                                                  VerticalAlignment="Center"
+                                                                  Margin="10,0"/>
+                                                </Border>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </TextBox.Style>
+                        </TextBox>
+
+                        <!-- Input Password -->
+                        <TextBlock Text="Password" 
+                                   FontSize="16"
+                                   FontFamily="Plus Jakarta Sans"
+                                   Foreground="#011C4B"
+                                   Margin="0,0,0,5"/>
+
+                        <PasswordBox x:Name="txtPassword"
+                                     Height="40"
+                                     Padding="15,10"
+                                     FontSize="14"
+                                     BorderBrush="#A2A2A2"
+                                     BorderThickness="0.5"
+                                     Background="#F3F3F3"
+                                     Margin="0,0,0,5"
+                                     HorizontalAlignment="Stretch">
+                            <PasswordBox.Style>
+                                <Style TargetType="{x:Type PasswordBox}">
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="{x:Type PasswordBox}">
+                                                <Border Background="{TemplateBinding Background}"
+                                                        BorderBrush="{TemplateBinding BorderBrush}"
+                                                        BorderThickness="{TemplateBinding BorderThickness}"
+                                                        CornerRadius="8">
+                                                    <ScrollViewer x:Name="PART_ContentHost" 
+                                                                  VerticalAlignment="Center"
+                                                                  Margin="10,0"/>
+                                                </Border>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </PasswordBox.Style>
+                        </PasswordBox>
+
+                        <TextBlock FontSize="12"
+                                   FontFamily="Plus Jakarta Sans"
+                                   Foreground="#717182"
+                                   TextAlignment="Left"
+                                   TextWrapping="Wrap"
+                                   Margin="0,5,0,15">
+                            <Run Text="Minimal berisi 8 karakter, mengandung huruf kecil dan besar"/>
+                        </TextBlock>
+
+                        <!-- Input Konfirmasi Password -->
+                        <TextBlock Text="Konfirmasi Password" 
+                                   FontSize="16"
+                                   FontFamily="Plus Jakarta Sans"
+                                   Foreground="#011C4B"
+                                   Margin="0,0,0,5"/>
+
+                        <PasswordBox x:Name="txtKonfirmasiPassword"
+                                     Height="40"
+                                     Padding="15,10"
+                                     FontSize="14"
+                                     BorderBrush="#A2A2A2"
+                                     BorderThickness="0.5"
+                                     Background="#F3F3F3"
+                                     Margin="0,0,0,15"
+                                     HorizontalAlignment="Stretch">
+                            <PasswordBox.Style>
+                                <Style TargetType="{x:Type PasswordBox}">
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="{x:Type PasswordBox}">
+                                                <Border Background="{TemplateBinding Background}"
+                                                        BorderBrush="{TemplateBinding BorderBrush}"
+                                                        BorderThickness="{TemplateBinding BorderThickness}"
+                                                        CornerRadius="8">
+                                                    <ScrollViewer x:Name="PART_ContentHost" 
+                                                                  VerticalAlignment="Center"
+                                                                  Margin="10,0"/>
+                                                </Border>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </PasswordBox.Style>
+                        </PasswordBox>
+
+                        <!-- Terms & Conditions -->
+                        <TextBlock FontSize="12"
+                                   FontFamily="Plus Jakarta Sans"
+                                   Foreground="#717182"
+                                   TextAlignment="Center"
+                                   TextWrapping="Wrap"
+                                   Margin="0,0,0,20">
+                            <Run Text="Dengan menekan tombol di bawah ini, saya setuju dengan"/>
+                            <LineBreak/>
+                            <Run Text="Kebijakan Privasi dan Syarat &amp; Ketentuan" Foreground="#0041B3" Cursor="Hand"/>
+                        </TextBlock>
+
+                        <!-- Tombol Register -->
+                        <Button x:Name="btnRegister"
+                                Height="50"
+                                Background="#D9A494"
+                                Foreground="White"
+                                FontSize="20"
+                                FontFamily="Plus Jakarta Sans"
+                                FontWeight="SemiBold"
+                                Content="Daftar"
+                                Margin="0,0,0,15"
+                                HorizontalAlignment="Stretch"
+                                Click="BtnRegister_Click">
+                            <Button.Style>
+                                <Style TargetType="{x:Type Button}">
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="{x:Type Button}">
+                                                <Border Background="{TemplateBinding Background}"
+                                                        CornerRadius="25">
+                                                    <ContentPresenter HorizontalAlignment="Center"
+                                                                      VerticalAlignment="Center"/>
+                                                </Border>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+
+                        <!-- Link Login -->
+                        <StackPanel Orientation="Horizontal" 
+                                   HorizontalAlignment="Center" 
+                                   Margin="0,10,0,20">
+                            <TextBlock Text="Sudah punya akun? " 
+                                       FontSize="14"
+                                       FontFamily="Plus Jakarta Sans"
+                                       Foreground="#011C4B"/>
+                            <TextBlock Text="Masuk" 
+                                       FontSize="14"
+                                       FontFamily="Plus Jakarta Sans"
+                                       Foreground="#0041B3"
+                                       Cursor="Hand"
+                                       MouseLeftButtonUp="TxtMasuk_Click"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </Grid>
+    </ScrollViewer>
+</Window>

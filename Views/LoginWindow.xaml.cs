@@ -64,9 +64,16 @@ namespace TiketLaut.Views
 
         }
 
-        private void txtEmail_TextChanged_1()
+        private void txtEmail_TextChanged_1(object sender, TextChangedEventArgs e)
         {
 
+        }
+
+        private void TxtBuatAkun_Click(object sender, MouseButtonEventArgs e)
+        {
+            RegisterWindow registerWindow = new RegisterWindow();
+            registerWindow.Show();
+            this.Close();
         }
     }
 }

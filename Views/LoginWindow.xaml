@@ -303,18 +303,18 @@
 
                         <!-- Link Daftar -->
                         <StackPanel Orientation="Horizontal" 
-                                   HorizontalAlignment="Center" 
-                                   Margin="0,10,0,20">
-                            <TextBlock Text="Belum punya akun? " 
-                                       FontSize="14"
-                                       FontFamily="Plus Jakarta Sans"
-                                       Foreground="#011C4B"/>
-                            <TextBlock Text="Buat Akun" 
-                                       FontSize="14"
-                                       FontFamily="Plus Jakarta Sans"
-                                       FontWeight="Bold"
-                                       Foreground="#0041B3"
-                                       Cursor="Hand"/>
+                               HorizontalAlignment="Center" 
+                               Margin="0,10,0,20">
+                             <TextBlock Text="Belum punya akun? " 
+                                   FontSize="14"
+                                   FontFamily="Plus Jakarta Sans"
+                                   Foreground="#011C4B"/>
+                             <TextBlock Text="Buat Akun" 
+                                   FontSize="14"
+                                   FontFamily="Plus Jakarta Sans"
+                                   Foreground="#0041B3"
+                                   Cursor="Hand"
+                                   MouseLeftButtonUp="TxtBuatAkun_Click"/>
                         </StackPanel>
                     </StackPanel>
                 </ScrollViewer>
