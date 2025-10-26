@@ -1,16 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 using TiketLaut.Views;  // UBAH dari TiketLaut.Views.Assets
 
 namespace TiketLaut.Views
@@ -24,33 +15,25 @@ namespace TiketLaut.Views
 
         private void BtnLogin_Click(object sender, RoutedEventArgs e)
         {
-            string email = txtEmail.Text;
+            // Ganti dengan nama TextBox yang sesuai di XAML Anda
+            // Misalnya jika di XAML namanya "txtEmail", ubah menjadi:
+            string username = txtEmail.Text;  // ← Sesuaikan dengan nama di XAML
             string password = txtPassword.Password;
 
-            if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password))
+            // Validasi sederhana (nanti bisa diganti dengan database)
+            if (!string.IsNullOrEmpty(username) && !string.IsNullOrEmpty(password))
             {
-                MessageBox.Show("Harap isi email dan password!", "Peringatan",
-                    MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
-
-            // Contoh validasi sederhana
-            if (email == "admin@tiketlaut.com" && password == "admin123")
-            {
-                MessageBox.Show("Login berhasil!", "Sukses",
-                    MessageBoxButton.OK, MessageBoxImage.Information);
-                
-                // Buka HomePage (dari namespace TiketLaut.Views, bukan Assets)
-                HomePage homePage = new HomePage();
-                homePage.Show();
-                
-                // Tutup LoginWindow
+                // Login berhasil
+                var homePage = new HomePage(isLoggedIn: true, username: username);
                 this.Close();
+                homePage.Show();
             }
             else
             {
-                MessageBox.Show("Email atau password salah!", "Error",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Username dan password tidak boleh kosong!", 
+                               "Login Gagal", 
+                               MessageBoxButton.OK, 
+                               MessageBoxImage.Warning);
             }
         }
 

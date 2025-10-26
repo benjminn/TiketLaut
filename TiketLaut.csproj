@@ -10,26 +10,46 @@
 
 	<ItemGroup>
 	  <None Remove="Views\Assets\Icons\back.png" />
+	  <None Remove="Views\Assets\Icons\iconbooking.png" />
 	  <None Remove="Views\Assets\Icons\iconfacebook.png" />
 	  <None Remove="Views\Assets\Icons\icongoogle.png" />
+	  <None Remove="Views\Assets\Icons\iconhome.png" />
+	  <None Remove="Views\Assets\Icons\iconlokasi.png" />
+	  <None Remove="Views\Assets\Icons\iconlonceng.png" />
+	  <None Remove="Views\Assets\Icons\iconmasuk.png" />
+	  <None Remove="Views\Assets\Icons\iconorang.png" />
+	  <None Remove="Views\Assets\Icons\icontandatanya.png" />
+	  <None Remove="Views\Assets\Icons\icontanggal.png" />
 	  <None Remove="Views\Assets\Images\background.png" />
 	  <None Remove="Views\Assets\Images\bekgron.png" />
 	  <None Remove="Views\Assets\Images\iconlokasi.png" />
 	  <None Remove="Views\Assets\Images\iconorang.png" />
 	  <None Remove="Views\Assets\Images\icontanggal.png" />
+	  <None Remove="Views\Assets\Images\line.png" />
 	  <None Remove="Views\Assets\Images\logo.png" />
+	  <None Remove="Views\Assets\Images\logosamping.png" />
 	</ItemGroup>
 
 	<ItemGroup>
 	  <Resource Include="Views\Assets\Icons\back.png">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Resource>
+	  <Resource Include="Views\Assets\Icons\iconbooking.png" />
 	  <Resource Include="Views\Assets\Icons\iconfacebook.png">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Resource>
 	  <Resource Include="Views\Assets\Icons\icongoogle.png">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Resource>
+	  <Resource Include="Views\Assets\Icons\iconhome.png">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Resource>
+	  <Resource Include="Views\Assets\Icons\iconlokasi.png" />
+	  <Resource Include="Views\Assets\Icons\iconlonceng.png" />
+	  <Resource Include="Views\Assets\Icons\iconmasuk.png" />
+	  <Resource Include="Views\Assets\Icons\iconorang.png" />
+	  <Resource Include="Views\Assets\Icons\icontandatanya.png" />
+	  <Resource Include="Views\Assets\Icons\icontanggal.png" />
 	  <Resource Include="Views\Assets\Images\background.png">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Resource>
@@ -37,9 +57,11 @@
 	  <Resource Include="Views\Assets\Images\iconlokasi.png" />
 	  <Resource Include="Views\Assets\Images\iconorang.png" />
 	  <Resource Include="Views\Assets\Images\icontanggal.png" />
+	  <Resource Include="Views\Assets\Images\line.png" />
 	  <Resource Include="Views\Assets\Images\logo.png">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Resource>
+	  <Resource Include="Views\Assets\Images\logosamping.png" />
 	</ItemGroup>
 
 </Project>
