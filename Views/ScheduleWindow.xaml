@@ -13,9 +13,18 @@
     <Grid>
         <!-- Main Content Container -->
         <DockPanel>
-            <!-- Navbar Component -->
-            <components:NavbarSelainHomepage DockPanel.Dock="Top"/>
-           
+            <!-- Navbar with Login State -->
+            <Grid DockPanel.Dock="Top">
+                <!-- Pre-Login Navbar (Initially Visible) -->
+                <components:NavbarPreLogin x:Name="navbarPreLogin" 
+                                          Visibility="Visible"/>
+                
+                <!-- Post-Login Navbar (Initially Hidden) -->
+                <components:NavbarPostLogin x:Name="navbarPostLogin" 
+                                           Visibility="Collapsed"/>
+            </Grid>
+
+
             <!-- Main Content Area -->
             <ScrollViewer DockPanel.Dock="Bottom" VerticalScrollBarVisibility="Auto">
                 <StackPanel Margin="30">
