@@ -8,9 +8,42 @@ namespace TiketLaut.Views
     /// </summary>
     public partial class HomePage : Window
     {
+        private bool _isLoggedIn = false;
+        private string _currentUser = "";
+
+        // Constructor default (untuk pertama kali buka app)
         public HomePage()
         {
             InitializeComponent();
+            SetNavbarVisibility();
+        }
+
+        // Constructor dengan parameter (untuk setelah login/logout)
+        public HomePage(bool isLoggedIn, string username = "") : this()
+        {
+            _isLoggedIn = isLoggedIn;
+            _currentUser = username;
+
+            SetNavbarVisibility();
+
+            if (_isLoggedIn && !string.IsNullOrEmpty(_currentUser))
+            {
+                navbarPostLogin.SetUserInfo(_currentUser);
+            }
+        }
+
+        private void SetNavbarVisibility()
+        {
+            if (_isLoggedIn)
+            {
+                navbarPreLogin.Visibility = Visibility.Collapsed;
+                navbarPostLogin.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                navbarPreLogin.Visibility = Visibility.Visible;
+                navbarPostLogin.Visibility = Visibility.Collapsed;
+            }
         }
 
         private void BtnLogout_Click(object sender, RoutedEventArgs e)
@@ -84,6 +117,11 @@ namespace TiketLaut.Views
         }
 
         private void cmbJenisKendaraan_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        {
+
+        }
+
+        private void navbarPreLogin_Loaded(object sender, RoutedEventArgs e)
         {
 
         }

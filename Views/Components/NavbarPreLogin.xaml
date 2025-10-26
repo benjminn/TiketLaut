@@ -1,0 +1,179 @@
+<UserControl x:Class="TiketLaut.Views.Components.NavbarPreLogin"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             FontFamily="Plus Jakarta Sans">
+
+    <Border Background="#4AFFFFFF"
+            BorderBrush="Transparent"
+            BorderThickness="0"
+            MinHeight="70"
+            Height="Auto">
+        <Grid Margin="40,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Logo -->
+            <Image Grid.Column="0"
+                   Source="/Views/Assets/Images/logosamping.png"
+                   Height="40"
+                   VerticalAlignment="Center"
+                   HorizontalAlignment="Left"
+                   Margin="0,15,20,15"
+                   Stretch="Uniform"/>
+
+            <!-- Navigation Menu (Center) -->
+            <WrapPanel Grid.Column="1" 
+                       Orientation="Horizontal" 
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center">
+
+                <!-- Home -->
+                <Button x:Name="btnHome"
+                       Style="{StaticResource NavButtonStyle}"
+                       Click="BtnHome_Click"
+                       Margin="5,10">
+                    <StackPanel Orientation="Horizontal">
+                        <Image Source="/Views/Assets/Icons/iconhome.png" 
+                               Width="20" Height="20" 
+                               Margin="0,0,8,0"
+                               Stretch="Uniform"/>
+                        <TextBlock Text="Home" 
+                                  FontSize="15"
+                                  FontWeight="SemiBold"
+                                  Foreground="#011C4B"
+                                  VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+
+                <!-- Separator -->
+                <Image Source="/Views/Assets/Images/line.png" 
+                       Width="1" 
+                       Height="20" 
+                       Margin="10,0"
+                       VerticalAlignment="Center"
+                       Stretch="Fill"/>
+
+                <!-- Cek Booking -->
+                <Button x:Name="btnCekBooking"
+                       Style="{StaticResource NavButtonStyle}"
+                       Click="BtnCekBooking_Click"
+                       Margin="5,10">
+                    <StackPanel Orientation="Horizontal">
+                        <Image Source="/Views/Assets/Icons/iconbooking.png" 
+                               Width="20" Height="20" 
+                               Margin="0,0,8,0"
+                               Stretch="Uniform"/>
+                        <TextBlock Text="Cek Booking" 
+                                  FontSize="15"
+                                  FontWeight="SemiBold"
+                                  Foreground="#011C4B"
+                                  VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+
+                <!-- Separator -->
+                <Image Source="/Views/Assets/Images/line.png" 
+                       Width="1" 
+                       Height="20" 
+                       Margin="10,0"
+                       VerticalAlignment="Center"
+                       Stretch="Fill"/>
+
+                <!-- Notifikasi -->
+                <Button x:Name="btnNotifikasi"
+                       Style="{StaticResource NavButtonStyle}"
+                       Click="BtnNotifikasi_Click"
+                       Margin="5,10">
+                    <StackPanel Orientation="Horizontal">
+                        <Image Source="/Views/Assets/Icons/iconlonceng.png" 
+                               Width="20" Height="20" 
+                               Margin="0,0,8,0"
+                               Stretch="Uniform"/>
+                        <TextBlock Text="Notifikasi" 
+                                  FontSize="15"
+                                  FontWeight="SemiBold"
+                                  Foreground="#011C4B"
+                                  VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+
+                <!-- Separator -->
+                <Image Source="/Views/Assets/Images/line.png" 
+                       Width="1" 
+                       Height="20" 
+                       Margin="10,0"
+                       VerticalAlignment="Center"
+                       Stretch="Fill"/>
+
+                <!-- FAQ -->
+                <Button x:Name="btnFAQ"
+                       Style="{StaticResource NavButtonStyle}"
+                       Click="BtnFAQ_Click"
+                       Margin="5,10">
+                    <StackPanel Orientation="Horizontal">
+                        <Image Source="/Views/Assets/Icons/icontandatanya.png" 
+                               Width="20" Height="20" 
+                               Margin="0,0,8,0"
+                               Stretch="Uniform"/>
+                        <TextBlock Text="FAQ" 
+                                  FontSize="15"
+                                  FontWeight="SemiBold"
+                                  Foreground="#011C4B"
+                                  VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+            </WrapPanel>
+
+            <!-- Login Button (Right) -->
+            <Button Grid.Column="2"
+                   x:Name="btnMasuk"
+                   Click="BtnMasuk_Click"
+                   Background="Transparent"
+                   BorderBrush="#011C4B"
+                   BorderThickness="2"
+                   Padding="25,10"
+                   Margin="10,15"
+                   VerticalAlignment="Center"
+                   Cursor="Hand">
+                <Button.Style>
+                    <Style TargetType="{x:Type Button}">
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="{x:Type Button}">
+                                    <Border Background="{TemplateBinding Background}"
+                                            BorderBrush="{TemplateBinding BorderBrush}"
+                                            BorderThickness="{TemplateBinding BorderThickness}"
+                                            CornerRadius="8"
+                                            Padding="{TemplateBinding Padding}">
+                                        <ContentPresenter HorizontalAlignment="Center"
+                                                         VerticalAlignment="Center"/>
+                                    </Border>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                        <Style.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#011C4B"/>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+                <StackPanel Orientation="Horizontal">
+                    <Image Source="/Views/Assets/Icons/iconmasuk.png" 
+                           Width="18" Height="18" 
+                           Margin="0,0,8,0"
+                           Stretch="Uniform"/>
+                    <TextBlock x:Name="txtMasuk"
+                              Text="Masuk" 
+                              FontSize="15"
+                              FontWeight="SemiBold"
+                              Foreground="#011C4B"
+                              VerticalAlignment="Center"/>
+                </StackPanel>
+            </Button>
+        </Grid>
+    </Border>
+</UserControl>

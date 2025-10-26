@@ -1,6 +1,7 @@
 ﻿<Window x:Class="TiketLaut.Views.ScheduleWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:components="clr-namespace:TiketLaut.Views.Components"
         Title="Jadwal Ferry - Tiket Laut" 
         Height="900" 
         Width="1400"
@@ -12,38 +13,9 @@
     <Grid>
         <!-- Main Content Container -->
         <DockPanel>
-            <!-- Top Bar dengan User Info & Back Button -->
-            <Border DockPanel.Dock="Top" 
-                   Background="White" 
-                   BorderBrush="#E0E0E0"
-                   BorderThickness="0,0,0,1"
-                   Padding="30,15">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-
-                    <!-- Logo / Branding -->
-                    <TextBlock Grid.Column="1"
-                              Text="🚢 Jadwal Ferry"
-                              FontSize="20"
-                              FontWeight="Bold"
-                              Foreground="#011C4B"
-                              HorizontalAlignment="Center"
-                              VerticalAlignment="Center"/>
-
-                    <!-- User Info -->
-                    <TextBlock Grid.Column="2"
-                              x:Name="txtUserInfo"
-                              Text="👤 Admin"
-                              FontSize="14"
-                              Foreground="Black"
-                              VerticalAlignment="Center"/>
-                </Grid>
-            </Border>
-
+            <!-- Navbar Component -->
+            <components:NavbarSelainHomepage DockPanel.Dock="Top"/>
+           
             <!-- Main Content Area -->
             <ScrollViewer DockPanel.Dock="Bottom" VerticalScrollBarVisibility="Auto">
                 <StackPanel Margin="30">
@@ -368,7 +340,7 @@
                     <StackPanel x:Name="scheduleContainer" RenderTransformOrigin="0.499,0.51">
 
                         <!-- Regular Schedule Item -->
-                        <Border Background="White" 
+                        <Border Background="White"
                                CornerRadius="25" 
                                Padding="35,25"
                                Margin="0,0,0,20"
