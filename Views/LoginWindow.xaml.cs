@@ -20,13 +20,20 @@ namespace TiketLaut.Views
             string username = txtEmail.Text;  // ← Sesuaikan dengan nama di XAML
             string password = txtPassword.Password;
 
-            // Validasi sederhana (nanti bisa diganti dengan database)
-            if (!string.IsNullOrEmpty(username) && !string.IsNullOrEmpty(password))
+            // Validasi untuk development - email: "a", password: "b"
+            if (username == "a" && password == "b")
             {
                 // Login berhasil
                 var homePage = new HomePage(isLoggedIn: true, username: username);
                 this.Close();
                 homePage.Show();
+            }
+            else if (!string.IsNullOrEmpty(username) && !string.IsNullOrEmpty(password))
+            {
+                MessageBox.Show("Email atau password salah!\nUntuk development: email='a', password='b'", 
+                               "Login Gagal", 
+                               MessageBoxButton.OK, 
+                               MessageBoxImage.Warning);
             }
             else
             {

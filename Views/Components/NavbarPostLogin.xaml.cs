@@ -21,12 +21,50 @@ namespace TiketLaut.Views.Components
 
         private void BtnHome_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("Navigasi ke Home", "Info");
+            // Cek apakah sudah di HomePage
+            var currentWindow = Window.GetWindow(this);
+            if (currentWindow is HomePage)
+            {
+                // Sudah di HomePage, tidak perlu navigasi
+                return;
+            }
+
+            // Navigasi ke HomePage dengan mempertahankan ukuran window
+            var homePage = new HomePage(isLoggedIn: true);
+            if (currentWindow != null)
+            {
+                homePage.Left = currentWindow.Left;
+                homePage.Top = currentWindow.Top;
+                homePage.Width = currentWindow.Width;
+                homePage.Height = currentWindow.Height;
+                homePage.WindowState = currentWindow.WindowState;
+            }
+            homePage.Show();
+            currentWindow?.Close();
         }
 
         private void BtnCekBooking_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("Navigasi ke Cek Booking", "Info");
+            // Cek apakah sudah di CekBookingWindow
+            var currentWindow = Window.GetWindow(this);
+            if (currentWindow is CekBookingWindow)
+            {
+                // Sudah di CekBookingWindow, tidak perlu navigasi
+                return;
+            }
+
+            // Navigasi ke halaman Cek Booking dengan mempertahankan ukuran window
+            var cekBookingWindow = new CekBookingWindow();
+            if (currentWindow != null)
+            {
+                cekBookingWindow.Left = currentWindow.Left;
+                cekBookingWindow.Top = currentWindow.Top;
+                cekBookingWindow.Width = currentWindow.Width;
+                cekBookingWindow.Height = currentWindow.Height;
+                cekBookingWindow.WindowState = currentWindow.WindowState;
+            }
+            cekBookingWindow.Show();
+            currentWindow?.Close();
         }
 
         private void BtnNotifikasi_Click(object sender, RoutedEventArgs e)
