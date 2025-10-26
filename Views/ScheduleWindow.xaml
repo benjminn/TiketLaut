@@ -77,242 +77,249 @@
                            Padding="20,15"
                            Margin="0,0,0,30"
                            Effect="{StaticResource CardShadow}" Width="Auto" Height="70">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
+                        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+                            <Grid MinWidth="1200">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" MinWidth="120"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto" MinWidth="120"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto" MinWidth="180"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto" MinWidth="100"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto" MinWidth="200"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto" MinWidth="120"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
 
-                            <!-- From -->
-                            <ComboBox Grid.Column="0"
-                                     x:Name="cmbFilterFrom"
-                                     Background="Transparent"
-                                     BorderThickness="0"
-                                     FontSize="15"
-                                     FontWeight="SemiBold"
-                                     Foreground="#011C4B"
-                                     SelectedIndex="0"
-                                     Margin="0,0,10,0"
-                                     SelectionChanged="CmbFilter_SelectionChanged"
-                                     VerticalAlignment="Center">
-                                <ComboBoxItem Content="Bakauheni"/>
-                                <ComboBoxItem Content="Merak"/>
-                                <ComboBoxItem Content="Ketapang"/>
-                                <ComboBoxItem Content="Gilimanuk"/>
-                            </ComboBox>
+                                <!-- From -->
+                                <ComboBox Grid.Column="0"
+                                         x:Name="cmbFilterFrom"
+                                         Background="Transparent"
+                                         BorderThickness="0"
+                                         FontSize="15"
+                                         FontWeight="SemiBold"
+                                         Foreground="#011C4B"
+                                         SelectedIndex="0"
+                                         Margin="0,0,10,0"
+                                         SelectionChanged="CmbFilter_SelectionChanged"
+                                         VerticalAlignment="Center"
+                                         MinWidth="100">
+                                    <ComboBoxItem Content="Bakauheni"/>
+                                    <ComboBoxItem Content="Merak"/>
+                                    <ComboBoxItem Content="Ketapang"/>
+                                    <ComboBoxItem Content="Gilimanuk"/>
+                                </ComboBox>
 
-                            <!-- Arrow -->
-                            <TextBlock Grid.Column="1" 
-                                      Text=">" 
-                                      FontSize="16" 
-                                      Foreground="#666"
-                                      VerticalAlignment="Center"
-                                      Margin="5,0"/>
+                                <!-- Arrow -->
+                                <TextBlock Grid.Column="1" 
+                                          Text=">" 
+                                          FontSize="16" 
+                                          Foreground="#666"
+                                          VerticalAlignment="Center"
+                                          Margin="5,0"/>
 
-                            <!-- To -->
-                            <ComboBox Grid.Column="2"
-                                     x:Name="cmbFilterTo"
-                                     Background="Transparent"
-                                     BorderThickness="0"
-                                     FontSize="15"
-                                     FontWeight="SemiBold"
-                                     Foreground="#011C4B"
-                                     SelectedIndex="0"
-                                     Margin="10,0"
-                                     SelectionChanged="CmbFilter_SelectionChanged"
-                                     VerticalAlignment="Center">
-                                <ComboBoxItem Content="Merak"/>
-                                <ComboBoxItem Content="Bakauheni"/>
-                                <ComboBoxItem Content="Ketapang"/>
-                                <ComboBoxItem Content="Gilimanuk"/>
-                            </ComboBox>
+                                <!-- To -->
+                                <ComboBox Grid.Column="2"
+                                         x:Name="cmbFilterTo"
+                                         Background="Transparent"
+                                         BorderThickness="0"
+                                         FontSize="15"
+                                         FontWeight="SemiBold"
+                                         Foreground="#011C4B"
+                                         SelectedIndex="0"
+                                         Margin="10,0"
+                                         SelectionChanged="CmbFilter_SelectionChanged"
+                                         VerticalAlignment="Center"
+                                         MinWidth="100">
+                                    <ComboBoxItem Content="Merak"/>
+                                    <ComboBoxItem Content="Bakauheni"/>
+                                    <ComboBoxItem Content="Ketapang"/>
+                                    <ComboBoxItem Content="Gilimanuk"/>
+                                </ComboBox>
 
-                            <!-- Separator -->
-                            <Rectangle Grid.Column="3" 
-                                      Fill="#00B4B5" 
-                                      Width="1" 
-                                      Height="20" 
-                                      Margin="10,0"/>
+                                <!-- Separator -->
+                                <Rectangle Grid.Column="3" 
+                                          Fill="#00B4B5" 
+                                          Width="1" 
+                                          Height="20" 
+                                          Margin="10,0"/>
 
-                            <!-- Date Picker -->
-                            <!-- Hapus DatePicker ini, ganti dengan hanya ComboBox -->
-                            <!-- Date Dropdown (hanya ini yang digunakan) -->
-                            <ComboBox Grid.Column="4"
-                                     x:Name="cmbFilterDate"
-                                     Background="Transparent"
-                                     BorderThickness="0"
-                                     FontSize="15"
-                                     FontWeight="SemiBold"
-                                     Foreground="#011C4B"
-                                     SelectedIndex="3"
-                                     Margin="10,0"
-                                     SelectionChanged="CmbFilter_SelectionChanged"
-                                     VerticalAlignment="Center">
-                                <ComboBoxItem Content="Kam, 20 Oktober 2025" IsSelected="True"/>
-                                <ComboBoxItem Content="Jum, 21 Oktober 2025"/>
-                                <ComboBoxItem Content="Sab, 22 Oktober 2025"/>
-                                <ComboBoxItem Content="Min, 23 Oktober 2025" />
-                                <ComboBoxItem Content="Sen, 24 Oktober 2025"/>
-                                <ComboBoxItem Content="Sel, 25 Oktober 2025"/>
-                                <ComboBoxItem Content="Rab, 26 Oktober 2025"/>
-                                <ComboBoxItem Content="Kam, 27 Oktober 2025"/>
-                                <ComboBoxItem Content="Jum, 28 Oktober 2025"/>
-                                <ComboBoxItem Content="Sab, 29 Oktober 2025"/>
-                            </ComboBox>
+                                <!-- Date Dropdown -->
+                                <ComboBox Grid.Column="4"
+                                         x:Name="cmbFilterDate"
+                                         Background="Transparent"
+                                         BorderThickness="0"
+                                         FontSize="15"
+                                         FontWeight="SemiBold"
+                                         Foreground="#011C4B"
+                                         SelectedIndex="3"
+                                         Margin="10,0"
+                                         SelectionChanged="CmbFilter_SelectionChanged"
+                                         VerticalAlignment="Center"
+                                         MinWidth="150">
+                                    <ComboBoxItem Content="Kam, 20 Oktober 2025" IsSelected="True"/>
+                                    <ComboBoxItem Content="Jum, 21 Oktober 2025"/>
+                                    <ComboBoxItem Content="Sab, 22 Oktober 2025"/>
+                                    <ComboBoxItem Content="Min, 23 Oktober 2025" />
+                                    <ComboBoxItem Content="Sen, 24 Oktober 2025"/>
+                                    <ComboBoxItem Content="Sel, 25 Oktober 2025"/>
+                                    <ComboBoxItem Content="Rab, 26 Oktober 2025"/>
+                                    <ComboBoxItem Content="Kam, 27 Oktober 2025"/>
+                                    <ComboBoxItem Content="Jum, 28 Oktober 2025"/>
+                                    <ComboBoxItem Content="Sab, 29 Oktober 2025"/>
+                                </ComboBox>
 
+                                <!-- Separator -->
+                                <Rectangle Grid.Column="5" 
+                                          Fill="#00B4B5" 
+                                          Width="1" 
+                                          Height="20" 
+                                          Margin="10,0"/>
 
-                            <!-- Separator -->
-                            <Rectangle Grid.Column="5" 
-                                      Fill="#00B4B5" 
-                                      Width="1" 
-                                      Height="20" 
-                                      Margin="10,0"/>
+                                <!-- Time Dropdown -->
+                                <ComboBox Grid.Column="6"
+                                         x:Name="cmbFilterTime"
+                                         Background="Transparent"
+                                         BorderThickness="0"
+                                         FontSize="15"
+                                         FontWeight="SemiBold"
+                                         Foreground="#011C4B"
+                                         SelectedIndex="20"
+                                         Margin="10,0"
+                                         SelectionChanged="CmbFilter_SelectionChanged"
+                                         VerticalAlignment="Center"
+                                         MinWidth="80">
+                                    <ComboBoxItem Content="00:00"/>
+                                    <ComboBoxItem Content="01:00"/>
+                                    <ComboBoxItem Content="02:00"/>
+                                    <ComboBoxItem Content="03:00"/>
+                                    <ComboBoxItem Content="04:00"/>
+                                    <ComboBoxItem Content="05:00"/>
+                                    <ComboBoxItem Content="06:00"/>
+                                    <ComboBoxItem Content="07:00"/>
+                                    <ComboBoxItem Content="08:00"/>
+                                    <ComboBoxItem Content="09:00"/>
+                                    <ComboBoxItem Content="10:00"/>
+                                    <ComboBoxItem Content="11:00"/>
+                                    <ComboBoxItem Content="12:00"/>
+                                    <ComboBoxItem Content="13:00"/>
+                                    <ComboBoxItem Content="14:00"/>
+                                    <ComboBoxItem Content="15:00"/>
+                                    <ComboBoxItem Content="16:00"/>
+                                    <ComboBoxItem Content="17:00"/>
+                                    <ComboBoxItem Content="18:00"/>
+                                    <ComboBoxItem Content="19:00"/>
+                                    <ComboBoxItem Content="20:30" IsSelected="True"/>
+                                    <ComboBoxItem Content="21:00"/>
+                                    <ComboBoxItem Content="22:00"/>
+                                    <ComboBoxItem Content="23:00"/>
+                                </ComboBox>
 
-                            <!-- Time Dropdown -->
-                            <ComboBox Grid.Column="6"
-                                     x:Name="cmbFilterTime"
-                                     Background="Transparent"
-                                     BorderThickness="0"
-                                     FontSize="15"
-                                     FontWeight="SemiBold"
-                                     Foreground="#011C4B"
-                                     SelectedIndex="20"
-                                     Margin="10,0"
-                                     SelectionChanged="CmbFilter_SelectionChanged"
-                                     VerticalAlignment="Center">
-                                <ComboBoxItem Content="00:00"/>
-                                <ComboBoxItem Content="01:00"/>
-                                <ComboBoxItem Content="02:00"/>
-                                <ComboBoxItem Content="03:00"/>
-                                <ComboBoxItem Content="04:00"/>
-                                <ComboBoxItem Content="05:00"/>
-                                <ComboBoxItem Content="06:00"/>
-                                <ComboBoxItem Content="07:00"/>
-                                <ComboBoxItem Content="08:00"/>
-                                <ComboBoxItem Content="09:00"/>
-                                <ComboBoxItem Content="10:00"/>
-                                <ComboBoxItem Content="11:00"/>
-                                <ComboBoxItem Content="12:00"/>
-                                <ComboBoxItem Content="13:00"/>
-                                <ComboBoxItem Content="14:00"/>
-                                <ComboBoxItem Content="15:00"/>
-                                <ComboBoxItem Content="16:00"/>
-                                <ComboBoxItem Content="17:00"/>
-                                <ComboBoxItem Content="18:00"/>
-                                <ComboBoxItem Content="19:00"/>
-                                <ComboBoxItem Content="20:30" IsSelected="True"/>
-                                <ComboBoxItem Content="21:00"/>
-                                <ComboBoxItem Content="22:00"/>
-                                <ComboBoxItem Content="23:00"/>
-                            </ComboBox>
+                                <!-- Separator -->
+                                <Rectangle Grid.Column="7" 
+                                          Fill="#00B4B5" 
+                                          Width="1" 
+                                          Height="20" 
+                                          Margin="10,0"/>
 
-                            <!-- Separator -->
-                            <Rectangle Grid.Column="7" 
-                                      Fill="#00B4B5" 
-                                      Width="1" 
-                                      Height="20" 
-                                      Margin="10,0"/>
+                                <!-- Vehicle Type Dropdown -->
+                                <ComboBox Grid.Column="8"
+                                         x:Name="cmbFilterVehicle"
+                                         Background="Transparent"
+                                         BorderThickness="0"
+                                         FontSize="15"
+                                         FontWeight="SemiBold"
+                                         Foreground="#011C4B"
+                                         SelectedIndex="3"
+                                         Margin="10,0"
+                                         SelectionChanged="CmbFilter_SelectionChanged"
+                                         VerticalAlignment="Center"
+                                         MinWidth="180">
+                                    <ComboBoxItem Content="Pejalan kaki tanpa kendaraan"/>
+                                    <ComboBoxItem Content="Sepeda"/>
+                                    <ComboBoxItem Content="Sepeda motor 500cc dan gerobak dorong"/>
+                                    <ComboBoxItem Content="Sepeda Motor (>500cc) (Golongan III)" IsSelected="True"/>
+                                    <ComboBoxItem Content="Mobil jeep, sedan, minibus"/>
+                                    <ComboBoxItem Content="Mobil barang bak muatan terbuka/tertutup, mobil kabin ganda"/>
+                                    <ComboBoxItem Content="Mobil bus penumpang (5-7 meter)"/>
+                                    <ComboBoxItem Content="Mobil barang (truk/tangki) ukuran sedang (5-7 meter)"/>
+                                    <ComboBoxItem Content="Mobil bus penumpang (7-10 meter)"/>
+                                    <ComboBoxItem Content="Mobil barang (truk/tangki) sedang (7-10 meter)"/>
+                                    <ComboBoxItem Content="Mobil tronton, tangki, penarik + gandengan (10-12 meter)"/>
+                                    <ComboBoxItem Content="Mobil tronton, tangki, alat berat (12-16 meter)"/>
+                                    <ComboBoxItem Content="Mobil tronton, tangki, alat berat (>16 meter)"/>
+                                </ComboBox>
 
-                            <!-- Vehicle Type Dropdown -->
-                            <ComboBox Grid.Column="8"
-                                     x:Name="cmbFilterVehicle"
-                                     Background="Transparent"
-                                     BorderThickness="0"
-                                     FontSize="15"
-                                     FontWeight="SemiBold"
-                                     Foreground="#011C4B"
-                                     SelectedIndex="3"
-                                     Margin="10,0"
-                                     SelectionChanged="CmbFilter_SelectionChanged"
-                                     VerticalAlignment="Center">
-                                <ComboBoxItem Content="Pejalan kaki tanpa kendaraan"/>
-                                <ComboBoxItem Content="Sepeda"/>
-                                <ComboBoxItem Content="Sepeda motor 500cc dan gerobak dorong"/>
-                                <ComboBoxItem Content="Sepeda Motor (>500cc) (Golongan III)" IsSelected="True"/>
-                                <ComboBoxItem Content="Mobil jeep, sedan, minibus"/>
-                                <ComboBoxItem Content="Mobil barang bak muatan terbuka/tertutup, mobil kabin ganda"/>
-                                <ComboBoxItem Content="Mobil bus penumpang (5-7 meter)"/>
-                                <ComboBoxItem Content="Mobil barang (truk/tangki) ukuran sedang (5-7 meter)"/>
-                                <ComboBoxItem Content="Mobil bus penumpang (7-10 meter)"/>
-                                <ComboBoxItem Content="Mobil barang (truk/tangki) sedang (7-10 meter)"/>
-                                <ComboBoxItem Content="Mobil tronton, tangki, penarik + gandengan (10-12 meter)"/>
-                                <ComboBoxItem Content="Mobil tronton, tangki, alat berat (12-16 meter)"/>
-                                <ComboBoxItem Content="Mobil tronton, tangki, alat berat (>16 meter)"/>
-                            </ComboBox>
+                                <!-- Separator -->
+                                <Rectangle Grid.Column="9" 
+                                          Fill="#00B4B5" 
+                                          Width="1" 
+                                          Height="20" 
+                                          Margin="10,0"/>
 
-                            <!-- Separator -->
-                            <Rectangle Grid.Column="9" 
-                                      Fill="#00B4B5" 
-                                      Width="1" 
-                                      Height="20" 
-                                      Margin="10,0"/>
+                                <!-- Passenger Count Dropdown -->
+                                <ComboBox Grid.Column="10"
+                                         x:Name="cmbFilterPassenger"
+                                         Background="Transparent"
+                                         BorderThickness="0"
+                                         FontSize="15"
+                                         FontWeight="SemiBold"
+                                         Foreground="#011C4B"
+                                         SelectedIndex="2"
+                                         Margin="10,0"
+                                         SelectionChanged="CmbFilter_SelectionChanged"
+                                         VerticalAlignment="Center"
+                                         MinWidth="100">
+                                    <ComboBoxItem Content="1 Penumpang"/>
+                                    <ComboBoxItem Content="2 Penumpang"/>
+                                    <ComboBoxItem Content="3 Penumpang" IsSelected="True"/>
+                                    <ComboBoxItem Content="4 Penumpang"/>
+                                    <ComboBoxItem Content="5+ Penumpang"/>
+                                </ComboBox>
 
-                            <!-- Passenger Count Dropdown -->
-                            <ComboBox Grid.Column="10"
-                                     x:Name="cmbFilterPassenger"
-                                     Background="Transparent"
-                                     BorderThickness="0"
-                                     FontSize="15"
-                                     FontWeight="SemiBold"
-                                     Foreground="#011C4B"
-                                     SelectedIndex="2"
-                                     Margin="10,0"
-                                     SelectionChanged="CmbFilter_SelectionChanged"
-                                     VerticalAlignment="Center">
-                                <ComboBoxItem Content="1 Penumpang"/>
-                                <ComboBoxItem Content="2 Penumpang"/>
-                                <ComboBoxItem Content="3 Penumpang" IsSelected="True"/>
-                                <ComboBoxItem Content="4 Penumpang"/>
-                                <ComboBoxItem Content="5+ Penumpang"/>
-                            </ComboBox>
+                                <!-- Spacer Column -->
+                                <Grid Grid.Column="11"/>
 
-                            <!-- Spacer -->
-                            <Grid Grid.Column="12" Margin="10,0,0,0"/>
-
-                            <!-- Search Button -->
-                            <Button Grid.Column="12"
-                                   x:Name="btnFilterSearch"
-                                   Content="Cari"
-                                   Background="#00658D"
-                                   Foreground="White"
-                                   Padding="25,10"
-                                   FontSize="15"
-                                   FontWeight="SemiBold"
-                                   Click="BtnFilterSearch_Click" Margin="105,0,0,0" HorizontalAlignment="Right" Width="93">
-                                <Button.Style>
-                                    <Style TargetType="{x:Type Button}">
-                                        <Setter Property="Template">
-                                            <Setter.Value>
-                                                <ControlTemplate TargetType="{x:Type Button}">
-                                                    <Border Background="{TemplateBinding Background}"
-                                                            CornerRadius="8">
-                                                        <ContentPresenter HorizontalAlignment="Center"
-                                                                          VerticalAlignment="Center"/>
-                                                    </Border>
-                                                </ControlTemplate>
-                                            </Setter.Value>
-                                        </Setter>
-                                        <Style.Triggers>
-                                            <Trigger Property="IsMouseOver" Value="True">
-                                                <Setter Property="Background" Value="#1D4ED8"/>
-                                            </Trigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </Button.Style>
-                            </Button>
-                        </Grid>
+                                <!-- Search Button - Always stays right -->
+                                <Button Grid.Column="12"
+                                       x:Name="btnFilterSearch"
+                                       Content="Cari"
+                                       Background="#00658D"
+                                       Foreground="White"
+                                       Padding="20,10"
+                                       FontSize="15"
+                                       FontWeight="SemiBold"
+                                       Click="BtnFilterSearch_Click" 
+                                       HorizontalAlignment="Right" 
+                                       MinWidth="80"
+                                       MaxWidth="120">
+                                    <Button.Style>
+                                        <Style TargetType="{x:Type Button}">
+                                            <Setter Property="Template">
+                                                <Setter.Value>
+                                                    <ControlTemplate TargetType="{x:Type Button}">
+                                                        <Border Background="{TemplateBinding Background}"
+                                                                CornerRadius="8">
+                                                            <ContentPresenter HorizontalAlignment="Center"
+                                                                              VerticalAlignment="Center"/>
+                                                        </Border>
+                                                    </ControlTemplate>
+                                                </Setter.Value>
+                                            </Setter>
+                                            <Style.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter Property="Background" Value="#1D4ED8"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Button.Style>
+                                </Button>
+                            </Grid>
+                        </ScrollViewer>
                     </Border>
 
                     <!-- Schedule List Header -->
@@ -341,6 +348,8 @@
 
                         <!-- Regular Schedule Item -->
                         <Border Background="White"
+                               BorderBrush="#042769"
+                               BorderThickness="1.65"
                                CornerRadius="25" 
                                Padding="35,25"
                                Margin="0,0,0,20"
@@ -566,8 +575,8 @@
 
                                         <!-- Vertical Separator -->
                                         <Rectangle Grid.Column="1" 
-                                                  Fill="#E0E0E0" 
-                                                  Width="2" 
+                                                  Fill="#717182" 
+                                                  Width="1" 
                                                   VerticalAlignment="Stretch"
                                                   Margin="15,0"/>
 
@@ -688,7 +697,9 @@
                         </Border>
 
                         <!-- Express Schedule Item -->
-                        <Border Background="White" 
+                        <Border Background="White"
+                               BorderBrush="#042769"
+                               BorderThickness="1.65"
                                CornerRadius="25" 
                                Padding="35,25"
                                Margin="0,0,0,20"
@@ -914,8 +925,8 @@
 
                                         <!-- Vertical Separator -->
                                         <Rectangle Grid.Column="1" 
-                                                  Fill="#E0E0E0" 
-                                                  Width="2" 
+                                                  Fill="#717182" 
+                                                  Width="1" 
                                                   VerticalAlignment="Stretch"
                                                   Margin="15,0"/>
 
@@ -1036,7 +1047,9 @@
                         </Border>
 
                         <!-- Regular Schedule Item (Second) -->
-                        <Border Background="White" 
+                        <Border Background="White"
+                               BorderBrush="#042769"
+                               BorderThickness="1.65"
                                CornerRadius="25" 
                                Padding="35,25"
                                Margin="0,0,0,20"
@@ -1262,13 +1275,14 @@
 
                                         <!-- Vertical Separator -->
                                         <Rectangle Grid.Column="1" 
-                                                  Fill="#E0E0E0" 
-                                                  Width="2" 
+                                                  Fill="#717182" 
+                                                  Width="1" 
                                                   VerticalAlignment="Stretch"
-                                                  Margin="15,0"/>
+                                                  HorizontalAlignment="Center" 
+                                                  Margin="0"/>
 
                                         <!-- Port Facilities -->
-                                        <StackPanel Grid.Column="0" Margin="0,0,15,0">
+                                        <StackPanel Grid.Column="0" Margin="0,0,10,0">
                                             <TextBlock Text="Fasilitas Pelabuhan" 
                                                       FontSize="20" 
                                                       FontWeight="Bold" 
@@ -1326,7 +1340,7 @@
                                         </StackPanel>
 
                                         <!-- Ship Facilities -->
-                                        <StackPanel Grid.Column="2" Margin="15,0,0,0">
+                                        <StackPanel Grid.Column="2" Margin="10,0,0,0">
                                             <TextBlock Text="Fasilitas Kapal" 
                                                       FontSize="20" 
                                                       FontWeight="Bold" 
