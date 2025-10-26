@@ -233,7 +233,11 @@
                                     </Style>
                                 </Button.Style>
                                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                    <TextBlock Text="f" FontSize="16" FontWeight="Bold" Margin="0,0,5,0"/>
+                                    <Image
+                                           Source="pack://application:,,,/Views/Assets/Icons/iconfacebook.png"
+                                           Width="20"
+                                           Height="18"
+                                           />
                                     <TextBlock Text="Facebook" FontSize="14" FontFamily="Plus Jakarta Sans"/>
                                 </StackPanel>
                             </Button>
@@ -266,7 +270,12 @@
                                     </Style>
                                 </Button.Style>
                                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                    <TextBlock Text="G" FontSize="16" FontWeight="Bold" Margin="0,0,5,0"/>
+                                    <Image
+                                           Source="pack://application:,,,/Views/Assets/Icons/icongoogle.png"
+                                           Width="20"
+                                           Height="18"
+                                           Margin="0,0,5,0"
+                                           />
                                     <TextBlock Text="Google" FontSize="14" FontFamily="Plus Jakarta Sans"/>
                                 </StackPanel>
                             </Button>
