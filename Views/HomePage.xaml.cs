@@ -47,21 +47,21 @@ namespace TiketLaut.Views
                 return;
             }
 
-                // Validasi Tanggal
-                if (!dpTanggal?.SelectedDate.HasValue ?? false)
-                {
-                    MessageBox.Show("Silakan pilih Tanggal!", "Peringatan",
-                        MessageBoxButton.OK, MessageBoxImage.Warning);
-                    return;
-                }
+            // Validasi Tanggal
+            if (!dpTanggal?.SelectedDate.HasValue ?? false)
+            {
+                MessageBox.Show("Silakan pilih Tanggal!", "Peringatan",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
 
-                // Validasi Penumpang
-                if (cmbPenumpang?.SelectedIndex == 0)
-                {
-                    MessageBox.Show("Silakan pilih Penumpang!", "Peringatan",
-                        MessageBoxButton.OK, MessageBoxImage.Warning);
-                    return;
-                    }
+            // Validasi Penumpang
+            if (cmbPenumpang?.SelectedIndex == 0)
+            {
+                MessageBox.Show("Silakan pilih Penumpang!", "Peringatan",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
 
             if (cmbPelabuhanTujuan.SelectedIndex == 0)
             {
@@ -77,18 +77,15 @@ namespace TiketLaut.Views
                 return;
             }
 
-            if (cmbPenumpang.SelectedIndex == 0)
-            {
-                MessageBox.Show("Silakan pilih Penumpang!", "Peringatan",
-                    MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
+            // Jika semua validasi berhasil, buka ScheduleWindow
+            ScheduleWindow scheduleWindow = new ScheduleWindow();
+            scheduleWindow.Show();
+            this.Close();
+        }
 
-            var selectedDate = dpTanggal.SelectedDate?.ToString("dd/MM/yyyy");
-            var selectedJam = cmbJam.SelectedItem?.ToString() ?? "Tidak dipilih";
+        private void cmbJenisKendaraan_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        {
 
-            MessageBox.Show($"Pencarian jadwal dimulai...\nTanggal: {selectedDate}\nJam: {selectedJam}", "Sukses",
-                MessageBoxButton.OK, MessageBoxImage.Information);
         }
     }
 }

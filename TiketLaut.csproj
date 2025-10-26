@@ -9,6 +9,9 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <None Remove="Views\Assets\Icons\back.png" />
+	  <None Remove="Views\Assets\Icons\iconfacebook.png" />
+	  <None Remove="Views\Assets\Icons\icongoogle.png" />
 	  <None Remove="Views\Assets\Images\background.png" />
 	  <None Remove="Views\Assets\Images\bekgron.png" />
 	  <None Remove="Views\Assets\Images\iconlokasi.png" />
@@ -18,6 +21,15 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Resource Include="Views\Assets\Icons\back.png">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Resource>
+	  <Resource Include="Views\Assets\Icons\iconfacebook.png">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Resource>
+	  <Resource Include="Views\Assets\Icons\icongoogle.png">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Resource>
 	  <Resource Include="Views\Assets\Images\background.png">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Resource>

@@ -5,6 +5,7 @@
         Height="900" 
         Width="1400"
         WindowStartupLocation="CenterScreen"
+        WindowState="Maximized"
         Background="White"
         FontFamily="Plus Jakarta Sans">
 
