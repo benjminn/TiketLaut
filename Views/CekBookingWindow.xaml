@@ -1,0 +1,221 @@
+<Window x:Class="TiketLaut.Views.CekBookingWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:components="clr-namespace:TiketLaut.Views.Components"
+        Title="Tiket Laut - Cek Booking" 
+        Height="900" 
+        Width="1400"
+        WindowStartupLocation="CenterScreen"
+        Background="#F2F5FC"
+        FontFamily="Plus Jakarta Sans">
+
+    <Window.Resources>
+        <!-- Shadow Effect -->
+        <DropShadowEffect x:Key="CardShadow" 
+                         BlurRadius="10" 
+                         ShadowDepth="3" 
+                         Opacity="0.15" 
+                         Color="#000000"/>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Navbar Component -->
+        <components:NavbarPostLogin Grid.Row="0" 
+                                    x:Name="navbarPostLogin"
+                                    VerticalAlignment="Top"
+                                    Panel.ZIndex="999"/>
+
+        <!-- Main Content -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <StackPanel Margin="95,30,95,50">
+                    
+                    <!-- Header Card -->
+                    <Border Background="White" 
+                           CornerRadius="30" 
+                           Padding="40,30"
+                           Effect="{StaticResource CardShadow}"
+                           Margin="0,0,0,30">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Title -->
+                            <TextBlock Grid.Column="0" 
+                                      Text="Pesanan Saya" 
+                                      FontSize="28" 
+                                      FontWeight="Bold" 
+                                      Foreground="Black" 
+                                      VerticalAlignment="Center"/>
+
+                            <!-- Riwayat Button -->
+                            <Button Grid.Column="1" 
+                                   x:Name="btnRiwayat"
+                                   Click="BtnRiwayat_Click"
+                                   Background="Transparent" 
+                                   BorderThickness="0" 
+                                   Cursor="Hand">
+                                <StackPanel Orientation="Horizontal">
+                                    <Image Source="/Views/Assets/Icons/iconhistory.png" 
+                                          Width="24" 
+                                          Height="24" 
+                                          Margin="0,0,10,0"/>
+                                    <TextBlock Text="Riwayat pesanan" 
+                                              FontSize="20" 
+                                              FontWeight="SemiBold" 
+                                              Foreground="#00658D"/>
+                                </StackPanel>
+                            </Button>
+                        </Grid>
+                    </Border>
+
+                    <!-- Filter & Sort Buttons -->
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,30">
+                        <!-- Filter Button -->
+                        <Border BorderBrush="#042769" 
+                               BorderThickness="0.5" 
+                               CornerRadius="25" 
+                               Padding="30,15" 
+                               Margin="0,0,15,0"
+                               Background="White"
+                               Cursor="Hand">
+                            <StackPanel Orientation="Horizontal">
+                                <Image Source="/Views/Assets/Icons/iconfilter.png" 
+                                       Width="20" 
+                                       Height="20" 
+                                       Margin="0,0,10,0"/>
+                                <TextBlock Text="Filter" 
+                                          FontSize="20" 
+                                          FontWeight="Medium" 
+                                          Foreground="#00B4B5"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Sort Button -->
+                        <Border BorderBrush="#042769" 
+                               BorderThickness="0.5" 
+                               CornerRadius="25" 
+                               Padding="30,15"
+                               Background="White"
+                               Cursor="Hand">
+                            <StackPanel Orientation="Horizontal">
+                                <Image Source="/Views/Assets/Icons/iconsort.png" 
+                                       Width="20" 
+                                       Height="20" 
+                                       Margin="0,0,10,0"/>
+                                <TextBlock Text="Urutkan" 
+                                          FontSize="20" 
+                                          FontWeight="Medium" 
+                                          Foreground="#00B4B5"/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+
+                    <!-- Booking List -->
+                    <ItemsControl x:Name="icBookingList">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <!-- Booking Card -->
+                                <Border Background="#FEFEFE" 
+                                       CornerRadius="28" 
+                                       BorderBrush="#042769" 
+                                       BorderThickness="1" 
+                                       Padding="30,30" 
+                                       Margin="0,0,0,20"
+                                       Cursor="Hand"
+                                       MouseLeftButtonDown="BookingCard_Click">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <!-- Booking Info -->
+                                        <StackPanel Grid.Column="0">
+                                            <!-- Route & Status -->
+                                            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                                                <TextBlock Text="{Binding Route}" 
+                                                          FontSize="24" 
+                                                          FontWeight="SemiBold" 
+                                                          Foreground="Black"/>
+                                                
+                                                <Ellipse Width="10" 
+                                                        Height="10" 
+                                                        Fill="{Binding StatusColor}" 
+                                                        Margin="15,0,10,0" 
+                                                        VerticalAlignment="Center"/>
+                                                
+                                                <TextBlock Text="{Binding Status}" 
+                                                          FontSize="24" 
+                                                          FontWeight="SemiBold" 
+                                                          Foreground="{Binding StatusColor}"/>
+                                            </StackPanel>
+
+                                            <!-- Ship Name -->
+                                            <TextBlock Text="{Binding ShipName}" 
+                                                      FontSize="16" 
+                                                      FontWeight="SemiBold" 
+                                                      Foreground="#00658D" 
+                                                      Margin="0,0,0,20"/>
+
+                                            <!-- Date & Time -->
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Text="{Binding Date}" 
+                                                          FontSize="16" 
+                                                          FontWeight="Bold" 
+                                                          Foreground="#042769"/>
+                                                
+                                                <Rectangle Fill="#00B4B5" 
+                                                          Width="1.5" 
+                                                          Height="20" 
+                                                          Margin="15,0"/>
+                                                
+                                                <TextBlock Text="{Binding Time}" 
+                                                          FontSize="16" 
+                                                          FontWeight="Bold" 
+                                                          Foreground="#042769"/>
+                                            </StackPanel>
+
+                                            <!-- Warning Message (if applicable) -->
+                                            <Border Background="#FFD3C5" 
+                                                   CornerRadius="8" 
+                                                   Padding="15,10" 
+                                                   Margin="0,15,0,0"
+                                                   HorizontalAlignment="Left"
+                                                   Visibility="{Binding ShowWarning}">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <Image Source="/Views/Assets/Icons/iconinfo.png" 
+                                                           Width="24" 
+                                                           Height="24" 
+                                                           Margin="0,0,10,0"/>
+                                                    <TextBlock Text="{Binding WarningText}" 
+                                                              FontSize="16" 
+                                                              FontWeight="Medium" 
+                                                              Foreground="#00658D" 
+                                                              VerticalAlignment="Center"/>
+                                                </StackPanel>
+                                            </Border>
+                                        </StackPanel>
+
+                                        <!-- Arrow Icon -->
+                                        <Image Grid.Column="1" 
+                                               Source="/Views/Assets/Icons/iconarrowright.png"
+                                               Width="30" 
+                                               Height="30" 
+                                               VerticalAlignment="Top"/>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</Window>
