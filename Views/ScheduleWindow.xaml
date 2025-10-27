@@ -3,11 +3,11 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:TiketLaut.Views.Components"
         Title="Jadwal - Tiket Laut" 
-        Height="900" 
-        Width="1400"
+        MinHeight="800" 
+        MinWidth="1500"
+        WindowState="Maximized"
         WindowStartupLocation="CenterScreen"
-        MinWidth="1200"
-        MinHeight="700"
+        ResizeMode="CanResize"
         Background="#F2F5FC"
         FontFamily="Plus Jakarta Sans">
 
@@ -218,18 +218,19 @@
                         <Button Grid.Column="12"
                                Background="#00658D"
                                BorderThickness="0"
-                               Padding="35,12"
+                               Padding="45,14"
                                Cursor="Hand"
                                Click="BtnCari_Click"
                                Margin="20,0,0,0"
-                               Height="40">
+                               Height="45"
+                               MinWidth="110">
                             <Button.Style>
                                 <Style TargetType="Button">
                                     <Setter Property="Template">
                                         <Setter.Value>
                                             <ControlTemplate TargetType="Button">
                                                 <Border Background="{TemplateBinding Background}"
-                                                       CornerRadius="10">
+                                                       CornerRadius="12">
                                                     <ContentPresenter HorizontalAlignment="Center"
                                                                      VerticalAlignment="Center"/>
                                                 </Border>
@@ -244,8 +245,8 @@
                                 </Style>
                             </Button.Style>
                             <TextBlock Text="Cari" 
-                                      FontSize="16" 
-                                      FontWeight="SemiBold" 
+                                      FontSize="18" 
+                                      FontWeight="Bold" 
                                       Foreground="White"/>
                         </Button>
                     </Grid>
@@ -280,37 +281,16 @@
                                    BorderThickness="1" 
                                    Padding="35,25" 
                                    Margin="0,0,0,30">
-                                <StackPanel>
-                                    <!-- Header with Title and Price -->
-                                    <Grid Margin="0,0,0,15">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="Auto"/>
-                                        </Grid.ColumnDefinitions>
-
-                                        <!-- Title -->
-                                        <TextBlock Grid.Column="0" 
-                                                  Text="{Binding FerryType}" 
-                                                  FontSize="28" 
-                                                  FontWeight="Bold" 
-                                                  Foreground="Black"
-                                                  VerticalAlignment="Center"/>
-
-                                        <!-- Right Side: Capacity and Price stacked -->
-                                        <StackPanel Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Top">
-                                            <TextBlock Text="{Binding Capacity}" 
-                                                      FontSize="14" 
-                                                      FontWeight="SemiBold" 
-                                                      Foreground="#00658D"
-                                                      TextAlignment="Right"
-                                                      Margin="0,0,0,5"/>
-                                            <TextBlock Text="{Binding Price}" 
-                                                      FontSize="24" 
-                                                      FontWeight="Bold" 
-                                                      Foreground="#E74C3C"
-                                                      TextAlignment="Right"/>
-                                        </StackPanel>
-                                    </Grid>
+                                <Grid>
+                                    <StackPanel>
+                                        <!-- Header with Title -->
+                                    <TextBlock Text="{Binding FerryType}" 
+                                              FontSize="28" 
+                                              FontWeight="Bold" 
+                                              Foreground="Black"
+                                              VerticalAlignment="Top"
+                                              HorizontalAlignment="Left"
+                                              Margin="0,0,0,10"/>
 
                                     <!-- Schedule Info Section -->
                                     <Grid Margin="0,0,0,20">
@@ -321,7 +301,7 @@
                                         </Grid.ColumnDefinitions>
 
                                         <!-- Left: Date and Warning -->
-                                        <StackPanel Grid.Column="0" VerticalAlignment="Top" Width="280">
+                                        <StackPanel Grid.Column="0" VerticalAlignment="Top" Width="300">
                                             <TextBlock Text="Jadwal masuk Pelabuhan" 
                                                       FontSize="14" 
                                                       FontWeight="Medium" 
@@ -338,48 +318,56 @@
                                                    CornerRadius="11" 
                                                    Padding="12,8" 
                                                    HorizontalAlignment="Left"
-                                                   MaxWidth="280">
-                                                <StackPanel Orientation="Horizontal">
-                                                    <Image Source="/Views/Assets/Icons/iconwarning.png" 
+                                                   MaxWidth="300">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <Image Grid.Column="0"
+                                                           Source="/Views/Assets/Icons/iconwarning.png" 
                                                            Width="18" 
                                                            Height="18" 
                                                            Margin="0,0,8,0"
-                                                           VerticalAlignment="Center"/>
-                                                    <TextBlock Text="{Binding WarningText}" 
+                                                           VerticalAlignment="Top"/>
+                                                    <TextBlock Grid.Column="1"
+                                                              Text="{Binding WarningText}" 
                                                               FontSize="12" 
                                                               FontWeight="Medium" 
                                                               Foreground="#E74C3C"
                                                               TextWrapping="Wrap"
                                                               VerticalAlignment="Center"/>
-                                                </StackPanel>
+                                                </Grid>
                                             </Border>
                                         </StackPanel>
 
                                         <!-- Center: Journey Time -->
                                         <StackPanel Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Top">
+                                            <!-- Title above the grid -->
+                                            <TextBlock Text="Estimasi Waktu Perjalanan" 
+                                                      FontSize="14" 
+                                                      FontWeight="Medium" 
+                                                      Foreground="#999999"
+                                                      TextAlignment="left"
+                                                      Margin="0,0,0,8"/>
+                                            
                                             <!-- Journey Details -->
                                             <Grid HorizontalAlignment="Center">
                                                 <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="85"/>
                                                     <ColumnDefinition Width="Auto"/>
-                                                    <ColumnDefinition Width="Auto"/>
-                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="85"/>
                                                 </Grid.ColumnDefinitions>
 
                                                 <!-- Departure -->
                                                 <StackPanel Grid.Column="0" HorizontalAlignment="Left">
-                                                    <TextBlock Text="Estimasi Waktu Perjalanan" 
-                                                              FontSize="12" 
-                                                              FontWeight="Medium" 
-                                                              Foreground="#999999"
-                                                              TextAlignment="Left"
-                                                              Margin="0,0,0,8"/>
                                                     <TextBlock Text="{Binding DepartureTime}" 
                                                               FontSize="24" 
                                                               FontWeight="Bold" 
                                                               Foreground="Black"
                                                               TextAlignment="Left"/>
                                                     <TextBlock Text="{Binding DeparturePort}" 
-                                                              FontSize="14" 
+                                                              FontSize="16" 
                                                               FontWeight="SemiBold" 
                                                               Foreground="#042769"
                                                               TextAlignment="Left"
@@ -387,7 +375,7 @@
                                                 </StackPanel>
 
                                                 <!-- Arrow with Duration -->
-                                                <StackPanel Grid.Column="1" Margin="20,0" VerticalAlignment="Bottom">
+                                                <StackPanel Grid.Column="1" Margin="12,0" VerticalAlignment="Center">
                                                     <TextBlock Text="{Binding Duration}" 
                                                               FontSize="12" 
                                                               FontWeight="Medium" 
@@ -395,22 +383,21 @@
                                                               TextAlignment="Center"
                                                               Margin="0,0,0,5"/>
                                                     <Image Source="/Views/Assets/Icons/iconarrowlong.png" 
-                                                          Width="70" 
+                                                          Width="80" 
                                                           Height="16"
                                                           Stretch="Uniform"
                                                           VerticalAlignment="Center"/>
                                                 </StackPanel>
 
                                                 <!-- Arrival -->
-                                                <StackPanel Grid.Column="2" HorizontalAlignment="Left" VerticalAlignment="Bottom">
+                                                <StackPanel Grid.Column="2" HorizontalAlignment="Left" VerticalAlignment="Center">
                                                     <TextBlock Text="{Binding ArrivalTime}" 
                                                               FontSize="24" 
                                                               FontWeight="Bold" 
                                                               Foreground="Black"
-                                                              TextAlignment="Left"
-                                                              Margin="0,25,0,0"/>
+                                                              TextAlignment="Left"/>
                                                     <TextBlock Text="{Binding ArrivalPort}" 
-                                                              FontSize="14" 
+                                                              FontSize="16" 
                                                               FontWeight="SemiBold" 
                                                               Foreground="#042769"
                                                               TextAlignment="Left"
@@ -424,7 +411,8 @@
                                                Background="#2D6CDF"
                                                CornerRadius="15"
                                                VerticalAlignment="Top"
-                                               Cursor="Hand">
+                                               Cursor="Hand"
+                                               Margin="20,35,0,0">
                                             <Button Background="Transparent"
                                                    BorderThickness="0"
                                                    Padding="40,12"
@@ -432,7 +420,7 @@
                                                    Click="BtnPilihTiket_Click"
                                                    Tag="{Binding}">
                                                 <TextBlock Text="Pilih Tiket" 
-                                                          FontSize="16" 
+                                                          FontSize="18" 
                                                           FontWeight="Bold" 
                                                           Foreground="White"/>
                                             </Button>
@@ -556,7 +544,24 @@
                                             </StackPanel>
                                         </Grid>
                                     </StackPanel>
-                                </StackPanel>
+                                    </StackPanel>
+
+                                    <!-- Right Side: Capacity and Price (absolute positioning, overlay) -->
+                                    <StackPanel HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,0,0,0">
+                                        <TextBlock Text="{Binding Capacity}" 
+                                                  FontSize="14" 
+                                                  FontWeight="SemiBold" 
+                                                  Foreground="#00658D"
+                                                  TextAlignment="Right"
+                                                  Margin="0,0,0,15"/>
+                                        <TextBlock Text="{Binding Price}" 
+                                                  FontSize="24" 
+                                                  FontWeight="Bold" 
+                                                  Foreground="#E74C3C"
+                                                  TextAlignment="Right"
+                                                  Margin="0,0,0,0"/>
+                                    </StackPanel>
+                                </Grid>
                             </Border>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
