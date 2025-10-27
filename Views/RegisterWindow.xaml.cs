@@ -34,7 +34,7 @@ namespace TiketLaut.Views
 
             // Ambil data dari form
             string namaLengkap = txtNamaLengkap.Text.Trim();
-            string jenisKelamin = (cmbJenisKelamin.SelectedItem as System.Windows.Controls.ComboBoxItem)?.Content.ToString();
+            string? jenisKelamin = (cmbJenisKelamin.SelectedItem as System.Windows.Controls.ComboBoxItem)?.Content.ToString();
             DateTime? tanggalLahir = dpTanggalLahir.SelectedDate;
             string nik = txtNIK.Text.Trim();
             string email = txtEmail.Text.Trim();
