@@ -3,14 +3,144 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
         xmlns:components="clr-namespace:TiketLaut.Views.Components"
+        xmlns:local="clr-namespace:TiketLaut.Views"
         Title="Detail Pemesanan - Tiket Laut" 
-        MinHeight="700"
-        MinWidth="1200"
+        MinHeight="800"
+        MinWidth="1400"
         WindowState="Maximized"
         ResizeMode="CanResize"
         FontFamily="Plus Jakarta Sans"
         Background="#F2F5FC"
         SizeChanged="Window_SizeChanged">
+
+    <Window.Resources>
+        <!-- Custom RadioButton Style -->
+        <Style x:Key="CustomRadioButton" TargetType="RadioButton">
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="FontWeight" Value="Medium"/>
+            <Setter Property="Foreground" Value="#042769"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <StackPanel Orientation="Horizontal">
+                            <Grid Width="20" Height="20" VerticalAlignment="Top" Margin="0,2,8,0">
+                                <Ellipse x:Name="OuterCircle" 
+                                        Stroke="#00658D" 
+                                        StrokeThickness="2" 
+                                        Fill="Transparent"/>
+                                <Ellipse x:Name="InnerCircle" 
+                                        Width="10" 
+                                        Height="10" 
+                                        Fill="#00658D" 
+                                        Visibility="Collapsed"/>
+                            </Grid>
+                            <ContentPresenter VerticalAlignment="Top"/>
+                        </StackPanel>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="InnerCircle" Property="Visibility" Value="Visible"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Floating Label TextBox Style -->
+        <Style x:Key="FloatingLabelTextBox" TargetType="Border">
+            <Setter Property="BorderBrush" Value="#E2E8F0"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="Background" Value="White"/>
+        </Style>
+
+        <!-- Floating Label ComboBox Style -->
+        <Style x:Key="FloatingLabelComboBox" TargetType="ComboBox">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Foreground" Value="#042769"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="Medium"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="Padding" Value="16,0,16,0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBox">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <Border Grid.Column="0" Grid.ColumnSpan="2"
+                                  Background="White"
+                                  BorderThickness="0"
+                                  CornerRadius="12"/>
+                            
+                            <ToggleButton x:Name="ToggleButton"
+                                        Grid.Column="0" Grid.ColumnSpan="2"
+                                        Background="Transparent"
+                                        BorderThickness="0"
+                                        Focusable="False"
+                                        IsChecked="{Binding Path=IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
+                                        ClickMode="Press"/>
+                            
+                            <ContentPresenter x:Name="ContentSite"
+                                            Grid.Column="0"
+                                            Content="{TemplateBinding SelectionBoxItem}"
+                                            ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                                            ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}"
+                                            Margin="16,10,0,0"
+                                            HorizontalAlignment="Left"
+                                            VerticalAlignment="Center"
+                                            IsHitTestVisible="False"/>
+                            
+                            <Image x:Name="ArrowIcon"
+                                 Grid.Column="1"
+                                 Source="Assets/Icons/icondropdowngelap.png"
+                                 Width="20"
+                                 Height="20"
+                                 Margin="8,0,12,0"
+                                 VerticalAlignment="Center"
+                                 RenderTransformOrigin="0.5,0.5"
+                                 Stretch="Uniform"
+                                 IsHitTestVisible="False">
+                                <Image.RenderTransform>
+                                    <RotateTransform Angle="0"/>
+                                </Image.RenderTransform>
+                            </Image>
+                            
+                            <Popup x:Name="Popup"
+                                 Grid.Column="0" Grid.ColumnSpan="2"
+                                 Placement="Bottom"
+                                 IsOpen="{TemplateBinding IsDropDownOpen}"
+                                 AllowsTransparency="True"
+                                 Focusable="False"
+                                 PopupAnimation="Slide">
+                                <Border Background="White"
+                                      BorderBrush="#E2E8F0"
+                                      BorderThickness="1"
+                                      CornerRadius="8"
+                                      Margin="0,4,0,0"
+                                      MinWidth="{Binding ActualWidth, RelativeSource={RelativeSource TemplatedParent}}">
+                                    <ScrollViewer MaxHeight="200">
+                                        <ItemsPresenter/>
+                                    </ScrollViewer>
+                                </Border>
+                            </Popup>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Cursor" Value="Hand"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
 
     <Grid>
         <Grid.RowDefinitions>
@@ -18,15 +148,18 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- Navbar -->
-        <components:NavbarSelainHomepage Grid.Row="0"/>
+        <!-- Navbar Component -->
+        <components:NavbarSelainHomepage Grid.Row="0" 
+                                        x:Name="navbarSelainHomepage"
+                                        VerticalAlignment="Top"
+                                        Panel.ZIndex="999"/>
 
         <!-- Main Content Grid with Fixed Layout -->
-        <Grid Grid.Row="1" x:Name="MainContentGrid" Margin="40,20,40,30">
+        <Grid Grid.Row="1" x:Name="MainContentGrid" Margin="95,30,95,50">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="1.9*" MinWidth="500" MaxWidth="1200"/>
-                <ColumnDefinition Width="0.2*" MinWidth="20"/>
-                <ColumnDefinition Width="1*" MinWidth="350" MaxWidth="650"/>
+                <ColumnDefinition Width="2*" MinWidth="600"/>
+                <ColumnDefinition Width="40"/>
+                <ColumnDefinition Width="1*" MinWidth="400" MaxWidth="500"/>
             </Grid.ColumnDefinitions>
 
             <!-- Left Section - Scrollable Content -->
@@ -58,157 +191,181 @@
                     </Button>
 
                     <!-- Detail Pemesan Section -->
-                    <StackPanel Margin="0,0,0,80">
+                    <StackPanel Margin="0,0,0,30">
                         <TextBlock Text="Detail Pemesan"
-                                 FontSize="36"
+                                 FontSize="28"
                                  FontWeight="Bold"
-                                 Foreground="#1E293B"
-                                 Margin="0,0,0,24"/>
+                                 Foreground="#042769"
+                                 Margin="0,0,0,4"/>
 
                         <TextBlock Text="Detail kontak ini akan digunakan untuk pengiriman e-tiket dan keperluan reschedule."
-                                 FontSize="24"
-                                 FontWeight="Medium"
-                                 Foreground="#0F172A"
+                                 FontSize="14"
+                                 FontWeight="Regular"
+                                 Foreground="#042769"
                                  TextWrapping="Wrap"
                                  Margin="0,0,0,12"/>
 
                         <!-- Form Card -->
                         <Border Background="White"
-                              CornerRadius="24"
-                              Padding="40"
-                              BorderBrush="#267DAE"
+                              CornerRadius="17"
+                              Padding="25,20"
+                              BorderBrush="#00658D"
                               BorderThickness="2">
-                            <Border.Effect>
-                                <DropShadowEffect Color="#000000" 
-                                                Direction="270" 
-                                                ShadowDepth="9" 
-                                                BlurRadius="10.9" 
-                                                Opacity="0.06"/>
-                            </Border.Effect>
 
                             <StackPanel>
                                 <!-- Title Selection -->
-                                <WrapPanel Margin="0,0,0,24">
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
                                     <RadioButton x:Name="rbTuan"
                                                Content="Tuan"
                                                GroupName="Title"
                                                IsChecked="True"
-                                               FontSize="24"
-                                               FontWeight="Medium"
-                                               Foreground="#267DAE"
+                                               Style="{StaticResource CustomRadioButton}"
                                                Margin="0,0,16,0"/>
                                     <RadioButton x:Name="rbNyonya"
                                                Content="Nyonya"
                                                GroupName="Title"
-                                               FontSize="24"
-                                               FontWeight="Medium"
-                                               Foreground="#267DAE"
+                                               Style="{StaticResource CustomRadioButton}"
                                                Margin="0,0,16,0"/>
                                     <RadioButton x:Name="rbNona"
-                                               Content="Nona"
+                                               Content="Nona Ambon"
                                                GroupName="Title"
-                                               FontSize="24"
-                                               FontWeight="Medium"
-                                               Foreground="#267DAE"/>
-                                </WrapPanel>
-
-                                <!-- Nama Lengkap -->
-                                <Border BorderBrush="#E2E8F0"
-                                      BorderThickness="1"
-                                      CornerRadius="12"
-                                      Margin="0,0,0,24">
-                                    <TextBox x:Name="txtNamaPemesan"
-                                           Height="80"
-                                           Padding="16,14"
-                                           FontSize="24"
-                                           FontWeight="Medium"
-                                           BorderThickness="0"
-                                           Background="Transparent"
-                                           VerticalContentAlignment="Center"
-                                           Text="Nama lengkap sesuai KTP/Paspor/SIM"
-                                           Foreground="#64748B"
-                                           GotFocus="TextBox_GotFocus"
-                                           LostFocus="TextBox_LostFocus"
-                                           Tag="Nama lengkap sesuai KTP/Paspor/SIM"/>
-                                </Border>
-
-                                <!-- Nomor Ponsel -->
-                                <StackPanel Margin="0,0,0,24">
-                                    <Border BorderBrush="#E2E8F0"
-                                          BorderThickness="1"
-                                          CornerRadius="12"
-                                          Margin="0,0,0,10">
-                                        <TextBox x:Name="txtNomorPonsel"
-                                               Height="80"
-                                               Padding="16,14"
-                                               FontSize="24"
-                                               FontWeight="Medium"
-                                               BorderThickness="0"
-                                               Background="Transparent"
-                                               VerticalContentAlignment="Center"
-                                               Text="Nomor Ponsel"
-                                               Foreground="#64748B"
-                                               GotFocus="TextBox_GotFocus"
-                                               LostFocus="TextBox_LostFocus"
-                                               Tag="Nomor Ponsel"/>
-                                    </Border>
-                                    <TextBlock Text="Contoh: +62 123 1234 1234"
-                                             FontSize="18"
-                                             FontWeight="Medium"
-                                             Foreground="#64748B"/>
+                                               Style="{StaticResource CustomRadioButton}"/>
                                 </StackPanel>
 
-                                <!-- Email -->
-                                <Border BorderBrush="#E2E8F0"
-                                      BorderThickness="1"
-                                      CornerRadius="12">
-                                    <TextBox x:Name="txtEmail"
-                                           Height="80"
-                                           Padding="16,14"
-                                           FontSize="24"
-                                           FontWeight="Medium"
-                                           BorderThickness="0"
-                                           Background="Transparent"
-                                           VerticalContentAlignment="Center"
-                                           Text="Alamat Email"
-                                           Foreground="#64748B"
-                                           GotFocus="TextBox_GotFocus"
-                                           LostFocus="TextBox_LostFocus"
-                                           Tag="Alamat Email"/>
-                                </Border>
+                                <!-- Nama Lengkap dengan Floating Label -->
+                                <Grid Margin="0,0,0,16">
+                                    <Border Style="{StaticResource FloatingLabelTextBox}">
+                                        <Grid>
+                                            <TextBox x:Name="txtNamaPemesan"
+                                                    Height="52"
+                                                    Padding="16,0,16,0"
+                                                    FontSize="14"
+                                                    FontWeight="Medium"
+                                                    Foreground="#042769"
+                                                    BorderThickness="0"
+                                                    Background="Transparent"
+                                                    VerticalContentAlignment="Center"
+                                                    GotFocus="FloatingTextBox_GotFocus"
+                                                    LostFocus="FloatingTextBox_LostFocus"
+                                                    TextChanged="FloatingTextBox_TextChanged"
+                                                    Tag="lblNamaPemesan"/>
+                                        </Grid>
+                                    </Border>
+                                    <!-- Floating Label with Background -->
+                                    <Border Background="White"
+                                           HorizontalAlignment="Left"
+                                           VerticalAlignment="Center"
+                                           Margin="12,0,0,0"
+                                           Padding="4,0"
+                                           IsHitTestVisible="False">
+                                        <TextBlock x:Name="lblNamaPemesan"
+                                                  Text="Nama lengkap sesuai KTP/Paspor/SIM"
+                                                  FontSize="14"
+                                                  FontWeight="Regular"
+                                                  Foreground="#94A3B8"/>
+                                    </Border>
+                                </Grid>
+
+                                <!-- Nomor Ponsel dengan Floating Label -->
+                                <StackPanel Margin="0,0,0,16">
+                                    <Grid>
+                                        <Border Style="{StaticResource FloatingLabelTextBox}">
+                                            <Grid>
+                                                <TextBox x:Name="txtNomorPonsel"
+                                                        Height="52"
+                                                        Padding="16,0,16,0"
+                                                        FontSize="14"
+                                                        FontWeight="Medium"
+                                                        Foreground="#042769"
+                                                        BorderThickness="0"
+                                                        Background="Transparent"
+                                                        VerticalContentAlignment="Center"
+                                                        GotFocus="FloatingTextBox_GotFocus"
+                                                        LostFocus="FloatingTextBox_LostFocus"
+                                                        TextChanged="FloatingTextBox_TextChanged"
+                                                        Tag="lblNomorPonsel"/>
+                                            </Grid>
+                                        </Border>
+                                        <!-- Floating Label with Background -->
+                                        <Border Background="White"
+                                               HorizontalAlignment="Left"
+                                               VerticalAlignment="Center"
+                                               Margin="12,0,0,0"
+                                               Padding="4,0"
+                                               IsHitTestVisible="False">
+                                            <TextBlock x:Name="lblNomorPonsel"
+                                                      Text="Nomor Ponsel"
+                                                      FontSize="14"
+                                                      FontWeight="Regular"
+                                                      Foreground="#94A3B8"/>
+                                        </Border>
+                                    </Grid>
+                                    <TextBlock Text="Contoh: +62 123 1234 1234"
+                                              FontSize="11"
+                                              FontWeight="Regular"
+                                              Foreground="#94A3B8"
+                                              Margin="0,4,0,0"/>
+                                </StackPanel>
+
+                                <!-- Email dengan Floating Label -->
+                                <Grid>
+                                    <Border Style="{StaticResource FloatingLabelTextBox}">
+                                        <Grid>
+                                            <TextBox x:Name="txtEmail"
+                                                    Height="52"
+                                                    Padding="16,0,16,0"
+                                                    FontSize="14"
+                                                    FontWeight="Medium"
+                                                    Foreground="#042769"
+                                                    BorderThickness="0"
+                                                    Background="Transparent"
+                                                    VerticalContentAlignment="Center"
+                                                    GotFocus="FloatingTextBox_GotFocus"
+                                                    LostFocus="FloatingTextBox_LostFocus"
+                                                    TextChanged="FloatingTextBox_TextChanged"
+                                                    Tag="lblEmail"/>
+                                        </Grid>
+                                    </Border>
+                                    <!-- Floating Label with Background -->
+                                    <Border Background="White"
+                                           HorizontalAlignment="Left"
+                                           VerticalAlignment="Center"
+                                           Margin="12,0,0,0"
+                                           Padding="4,0"
+                                           IsHitTestVisible="False">
+                                        <TextBlock x:Name="lblEmail"
+                                                  Text="Alamat Email"
+                                                  FontSize="14"
+                                                  FontWeight="Regular"
+                                                  Foreground="#94A3B8"/>
+                                    </Border>
+                                </Grid>
                             </StackPanel>
                         </Border>
                     </StackPanel>
 
                     <!-- Detail Penumpang Section -->
-                    <StackPanel Margin="0,0,0,80">
+                    <StackPanel Margin="0,0,0,30">
                         <TextBlock Text="Detail Penumpang"
-                                 FontSize="36"
+                                 FontSize="28"
                                  FontWeight="Bold"
-                                 Foreground="#1E293B"
-                                 Margin="0,0,0,24"/>
+                                 Foreground="#042769"
+                                 Margin="0,0,0,8"/>
 
                         <TextBlock Text="Pastikan untuk mengisi data penumpang dengan benar dan lengkap."
-                                 FontSize="24"
-                                 FontWeight="Medium"
-                                 Foreground="#0F172A"
+                                 FontSize="14"
+                                 FontWeight="Regular"
+                                 Foreground="#042769"
                                  TextWrapping="Wrap"
-                                 Margin="0,0,0,12"/>
+                                 Margin="0,0,0,16"/>
 
                         <!-- Penumpang 1 -->
                         <Border Background="White"
-                              CornerRadius="24"
-                              Padding="40"
-                              BorderBrush="#267DAE"
+                              CornerRadius="17"
+                              Padding="25,20"
+                              BorderBrush="#00658D"
                               BorderThickness="2"
-                              Margin="0,0,0,32">
-                            <Border.Effect>
-                                <DropShadowEffect Color="#000000" 
-                                                Direction="270" 
-                                                ShadowDepth="9" 
-                                                BlurRadius="10.9" 
-                                                Opacity="0.06"/>
-                            </Border.Effect>
+                              Margin="0,0,0,16">
 
                             <StackPanel>
                                 <!-- Header Penumpang 1 - Toggle Button -->
@@ -219,7 +376,7 @@
                                       Click="BtnTogglePassenger_Click"
                                       Cursor="Hand"
                                       HorizontalContentAlignment="Stretch"
-                                      Margin="0,0,0,26">
+                                      Margin="0,0,0,16">
                                     <Grid>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="*"/>
@@ -227,24 +384,23 @@
                                         </Grid.ColumnDefinitions>
                                         <TextBlock Grid.Column="0" 
                                                   Text="Penumpang 1" 
-                                                  FontSize="24" 
+                                                  FontSize="20" 
                                                   FontWeight="Bold"
-                                                  Foreground="#1E293B"
+                                                  Foreground="#042769"
                                                   HorizontalAlignment="Left"
                                                   VerticalAlignment="Center"/>
-                                        <Path x:Name="pathTogglePassenger1"
-                                              Grid.Column="1"
-                                              Data="M 0 17.873260324655348 L 7.737196549906995 10.136064529418945 L 0 2.3819749066400013 L 2.381975138973066 0 L 12.518040657043457 10.136064529418945 L 2.381975138973066 20.27212905883789 L 0 17.873260324655348 Z" 
-                                              Fill="#267DAE" 
-                                              Width="13" 
-                                              Height="20"
-                                              Stretch="Uniform"
-                                              RenderTransformOrigin="0.5,0.5"
-                                              VerticalAlignment="Center">
-                                            <Path.RenderTransform>
+                                        <Image x:Name="pathTogglePassenger1"
+                                               Grid.Column="1"
+                                               Source="Assets/Icons/icondropdowngelap.png"
+                                               Width="20" 
+                                               Height="20"
+                                               Stretch="Uniform"
+                                               RenderTransformOrigin="0.5,0.5"
+                                               VerticalAlignment="Center">
+                                            <Image.RenderTransform>
                                                 <RotateTransform Angle="0"/>
-                                            </Path.RenderTransform>
-                                        </Path>
+                                            </Image.RenderTransform>
+                                        </Image>
                                     </Grid>
                                 </Button>
 
@@ -252,103 +408,145 @@
                                 <StackPanel x:Name="pnlPassenger1" 
                                            Visibility="Collapsed">
                                     <TextBlock Text="Info Identitas Penumpang" 
-                                              FontSize="24" 
+                                              FontSize="16" 
                                               FontWeight="Medium"
-                                              Foreground="#1E293B"
+                                              Foreground="#042769"
                                               HorizontalAlignment="Left"
-                                              Margin="0,0,0,24"/>
+                                              Margin="0,0,0,16"/>
 
                                     <!-- Gender Selection -->
-                                    <WrapPanel Margin="0,0,0,24">
+                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
                                         <RadioButton x:Name="rbTuan1" 
                                                    Content="Tuan" 
                                                    GroupName="Gender1"
-                                                   FontSize="24"
-                                                   FontWeight="Medium"
-                                                   Foreground="#267DAE"
+                                                   IsChecked="True"
+                                                   Style="{StaticResource CustomRadioButton}"
                                                    Margin="0,0,16,0"/>
                                         <RadioButton x:Name="rbNyonya1" 
                                                    Content="Nyonya" 
                                                    GroupName="Gender1"
-                                                   FontSize="24"
-                                                   FontWeight="Medium"
-                                                   Foreground="#267DAE"
+                                                   Style="{StaticResource CustomRadioButton}"
                                                    Margin="0,0,16,0"/>
                                         <RadioButton x:Name="rbNona1" 
                                                    Content="Nona" 
                                                    GroupName="Gender1"
-                                                   FontSize="24"
-                                                   FontWeight="Medium"
-                                                   Foreground="#267DAE"/>
-                                    </WrapPanel>
-
-                                    <!-- Nama Lengkap -->
-                                    <StackPanel Margin="0,0,0,24">
-                                        <Border BorderBrush="#E2E8F0"
-                                              BorderThickness="1"
-                                              CornerRadius="12"
-                                              Margin="0,0,0,10">
-                                            <TextBox x:Name="txtNamaPassenger1"
-                                                   Height="80"
-                                                   Padding="16,14"
-                                                   FontSize="24"
-                                                   FontWeight="Medium"
-                                                   BorderThickness="0"
-                                                   Background="Transparent"
-                                                   VerticalContentAlignment="Center"
-                                                   Text="Nama lengkap sesuai KTP/Paspor/KK"
-                                                   Foreground="#64748B"
-                                                   GotFocus="TextBox_GotFocus"
-                                                   LostFocus="TextBox_LostFocus"
-                                                   Tag="Nama lengkap sesuai KTP/Paspor/KK"/>
-                                        </Border>
-                                        <TextBlock Text="Sesuai KTP/Paspor/KK tanpa tanda baca dan gelar"
-                                                 FontSize="18"
-                                                 FontWeight="Medium"
-                                                 Foreground="#64748B"/>
+                                                   Style="{StaticResource CustomRadioButton}"/>
                                     </StackPanel>
 
-                                    <!-- Identitas -->
-                                    <Grid>
+                                    <!-- Nama Lengkap dengan Floating Label -->
+                                    <StackPanel Margin="0,0,0,16">
+                                        <Grid>
+                                            <Border Style="{StaticResource FloatingLabelTextBox}">
+                                                <Grid>
+                                                    <TextBox x:Name="txtNamaPassenger1"
+                                                            Height="52"
+                                                            Padding="16,0,16,0"
+                                                            FontSize="14"
+                                                            FontWeight="Medium"
+                                                            Foreground="#042769"
+                                                            BorderThickness="0"
+                                                            Background="Transparent"
+                                                            VerticalContentAlignment="Center"
+                                                            GotFocus="FloatingTextBox_GotFocus"
+                                                            LostFocus="FloatingTextBox_LostFocus"
+                                                            TextChanged="FloatingTextBox_TextChanged"
+                                                            Tag="lblNamaPassenger1"/>
+                                                </Grid>
+                                            </Border>
+                                            <!-- Floating Label with Background -->
+                                            <Border Background="White"
+                                                   HorizontalAlignment="Left"
+                                                   VerticalAlignment="Center"
+                                                   Margin="12,0,0,0"
+                                                   Padding="4,0"
+                                                   IsHitTestVisible="False">
+                                                <TextBlock x:Name="lblNamaPassenger1"
+                                                          Text="Nama lengkap sesuai KTP/Paspor/SIM"
+                                                          FontSize="14"
+                                                          FontWeight="Regular"
+                                                          Foreground="#94A3B8"/>
+                                            </Border>
+                                        </Grid>
+                                        <TextBlock Text="Sesuai KTP/Paspor/KK tanpa tanda baca dan gelar"
+                                                 FontSize="11"
+                                                 FontWeight="Regular"
+                                                 Foreground="#94A3B8"
+                                                 Margin="0,4,0,0"/>
+                                    </StackPanel>
+
+                                    <!-- Identitas Section -->
+                                    <Grid Margin="0,0,0,16">
                                         <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="141"/>
-                                            <ColumnDefinition Width="14"/>
+                                            <ColumnDefinition Width="Auto" MinWidth="150"/>
+                                            <ColumnDefinition Width="16"/>
                                             <ColumnDefinition Width="*"/>
                                         </Grid.ColumnDefinitions>
-                                        <Border Grid.Column="0" 
-                                              BorderBrush="#E2E8F0"
-                                              BorderThickness="1"
-                                              CornerRadius="12" 
-                                              Padding="18,15">
-                                            <StackPanel>
-                                                <TextBlock Text="Identitas" 
-                                                          FontSize="18" 
-                                                          Foreground="#64748B"
-                                                          Margin="0,0,0,7"/>
-                                                <TextBlock Text="KTP" 
-                                                          FontSize="24" 
-                                                          FontWeight="Medium"
-                                                          Foreground="#1E293B"/>
-                                            </StackPanel>
-                                        </Border>
-                                        <Border Grid.Column="2" 
-                                              BorderBrush="#E2E8F0"
-                                              BorderThickness="1"
-                                              CornerRadius="12" 
-                                              Height="80">
-                                            <TextBox x:Name="txtIdPassenger1"
-                                                   Padding="16,14"
-                                                   FontSize="24"
-                                                   FontWeight="Medium"
-                                                   BorderThickness="0"
-                                                   Background="Transparent"
-                                                   VerticalContentAlignment="Center"
-                                                   Text="Nomor Identitas"
-                                                   Foreground="#64748B"
-                                                   GotFocus="TextBox_GotFocus"
-                                                   LostFocus="TextBox_LostFocus"
-                                                   Tag="Nomor Identitas"/>
-                                        </Border>
+                                        
+                                        <!-- ComboBox Identitas -->
+                                        <Grid Grid.Column="0">
+                                            <Border Style="{StaticResource FloatingLabelTextBox}">
+                                                <ComboBox x:Name="cmbIdentitas1"
+                                                         Height="52"
+                                                         Padding="16,0,16,0"
+                                                         Style="{StaticResource FloatingLabelComboBox}"
+                                                         GotFocus="FloatingComboBox_GotFocus"
+                                                         LostFocus="FloatingComboBox_LostFocus"
+                                                         SelectionChanged="FloatingComboBox_SelectionChanged"
+                                                         Tag="lblIdentitas1">
+                                                    <ComboBoxItem Content="KTP"/>
+                                                    <ComboBoxItem Content="Paspor"/>
+                                                    <ComboBoxItem Content="SIM"/>
+                                                    <ComboBoxItem Content="KK"/>
+                                                </ComboBox>
+                                            </Border>
+                                            <!-- Floating Label with Background -->
+                                            <Border Background="White"
+                                                   HorizontalAlignment="Left"
+                                                   VerticalAlignment="Center"
+                                                   Margin="12,0,0,0"
+                                                   Padding="4,0"
+                                                   IsHitTestVisible="False">
+                                                <TextBlock x:Name="lblIdentitas1"
+                                                          Text="Identitas"
+                                                          FontSize="14"
+                                                          FontWeight="Regular"
+                                                          Foreground="#94A3B8"/>
+                                            </Border>
+                                        </Grid>
+                                        
+                                        <!-- Nomor Identitas -->
+                                        <Grid Grid.Column="2">
+                                            <Border Style="{StaticResource FloatingLabelTextBox}">
+                                                <Grid>
+                                                    <TextBox x:Name="txtIdPassenger1"
+                                                            Height="52"
+                                                            Padding="16,0,16,0"
+                                                            FontSize="14"
+                                                            FontWeight="Medium"
+                                                            Foreground="#042769"
+                                                            BorderThickness="0"
+                                                            Background="Transparent"
+                                                            VerticalContentAlignment="Center"
+                                                            GotFocus="FloatingTextBox_GotFocus"
+                                                            LostFocus="FloatingTextBox_LostFocus"
+                                                            TextChanged="FloatingTextBox_TextChanged"
+                                                            Tag="lblIdPassenger1"/>
+                                                </Grid>
+                                            </Border>
+                                            <!-- Floating Label with Background -->
+                                            <Border Background="White"
+                                                   HorizontalAlignment="Left"
+                                                   VerticalAlignment="Center"
+                                                   Margin="12,0,0,0"
+                                                   Padding="4,0"
+                                                   IsHitTestVisible="False">
+                                                <TextBlock x:Name="lblIdPassenger1"
+                                                          Text="Nomor Identitas"
+                                                          FontSize="14"
+                                                          FontWeight="Regular"
+                                                          Foreground="#94A3B8"/>
+                                            </Border>
+                                        </Grid>
                                     </Grid>
                                 </StackPanel>
                             </StackPanel>
@@ -356,18 +554,11 @@
 
                         <!-- Penumpang 2 -->
                         <Border Background="White"
-                              CornerRadius="24"
-                              Padding="40"
-                              BorderBrush="#267DAE"
+                              CornerRadius="17"
+                              Padding="25,20"
+                              BorderBrush="#00658D"
                               BorderThickness="2"
-                              Margin="0,0,0,32">
-                            <Border.Effect>
-                                <DropShadowEffect Color="#000000" 
-                                                Direction="270" 
-                                                ShadowDepth="9" 
-                                                BlurRadius="10.9" 
-                                                Opacity="0.06"/>
-                            </Border.Effect>
+                              Margin="0,0,0,16">
 
                             <StackPanel>
                                 <!-- Header Penumpang 2 - Toggle Button -->
@@ -378,7 +569,7 @@
                                       Click="BtnTogglePassenger_Click"
                                       Cursor="Hand"
                                       HorizontalContentAlignment="Stretch"
-                                      Margin="0,0,0,26">
+                                      Margin="0,0,0,16">
                                     <Grid>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="*"/>
@@ -386,24 +577,23 @@
                                         </Grid.ColumnDefinitions>
                                         <TextBlock Grid.Column="0" 
                                                   Text="Penumpang 2" 
-                                                  FontSize="24" 
+                                                  FontSize="20" 
                                                   FontWeight="Bold"
-                                                  Foreground="#1E293B"
+                                                  Foreground="#042769"
                                                   HorizontalAlignment="Left"
                                                   VerticalAlignment="Center"/>
-                                        <Path x:Name="pathTogglePassenger2"
-                                              Grid.Column="1"
-                                              Data="M 0 17.873260324655348 L 7.737196549906995 10.136064529418945 L 0 2.3819749066400013 L 2.381975138973066 0 L 12.518040657043457 10.136064529418945 L 2.381975138973066 20.27212905883789 L 0 17.873260324655348 Z" 
-                                              Fill="#267DAE" 
-                                              Width="13" 
-                                              Height="20"
-                                              Stretch="Uniform"
-                                              RenderTransformOrigin="0.5,0.5"
-                                              VerticalAlignment="Center">
-                                            <Path.RenderTransform>
+                                        <Image x:Name="pathTogglePassenger2"
+                                               Grid.Column="1"
+                                               Source="Assets/Icons/icondropdowngelap.png"
+                                               Width="20" 
+                                               Height="20"
+                                               Stretch="Uniform"
+                                               RenderTransformOrigin="0.5,0.5"
+                                               VerticalAlignment="Center">
+                                            <Image.RenderTransform>
                                                 <RotateTransform Angle="0"/>
-                                            </Path.RenderTransform>
-                                        </Path>
+                                            </Image.RenderTransform>
+                                        </Image>
                                     </Grid>
                                 </Button>
 
@@ -411,103 +601,145 @@
                                 <StackPanel x:Name="pnlPassenger2" 
                                            Visibility="Collapsed">
                                     <TextBlock Text="Info Identitas Penumpang" 
-                                              FontSize="24" 
+                                              FontSize="16" 
                                               FontWeight="Medium"
-                                              Foreground="#1E293B"
+                                              Foreground="#042769"
                                               HorizontalAlignment="Left"
-                                              Margin="0,0,0,24"/>
+                                              Margin="0,0,0,16"/>
 
                                     <!-- Gender Selection -->
-                                    <WrapPanel Margin="0,0,0,24">
+                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
                                         <RadioButton x:Name="rbTuan2" 
                                                    Content="Tuan" 
                                                    GroupName="Gender2"
-                                                   FontSize="24"
-                                                   FontWeight="Medium"
-                                                   Foreground="#267DAE"
+                                                   IsChecked="True"
+                                                   Style="{StaticResource CustomRadioButton}"
                                                    Margin="0,0,16,0"/>
                                         <RadioButton x:Name="rbNyonya2" 
                                                    Content="Nyonya" 
                                                    GroupName="Gender2"
-                                                   FontSize="24"
-                                                   FontWeight="Medium"
-                                                   Foreground="#267DAE"
+                                                   Style="{StaticResource CustomRadioButton}"
                                                    Margin="0,0,16,0"/>
                                         <RadioButton x:Name="rbNona2" 
                                                    Content="Nona" 
                                                    GroupName="Gender2"
-                                                   FontSize="24"
-                                                   FontWeight="Medium"
-                                                   Foreground="#267DAE"/>
-                                    </WrapPanel>
-
-                                    <!-- Nama Lengkap -->
-                                    <StackPanel Margin="0,0,0,24">
-                                        <Border BorderBrush="#E2E8F0"
-                                              BorderThickness="1"
-                                              CornerRadius="12"
-                                              Margin="0,0,0,10">
-                                            <TextBox x:Name="txtNamaPassenger2"
-                                                   Height="80"
-                                                   Padding="16,14"
-                                                   FontSize="24"
-                                                   FontWeight="Medium"
-                                                   BorderThickness="0"
-                                                   Background="Transparent"
-                                                   VerticalContentAlignment="Center"
-                                                   Text="Nama lengkap sesuai KTP/Paspor/KK"
-                                                   Foreground="#64748B"
-                                                   GotFocus="TextBox_GotFocus"
-                                                   LostFocus="TextBox_LostFocus"
-                                                   Tag="Nama lengkap sesuai KTP/Paspor/KK"/>
-                                        </Border>
-                                        <TextBlock Text="Sesuai KTP/Paspor/KK tanpa tanda baca dan gelar"
-                                                 FontSize="18"
-                                                 FontWeight="Medium"
-                                                 Foreground="#64748B"/>
+                                                   Style="{StaticResource CustomRadioButton}"/>
                                     </StackPanel>
 
-                                    <!-- Identitas -->
-                                    <Grid>
+                                    <!-- Nama Lengkap dengan Floating Label -->
+                                    <StackPanel Margin="0,0,0,16">
+                                        <Grid>
+                                            <Border Style="{StaticResource FloatingLabelTextBox}">
+                                                <Grid>
+                                                    <TextBox x:Name="txtNamaPassenger2"
+                                                            Height="52"
+                                                            Padding="16,0,16,0"
+                                                            FontSize="14"
+                                                            FontWeight="Medium"
+                                                            Foreground="#042769"
+                                                            BorderThickness="0"
+                                                            Background="Transparent"
+                                                            VerticalContentAlignment="Center"
+                                                            GotFocus="FloatingTextBox_GotFocus"
+                                                            LostFocus="FloatingTextBox_LostFocus"
+                                                            TextChanged="FloatingTextBox_TextChanged"
+                                                            Tag="lblNamaPassenger2"/>
+                                                </Grid>
+                                            </Border>
+                                            <!-- Floating Label with Background -->
+                                            <Border Background="White"
+                                                   HorizontalAlignment="Left"
+                                                   VerticalAlignment="Center"
+                                                   Margin="12,0,0,0"
+                                                   Padding="4,0"
+                                                   IsHitTestVisible="False">
+                                                <TextBlock x:Name="lblNamaPassenger2"
+                                                          Text="Nama lengkap sesuai KTP/Paspor/SIM"
+                                                          FontSize="14"
+                                                          FontWeight="Regular"
+                                                          Foreground="#94A3B8"/>
+                                            </Border>
+                                        </Grid>
+                                        <TextBlock Text="Sesuai KTP/Paspor/KK tanpa tanda baca dan gelar"
+                                                 FontSize="11"
+                                                 FontWeight="Regular"
+                                                 Foreground="#94A3B8"
+                                                 Margin="0,4,0,0"/>
+                                    </StackPanel>
+
+                                    <!-- Identitas Section -->
+                                    <Grid Margin="0,0,0,16">
                                         <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="141"/>
-                                            <ColumnDefinition Width="14"/>
+                                            <ColumnDefinition Width="Auto" MinWidth="150"/>
+                                            <ColumnDefinition Width="16"/>
                                             <ColumnDefinition Width="*"/>
                                         </Grid.ColumnDefinitions>
-                                        <Border Grid.Column="0" 
-                                              BorderBrush="#E2E8F0"
-                                              BorderThickness="1"
-                                              CornerRadius="12" 
-                                              Padding="18,15">
-                                            <StackPanel>
-                                                <TextBlock Text="Identitas" 
-                                                          FontSize="18" 
-                                                          Foreground="#64748B"
-                                                          Margin="0,0,0,7"/>
-                                                <TextBlock Text="KTP" 
-                                                          FontSize="24" 
-                                                          FontWeight="Medium"
-                                                          Foreground="#1E293B"/>
-                                            </StackPanel>
-                                        </Border>
-                                        <Border Grid.Column="2" 
-                                              BorderBrush="#E2E8F0"
-                                              BorderThickness="1"
-                                              CornerRadius="12" 
-                                              Height="80">
-                                            <TextBox x:Name="txtIdPassenger2"
-                                                   Padding="16,14"
-                                                   FontSize="24"
-                                                   FontWeight="Medium"
-                                                   BorderThickness="0"
-                                                   Background="Transparent"
-                                                   VerticalContentAlignment="Center"
-                                                   Text="Nomor Identitas"
-                                                   Foreground="#64748B"
-                                                   GotFocus="TextBox_GotFocus"
-                                                   LostFocus="TextBox_LostFocus"
-                                                   Tag="Nomor Identitas"/>
-                                        </Border>
+                                        
+                                        <!-- ComboBox Identitas -->
+                                        <Grid Grid.Column="0">
+                                            <Border Style="{StaticResource FloatingLabelTextBox}">
+                                                <ComboBox x:Name="cmbIdentitas2"
+                                                         Height="52"
+                                                         Padding="16,0,16,0"
+                                                         Style="{StaticResource FloatingLabelComboBox}"
+                                                         GotFocus="FloatingComboBox_GotFocus"
+                                                         LostFocus="FloatingComboBox_LostFocus"
+                                                         SelectionChanged="FloatingComboBox_SelectionChanged"
+                                                         Tag="lblIdentitas2">
+                                                    <ComboBoxItem Content="KTP"/>
+                                                    <ComboBoxItem Content="Paspor"/>
+                                                    <ComboBoxItem Content="SIM"/>
+                                                    <ComboBoxItem Content="KK"/>
+                                                </ComboBox>
+                                            </Border>
+                                            <!-- Floating Label with Background -->
+                                            <Border Background="White"
+                                                   HorizontalAlignment="Left"
+                                                   VerticalAlignment="Center"
+                                                   Margin="12,0,0,0"
+                                                   Padding="4,0"
+                                                   IsHitTestVisible="False">
+                                                <TextBlock x:Name="lblIdentitas2"
+                                                          Text="Identitas"
+                                                          FontSize="14"
+                                                          FontWeight="Regular"
+                                                          Foreground="#94A3B8"/>
+                                            </Border>
+                                        </Grid>
+                                        
+                                        <!-- Nomor Identitas -->
+                                        <Grid Grid.Column="2">
+                                            <Border Style="{StaticResource FloatingLabelTextBox}">
+                                                <Grid>
+                                                    <TextBox x:Name="txtIdPassenger2"
+                                                            Height="52"
+                                                            Padding="16,0,16,0"
+                                                            FontSize="14"
+                                                            FontWeight="Medium"
+                                                            Foreground="#042769"
+                                                            BorderThickness="0"
+                                                            Background="Transparent"
+                                                            VerticalContentAlignment="Center"
+                                                            GotFocus="FloatingTextBox_GotFocus"
+                                                            LostFocus="FloatingTextBox_LostFocus"
+                                                            TextChanged="FloatingTextBox_TextChanged"
+                                                            Tag="lblIdPassenger2"/>
+                                                </Grid>
+                                            </Border>
+                                            <!-- Floating Label with Background -->
+                                            <Border Background="White"
+                                                   HorizontalAlignment="Left"
+                                                   VerticalAlignment="Center"
+                                                   Margin="12,0,0,0"
+                                                   Padding="4,0"
+                                                   IsHitTestVisible="False">
+                                                <TextBlock x:Name="lblIdPassenger2"
+                                                          Text="Nomor Identitas"
+                                                          FontSize="14"
+                                                          FontWeight="Regular"
+                                                          Foreground="#94A3B8"/>
+                                            </Border>
+                                        </Grid>
                                     </Grid>
                                 </StackPanel>
                             </StackPanel>
@@ -515,17 +747,10 @@
 
                         <!-- Penumpang 3 -->
                         <Border Background="White"
-                              CornerRadius="24"
-                              Padding="40"
-                              BorderBrush="#267DAE"
+                              CornerRadius="17"
+                              Padding="25,20"
+                              BorderBrush="#00658D"
                               BorderThickness="2">
-                            <Border.Effect>
-                                <DropShadowEffect Color="#000000" 
-                                                Direction="270" 
-                                                ShadowDepth="9" 
-                                                BlurRadius="10.9" 
-                                                Opacity="0.06"/>
-                            </Border.Effect>
 
                             <StackPanel>
                                 <!-- Header Penumpang 3 - Toggle Button -->
@@ -536,7 +761,7 @@
                                       Click="BtnTogglePassenger_Click"
                                       Cursor="Hand"
                                       HorizontalContentAlignment="Stretch"
-                                      Margin="0,0,0,26">
+                                      Margin="0,0,0,16">
                                     <Grid>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="*"/>
@@ -544,24 +769,23 @@
                                         </Grid.ColumnDefinitions>
                                         <TextBlock Grid.Column="0" 
                                                   Text="Penumpang 3" 
-                                                  FontSize="24" 
+                                                  FontSize="20" 
                                                   FontWeight="Bold"
-                                                  Foreground="#1E293B"
+                                                  Foreground="#042769"
                                                   HorizontalAlignment="Left"
                                                   VerticalAlignment="Center"/>
-                                        <Path x:Name="pathTogglePassenger3"
-                                              Grid.Column="1"
-                                              Data="M 0 17.873260324655348 L 7.737196549906995 10.136064529418945 L 0 2.3819749066400013 L 2.381975138973066 0 L 12.518040657043457 10.136064529418945 L 2.381975138973066 20.27212905883789 L 0 17.873260324655348 Z" 
-                                              Fill="#267DAE" 
-                                              Width="13" 
-                                              Height="20"
-                                              Stretch="Uniform"
-                                              RenderTransformOrigin="0.5,0.5"
-                                              VerticalAlignment="Center">
-                                            <Path.RenderTransform>
+                                        <Image x:Name="pathTogglePassenger3"
+                                               Grid.Column="1"
+                                               Source="Assets/Icons/icondropdowngelap.png"
+                                               Width="20" 
+                                               Height="20"
+                                               Stretch="Uniform"
+                                               RenderTransformOrigin="0.5,0.5"
+                                               VerticalAlignment="Center">
+                                            <Image.RenderTransform>
                                                 <RotateTransform Angle="0"/>
-                                            </Path.RenderTransform>
-                                        </Path>
+                                            </Image.RenderTransform>
+                                        </Image>
                                     </Grid>
                                 </Button>
 
@@ -569,103 +793,145 @@
                                 <StackPanel x:Name="pnlPassenger3" 
                                            Visibility="Collapsed">
                                     <TextBlock Text="Info Identitas Penumpang" 
-                                              FontSize="24" 
+                                              FontSize="16" 
                                               FontWeight="Medium"
-                                              Foreground="#1E293B"
+                                              Foreground="#042769"
                                               HorizontalAlignment="Left"
-                                              Margin="0,0,0,24"/>
+                                              Margin="0,0,0,16"/>
 
                                     <!-- Gender Selection -->
-                                    <WrapPanel Margin="0,0,0,24">
+                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
                                         <RadioButton x:Name="rbTuan3" 
                                                    Content="Tuan" 
                                                    GroupName="Gender3"
-                                                   FontSize="24"
-                                                   FontWeight="Medium"
-                                                   Foreground="#267DAE"
+                                                   IsChecked="True"
+                                                   Style="{StaticResource CustomRadioButton}"
                                                    Margin="0,0,16,0"/>
                                         <RadioButton x:Name="rbNyonya3" 
                                                    Content="Nyonya" 
                                                    GroupName="Gender3"
-                                                   FontSize="24"
-                                                   FontWeight="Medium"
-                                                   Foreground="#267DAE"
+                                                   Style="{StaticResource CustomRadioButton}"
                                                    Margin="0,0,16,0"/>
                                         <RadioButton x:Name="rbNona3" 
                                                    Content="Nona" 
                                                    GroupName="Gender3"
-                                                   FontSize="24"
-                                                   FontWeight="Medium"
-                                                   Foreground="#267DAE"/>
-                                    </WrapPanel>
-
-                                    <!-- Nama Lengkap -->
-                                    <StackPanel Margin="0,0,0,24">
-                                        <Border BorderBrush="#E2E8F0"
-                                              BorderThickness="1"
-                                              CornerRadius="12"
-                                              Margin="0,0,0,10">
-                                            <TextBox x:Name="txtNamaPassenger3"
-                                                   Height="80"
-                                                   Padding="16,14"
-                                                   FontSize="24"
-                                                   FontWeight="Medium"
-                                                   BorderThickness="0"
-                                                   Background="Transparent"
-                                                   VerticalContentAlignment="Center"
-                                                   Text="Nama lengkap sesuai KTP/Paspor/KK"
-                                                   Foreground="#64748B"
-                                                   GotFocus="TextBox_GotFocus"
-                                                   LostFocus="TextBox_LostFocus"
-                                                   Tag="Nama lengkap sesuai KTP/Paspor/KK"/>
-                                        </Border>
-                                        <TextBlock Text="Sesuai KTP/Paspor/KK tanpa tanda baca dan gelar"
-                                                 FontSize="18"
-                                                 FontWeight="Medium"
-                                                 Foreground="#64748B"/>
+                                                   Style="{StaticResource CustomRadioButton}"/>
                                     </StackPanel>
 
-                                    <!-- Identitas -->
-                                    <Grid>
+                                    <!-- Nama Lengkap dengan Floating Label -->
+                                    <StackPanel Margin="0,0,0,16">
+                                        <Grid>
+                                            <Border Style="{StaticResource FloatingLabelTextBox}">
+                                                <Grid>
+                                                    <TextBox x:Name="txtNamaPassenger3"
+                                                            Height="52"
+                                                            Padding="16,0,16,0"
+                                                            FontSize="14"
+                                                            FontWeight="Medium"
+                                                            Foreground="#042769"
+                                                            BorderThickness="0"
+                                                            Background="Transparent"
+                                                            VerticalContentAlignment="Center"
+                                                            GotFocus="FloatingTextBox_GotFocus"
+                                                            LostFocus="FloatingTextBox_LostFocus"
+                                                            TextChanged="FloatingTextBox_TextChanged"
+                                                            Tag="lblNamaPassenger3"/>
+                                                </Grid>
+                                            </Border>
+                                            <!-- Floating Label with Background -->
+                                            <Border Background="White"
+                                                   HorizontalAlignment="Left"
+                                                   VerticalAlignment="Center"
+                                                   Margin="12,0,0,0"
+                                                   Padding="4,0"
+                                                   IsHitTestVisible="False">
+                                                <TextBlock x:Name="lblNamaPassenger3"
+                                                          Text="Nama lengkap sesuai KTP/Paspor/SIM"
+                                                          FontSize="14"
+                                                          FontWeight="Regular"
+                                                          Foreground="#94A3B8"/>
+                                            </Border>
+                                        </Grid>
+                                        <TextBlock Text="Sesuai KTP/Paspor/KK tanpa tanda baca dan gelar"
+                                                 FontSize="11"
+                                                 FontWeight="Regular"
+                                                 Foreground="#94A3B8"
+                                                 Margin="0,4,0,0"/>
+                                    </StackPanel>
+
+                                    <!-- Identitas Section -->
+                                    <Grid Margin="0,0,0,16">
                                         <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="141"/>
-                                            <ColumnDefinition Width="14"/>
+                                            <ColumnDefinition Width="Auto" MinWidth="150"/>
+                                            <ColumnDefinition Width="16"/>
                                             <ColumnDefinition Width="*"/>
                                         </Grid.ColumnDefinitions>
-                                        <Border Grid.Column="0" 
-                                              BorderBrush="#E2E8F0"
-                                              BorderThickness="1"
-                                              CornerRadius="12" 
-                                              Padding="18,15">
-                                            <StackPanel>
-                                                <TextBlock Text="Identitas" 
-                                                          FontSize="18" 
-                                                          Foreground="#64748B"
-                                                          Margin="0,0,0,7"/>
-                                                <TextBlock Text="KTP" 
-                                                          FontSize="24" 
-                                                          FontWeight="Medium"
-                                                          Foreground="#1E293B"/>
-                                            </StackPanel>
-                                        </Border>
-                                        <Border Grid.Column="2" 
-                                              BorderBrush="#E2E8F0"
-                                              BorderThickness="1"
-                                              CornerRadius="12" 
-                                              Height="80">
-                                            <TextBox x:Name="txtIdPassenger3"
-                                                   Padding="16,14"
-                                                   FontSize="24"
-                                                   FontWeight="Medium"
-                                                   BorderThickness="0"
-                                                   Background="Transparent"
-                                                   VerticalContentAlignment="Center"
-                                                   Text="Nomor Identitas"
-                                                   Foreground="#64748B"
-                                                   GotFocus="TextBox_GotFocus"
-                                                   LostFocus="TextBox_LostFocus"
-                                                   Tag="Nomor Identitas"/>
-                                        </Border>
+                                        
+                                        <!-- ComboBox Identitas -->
+                                        <Grid Grid.Column="0">
+                                            <Border Style="{StaticResource FloatingLabelTextBox}">
+                                                <ComboBox x:Name="cmbIdentitas3"
+                                                         Height="52"
+                                                         Padding="16,0,16,0"
+                                                         Style="{StaticResource FloatingLabelComboBox}"
+                                                         GotFocus="FloatingComboBox_GotFocus"
+                                                         LostFocus="FloatingComboBox_LostFocus"
+                                                         SelectionChanged="FloatingComboBox_SelectionChanged"
+                                                         Tag="lblIdentitas3">
+                                                    <ComboBoxItem Content="KTP"/>
+                                                    <ComboBoxItem Content="Paspor"/>
+                                                    <ComboBoxItem Content="SIM"/>
+                                                    <ComboBoxItem Content="KK"/>
+                                                </ComboBox>
+                                            </Border>
+                                            <!-- Floating Label with Background -->
+                                            <Border Background="White"
+                                                   HorizontalAlignment="Left"
+                                                   VerticalAlignment="Center"
+                                                   Margin="12,0,0,0"
+                                                   Padding="4,0"
+                                                   IsHitTestVisible="False">
+                                                <TextBlock x:Name="lblIdentitas3"
+                                                          Text="Identitas"
+                                                          FontSize="14"
+                                                          FontWeight="Regular"
+                                                          Foreground="#94A3B8"/>
+                                            </Border>
+                                        </Grid>
+                                        
+                                        <!-- Nomor Identitas -->
+                                        <Grid Grid.Column="2">
+                                            <Border Style="{StaticResource FloatingLabelTextBox}">
+                                                <Grid>
+                                                    <TextBox x:Name="txtIdPassenger3"
+                                                            Height="52"
+                                                            Padding="16,0,16,0"
+                                                            FontSize="14"
+                                                            FontWeight="Medium"
+                                                            Foreground="#042769"
+                                                            BorderThickness="0"
+                                                            Background="Transparent"
+                                                            VerticalContentAlignment="Center"
+                                                            GotFocus="FloatingTextBox_GotFocus"
+                                                            LostFocus="FloatingTextBox_LostFocus"
+                                                            TextChanged="FloatingTextBox_TextChanged"
+                                                            Tag="lblIdPassenger3"/>
+                                                </Grid>
+                                            </Border>
+                                            <!-- Floating Label with Background -->
+                                            <Border Background="White"
+                                                   HorizontalAlignment="Left"
+                                                   VerticalAlignment="Center"
+                                                   Margin="12,0,0,0"
+                                                   Padding="4,0"
+                                                   IsHitTestVisible="False">
+                                                <TextBlock x:Name="lblIdPassenger3"
+                                                          Text="Nomor Identitas"
+                                                          FontSize="14"
+                                                          FontWeight="Regular"
+                                                          Foreground="#94A3B8"/>
+                                            </Border>
+                                        </Grid>
                                     </Grid>
                                 </StackPanel>
                             </StackPanel>
@@ -673,70 +939,78 @@
                     </StackPanel>
 
                     <!-- Detail Kendaraan Section -->
-                    <StackPanel Margin="0,0,0,40">
+                    <StackPanel Margin="0,0,0,30">
                         <TextBlock Text="Detail Kendaraan"
-                                 FontSize="36"
+                                 FontSize="28"
                                  FontWeight="Bold"
-                                 Foreground="#1E293B"
-                                 Margin="0,0,0,24"/>
+                                 Foreground="#042769"
+                                 Margin="0,0,0,4"/>
 
                         <TextBlock Text="Pastikan plat nomor kendaraan sesuai dengan yang masuk ke pelabuhan."
-                                 FontSize="24"
-                                 FontWeight="Medium"
-                                 Foreground="#0F172A"
+                                 FontSize="14"
+                                 FontWeight="Regular"
+                                 Foreground="#042769"
                                  TextWrapping="Wrap"
                                  Margin="0,0,0,12"/>
 
                         <!-- Kendaraan Card -->
                         <Border Background="White"
-                              CornerRadius="24"
-                              Padding="40"
-                              BorderBrush="#267DAE"
+                              CornerRadius="17"
+                              Padding="25,20"
+                              BorderBrush="#00658D"
                               BorderThickness="2">
-                            <Border.Effect>
-                                <DropShadowEffect Color="#000000" 
-                                                Direction="270" 
-                                                ShadowDepth="9" 
-                                                BlurRadius="10.9" 
-                                                Opacity="0.06"/>
-                            </Border.Effect>
 
                             <StackPanel>
-                                <StackPanel Margin="0,0,0,24">
+                                <StackPanel Margin="0,0,0,16">
                                     <TextBlock Text="Sepeda Motor (&lt;500cc)"
-                                             FontSize="24"
-                                             FontWeight="Bold"
-                                             Foreground="#1E293B"
-                                             Margin="0,0,0,12"/>
-                                    <TextBlock Text="Golongan III (Maks. 3 Penumpang)"
                                              FontSize="18"
-                                             FontWeight="SemiBold"
-                                             Foreground="#64748B"/>
+                                             FontWeight="Bold"
+                                             Foreground="#042769"
+                                             Margin="0,0,0,8"/>
+                                    <TextBlock Text="Golongan III (Maks. 3 Penumpang)"
+                                             FontSize="16"
+                                             FontWeight="Medium"
+                                             Foreground="#94A3B8"/>
                                 </StackPanel>
 
                                 <StackPanel>
-                                    <Border BorderBrush="#E2E8F0"
-                                          BorderThickness="1"
-                                          CornerRadius="12"
-                                          Margin="0,0,0,10">
-                                        <TextBox x:Name="txtPlatNomor"
-                                               Height="80"
-                                               Padding="16,14"
-                                               FontSize="24"
-                                               FontWeight="Medium"
-                                               BorderThickness="0"
-                                               Background="Transparent"
-                                               VerticalContentAlignment="Center"
-                                               Text="Plat nomor tanpa spasi"
-                                               Foreground="#64748B"
-                                               GotFocus="TextBox_GotFocus"
-                                               LostFocus="TextBox_LostFocus"
-                                               Tag="Plat nomor tanpa spasi"/>
-                                    </Border>
-                                    <TextBlock Text="Sesuai KTP/Paspor/SIM tanpa tanda baca dan gelar"
-                                             FontSize="18"
-                                             FontWeight="Medium"
-                                             Foreground="#64748B"/>
+                                    <Grid>
+                                        <Border Style="{StaticResource FloatingLabelTextBox}">
+                                            <Grid>
+                                                <TextBox x:Name="txtPlatNomor"
+                                                       Height="52"
+                                                       Padding="16,0,16,0"
+                                                       FontSize="14"
+                                                       FontWeight="Medium"
+                                                       Foreground="#042769"
+                                                       BorderThickness="0"
+                                                       Background="Transparent"
+                                                       VerticalContentAlignment="Center"
+                                                       GotFocus="FloatingTextBox_GotFocus"
+                                                       LostFocus="FloatingTextBox_LostFocus"
+                                                       TextChanged="FloatingTextBox_TextChanged"
+                                                       Tag="lblPlatNomor"/>
+                                            </Grid>
+                                        </Border>
+                                        <!-- Floating Label with Background -->
+                                        <Border Background="White"
+                                               HorizontalAlignment="Left"
+                                               VerticalAlignment="Center"
+                                               Margin="12,0,0,0"
+                                               Padding="4,0"
+                                               IsHitTestVisible="False">
+                                            <TextBlock x:Name="lblPlatNomor"
+                                                      Text="Plat nomor tanpa spasi"
+                                                      FontSize="14"
+                                                      FontWeight="Regular"
+                                                      Foreground="#94A3B8"/>
+                                        </Border>
+                                    </Grid>
+                                    <TextBlock Text="Contoh: B1234XYZ"
+                                             FontSize="11"
+                                             FontWeight="Regular"
+                                             Foreground="#94A3B8"
+                                             Margin="0,4,0,0"/>
                                 </StackPanel>
                             </StackPanel>
                         </Border>
@@ -758,99 +1032,143 @@
                         </Border.Effect>
 
                         <StackPanel>
-                            <!-- Toggle Detail Harga Button -->
+                            <!-- Toggle Total/Detail Harga Button -->
                             <Button x:Name="btnToggleDetailHarga"
-                          Background="Transparent"
-                          BorderThickness="0"
-                          Click="BtnToggleDetailHarga_Click"
-                          Cursor="Hand"
-                          Padding="0"
-                          Margin="0,0,0,0">
+                                  Background="Transparent"
+                                  BorderThickness="0"
+                                  Click="BtnToggleDetailHarga_Click"
+                                  Cursor="Hand"
+                                  Padding="0"
+                                  HorizontalContentAlignment="Stretch"
+                                  Margin="0,0,0,16">
                                 <Grid>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="40*"/>
-                                        <RowDefinition Height="3*"/>
-                                    </Grid.RowDefinitions>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <!-- Title (berubah antara "Total Harga" dan "Detail Harga") -->
+                                    <TextBlock x:Name="txtHeaderHarga"
+                                             Grid.Column="0"
+                                             Text="Total Harga"
+                                             FontSize="28"
+                                             FontWeight="Bold"
+                                             Foreground="#042769"
+                                             HorizontalAlignment="Left"
+                                             VerticalAlignment="Center"/>
+
+                                    <!-- Price (hilang saat expanded) -->
+                                    <TextBlock x:Name="txtTotalHargaCollapsed"
+                                             Grid.Column="1"
+                                             Text="IDR 487.853"
+                                             FontSize="28"
+                                             FontWeight="Bold"
+                                             Foreground="#042769"
+                                             VerticalAlignment="Center"
+                                             Margin="0,0,12,0"
+                                             TextAlignment="Right"/>
+
+                                    <!-- Dropdown Icon -->
+                                    <Image x:Name="pathToggleDetailHarga"
+                                           Grid.Column="2"
+                                           Source="Assets/Icons/icondropdowngelap.png"
+                                           Width="20"
+                                           Height="20"
+                                           Stretch="Uniform"
+                                           RenderTransformOrigin="0.5,0.5"
+                                           VerticalAlignment="Center">
+                                        <Image.RenderTransform>
+                                            <RotateTransform Angle="0"/>
+                                        </Image.RenderTransform>
+                                    </Image>
+                                </Grid>
+                            </Button>
+                            
+                            <!-- Expandable Price Details -->
+                            <StackPanel x:Name="pnlDetailHarga" Visibility="Collapsed" Margin="0,0,0,16">
+                                <Grid Margin="0,0,0,12">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
-
-                                    <TextBlock Grid.Column="0"
-                                         Text="Detail Harga"
-                                         FontSize="32"
-                                         FontWeight="Bold"
-                                         Foreground="#1E293B"
-                                         HorizontalAlignment="Left"
-                                         VerticalAlignment="Center" Margin="-51,0,0,0"/>
-
-                                    <StackPanel Grid.Column="1" 
-                                       Orientation="Horizontal" 
-                                       HorizontalAlignment="Center"
-                                       VerticalAlignment="Center">
-                                        <TextBlock Text="IDR 487.853"
-                                             FontSize="32"
-                                             FontWeight="Bold"
-                                             Foreground="#1E293B"
-                                             VerticalAlignment="Center"
-                                             Margin="0,0,12,0" HorizontalAlignment="Right"/>
-
-                                        <Path x:Name="pathToggleDetailHarga"
-                                              Data="M 0 17.873260324655348 L 7.737196549906995 10.136064529418945 L 0 2.3819749066400013 L 2.381975138973066 0 L 12.518040657043457 10.136064529418945 L 2.381975138973066 20.27212905883789 L 0 17.873260324655348 Z" 
-                                              Fill="#267DAE" 
-                                              Width="13" 
-                                              Height="20"
-                                              Stretch="Uniform"
-                                              RenderTransformOrigin="0.5,0.5"
-                                              VerticalAlignment="Center">
-                                            <Path.RenderTransform>
-                                                <RotateTransform Angle="0"/>
-                                            </Path.RenderTransform>
-                                        </Path>
-                                    </StackPanel>
-                                </Grid>
-                            </Button>
-                            <!-- Expandable Price Details -->
-                            <StackPanel x:Name="pnlDetailHarga" Visibility="Collapsed" Margin="0,0,0,24">
-                                <Grid Margin="0,0,0,10">
-                                    <StackPanel>
+                                    
+                                    <StackPanel Grid.Column="0">
                                         <TextBlock Text="Sepeda Motor (&lt;500cc)"
-                                                 FontSize="20"
-                                                 Foreground="#1E293B"
+                                                 FontSize="16"
+                                                 FontWeight="Medium"
+                                                 Foreground="#042769"
                                                  Margin="0,0,0,4"/>
                                         <TextBlock Text="Dewasa (3x)"
-                                                 FontSize="20"
-                                                 Foreground="#1E293B"/>
+                                                 FontSize="16"
+                                                 FontWeight="Medium"
+                                                 Foreground="#042769"/>
                                     </StackPanel>
-                                    <StackPanel HorizontalAlignment="Right">
+                                    
+                                    <StackPanel Grid.Column="1" HorizontalAlignment="Right">
                                         <TextBlock Text="IDR 487.853"
-                                                 FontSize="20"
+                                                 FontSize="16"
                                                  FontWeight="SemiBold"
-                                                 Foreground="#1E293B"
+                                                 Foreground="#042769"
+                                                 TextAlignment="Right"
                                                  Margin="0,0,0,4"/>
                                         <TextBlock Text="Termasuk"
-                                                 FontSize="20"
+                                                 FontSize="16"
                                                  FontWeight="SemiBold"
-                                                 Foreground="#267DAE"/>
+                                                 Foreground="#00658D"
+                                                 TextAlignment="Right"/>
                                     </StackPanel>
                                 </Grid>
+                                
                                 <TextBlock Text="Harga sudah termasuk pajak"
-                                         FontSize="18"
+                                         FontSize="14"
                                          FontWeight="Medium"
-                                         Foreground="#267DAE"
-                                         Margin="0,0,0,10"/>
+                                         Foreground="#00658D"
+                                         Margin="0,0,0,16"/>
+                                
+                                <!-- Garis Separator -->
+                                <Border Height="2" 
+                                      Background="#E2E8F0" 
+                                      Margin="0,0,0,16"/>
+                                
+                                <!-- Total Harga (saat expanded) -->
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    
+                                    <TextBlock Grid.Column="0"
+                                             Text="Total Harga"
+                                             FontSize="28"
+                                             FontWeight="Medium"
+                                             Foreground="#042769"
+                                             VerticalAlignment="Center"/>
+                                    
+                                    <TextBlock Grid.Column="1"
+                                             Text="IDR 487.853"
+                                             FontSize="28"
+                                             FontWeight="Medium"
+                                             Foreground="#042769"
+                                             VerticalAlignment="Center"
+                                             TextAlignment="Right"/>
+                                </Grid>
                             </StackPanel>
 
-                            <Border Height="1" Background="#6B7280" Margin="0,0,0,24"/>
+                            <!-- Garis pemisah saat collapsed -->
+                            <Border x:Name="borderSeparatorCollapsed"
+                                  Height="2" 
+                                  Background="#E2E8F0" 
+                                  Margin="0,0,0,20"/>
 
                             <Button x:Name="btnLanjutPembayaran"
                                   Content="Lanjut ke Pembayaran"
                                   Background="#2563EB"
                                   Foreground="White"
-                                  FontSize="24"
+                                  FontSize="20"
                                   FontWeight="Bold"
-                                  Height="80"
-                                  HorizontalAlignment="Stretch"
+                                  Padding="32,16"
+                                  HorizontalAlignment="Right"
                                   Click="BtnLanjutPembayaran_Click"
                                   Cursor="Hand">
                                 <Button.Style>
@@ -859,7 +1177,8 @@
                                             <Setter.Value>
                                                 <ControlTemplate TargetType="Button">
                                                     <Border Background="{TemplateBinding Background}"
-                                                          CornerRadius="24">
+                                                          CornerRadius="12"
+                                                          Padding="{TemplateBinding Padding}">
                                                         <ContentPresenter HorizontalAlignment="Center"
                                                                         VerticalAlignment="Center"/>
                                                     </Border>
@@ -882,113 +1201,192 @@
             <!-- Right Section - Fixed Summary Card -->
             <Border Grid.Column="2"
                   Background="White"
-                  CornerRadius="24"
-                  Padding="40"
-                  BorderBrush="#267DAE"
+                  CornerRadius="20"
+                  Padding="20"
+                  Margin="0,0,0,0"
+                  BorderBrush="#00658D"
                   BorderThickness="2"
                   VerticalAlignment="Top">
-                <Border.Effect>
-                    <DropShadowEffect Color="#000000" 
-                                    Direction="270" 
-                                    ShadowDepth="9" 
-                                    BlurRadius="10.9" 
-                                    Opacity="0.06"/>
-                </Border.Effect>
 
                 <StackPanel>
                     <!-- Ferry Info -->
                     <StackPanel Margin="0,0,0,20">
-                        <StackPanel Margin="0,0,0,12">
-                            <TextBlock Text="Reguler"
-                                     FontSize="32"
-                                     FontWeight="Bold"
-                                     Foreground="#1E293B"
-                                     Margin="0,0,0,12"/>
+                        <TextBlock Text="Reguler"
+                                 FontSize="18"
+                                 FontWeight="Bold"
+                                 Foreground="#042769"
+                                 Margin="0,0,0,8"/>
 
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="Bakauheni"
-                                         FontSize="24"
-                                         FontWeight="SemiBold"
-                                         Foreground="#267DAE"
-                                         Margin="0,0,12,0"/>
-                                <Path Data="M 20 4 L 14.444444444444445 0 M 20 4 L 14.444444444444445 8 M 20 4 L 0 4" 
-                                      Stroke="#267DAE" 
-                                      StrokeThickness="3"
-                                      Width="20" 
-                                      Height="8"
-                                      Stretch="Fill"
-                                      VerticalAlignment="Center"
-                                      Margin="0,0,12,0"/>
-                                <TextBlock Text="Merak"
-                                         FontSize="24"
-                                         FontWeight="SemiBold"
-                                         Foreground="#267DAE"/>
-                            </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                            <TextBlock Text="Bakauheni"
+                                     FontSize="16"
+                                     FontWeight="SemiBold"
+                                     Foreground="#00658D"
+                                     Margin="0,0,8,0"/>
+                            <Path Data="M 20 4 L 14.444444444444445 0 M 20 4 L 14.444444444444445 8 M 20 4 L 0 4" 
+                                  Stroke="#00658D" 
+                                  StrokeThickness="2"
+                                  Width="16" 
+                                  Height="8"
+                                  Stretch="Fill"
+                                  VerticalAlignment="Center"
+                                  Margin="0,0,8,0"/>
+                            <TextBlock Text="Merak"
+                                     FontSize="16"
+                                     FontWeight="SemiBold"
+                                     Foreground="#00658D"/>
                         </StackPanel>
 
                         <TextBlock Text="Sepeda motor (&lt;500cc)"
-                                 FontSize="24"
-                                 FontWeight="SemiBold"
-                                 Foreground="#267DAE"/>
+                                 FontSize="14"
+                                 FontWeight="Medium"
+                                 Foreground="#00658D"/>
                     </StackPanel>
 
-                    <Border Height="1" Background="#6B7280" Margin="0,0,0,24"/>
+                    <Border Height="2" Background="#E2E8F0" Margin="0,0,0,20"/>
 
                     <!-- Check-in Info -->
-                    <StackPanel Margin="0,0,0,24">
+                    <StackPanel Margin="0,0,0,20">
                         <TextBlock Text="Waktu masuk ke Pelabuhan (check-in)"
-                                 FontSize="24"
+                                 FontSize="14"
                                  FontWeight="Bold"
-                                 Foreground="#1E293B"
-                                 Margin="0,0,0,24"/>
+                                 Foreground="#042769"
+                                 Margin="0,0,0,8"/>
                         <TextBlock Text="Kam, 23 Okt 2025 - 20:15"
-                                 FontSize="24"
+                                 FontSize="14"
                                  FontWeight="Medium"
-                                 Foreground="#1E293B"/>
+                                 Foreground="#042769"/>
                     </StackPanel>
 
                     <!-- Warning -->
-                    <Border Background="#F1F5F9"
-                          CornerRadius="12"
-                          Padding="16,14"
-                          Margin="0,0,0,24">
+                    <Border Background="#E1F5FE"
+                          CornerRadius="8"
+                          Padding="12"
+                          Margin="0,0,0,20">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
                             <Border Grid.Column="0"
-                                  Width="20" Height="20"
-                                  Background="#267DAE"
-                                  BorderBrush="#F1F5F9"
-                                  BorderThickness="2"
-                                  CornerRadius="10"
-                                  Margin="0,0,12,0"
-                                  VerticalAlignment="Top"/>
+                                  Width="16" Height="16"
+                                  Background="#00658D"
+                                  CornerRadius="8"
+                                  Margin="0,0,8,0"
+                                  VerticalAlignment="Top">
+                                <TextBlock Text="i"
+                                         FontSize="12"
+                                         FontWeight="Bold"
+                                         Foreground="White"
+                                         HorizontalAlignment="Center"
+                                         VerticalAlignment="Center"/>
+                            </Border>
                             <TextBlock Grid.Column="1"
                                      Text="E-Tiket akan hangus bila anda belum masuk ke pelabuhan setelah 20:15"
-                                     FontSize="24"
+                                     FontSize="12"
                                      FontWeight="Medium"
-                                     Foreground="#267DAE"
+                                     Foreground="#00658D"
                                      TextWrapping="Wrap"/>
                         </Grid>
                     </Border>
 
-                    <Border Height="1" Background="#6B7280" Margin="0,0,0,24"/>
+                    <Border Height="2" Background="#E2E8F0" Margin="0,0,0,20"/>
 
-                    <!-- Total Harga di Sidebar (Always Visible) -->
-                    <Grid Margin="0,0,0,24">
-                        <TextBlock Text="Total Harga"
-                                 FontSize="24"
+                    <!-- Total Harga di Sidebar (Clickable for Toggle) -->
+                    <Button x:Name="btnToggleSidebarHarga"
+                          Background="Transparent"
+                          BorderThickness="0"
+                          Padding="0"
+                          Cursor="Hand"
+                          HorizontalContentAlignment="Stretch"
+                          Click="BtnToggleSidebarHarga_Click">
+                        <Grid>
+                            <TextBlock Text="Total Harga"
+                                     FontSize="14"
+                                     FontWeight="Medium"
+                                     Foreground="#042769"
+                                     HorizontalAlignment="Left"
+                                     VerticalAlignment="Center"/>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                <TextBlock Text="IDR 487.853"
+                                         FontSize="16"
+                                         FontWeight="Bold"
+                                         Foreground="#042769"
+                                         VerticalAlignment="Center"
+                                         Margin="0,0,8,0"/>
+                                <Image x:Name="pathToggleSidebarHarga"
+                                     Source="Assets/Icons/icondropdowngelap.png"
+                                     Width="16" 
+                                     Height="16"
+                                     Stretch="Uniform"
+                                     VerticalAlignment="Center"
+                                     RenderTransformOrigin="0.5,0.5">
+                                    <Image.RenderTransform>
+                                        <RotateTransform Angle="0"/>
+                                    </Image.RenderTransform>
+                                </Image>
+                            </StackPanel>
+                        </Grid>
+                    </Button>
+                    
+                    <!-- Detail Harga Panel (Hidden by default) -->
+                    <StackPanel x:Name="pnlSidebarDetailHarga" 
+                              Visibility="Collapsed"
+                              Margin="0,16,0,0">
+                        <Grid Margin="0,0,0,12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="Sepeda Motor (&lt;500cc)"
+                                         FontSize="14"
+                                         FontWeight="Medium"
+                                         Foreground="#042769"
+                                         Margin="0,0,0,4"/>
+                                <TextBlock Text="Dewasa (3x)"
+                                         FontSize="14"
+                                         FontWeight="Medium"
+                                         Foreground="#042769"/>
+                            </StackPanel>
+                            
+                            <StackPanel Grid.Column="1" HorizontalAlignment="Right">
+                                <TextBlock Text="IDR 487.853"
+                                         FontSize="14"
+                                         FontWeight="SemiBold"
+                                         Foreground="#042769"
+                                         TextAlignment="Right"
+                                         Margin="0,0,0,4"/>
+                                <TextBlock Text="Termasuk"
+                                         FontSize="14"
+                                         FontWeight="SemiBold"
+                                         Foreground="#00658D"
+                                         TextAlignment="Right"/>
+                            </StackPanel>
+                        </Grid>
+                        
+                        <TextBlock Text="Harga sudah termasuk pajak"
+                                 FontSize="12"
                                  FontWeight="Medium"
-                                 Foreground="#1E293B"
-                                 HorizontalAlignment="Left"/>
-                        <TextBlock Text="IDR 487.853"
-                                 FontSize="24"
-                                 FontWeight="Bold"
-                                 Foreground="#1E293B"
-                                 HorizontalAlignment="Right"/>
-                    </Grid>
+                                 Foreground="#00658D"
+                                 Margin="0,0,0,12"/>
+                        
+                        <Border Height="1" Background="#E2E8F0" Margin="0,0,0,12"/>
+                        
+                        <Grid>
+                            <TextBlock Text="Total Harga"
+                                     FontSize="14"
+                                     FontWeight="Medium"
+                                     Foreground="#042769"
+                                     HorizontalAlignment="Left"/>
+                            <TextBlock Text="IDR 487.853"
+                                     FontSize="16"
+                                     FontWeight="Bold"
+                                     Foreground="#042769"
+                                     HorizontalAlignment="Right"/>
+                        </Grid>
+                    </StackPanel>
                 </StackPanel>
             </Border>
         </Grid>

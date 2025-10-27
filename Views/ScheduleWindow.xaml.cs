@@ -170,10 +170,22 @@ namespace TiketLaut.Views
         {
             if (sender is Button button && button.Tag is ScheduleItem schedule)
             {
-                MessageBox.Show($"Anda memilih tiket {schedule.FerryType}\n" +
-                               $"Keberangkatan: {schedule.DepartureTime} - {schedule.ArrivalTime}\n" +
-                               $"Harga: {schedule.Price}", 
-                               "Pilih Tiket", MessageBoxButton.OK, MessageBoxImage.Information);
+                // Buat instance BookingDetailWindow
+                var bookingDetailWindow = new BookingDetailWindow(isFromSchedule: true);
+                
+                // Set data schedule yang dipilih
+                bookingDetailWindow.SetScheduleData(schedule);
+                
+                // Preserve window size and position
+                bookingDetailWindow.Left = this.Left;
+                bookingDetailWindow.Top = this.Top;
+                bookingDetailWindow.Width = this.Width;
+                bookingDetailWindow.Height = this.Height;
+                bookingDetailWindow.WindowState = this.WindowState;
+                
+                // Show new window and close current
+                bookingDetailWindow.Show();
+                this.Close();
             }
         }
 
