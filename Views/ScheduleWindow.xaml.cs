@@ -23,6 +23,12 @@ namespace TiketLaut.Views
         {
             InitializeComponent();
             LoadScheduleData();
+<<<<<<< Updated upstream
+=======
+
+            // Set user info di navbar
+            navbarPostLogin.SetUserInfo("Admin User");
+>>>>>>> Stashed changes
         }
 
         private void LoadScheduleData()
@@ -41,6 +47,7 @@ namespace TiketLaut.Views
 
         private void CmbFilter_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+<<<<<<< Updated upstream
             // Filter jadwal berdasarkan dropdown yang dipilih
             FilterSchedules();
         }
@@ -76,6 +83,10 @@ namespace TiketLaut.Views
             // Di implementasi nyata, ini akan memfilter data dari database
             // Untuk demo, kita hanya menampilkan info
             System.Diagnostics.Debug.WriteLine(filterInfo);
+=======
+            MessageBox.Show("Fungsi pencarian akan diimplementasikan dengan filter yang dipilih",
+                           "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+>>>>>>> Stashed changes
         }
 
         private void BtnPilihTiket_Click(object sender, RoutedEventArgs e)
@@ -98,6 +109,7 @@ namespace TiketLaut.Views
 
             if (result == MessageBoxResult.Yes)
             {
+<<<<<<< Updated upstream
                 // Di sini bisa diarahkan ke halaman pembayaran
                 MessageBox.Show("Mengarahkan ke halaman pembayaran...", "Info",
                     MessageBoxButton.OK, MessageBoxImage.Information);
@@ -106,6 +118,37 @@ namespace TiketLaut.Views
                 // PaymentWindow paymentWindow = new PaymentWindow();
                 // paymentWindow.Show();
                 // this.Close();
+=======
+                // Check if the selected ticket is "Reguler"
+                if (schedule.FerryType.Equals("Reguler", StringComparison.OrdinalIgnoreCase))
+                {
+                    // Navigate to BookingDetailWindow for regular tickets
+                    var bookingDetailWindow = new BookingDetailWindow();
+
+                    // Pass the selected schedule data to the booking detail window
+                    bookingDetailWindow.SetScheduleData(schedule);
+
+                    // Maintain window properties
+                    bookingDetailWindow.Left = this.Left;
+                    bookingDetailWindow.Top = this.Top;
+                    bookingDetailWindow.Width = this.Width;
+                    bookingDetailWindow.Height = this.Height;
+                    bookingDetailWindow.WindowState = this.WindowState;
+
+                    // Show the booking detail window and close current window
+                    bookingDetailWindow.Show();
+                    this.Close();
+                }
+                else
+                {
+                    // For non-regular tickets (Express, etc.), show a message or handle differently
+                    MessageBox.Show($"Anda memilih tiket {schedule.FerryType}\n" +
+                                   $"Keberangkatan: {schedule.DepartureTime} - {schedule.ArrivalTime}\n" +
+                                   $"Harga: {schedule.Price}\n\n" +
+                                   $"Fitur pemesanan untuk {schedule.FerryType} akan segera tersedia.",
+                                   "Pilih Tiket", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+>>>>>>> Stashed changes
             }
         }
 
@@ -147,5 +190,44 @@ namespace TiketLaut.Views
                 }
             }
         }
+<<<<<<< Updated upstream
+=======
+
+        // Helper method to find parent element
+        private T? FindParent<T>(DependencyObject child) where T : DependencyObject
+        {
+            DependencyObject parent = System.Windows.Media.VisualTreeHelper.GetParent(child);
+
+            while (parent != null && !(parent is T))
+            {
+                parent = System.Windows.Media.VisualTreeHelper.GetParent(parent);
+            }
+
+            return parent as T;
+        }
+
+        // Helper method to find child element by name
+        private T? FindChild<T>(DependencyObject parent, string childName) where T : FrameworkElement
+        {
+            if (parent == null) return null;
+
+            int childCount = System.Windows.Media.VisualTreeHelper.GetChildrenCount(parent);
+
+            for (int i = 0; i < childCount; i++)
+            {
+                var child = System.Windows.Media.VisualTreeHelper.GetChild(parent, i);
+
+                if (child is T typedChild && (string.IsNullOrEmpty(childName) || typedChild.Name == childName))
+                {
+                    return typedChild;
+                }
+
+                var foundChild = FindChild<T>(child, childName);
+                if (foundChild != null) return foundChild;
+            }
+
+            return null;
+        }
+>>>>>>> Stashed changes
     }
 }
