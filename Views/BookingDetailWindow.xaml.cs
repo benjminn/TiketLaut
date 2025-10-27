@@ -23,6 +23,8 @@ namespace TiketLaut.Views
         {
             InitializeComponent();
             ApplyResponsiveLayout();
+            
+            // NavbarSelainHomepage tidak memerlukan SetUserInfo karena hanya menampilkan logo
         }
 
         // Constructor untuk mengetahui apakah berasal dari schedule
@@ -60,17 +62,17 @@ namespace TiketLaut.Views
             {
                 double windowWidth = this.ActualWidth;
 
-                if (windowWidth < 1280)
+                if (windowWidth < 1400)
                 {
-                    MainContentGrid.Margin = new Thickness(20, 15, 20, 20);
+                    MainContentGrid.Margin = new Thickness(60, 20, 60, 40);
                 }
                 else if (windowWidth < 1600)
                 {
-                    MainContentGrid.Margin = new Thickness(30, 20, 30, 25);
+                    MainContentGrid.Margin = new Thickness(80, 25, 80, 45);
                 }
                 else
                 {
-                    MainContentGrid.Margin = new Thickness(40, 20, 40, 30);
+                    MainContentGrid.Margin = new Thickness(95, 30, 95, 50);
                 }
             }
         }
@@ -112,6 +114,172 @@ namespace TiketLaut.Views
             return textBox.Text == placeholder;
         }
 
+        // Floating Label Logic
+        private void FloatingTextBox_GotFocus(object sender, RoutedEventArgs e)
+        {
+            if (sender is TextBox textBox && textBox.Tag is string labelName)
+            {
+                var label = this.FindName(labelName) as TextBlock;
+                if (label != null)
+                {
+                    // Find the label's parent Border to change its VerticalAlignment
+                    var labelBorder = label.Parent as Border;
+                    if (labelBorder != null)
+                    {
+                        labelBorder.VerticalAlignment = VerticalAlignment.Top;
+                        labelBorder.Margin = new Thickness(12, 8, 0, 0);
+                    }
+                    
+                    // Animate label to float up
+                    label.FontSize = 11;
+                    label.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#00658D"));
+                    
+                    // Adjust TextBox padding when focused
+                    textBox.Padding = new Thickness(16, 16, 16, 8);
+                }
+            }
+        }
+
+        private void FloatingTextBox_LostFocus(object sender, RoutedEventArgs e)
+        {
+            if (sender is TextBox textBox && textBox.Tag is string labelName)
+            {
+                var label = this.FindName(labelName) as TextBlock;
+                if (label != null && string.IsNullOrWhiteSpace(textBox.Text))
+                {
+                    // Find the label's parent Border to reset its VerticalAlignment
+                    var labelBorder = label.Parent as Border;
+                    if (labelBorder != null)
+                    {
+                        labelBorder.VerticalAlignment = VerticalAlignment.Center;
+                        labelBorder.Margin = new Thickness(12, 0, 0, 0);
+                    }
+                    
+                    // Reset label if textbox is empty
+                    label.FontSize = 14;
+                    label.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#94A3B8"));
+                    
+                    // Reset TextBox padding
+                    textBox.Padding = new Thickness(16, 0, 16, 0);
+                }
+            }
+        }
+
+        private void FloatingTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (sender is TextBox textBox && textBox.Tag is string labelName)
+            {
+                var label = this.FindName(labelName) as TextBlock;
+                if (label != null)
+                {
+                    var labelBorder = label.Parent as Border;
+                    
+                    // Keep label floated if there's text
+                    if (!string.IsNullOrWhiteSpace(textBox.Text))
+                    {
+                        if (labelBorder != null)
+                        {
+                            labelBorder.VerticalAlignment = VerticalAlignment.Top;
+                            labelBorder.Margin = new Thickness(12, 8, 0, 0);
+                        }
+                        label.FontSize = 11;
+                        label.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#00658D"));
+                        textBox.Padding = new Thickness(16, 16, 16, 8);
+                    }
+                    else if (!textBox.IsFocused)
+                    {
+                        // Reset only if not focused and empty
+                        if (labelBorder != null)
+                        {
+                            labelBorder.VerticalAlignment = VerticalAlignment.Center;
+                            labelBorder.Margin = new Thickness(12, 0, 0, 0);
+                        }
+                        label.FontSize = 14;
+                        label.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#94A3B8"));
+                        textBox.Padding = new Thickness(16, 0, 16, 0);
+                    }
+                }
+            }
+        }
+
+        // Floating Label Logic for ComboBox
+        private void FloatingComboBox_GotFocus(object sender, RoutedEventArgs e)
+        {
+            if (sender is ComboBox comboBox && comboBox.Tag is string labelName)
+            {
+                var label = this.FindName(labelName) as TextBlock;
+                if (label != null)
+                {
+                    var labelBorder = label.Parent as Border;
+                    if (labelBorder != null)
+                    {
+                        labelBorder.VerticalAlignment = VerticalAlignment.Top;
+                        labelBorder.Margin = new Thickness(12, 8, 0, 0);
+                    }
+                    
+                    label.FontSize = 11;
+                    label.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#00658D"));
+                    comboBox.Padding = new Thickness(16, 16, 16, 8);
+                }
+            }
+        }
+
+        private void FloatingComboBox_LostFocus(object sender, RoutedEventArgs e)
+        {
+            if (sender is ComboBox comboBox && comboBox.Tag is string labelName)
+            {
+                var label = this.FindName(labelName) as TextBlock;
+                if (label != null && comboBox.SelectedIndex == -1)
+                {
+                    var labelBorder = label.Parent as Border;
+                    if (labelBorder != null)
+                    {
+                        labelBorder.VerticalAlignment = VerticalAlignment.Center;
+                        labelBorder.Margin = new Thickness(12, 0, 0, 0);
+                    }
+                    
+                    label.FontSize = 14;
+                    label.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#94A3B8"));
+                    comboBox.Padding = new Thickness(16, 0, 16, 0);
+                }
+            }
+        }
+
+        private void FloatingComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (sender is ComboBox comboBox && comboBox.Tag is string labelName)
+            {
+                var label = this.FindName(labelName) as TextBlock;
+                if (label != null)
+                {
+                    var labelBorder = label.Parent as Border;
+                    
+                    if (comboBox.SelectedIndex != -1)
+                    {
+                        if (labelBorder != null)
+                        {
+                            labelBorder.VerticalAlignment = VerticalAlignment.Top;
+                            labelBorder.Margin = new Thickness(12, 8, 0, 0);
+                        }
+                        label.FontSize = 11;
+                        label.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#00658D"));
+                        comboBox.Padding = new Thickness(16, 16, 16, 8);
+                    }
+                    else if (!comboBox.IsFocused)
+                    {
+                        if (labelBorder != null)
+                        {
+                            labelBorder.VerticalAlignment = VerticalAlignment.Center;
+                            labelBorder.Margin = new Thickness(12, 0, 0, 0);
+                        }
+                        label.FontSize = 14;
+                        label.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#94A3B8"));
+                        comboBox.Padding = new Thickness(16, 0, 16, 0);
+                    }
+                }
+            }
+        }
+
         private void BtnKembali_Click(object sender, RoutedEventArgs e)
         {
             // Kembali ke ScheduleWindow jika dari schedule, atau ke HomePage
@@ -145,26 +313,26 @@ namespace TiketLaut.Views
 
             string passengerNumber = button.Tag?.ToString() ?? "1";
 
-            // Find the panel and path
+            // Find the panel and image icon
             var panel = this.FindName($"pnlPassenger{passengerNumber}") as StackPanel;
-            var path = this.FindName($"pathTogglePassenger{passengerNumber}") as System.Windows.Shapes.Path;
+            var image = this.FindName($"pathTogglePassenger{passengerNumber}") as Image;
 
-            if (panel != null && path != null)
+            if (panel != null)
             {
                 if (panel.Visibility == Visibility.Collapsed)
                 {
                     panel.Visibility = Visibility.Visible;
-                    // Rotate arrow down (90 degrees)
-                    if (path.RenderTransform is RotateTransform rotate)
+                    // Rotate arrow down (180 degrees) for up-down rotation
+                    if (image != null && image.RenderTransform is RotateTransform rotate)
                     {
-                        rotate.Angle = 90;
+                        rotate.Angle = 180;
                     }
                 }
                 else
                 {
                     panel.Visibility = Visibility.Collapsed;
-                    // Rotate arrow right (0 degrees)
-                    if (path.RenderTransform is RotateTransform rotate)
+                    // Rotate arrow up (0 degrees)
+                    if (image != null && image.RenderTransform is RotateTransform rotate)
                     {
                         rotate.Angle = 0;
                     }
@@ -174,8 +342,68 @@ namespace TiketLaut.Views
 
         private void BtnToggleDetailHarga_Click(object sender, RoutedEventArgs e)
         {
-            // Toggle only the main detail harga panel since sidebar doesn't have a collapsible version
-            ToggleDetailHarga(pnlDetailHarga, pathToggleDetailHarga);
+            // Toggle the detail harga panel
+            var panel = this.FindName("pnlDetailHarga") as StackPanel;
+            var image = this.FindName("pathToggleDetailHarga") as Image;
+            var txtHeader = this.FindName("txtHeaderHarga") as TextBlock;
+            var txtPrice = this.FindName("txtTotalHargaCollapsed") as TextBlock;
+            var borderSeparator = this.FindName("borderSeparatorCollapsed") as Border;
+            
+            if (panel != null)
+            {
+                if (panel.Visibility == Visibility.Collapsed)
+                {
+                    // Expand: Show detail
+                    panel.Visibility = Visibility.Visible;
+                    if (txtHeader != null) txtHeader.Text = "Detail Harga";
+                    if (txtPrice != null) txtPrice.Visibility = Visibility.Collapsed;
+                    if (borderSeparator != null) borderSeparator.Visibility = Visibility.Collapsed;
+                    if (image != null && image.RenderTransform is RotateTransform rotate)
+                    {
+                        rotate.Angle = 180;
+                    }
+                }
+                else
+                {
+                    // Collapse: Show total
+                    panel.Visibility = Visibility.Collapsed;
+                    if (txtHeader != null) txtHeader.Text = "Total Harga";
+                    if (txtPrice != null) txtPrice.Visibility = Visibility.Visible;
+                    if (borderSeparator != null) borderSeparator.Visibility = Visibility.Visible;
+                    if (image != null && image.RenderTransform is RotateTransform rotate)
+                    {
+                        rotate.Angle = 0;
+                    }
+                }
+            }
+        }
+
+        private void BtnToggleSidebarHarga_Click(object sender, RoutedEventArgs e)
+        {
+            var panel = FindName("pnlSidebarDetailHarga") as StackPanel;
+            var image = FindName("pathToggleSidebarHarga") as Image;
+
+            if (panel != null)
+            {
+                if (panel.Visibility == Visibility.Collapsed)
+                {
+                    // EXPAND
+                    panel.Visibility = Visibility.Visible;
+                    if (image != null && image.RenderTransform is RotateTransform rotate)
+                    {
+                        rotate.Angle = 180;
+                    }
+                }
+                else
+                {
+                    // COLLAPSE
+                    panel.Visibility = Visibility.Collapsed;
+                    if (image != null && image.RenderTransform is RotateTransform rotate)
+                    {
+                        rotate.Angle = 0;
+                    }
+                }
+            }
         }
 
         private void ToggleDetailHarga(StackPanel panel, System.Windows.Shapes.Path path)
@@ -187,7 +415,7 @@ namespace TiketLaut.Views
                     panel.Visibility = Visibility.Visible;
                     if (path.RenderTransform is RotateTransform rotate)
                     {
-                        rotate.Angle = 90;
+                        rotate.Angle = 180;
                     }
                 }
                 else

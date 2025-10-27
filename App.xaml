@@ -1,7 +1,7 @@
 ﻿<Application x:Class="TiketLaut.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             StartupUri="Views/Homepage.xaml">
+             StartupUri="Views/BookingDetailWindow.xaml">
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>

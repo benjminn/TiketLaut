@@ -14,6 +14,8 @@
 	  <None Remove="Views\Assets\Icons\iconarrowright.png" />
 	  <None Remove="Views\Assets\Icons\iconbooking.png" />
 	  <None Remove="Views\Assets\Icons\icondropdown.png" />
+	  <None Remove="Views\Assets\Icons\icondropdowngelap.png" />
+	  <None Remove="Views\Assets\Icons\iconpullup.png" />
 	  <None Remove="Views\Assets\Icons\iconfacebook.png" />
 	  <None Remove="Views\Assets\Icons\iconfilter.png" />
 	  <None Remove="Views\Assets\Icons\icongoogle.png" />
@@ -54,6 +56,12 @@
 	  </Resource>
 	  <Resource Include="Views\Assets\Icons\iconbooking.png" />
 	  <Resource Include="Views\Assets\Icons\icondropdown.png">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Resource>
+	  <Resource Include="Views\Assets\Icons\icondropdowngelap.png">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Resource>
+	  <Resource Include="Views\Assets\Icons\iconpullup.png">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Resource>
 	  <Resource Include="Views\Assets\Icons\iconfacebook.png">

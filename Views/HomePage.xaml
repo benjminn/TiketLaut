@@ -11,6 +11,100 @@
         Background="White"
         FontFamily="Plus Jakarta Sans">
 
+    <Window.Resources>
+        <!-- Style untuk ComboBox agar tidak melebar -->
+        <Style x:Key="FixedWidthComboBox" TargetType="ComboBox">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontFamily" Value="Plus Jakarta Sans"/>
+            <Setter Property="Foreground" Value="#666666"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBox">
+                        <Grid>
+                            <ToggleButton x:Name="ToggleButton"
+                                        Grid.Column="2"
+                                        Focusable="false"
+                                        IsChecked="{Binding Path=IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
+                                        ClickMode="Press"
+                                        Background="Transparent"
+                                        BorderThickness="0">
+                                <ToggleButton.Template>
+                                    <ControlTemplate TargetType="ToggleButton">
+                                        <Grid Background="Transparent">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <ContentPresenter Grid.Column="0"
+                                                            HorizontalAlignment="Left"
+                                                            VerticalAlignment="Center"
+                                                            Content="{TemplateBinding Content}"/>
+                                            <Path Grid.Column="1"
+                                                x:Name="Arrow"
+                                                HorizontalAlignment="Right"
+                                                VerticalAlignment="Center"
+                                                Data="M 0 0 L 4 4 L 8 0 Z"
+                                                Fill="#666666"
+                                                Margin="8,0,0,0"/>
+                                        </Grid>
+                                    </ControlTemplate>
+                                </ToggleButton.Template>
+                            </ToggleButton>
+                            
+                            <!-- INI BAGIAN PENTING: TextBlock dengan MaxWidth dan TextTrimming -->
+                            <Grid Margin="0,0,20,0">
+                                <TextBlock x:Name="ContentText"
+                                         Text="{TemplateBinding SelectionBoxItem}"
+                                         TextTrimming="CharacterEllipsis"
+                                         VerticalAlignment="Center"
+                                         HorizontalAlignment="Left"
+                                         MaxWidth="150"
+                                         ToolTip="{TemplateBinding SelectionBoxItem}"/>
+                            </Grid>
+                            
+                            <TextBox x:Name="PART_EditableTextBox"
+                                   Style="{x:Null}"
+                                   HorizontalAlignment="Left"
+                                   VerticalAlignment="Center"
+                                   Margin="0,0,20,0"
+                                   Focusable="True"
+                                   Background="Transparent"
+                                   Visibility="Hidden"
+                                   IsReadOnly="{TemplateBinding IsReadOnly}"/>
+                            <Popup x:Name="Popup"
+                                 Placement="Bottom"
+                                 IsOpen="{TemplateBinding IsDropDownOpen}"
+                                 AllowsTransparency="True"
+                                 Focusable="False"
+                                 PopupAnimation="Slide">
+                                <Grid x:Name="DropDown"
+                                    SnapsToDevicePixels="True"
+                                    MinWidth="{TemplateBinding ActualWidth}"
+                                    MaxHeight="{TemplateBinding MaxDropDownHeight}">
+                                    <Border x:Name="DropDownBorder"
+                                          Background="White"
+                                          BorderThickness="1"
+                                          BorderBrush="#CCCCCC"
+                                          CornerRadius="5">
+                                        <ScrollViewer Margin="4,6,4,6"
+                                                    SnapsToDevicePixels="True">
+                                            <StackPanel IsItemsHost="True"
+                                                      KeyboardNavigation.DirectionalNavigation="Contained"/>
+                                        </ScrollViewer>
+                                    </Border>
+                                </Grid>
+                            </Popup>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -337,8 +431,10 @@
                                            CornerRadius="10" 
                                            Padding="15,12"
                                            BorderThickness="1.5"
-                                           BorderBrush="#999999">
-                                        <Grid>
+                                           BorderBrush="#999999"
+                                           Width="200"
+                                           HorizontalAlignment="Left">
+                                        <Grid Width="170">
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="Auto"/>
                                                 <ColumnDefinition Width="8"/>
@@ -358,21 +454,57 @@
                                                      FontSize="12"
                                                      FontFamily="Plus Jakarta Sans"
                                                      Foreground="#666666"
-                                                     SelectedIndex="0">
-                                                <ComboBoxItem IsSelected="True" Content="Pilih Jenis Kendaraan"/>
-                                                <ComboBoxItem Content="Pejalan kaki tanpa kendaraan"/>
-                                                <ComboBoxItem Content="Sepeda"/>
-                                                <ComboBoxItem Content="Sepeda motor &lt;500cc dan gerobak dorong"/>
-                                                <ComboBoxItem Content="Sepeda motor besar &gt;500cc dan kendaraan roda tiga"/>
-                                                <ComboBoxItem Content="Mobil jeep, sedan, minibus"/>
-                                                <ComboBoxItem Content="Mobil barang bak muatan terbuka/tertutup, mobil kabin ganda"/>
-                                                <ComboBoxItem Content="Mobil bus penumpang (5-7 meter)"/>
-                                                <ComboBoxItem Content="Mobil barang (truk/tangki) ukuran sedang (5-7 meter)"/>
-                                                <ComboBoxItem Content="Mobil bus penumpang (7-10 meter)"/>
-                                                <ComboBoxItem Content="Mobil barang (truk/tangki) sedang (7-10 meter)"/>
-                                                <ComboBoxItem Content="Mobil tronton, tangki, penarik + gandengan (10-12 meter)"/>
-                                                <ComboBoxItem Content="Mobil tronton, tangki, alat berat (12-16 meter)"/>
-                                                <ComboBoxItem Content="Mobil tronton, tangki, alat berat (&gt;16 meter)"/>
+                                                     SelectedIndex="0"
+                                                     MaxDropDownHeight="250"
+                                                     Width="144">
+                                                <ComboBox.Resources>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+                                                        <Setter Property="ToolTip" Value="{Binding Text, RelativeSource={RelativeSource Self}}"/>
+                                                    </Style>
+                                                </ComboBox.Resources>
+                                                <ComboBoxItem IsSelected="True">
+                                                    <TextBlock Text="Pilih Jenis Kendaraan"/>
+                                                </ComboBoxItem>
+                                                <ComboBoxItem>
+                                                    <TextBlock Text="Pejalan kaki tanpa kendaraan"/>
+                                                </ComboBoxItem>
+                                                <ComboBoxItem>
+                                                    <TextBlock Text="Sepeda"/>
+                                                </ComboBoxItem>
+                                                <ComboBoxItem>
+                                                    <TextBlock Text="Sepeda motor &lt;500cc dan gerobak dorong"/>
+                                                </ComboBoxItem>
+                                                <ComboBoxItem>
+                                                    <TextBlock Text="Sepeda motor besar &gt;500cc dan kendaraan roda tiga"/>
+                                                </ComboBoxItem>
+                                                <ComboBoxItem>
+                                                    <TextBlock Text="Mobil jeep, sedan, minibus"/>
+                                                </ComboBoxItem>
+                                                <ComboBoxItem>
+                                                    <TextBlock Text="Mobil barang bak muatan terbuka/tertutup, mobil kabin ganda"/>
+                                                </ComboBoxItem>
+                                                <ComboBoxItem>
+                                                    <TextBlock Text="Mobil bus penumpang (5-7 meter)"/>
+                                                </ComboBoxItem>
+                                                <ComboBoxItem>
+                                                    <TextBlock Text="Mobil barang (truk/tangki) ukuran sedang (5-7 meter)"/>
+                                                </ComboBoxItem>
+                                                <ComboBoxItem>
+                                                    <TextBlock Text="Mobil bus penumpang (7-10 meter)"/>
+                                                </ComboBoxItem>
+                                                <ComboBoxItem>
+                                                    <TextBlock Text="Mobil barang (truk/tangki) sedang (7-10 meter)"/>
+                                                </ComboBoxItem>
+                                                <ComboBoxItem>
+                                                    <TextBlock Text="Mobil tronton, tangki, penarik + gandengan (10-12 meter)"/>
+                                                </ComboBoxItem>
+                                                <ComboBoxItem>
+                                                    <TextBlock Text="Mobil tronton, tangki, alat berat (12-16 meter)"/>
+                                                </ComboBoxItem>
+                                                <ComboBoxItem>
+                                                    <TextBlock Text="Mobil tronton, tangki, alat berat (&gt;16 meter)"/>
+                                                </ComboBoxItem>
                                             </ComboBox>
                                         </Grid>
                                     </Border>
