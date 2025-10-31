@@ -16,7 +16,7 @@ namespace TiketLaut.Views
             InitializeComponent();
             LoadHistoryData();
             
-            // Set user info di navbar
+            // Set user info di navbar - element name: navbarPostLogin
             navbarPostLogin.SetUserInfo("Admin User");
         }
 

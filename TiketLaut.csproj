@@ -6,6 +6,15 @@
 		<UseWPF>true</UseWPF>
 		<LangVersion>13.0</LangVersion>
 		<Nullable>enable</Nullable>
+		
+		<!-- Application Info untuk Taskbar -->
+		<ApplicationIcon>Views\Assets\Images\logo.ico</ApplicationIcon>
+		<AssemblyName>TiketLaut</AssemblyName>
+		<AssemblyTitle>TiketLaut - Sistem Pemesanan Tiket Kapal</AssemblyTitle>
+		<Product>TiketLaut</Product>
+		<Company>TiketLaut Team</Company>
+		<Copyright>Copyright © 2025 TiketLaut</Copyright>
+		<Version>1.0.0</Version>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -39,6 +48,7 @@
 	  <None Remove="Views\Assets\Images\icontanggal.png" />
 	  <None Remove="Views\Assets\Images\Indomaret.png" />
 	  <None Remove="Views\Assets\Images\line.png" />
+	  <None Remove="Views\Assets\Images\logo.ico" />
 	  <None Remove="Views\Assets\Images\logo.png" />
 	  <None Remove="Views\Assets\Images\logosamping.png" />
 	  <None Remove="Views\Assets\Images\Mandiri.png" />
@@ -105,6 +115,9 @@
 	  <Resource Include="Views\Assets\Images\icontanggal.png" />
 	  <Resource Include="Views\Assets\Images\Indomaret.png" />
 	  <Resource Include="Views\Assets\Images\line.png" />
+	  <Resource Include="Views\Assets\Images\logo.ico">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Resource>
 	  <Resource Include="Views\Assets\Images\logo.png">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Resource>

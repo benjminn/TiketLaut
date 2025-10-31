@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media.Animation;
 
 namespace TiketLaut.Views
 {
@@ -11,11 +12,14 @@ namespace TiketLaut.Views
     {
         private string selectedPaymentMethod = "";
         private bool isPaymentMethodSelected = false;
+        private int kodeUnik = 0; // Kode unik yang ditambahkan untuk transfer bank
+        private int hargaAsli = 487000; // Harga asli sebelum ditambah kode unik
 
         public PaymentWindow()
         {
             InitializeComponent();
             ApplyResponsiveLayout();
+            GenerateKodeUnik();
         }
 
         private void Window_SizeChanged(object sender, SizeChangedEventArgs e)
@@ -58,6 +62,30 @@ namespace TiketLaut.Views
                     txtMainActionButton.Text = "Konfirmasi Pembayaran";
                 }
 
+                // Auto-check parent radio button based on selection
+                if (selectedPaymentMethod == "BCA" || selectedPaymentMethod == "Mandiri")
+                {
+                    // Transfer Bank selected - check parent
+                    if (rbTransferBank != null)
+                    {
+                        rbTransferBank.IsChecked = true;
+                    }
+                }
+                else if (selectedPaymentMethod == "Indomaret" || selectedPaymentMethod == "Alfamart")
+                {
+                    // Gerai Retail selected - check parent
+                    if (rbGeraiRetail != null)
+                    {
+                        rbGeraiRetail.IsChecked = true;
+                    }
+                }
+                else
+                {
+                    // QRIS or Kartu Kredit - uncheck parent radio buttons
+                    if (rbTransferBank != null) rbTransferBank.IsChecked = false;
+                    if (rbGeraiRetail != null) rbGeraiRetail.IsChecked = false;
+                }
+
                 // Update bank info based on selection
                 UpdateBankInfo(selectedPaymentMethod);
             }
@@ -71,6 +99,8 @@ namespace TiketLaut.Views
         private void UpdateBankInfo(string paymentMethod)
         {
             if (txtBankName == null || imgSelectedBank == null) return;
+
+            bool isTransferBank = (paymentMethod == "BCA" || paymentMethod == "Mandiri");
 
             switch (paymentMethod)
             {
@@ -102,6 +132,19 @@ namespace TiketLaut.Views
                     txtBankName.Text = "Metode Pembayaran";
                     txtAccountNumber.Text = "-";
                     break;
+            }
+
+            // Update visibility kode unik - hanya tampil untuk transfer bank
+            if (pnlDetailPembayaran != null && pnlDetailPembayaran.Visibility == Visibility.Visible)
+            {
+                if (txtKodeUnik != null)
+                {
+                    txtKodeUnik.Visibility = isTransferBank ? Visibility.Visible : Visibility.Collapsed;
+                    if (isTransferBank)
+                    {
+                        txtKodeUnik.Text = $"Kode unik (+{kodeUnik}) pada 3 digit terakhir";
+                    }
+                }
             }
         }
 
@@ -179,6 +222,85 @@ namespace TiketLaut.Views
                 "Berhasil",
                 MessageBoxButton.OK,
                 MessageBoxImage.Information);
+        }
+
+        private void GenerateKodeUnik()
+        {
+            // Generate kode unik random antara 1-999
+            Random random = new Random();
+            kodeUnik = random.Next(1, 1000);
+            
+            // Update total pembayaran dengan kode unik
+            UpdateTotalPembayaran();
+        }
+
+        private void UpdateTotalPembayaran()
+        {
+            int totalPembayaran = hargaAsli + kodeUnik;
+            string totalString = totalPembayaran.ToString();
+            string mainPart = totalString.Substring(0, totalString.Length - 3);
+            string lastThreeDigits = totalString.Substring(totalString.Length - 3);
+
+            // Update semua TextBlock total pembayaran
+            if (txtTotalPembayaran != null)
+            {
+                txtTotalPembayaran.Text = $"IDR {mainPart}.";
+                txtTotalPembayaranDigit.Text = lastThreeDigits;
+            }
+            
+            if (txtDetailTotalPembayaran != null)
+            {
+                txtDetailTotalPembayaran.Text = $"IDR {mainPart}.";
+                txtDetailTotalPembayaranDigit.Text = lastThreeDigits;
+            }
+        }
+
+        private void BtnToggleDetailPembayaran_Click(object sender, RoutedEventArgs e)
+        {
+            if (pnlDetailPembayaran.Visibility == Visibility.Collapsed)
+            {
+                // Show detail
+                pnlDetailPembayaran.Visibility = Visibility.Visible;
+                
+                // Rotate arrow icon
+                var rotateTransform = imgToggleDetailPembayaran.RenderTransform as System.Windows.Media.RotateTransform;
+                if (rotateTransform != null)
+                {
+                    var animation = new DoubleAnimation
+                    {
+                        To = 180,
+                        Duration = TimeSpan.FromMilliseconds(200)
+                    };
+                    rotateTransform.BeginAnimation(System.Windows.Media.RotateTransform.AngleProperty, animation);
+                }
+                
+                // Show kode unik notification if transfer bank is selected
+                if (selectedPaymentMethod == "BCA" || selectedPaymentMethod == "Mandiri")
+                {
+                    if (txtKodeUnik != null)
+                    {
+                        txtKodeUnik.Visibility = Visibility.Visible;
+                        txtKodeUnik.Text = $"Kode unik (+{kodeUnik}) pada 3 digit terakhir";
+                    }
+                }
+            }
+            else
+            {
+                // Hide detail
+                pnlDetailPembayaran.Visibility = Visibility.Collapsed;
+                
+                // Rotate arrow icon back
+                var rotateTransform = imgToggleDetailPembayaran.RenderTransform as System.Windows.Media.RotateTransform;
+                if (rotateTransform != null)
+                {
+                    var animation = new DoubleAnimation
+                    {
+                        To = 0,
+                        Duration = TimeSpan.FromMilliseconds(200)
+                    };
+                    rotateTransform.BeginAnimation(System.Windows.Media.RotateTransform.AngleProperty, animation);
+                }
+            }
         }
 
         // Method untuk membuka PaymentWindow dari window lain
