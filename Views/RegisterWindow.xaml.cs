@@ -36,10 +36,10 @@ namespace TiketLaut.Views
                 tanggal_lahir = DateOnly.FromDateTime(dpTanggalLahir.SelectedDate!.Value),
                 email = txtEmail.Text.Trim(),
                 password = txtPassword.Password,
-                no_hp = txtNIK.Text.Trim(),
+                nomor_induk_kependudukan = txtNIK.Text.Trim(),  // CHANGED: from "no_hp" to "nomor_induk_kependudukan"
                 kewarganegaraan = "Indonesia",
                 alamat = null,
-                tanggal_daftar = DateTime.UtcNow  // ? UBAH dari DateTime.Now ke DateTime.UtcNow
+                tanggal_daftar = DateTime.UtcNow
             };
 
             // Show loading
@@ -74,7 +74,7 @@ namespace TiketLaut.Views
             catch (Exception ex)
             {
                 MessageBox.Show(
-                    $"? Terjadi kesalahan:\n\n{ex.Message}\n\n" +
+                    $"?? Terjadi kesalahan:\n\n{ex.Message}\n\n" +
                     $"Detail: {ex.InnerException?.Message ?? "Tidak ada detail tambahan"}",
                     "Error",
                     MessageBoxButton.OK,
@@ -240,4 +240,3 @@ namespace TiketLaut.Views
         }
     }
 }
-
