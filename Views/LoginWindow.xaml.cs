@@ -2,45 +2,110 @@ using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using TiketLaut.Views;  // UBAH dari TiketLaut.Views.Assets
+using TiketLaut.Services;
 
 namespace TiketLaut.Views
 {
     public partial class LoginWindow : Window
     {
+        private readonly PenggunaService _penggunaService;
+
         public LoginWindow()
         {
             InitializeComponent();
+            _penggunaService = new PenggunaService();
+            
+            // Test database connection on load
+            TestDatabaseConnection();
         }
 
-        private void BtnLogin_Click(object sender, RoutedEventArgs e)
+        private async void TestDatabaseConnection()
         {
-            // Ganti dengan nama TextBox yang sesuai di XAML Anda
-            // Misalnya jika di XAML namanya "txtEmail", ubah menjadi:
-            string username = txtEmail.Text;  // ← Sesuaikan dengan nama di XAML
+            try
+            {
+                var isConnected = await DatabaseService.TestConnectionAsync();
+                if (!isConnected)
+                {
+                    MessageBox.Show(
+                        "⚠️ Tidak dapat terhubung ke database Supabase!\n\n" +
+                        "Pastikan:\n" +
+                        "1. Koneksi internet aktif\n" +
+                        "2. Connection string di appsettings.json benar\n" +
+                        "3. Database Supabase sudah dibuat",
+                        "Database Error",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Error);
+                }
+                else
+                {
+                    // Optional: tampilkan pesan sukses (comment jika tidak perlu)
+                    // MessageBox.Show("✅ Koneksi ke database berhasil!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error testing connection: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private async void BtnLogin_Click(object sender, RoutedEventArgs e)
+        {
+            string email = txtEmail.Text.Trim();
             string password = txtPassword.Password;
 
-            // Validasi untuk development - email: "a", password: "b"
-            if (username == "a" && password == "b")
+            // Validasi input
+            if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password))
             {
-                // Login berhasil
-                var homePage = new HomePage(isLoggedIn: true, username: username);
-                this.Close();
-                homePage.Show();
-            }
-            else if (!string.IsNullOrEmpty(username) && !string.IsNullOrEmpty(password))
-            {
-                MessageBox.Show("Email atau password salah!\nUntuk development: email='a', password='b'", 
-                               "Login Gagal", 
-                               MessageBoxButton.OK, 
+                MessageBox.Show("Email dan password tidak boleh kosong!",
+                               "Login Gagal",
+                               MessageBoxButton.OK,
                                MessageBoxImage.Warning);
+                return;
             }
-            else
+
+            // Show loading
+            btnLogin.IsEnabled = false;
+            btnLogin.Content = "Memproses...";
+
+            try
             {
-                MessageBox.Show("Username dan password tidak boleh kosong!", 
-                               "Login Gagal", 
-                               MessageBoxButton.OK, 
-                               MessageBoxImage.Warning);
+                // Validate login dari database
+                var pengguna = await _penggunaService.ValidateLoginAsync(email, password);
+
+                if (pengguna != null)
+                {
+                    // Login berhasil - simpan session
+                    SessionManager.CurrentUser = pengguna;
+
+                    MessageBox.Show($"Selamat datang, {pengguna.nama}!",
+                                   "Login Berhasil",
+                                   MessageBoxButton.OK,
+                                   MessageBoxImage.Information);
+
+                    // Buka HomePage
+                    var homePage = new HomePage(isLoggedIn: true, username: pengguna.nama);
+                    homePage.Show();
+                    this.Close();
+                }
+                else
+                {
+                    MessageBox.Show("Email atau password salah!",
+                                   "Login Gagal",
+                                   MessageBoxButton.OK,
+                                   MessageBoxImage.Warning);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Terjadi kesalahan:\n{ex.Message}",
+                               "Error",
+                               MessageBoxButton.OK,
+                               MessageBoxImage.Error);
+            }
+            finally
+            {
+                btnLogin.IsEnabled = true;
+                btnLogin.Content = "Masuk";
             }
         }
 
