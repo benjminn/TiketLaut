@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TiketLaut
 {
-    [Table("pelabuhan")]
+    [Table("Pelabuhan")]  // ? Fix: PascalCase
     public class Pelabuhan
     {
         [Key]
@@ -13,20 +13,23 @@ namespace TiketLaut
         
         [Required]
         [StringLength(100)]
-
         public string nama_pelabuhan { get; set; } = string.Empty;
         
+        [Required]
         [StringLength(100)]
         public string kota { get; set; } = string.Empty;
         
+        [Required]
         [StringLength(100)]
         public string provinsi { get; set; } = string.Empty;
         
+        [Required]
         [StringLength(500)]
         public string fasilitas { get; set; } = string.Empty;
         
+        // ? FIX: Ubah jadi nullable
         [StringLength(1000)]
-        public string deskripsi { get; set; } = string.Empty;
+        public string? deskripsi { get; set; }  // NULLABLE!
 
         // Navigation properties
         public List<Jadwal> JadwalAsals { get; set; } = new List<Jadwal>();
@@ -38,7 +41,7 @@ namespace TiketLaut
             Console.WriteLine($"Kota: {kota}");
             Console.WriteLine($"Provinsi: {provinsi}");
             Console.WriteLine($"Fasilitas: {fasilitas}");
-            Console.WriteLine($"Deskripsi: {deskripsi}");
+            Console.WriteLine($"Deskripsi: {deskripsi ?? "(Tidak ada deskripsi)"}");  // ? Handle null
         }
     }
 }

@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TiketLaut
 {
-    [Table("jadwal")]
+    [Table("Jadwal")]
     public class Jadwal
     {
         [Key]
@@ -30,8 +30,14 @@ namespace TiketLaut
         [Range(0, int.MaxValue)]
         public int sisa_kapasitas_kendaraan { get; set; }
         
+        [Required]
         [StringLength(50)]
         public string status { get; set; } = "Active";
+
+        // ⚠️ FIELD BARU - Sesuai schema database
+        [Required]
+        [StringLength(50)]
+        public string kelas_layanan { get; set; } = "Reguler";
 
         // Navigation properties
         public Pelabuhan pelabuhan_asal { get; set; } = null!;
@@ -47,6 +53,7 @@ namespace TiketLaut
             Console.WriteLine($"=== DETAIL JADWAL {jadwal_id} ===");
             Console.WriteLine($"Rute: {pelabuhan_asal?.nama_pelabuhan} → {pelabuhan_tujuan?.nama_pelabuhan}");
             Console.WriteLine($"Kapal: {kapal?.nama_kapal}");
+            Console.WriteLine($"Kelas Layanan: {kelas_layanan}");
             Console.WriteLine($"Waktu Berangkat: {waktu_berangkat}");
             Console.WriteLine($"Waktu Tiba: {waktu_tiba}");
             Console.WriteLine($"Status: {status}");
