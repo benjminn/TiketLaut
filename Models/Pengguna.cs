@@ -5,40 +5,48 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TiketLaut
 {
-    [Table("pengguna")]
+        [Table("Pengguna", Schema = "public")]
     public class Pengguna
     {
         [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        [Column("pengguna_id")]
         public int pengguna_id { get; set; }
         
         [Required]
-        [StringLength(100)]
-
+        [Column("nama")]
         public string nama { get; set; } = string.Empty;
         
         [Required]
-        [StringLength(100)]
+        [Column("email")]
         public string email { get; set; } = string.Empty;
         
         [Required]
-        [StringLength(255)]
+        [Column("password")]
         public string password { get; set; } = string.Empty;
         
-        [StringLength(20)]
+        [Required]
+        [Column("no_hp")]
         public string no_hp { get; set; } = string.Empty;
         
-        [StringLength(20)]
+        [Required]
+        [Column("jenis_kelamin")]
         public string jenis_kelamin { get; set; } = string.Empty;
         
+        [Required]
+        [Column("tanggal_lahir")]
         public DateOnly tanggal_lahir { get; set; }
         
-        [StringLength(50)]
+        [Required]
+        [Column("kewarganegaraan")]
         public string kewarganegaraan { get; set; } = string.Empty;
         
-        [StringLength(255)]
-        public string alamat { get; set; } = string.Empty;
+        [Column("alamat")]
+        public string? alamat { get; set; } // nullable - sesuai schema
         
-        public DateTime tanggal_daftar { get; set; } = DateTime.Now;
+        [Required]
+        [Column("tanggal_daftar")]
+        public DateTime tanggal_daftar { get; set; } = DateTime.UtcNow;  // ? Default UTC
 
         // Navigation properties
         public List<Penumpang> Penumpangs { get; set; } = new List<Penumpang>();
@@ -47,23 +55,19 @@ namespace TiketLaut
 
         public bool login()
         {
-            // Implementasi login pengguna
             return true;
         }
 
         public void editProfil()
         {
-            // Implementasi edit profil
         }
 
         public void lihatPemberitahuan()
         {
-            // Implementasi lihat pemberitahuan
         }
 
         public void cariJadwal()
         {
-            // Implementasi cari jadwal
         }
 
         public void pesanTiket()

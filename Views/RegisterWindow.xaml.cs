@@ -1,61 +1,89 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
-
+using TiketLaut.Services;
 
 namespace TiketLaut.Views
 {
     public partial class RegisterWindow : Window
     {
+        private readonly PenggunaService _penggunaService;
+
         public RegisterWindow()
         {
             InitializeComponent();
+            _penggunaService = new PenggunaService();
 
             // Set default values
-            cmbJenisKelamin.SelectedIndex = -1; // No selection
+            cmbJenisKelamin.SelectedIndex = -1;
             dpTanggalLahir.SelectedDate = null;
         }
 
-        private void BtnRegister_Click(object sender, RoutedEventArgs e)
+        private async void BtnRegister_Click(object sender, RoutedEventArgs e)
         {
             // Validasi input
             if (!ValidateInput())
                 return;
 
             // Ambil data dari form
-            string namaLengkap = txtNamaLengkap.Text.Trim();
-            string? jenisKelamin = (cmbJenisKelamin.SelectedItem as System.Windows.Controls.ComboBoxItem)?.Content.ToString();
-            DateTime? tanggalLahir = dpTanggalLahir.SelectedDate;
-            string nik = txtNIK.Text.Trim();
-            string email = txtEmail.Text.Trim();
-            string password = txtPassword.Password;
+            var pengguna = new Pengguna
+            {
+                nama = txtNamaLengkap.Text.Trim(),
+                jenis_kelamin = (cmbJenisKelamin.SelectedItem as ComboBoxItem)?.Content.ToString() ?? "",
+                tanggal_lahir = DateOnly.FromDateTime(dpTanggalLahir.SelectedDate!.Value),
+                email = txtEmail.Text.Trim(),
+                password = txtPassword.Password,
+                no_hp = txtNIK.Text.Trim(),
+                kewarganegaraan = "Indonesia",
+                alamat = null,
+                tanggal_daftar = DateTime.UtcNow  // ? UBAH dari DateTime.Now ke DateTime.UtcNow
+            };
+
+            // Show loading
+            btnRegister.IsEnabled = false;
+            btnRegister.Content = "Memproses...";
 
             try
             {
-                // TODO: Implementasi penyimpanan ke database
-                // Untuk sementara, tampilkan pesan sukses
-                MessageBox.Show("Registrasi berhasil! Silakan login dengan akun baru Anda.", "Sukses",
-                    MessageBoxButton.OK, MessageBoxImage.Information);
+                var (success, message) = await _penggunaService.RegisterAsync(pengguna);
 
-                // Kembali ke LoginWindow
-                LoginWindow loginWindow = new LoginWindow();
-                loginWindow.Show();
-                this.Close();
+                if (success)
+                {
+                    MessageBox.Show(
+                        "? Registrasi berhasil!\n\nSilakan login dengan akun baru Anda.",
+                        "Sukses",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Information);
+
+                    LoginWindow loginWindow = new LoginWindow();
+                    loginWindow.Show();
+                    this.Close();
+                }
+                else
+                {
+                    MessageBox.Show(
+                        $"? Registrasi gagal!\n\n{message}",
+                        "Registrasi Gagal",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Warning);
+                }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Terjadi kesalahan: {ex.Message}", "Error",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(
+                    $"? Terjadi kesalahan:\n\n{ex.Message}\n\n" +
+                    $"Detail: {ex.InnerException?.Message ?? "Tidak ada detail tambahan"}",
+                    "Error",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+            }
+            finally
+            {
+                btnRegister.IsEnabled = true;
+                btnRegister.Content = "Daftar";
             }
         }
 
@@ -202,7 +230,6 @@ namespace TiketLaut.Views
 
         private void TxtMasuk_Click(object sender, MouseButtonEventArgs e)
         {
-            // Kembali ke LoginWindow
             LoginWindow loginWindow = new LoginWindow();
             loginWindow.Show();
             this.Close();
@@ -210,7 +237,6 @@ namespace TiketLaut.Views
 
         private void txtNamaLengkap_TextChanged(object sender, TextChangedEventArgs e)
         {
-
         }
     }
 }
