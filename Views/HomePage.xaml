@@ -12,97 +12,12 @@
         FontFamily="Plus Jakarta Sans">
 
     <Window.Resources>
-        <!-- Style untuk ComboBox agar tidak melebar -->
-        <Style x:Key="FixedWidthComboBox" TargetType="ComboBox">
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="FontSize" Value="12"/>
-            <Setter Property="FontFamily" Value="Plus Jakarta Sans"/>
-            <Setter Property="Foreground" Value="#666666"/>
-            <Setter Property="HorizontalContentAlignment" Value="Left"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="ComboBox">
-                        <Grid>
-                            <ToggleButton x:Name="ToggleButton"
-                                        Grid.Column="2"
-                                        Focusable="false"
-                                        IsChecked="{Binding Path=IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
-                                        ClickMode="Press"
-                                        Background="Transparent"
-                                        BorderThickness="0">
-                                <ToggleButton.Template>
-                                    <ControlTemplate TargetType="ToggleButton">
-                                        <Grid Background="Transparent">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
-                                            <ContentPresenter Grid.Column="0"
-                                                            HorizontalAlignment="Left"
-                                                            VerticalAlignment="Center"
-                                                            Content="{TemplateBinding Content}"/>
-                                            <Path Grid.Column="1"
-                                                x:Name="Arrow"
-                                                HorizontalAlignment="Right"
-                                                VerticalAlignment="Center"
-                                                Data="M 0 0 L 4 4 L 8 0 Z"
-                                                Fill="#666666"
-                                                Margin="8,0,0,0"/>
-                                        </Grid>
-                                    </ControlTemplate>
-                                </ToggleButton.Template>
-                            </ToggleButton>
-                            
-                            <!-- INI BAGIAN PENTING: TextBlock dengan MaxWidth dan TextTrimming -->
-                            <Grid Margin="0,0,20,0">
-                                <TextBlock x:Name="ContentText"
-                                         Text="{TemplateBinding SelectionBoxItem}"
-                                         TextTrimming="CharacterEllipsis"
-                                         VerticalAlignment="Center"
-                                         HorizontalAlignment="Left"
-                                         MaxWidth="150"
-                                         ToolTip="{TemplateBinding SelectionBoxItem}"/>
-                            </Grid>
-                            
-                            <TextBox x:Name="PART_EditableTextBox"
-                                   Style="{x:Null}"
-                                   HorizontalAlignment="Left"
-                                   VerticalAlignment="Center"
-                                   Margin="0,0,20,0"
-                                   Focusable="True"
-                                   Background="Transparent"
-                                   Visibility="Hidden"
-                                   IsReadOnly="{TemplateBinding IsReadOnly}"/>
-                            <Popup x:Name="Popup"
-                                 Placement="Bottom"
-                                 IsOpen="{TemplateBinding IsDropDownOpen}"
-                                 AllowsTransparency="True"
-                                 Focusable="False"
-                                 PopupAnimation="Slide">
-                                <Grid x:Name="DropDown"
-                                    SnapsToDevicePixels="True"
-                                    MinWidth="{TemplateBinding ActualWidth}"
-                                    MaxHeight="{TemplateBinding MaxDropDownHeight}">
-                                    <Border x:Name="DropDownBorder"
-                                          Background="White"
-                                          BorderThickness="1"
-                                          BorderBrush="#CCCCCC"
-                                          CornerRadius="5">
-                                        <ScrollViewer Margin="4,6,4,6"
-                                                    SnapsToDevicePixels="True">
-                                            <StackPanel IsItemsHost="True"
-                                                      KeyboardNavigation.DirectionalNavigation="Contained"/>
-                                        </ScrollViewer>
-                                    </Border>
-                                </Grid>
-                            </Popup>
-                        </Grid>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
+        <!-- ✅ DROP SHADOW untuk Card -->
+        <DropShadowEffect x:Key="CardShadow" 
+                         BlurRadius="20" 
+                         ShadowDepth="5" 
+                         Opacity="0.2" 
+                         Color="#000000"/>
     </Window.Resources>
 
     <Grid>
@@ -111,7 +26,7 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- Main Content Area (Background Image, Overlay, Content) -->
+        <!-- Main Content Area -->
         <Grid Grid.Row="1" Panel.ZIndex="0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="707*"/>
@@ -128,7 +43,7 @@
                    Margin="0,-74,0,0" 
                    Grid.ColumnSpan="3"/>
 
-            <!-- Overlay untuk memperjelas teks -->
+            <!-- Overlay -->
             <Rectangle Fill="#011C4B" 
                        Opacity="0.2"
                        VerticalAlignment="Top"
@@ -136,7 +51,7 @@
                        Margin="0,-74,0,0" 
                        Grid.ColumnSpan="3"/>
 
-            <!-- ScrollViewer untuk content yang panjang -->
+            <!-- ScrollViewer -->
             <ScrollViewer VerticalScrollBarVisibility="Auto" 
                          HorizontalScrollBarVisibility="Disabled"
                          Padding="0" 
@@ -174,21 +89,21 @@
                               TextAlignment="Center"
                               Margin="0,0,0,30"/>
 
+                    <!-- ✅ FORM CARD - LAYOUT FIXED SEMUA FIELD -->
                     <Border Background="White" 
                            CornerRadius="20" 
                            Padding="40" 
                            Effect="{StaticResource CardShadow}">
-
                         <StackPanel>
                             <!-- Row 1: Pelabuhan Asal, Kelas Layanan, Jadwal Masuk -->
                             <Grid Margin="0,0,0,25">
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*" MinWidth="200"/>
-                                    <ColumnDefinition Width="*" MinWidth="200"/>
-                                    <ColumnDefinition Width="1.2*" MinWidth="300"/>
+                                    <ColumnDefinition Width="280"/>
+                                    <ColumnDefinition Width="280"/>
+                                    <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
 
-                                <!-- Pelabuhan Asal -->
+                                <!-- ✅ Pelabuhan Asal - FIXED WIDTH -->
                                 <StackPanel Grid.Column="0" Margin="0,0,15,0">
                                     <TextBlock Text="Pelabuhan Asal" 
                                               FontSize="13" 
@@ -200,8 +115,10 @@
                                            CornerRadius="10" 
                                            Padding="15,12"
                                            BorderThickness="1.5"
-                                           BorderBrush="#999999">
-                                        <Grid>
+                                           BorderBrush="#999999"
+                                           Width="265"
+                                           HorizontalAlignment="Left">
+                                        <Grid Width="235">
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="Auto"/>
                                                 <ColumnDefinition Width="8"/>
@@ -221,17 +138,22 @@
                                                      FontSize="12"
                                                      FontFamily="Plus Jakarta Sans"
                                                      Foreground="#666666"
-                                                     SelectedIndex="0">
+                                                     SelectedIndex="0"
+                                                     Width="209"
+                                                     MaxDropDownHeight="250">
+                                                <ComboBox.Resources>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+                                                        <Setter Property="ToolTip" Value="{Binding Text, RelativeSource={RelativeSource Self}}"/>
+                                                    </Style>
+                                                </ComboBox.Resources>
                                                 <ComboBoxItem IsSelected="True" Content="Pilih Asal" />
-                                                <ComboBoxItem Content="A" />
-                                                <ComboBoxItem Content="B" />
-                                                <ComboBoxItem Content="C" />
                                             </ComboBox>
                                         </Grid>
                                     </Border>
                                 </StackPanel>
 
-                                <!-- Kelas Layanan -->
+                                <!-- ✅ Kelas Layanan - FIXED WIDTH -->
                                 <StackPanel Grid.Column="1" Margin="0,0,15,0">
                                     <TextBlock Text="Kelas Layanan" 
                                               FontSize="13" 
@@ -243,8 +165,10 @@
                                            CornerRadius="10" 
                                            Padding="15,12"
                                            BorderThickness="1.5"
-                                           BorderBrush="#999999">
-                                        <Grid>
+                                           BorderBrush="#999999"
+                                           Width="265"
+                                           HorizontalAlignment="Left">
+                                        <Grid Width="235">
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="Auto"/>
                                                 <ColumnDefinition Width="8"/>
@@ -264,17 +188,17 @@
                                                      FontSize="12"
                                                      FontFamily="Plus Jakarta Sans"
                                                      Foreground="#666666"
-                                                     SelectedIndex="0">
+                                                     SelectedIndex="0"
+                                                     Width="209">
                                                 <ComboBoxItem IsSelected="True" Content="Pilih Kelas" />
-                                                <ComboBoxItem Content="A" />
-                                                <ComboBoxItem Content="B" />
-                                                <ComboBoxItem Content="C" />
+                                                <ComboBoxItem Content="Reguler"/>
+                                                <ComboBoxItem Content="Express"/>
                                             </ComboBox>
                                         </Grid>
                                     </Border>
                                 </StackPanel>
 
-                                <!-- Jadwal Masuk -->
+                                <!-- ✅ Jadwal Masuk - FIXED WIDTH -->
                                 <StackPanel Grid.Column="2">
                                     <TextBlock Text="Jadwal Masuk" 
                                               FontSize="13" 
@@ -282,11 +206,11 @@
                                               FontWeight="SemiBold"
                                               Foreground="#333"
                                               Margin="0,0,0,10"/>
-                                    <Grid>
+                                    <Grid Width="350" HorizontalAlignment="Left">
                                         <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="Auto"/>
-                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="170"/>
+                                            <ColumnDefinition Width="10"/>
+                                            <ColumnDefinition Width="170"/>
                                         </Grid.ColumnDefinitions>
 
                                         <!-- Tanggal -->
@@ -302,11 +226,15 @@
                                                        FontSize="11"
                                                        FontFamily="Plus Jakarta Sans"
                                                        Foreground="#666666"
-                                                       SelectedDateFormat="Short"/>
+                                                       SelectedDateFormat="Short"
+                                                       Width="146"/>
                                         </Border>
 
                                         <!-- Separator -->
-                                        <Rectangle Fill="#CCCCCC" Width="2" Margin="8,0" Grid.Column="1"/>
+                                        <Rectangle Fill="#CCCCCC" 
+                                                  Width="2" 
+                                                  Grid.Column="1"
+                                                  HorizontalAlignment="Center"/>
 
                                         <!-- Jam -->
                                         <Border Background="#F0F0F0" 
@@ -315,7 +243,7 @@
                                                BorderThickness="1.5"
                                                BorderBrush="#999999"
                                                Grid.Column="2">
-                                            <Grid>
+                                            <Grid Width="146">
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="Auto"/>
                                                     <ColumnDefinition Width="6"/>
@@ -335,7 +263,9 @@
                                                          FontSize="11"
                                                          FontFamily="Plus Jakarta Sans"
                                                          Foreground="#666666"
-                                                         SelectedIndex="0">
+                                                         SelectedIndex="0"
+                                                         Width="120"
+                                                         MaxDropDownHeight="250">
                                                     <ComboBoxItem IsSelected="True" Content="Pilih Jam"/>
                                                     <ComboBoxItem Content="00:00"/>
                                                     <ComboBoxItem Content="01:00"/>
@@ -371,12 +301,12 @@
                             <!-- Row 2: Pelabuhan Tujuan, Jenis Kendaraan, Penumpang -->
                             <Grid Margin="0,0,0,25">
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*" MinWidth="200"/>
-                                    <ColumnDefinition Width="*" MinWidth="200"/>
-                                    <ColumnDefinition Width="1.2*" MinWidth="300"/>
+                                    <ColumnDefinition Width="280"/>
+                                    <ColumnDefinition Width="280"/>
+                                    <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
 
-                                <!-- Pelabuhan Tujuan -->
+                                <!-- ✅ Pelabuhan Tujuan - FIXED WIDTH -->
                                 <StackPanel Grid.Column="0" Margin="0,0,15,0">
                                     <TextBlock Text="Pelabuhan Tujuan" 
                                               FontSize="13" 
@@ -388,8 +318,10 @@
                                            CornerRadius="10" 
                                            Padding="15,12"
                                            BorderThickness="1.5"
-                                           BorderBrush="#999999">
-                                        <Grid>
+                                           BorderBrush="#999999"
+                                           Width="265"
+                                           HorizontalAlignment="Left">
+                                        <Grid Width="235">
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="Auto"/>
                                                 <ColumnDefinition Width="8"/>
@@ -409,17 +341,22 @@
                                                      FontSize="12"
                                                      FontFamily="Plus Jakarta Sans"
                                                      Foreground="#666666"
-                                                     SelectedIndex="0">
+                                                     SelectedIndex="0"
+                                                     Width="209"
+                                                     MaxDropDownHeight="250">
+                                                <ComboBox.Resources>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+                                                        <Setter Property="ToolTip" Value="{Binding Text, RelativeSource={RelativeSource Self}}"/>
+                                                    </Style>
+                                                </ComboBox.Resources>
                                                 <ComboBoxItem IsSelected="True" Content="Pilih Tujuan"/>
-                                                <ComboBoxItem Content="A" />
-                                                <ComboBoxItem Content="B" />
-                                                <ComboBoxItem Content="C" />
                                             </ComboBox>
                                         </Grid>
                                     </Border>
                                 </StackPanel>
 
-                                <!-- Jenis Kendaraan -->
+                                <!-- ✅ Jenis Kendaraan - FIXED WIDTH (Sudah Benar) -->
                                 <StackPanel Grid.Column="1" Margin="0,0,15,0">
                                     <TextBlock Text="Jenis Kendaraan" 
                                               FontSize="13" 
@@ -432,9 +369,9 @@
                                            Padding="15,12"
                                            BorderThickness="1.5"
                                            BorderBrush="#999999"
-                                           Width="200"
+                                           Width="265"
                                            HorizontalAlignment="Left">
-                                        <Grid Width="170">
+                                        <Grid Width="235">
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="Auto"/>
                                                 <ColumnDefinition Width="8"/>
@@ -456,7 +393,7 @@
                                                      Foreground="#666666"
                                                      SelectedIndex="0"
                                                      MaxDropDownHeight="250"
-                                                     Width="144">
+                                                     Width="209">
                                                 <ComboBox.Resources>
                                                     <Style TargetType="TextBlock">
                                                         <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
@@ -510,7 +447,7 @@
                                     </Border>
                                 </StackPanel>
 
-                                <!-- Penumpang -->
+                                <!-- ✅ Penumpang - FIXED WIDTH -->
                                 <StackPanel Grid.Column="2">
                                     <TextBlock Text="Penumpang" 
                                               FontSize="13" 
@@ -522,8 +459,10 @@
                                            CornerRadius="10" 
                                            Padding="15,12"
                                            BorderThickness="1.5"
-                                           BorderBrush="#999999">
-                                        <Grid>
+                                           BorderBrush="#999999"
+                                           Width="350"
+                                           HorizontalAlignment="Left">
+                                        <Grid Width="235">
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="Auto"/>
                                                 <ColumnDefinition Width="8"/>
@@ -532,18 +471,16 @@
 
                                             <Image Grid.Column="0"
                                                    Source="/Views/Assets/Icons/iconorang.png"
-                                                   Width="18"
                                                    Height="18"
-                                                   VerticalAlignment="Center"/>
+                                                   VerticalAlignment="Center" Margin="-64,0,0,0"/>
 
                                             <ComboBox x:Name="cmbPenumpang"
-                                                     Grid.Column="2"
                                                      Background="Transparent" 
                                                      BorderThickness="0"
                                                      FontSize="12"
                                                      FontFamily="Plus Jakarta Sans"
                                                      Foreground="#666666"
-                                                     SelectedIndex="0">
+                                                     SelectedIndex="0" Grid.ColumnSpan="3" Margin="-18,0,-48,0">
                                                 <ComboBoxItem IsSelected="True" Content="Pilih Penumpang"/>
                                                 <ComboBoxItem Content="1 Penumpang"/>
                                                 <ComboBoxItem Content="2 Penumpang"/>
@@ -594,13 +531,14 @@
             </ScrollViewer>
         </Grid>
 
-        <!-- Navbar Component (Pre-Login) - LAYER PALING ATAS -->
+        <!-- Navbar Component (Pre-Login) -->
         <components:NavbarPreLogin Grid.Row="0" 
                                    x:Name="navbarPreLogin"
                                    Visibility="Visible"
-                                   Panel.ZIndex="999" Loaded="navbarPreLogin_Loaded"/>
+                                   Panel.ZIndex="999" 
+                                   Loaded="navbarPreLogin_Loaded"/>
 
-        <!-- Navbar Component (Post-Login) - LAYER PALING ATAS -->
+        <!-- Navbar Component (Post-Login) -->
         <components:NavbarPostLogin Grid.Row="0" 
                                     x:Name="navbarPostLogin"
                                     Visibility="Collapsed"

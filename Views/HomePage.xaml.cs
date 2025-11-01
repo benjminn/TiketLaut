@@ -95,7 +95,7 @@ namespace TiketLaut.Views
                     cmbKelasLayanan.Items.Clear();
                     cmbKelasLayanan.Items.Add(new ComboBoxItem { Content = "Pilih Kelas Layanan" });
                     cmbKelasLayanan.Items.Add(new ComboBoxItem { Content = "Reguler" });
-                    cmbKelasLayanan.Items.Add(new ComboBoxItem { Content = "Eksekutif" });
+                    cmbKelasLayanan.Items.Add(new ComboBoxItem { Content = "Ekspress" }); // ? TYPO SESUAI DATABASE
                     cmbKelasLayanan.SelectedIndex = 0;
                 }
                 else
@@ -236,7 +236,7 @@ namespace TiketLaut.Views
 
                 // Parse jam keberangkatan (optional)
                 TimeOnly? jamKeberangkatan = null;
-                if (cmbJam.SelectedIndex > 0)
+                if (cmbJam.SelectedIndex > 0) // Index 0 = "Pilih Jam"
                 {
                     var jamText = ((ComboBoxItem)cmbJam.SelectedItem).Content.ToString();
                     if (TimeOnly.TryParse(jamText, out TimeOnly jam))
