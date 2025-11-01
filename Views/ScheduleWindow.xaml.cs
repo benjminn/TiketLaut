@@ -33,6 +33,9 @@ namespace TiketLaut.Views
             _jadwals = jadwals;
             _searchCriteria = searchCriteria;
             
+            // ? Populate filter dropdown dengan data user
+            PopulateFilterDropdowns();
+            
             LoadScheduleFromDatabase();
             
             // Set user info di navbar
@@ -45,6 +48,105 @@ namespace TiketLaut.Views
             {
                 navbarPostLogin.SetUserInfo("Guest User");
             }
+        }
+
+        /// <summary>
+        /// ? Populate dropdown filter dengan data search criteria dari HomePage
+        /// </summary>
+        private async void PopulateFilterDropdowns()
+        {
+            if (_searchCriteria == null || _jadwals == null || !_jadwals.Any())
+                return;
+
+            try
+            {
+                var jadwalService = new TiketLaut.Services.JadwalService();
+                
+                // Load semua pelabuhan untuk dropdown
+                var pelabuhans = await jadwalService.GetAllPelabuhanAsync();
+
+                // ? Populate Pelabuhan Asal
+                cmbFilterFrom.Items.Clear();
+                var pelabuhanAsal = pelabuhans.FirstOrDefault(p => p.pelabuhan_id == _searchCriteria.PelabuhanAsalId);
+                if (pelabuhanAsal != null)
+                {
+                    cmbFilterFrom.Items.Add(new ComboBoxItem
+                    {
+                        Content = pelabuhanAsal.nama_pelabuhan,
+                        Tag = pelabuhanAsal.pelabuhan_id
+                    });
+                    cmbFilterFrom.SelectedIndex = 0;
+                }
+
+                // ? Populate Pelabuhan Tujuan
+                cmbFilterTo.Items.Clear();
+                var pelabuhanTujuan = pelabuhans.FirstOrDefault(p => p.pelabuhan_id == _searchCriteria.PelabuhanTujuanId);
+                if (pelabuhanTujuan != null)
+                {
+                    cmbFilterTo.Items.Add(new ComboBoxItem
+                    {
+                        Content = pelabuhanTujuan.nama_pelabuhan,
+                        Tag = pelabuhanTujuan.pelabuhan_id
+                    });
+                    cmbFilterTo.SelectedIndex = 0;
+                }
+
+                // ? Populate Tanggal
+                cmbFilterDate.Items.Clear();
+                var tanggalText = _searchCriteria.TanggalKeberangkatan.ToString("ddd, dd MMMM yyyy",
+                    new System.Globalization.CultureInfo("id-ID"));
+                cmbFilterDate.Items.Add(new ComboBoxItem { Content = tanggalText });
+                cmbFilterDate.SelectedIndex = 0;
+
+                // ? Populate Jam (optional)
+                if (_searchCriteria.JamKeberangkatan.HasValue)
+                {
+                    cmbFilterTime.Items.Clear();
+                    var jamText = _searchCriteria.JamKeberangkatan.Value.ToString("HH:mm");
+                    cmbFilterTime.Items.Add(new ComboBoxItem { Content = jamText });
+                    cmbFilterTime.SelectedIndex = 0;
+                }
+
+                // ? Populate Jenis Kendaraan
+                cmbFilterVehicle.Items.Clear();
+                string jenisKendaraanText = GetJenisKendaraanText(_searchCriteria.JenisKendaraanId);
+                cmbFilterVehicle.Items.Add(new ComboBoxItem { Content = jenisKendaraanText });
+                cmbFilterVehicle.SelectedIndex = 0;
+
+                // ? Populate Jumlah Penumpang
+                cmbFilterPassenger.Items.Clear();
+                var penumpangText = $"{_searchCriteria.JumlahPenumpang} Penumpang";
+                cmbFilterPassenger.Items.Add(new ComboBoxItem { Content = penumpangText });
+                cmbFilterPassenger.SelectedIndex = 0;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[ScheduleWindow] Error populating filters: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// ? Helper untuk convert jenis_kendaraan_id ke text
+        /// </summary>
+        private string GetJenisKendaraanText(int jenisKendaraanId)
+        {
+            return jenisKendaraanId switch
+            {
+                0 => "Pejalan kaki tanpa kendaraan",
+                1 => "Sepeda",
+                2 => "Sepeda Motor (<500cc)",
+                3 => "Sepeda Motor (>500cc) (Golongan III)",
+                4 => "Mobil jeep, sedan, minibus",
+                5 => "Mobil barang bak muatan",
+                6 => "Mobil bus penumpang (5-7 meter)",
+                7 => "Mobil barang (truk/tangki) ukuran sedang",
+                8 => "Mobil bus penumpang (7-10 meter)",
+                9 => "Mobil barang (truk/tangki) sedang",
+                10 => "Mobil tronton, tangki, penarik + gandengan (10-12 meter)",
+                11 => "Mobil tronton, tangki, alat berat (12-16 meter)",
+                12 => "Mobil tronton, tangki, alat berat (>16 meter)",
+                _ => "Kendaraan tidak diketahui"
+            };
         }
 
         /// <summary>
@@ -63,49 +165,91 @@ namespace TiketLaut.Views
 
             foreach (var jadwal in _jadwals)
             {
-                // Format tanggal keberangkatan
-                var tanggal = _searchCriteria?.TanggalKeberangkatan ?? DateTime.Today;
-                var boardingDate = tanggal.ToString("dddd, dd MMMM yyyy", 
-                    new System.Globalization.CultureInfo("id-ID"));
-
-                // Hitung durasi perjalanan
-                var duration = jadwal.waktu_tiba.ToTimeSpan() - jadwal.waktu_berangkat.ToTimeSpan();
-                var durationText = $"{duration.Hours} jam {duration.Minutes} menit";
-
-                // Format waktu check-in (15 menit sebelum berangkat)
-                var checkInTime = jadwal.waktu_berangkat.AddMinutes(-15);
-                var warningText = $"Masuk pelabuhan (check-in) sebelum {checkInTime:HH:mm}";
-
-                // Cari harga kendaraan yang sesuai
-                var detailKendaraan = jadwal.DetailKendaraans
-                    .FirstOrDefault(dk => dk.jenis_kendaraan == _searchCriteria?.JenisKendaraanId);
-
-                decimal harga = detailKendaraan?.harga_kendaraan ?? 0;
-                var priceText = $"IDR {harga:N0}";
-
-                var scheduleItem = new ScheduleItem
+                try
                 {
-                    FerryType = jadwal.kelas_layanan,
-                    BoardingDate = boardingDate,
-                    WarningText = warningText,
-                    DepartureTime = jadwal.waktu_berangkat.ToString("HH:mm"),
-                    DeparturePort = jadwal.pelabuhan_asal?.nama_pelabuhan ?? "N/A",
-                    ArrivalTime = jadwal.waktu_tiba.ToString("HH:mm"),
-                    ArrivalPort = jadwal.pelabuhan_tujuan?.nama_pelabuhan ?? "N/A",
-                    Duration = durationText,
-                    Capacity = $"Kapasitas Tersedia ({jadwal.sisa_kapasitas_penumpang})",
-                    Price = priceText,
-                    PortName = $"{jadwal.pelabuhan_asal?.nama_pelabuhan} ({jadwal.pelabuhan_asal?.kota})",
-                    ShipName = jadwal.kapal?.nama_kapal ?? "N/A",
-                    PortFacilities = ParseFacilities(jadwal.pelabuhan_asal?.fasilitas),
-                    ShipFacilities = ParseFacilities(jadwal.kapal?.fasilitas),
-                    JadwalId = jadwal.jadwal_id // Simpan ID untuk booking
-                };
+                    // Format tanggal keberangkatan
+                    var tanggal = _searchCriteria?.TanggalKeberangkatan ?? DateTime.Today;
+                    var boardingDate = tanggal.ToString("dddd, dd MMMM yyyy", 
+                        new System.Globalization.CultureInfo("id-ID"));
 
-                ScheduleItems.Add(scheduleItem);
+                    // Hitung durasi perjalanan
+                    var duration = jadwal.waktu_tiba.ToTimeSpan() - jadwal.waktu_berangkat.ToTimeSpan();
+                    var durationText = $"{duration.Hours} jam {duration.Minutes} menit";
+
+                    // Format waktu check-in (15 menit sebelum berangkat)
+                    var checkInTime = jadwal.waktu_berangkat.AddMinutes(-15);
+                    var warningText = $"Masuk pelabuhan (check-in) sebelum {checkInTime:HH:mm}";
+
+                    // Cari harga kendaraan yang sesuai
+                    var detailKendaraan = jadwal.DetailKendaraans
+                        ?.FirstOrDefault(dk => dk.jenis_kendaraan == _searchCriteria?.JenisKendaraanId);
+
+                    decimal harga = detailKendaraan?.harga_kendaraan ?? 0;
+                    
+                    // ? LOGIC BARU: Hitung total harga berdasarkan jenis kendaraan
+                    int jumlahPenumpang = _searchCriteria?.JumlahPenumpang ?? 1;
+                    int jenisKendaraanId = _searchCriteria?.JenisKendaraanId ?? 0;
+                    decimal totalHarga;
+
+                    if (jenisKendaraanId == 0) // Pejalan kaki
+                    {
+                        // Kalikan dengan jumlah penumpang
+                        totalHarga = harga * jumlahPenumpang;
+                        System.Diagnostics.Debug.WriteLine($"[LoadSchedule] Pejalan kaki - Harga: {harga} x {jumlahPenumpang} = {totalHarga}");
+                    }
+                    else // Menggunakan kendaraan
+                    {
+                        // Tidak dikali dengan jumlah penumpang
+                        totalHarga = harga;
+                        System.Diagnostics.Debug.WriteLine($"[LoadSchedule] Kendaraan - Harga: {harga} (tidak dikali penumpang)");
+                    }
+                    
+                    var priceText = $"IDR {totalHarga:N0}";
+
+                    // ? FIX: Pastikan nama pelabuhan ter-load dengan benar
+                    string departurePort = jadwal.pelabuhan_asal?.nama_pelabuhan ?? "N/A";
+                    string arrivalPort = jadwal.pelabuhan_tujuan?.nama_pelabuhan ?? "N/A";
+
+                    System.Diagnostics.Debug.WriteLine($"[LoadSchedule] Jadwal {jadwal.jadwal_id}:");
+                    System.Diagnostics.Debug.WriteLine($"  departurePort: {departurePort}");
+                    System.Diagnostics.Debug.WriteLine($"  arrivalPort: {arrivalPort}");
+
+                    var scheduleItem = new ScheduleItem
+                    {
+                        FerryType = jadwal.kelas_layanan ?? "Reguler",
+                        BoardingDate = boardingDate,
+                        WarningText = warningText,
+                        DepartureTime = jadwal.waktu_berangkat.ToString("HH:mm"),
+                        DeparturePort = departurePort,  // ? Sudah benar
+                        ArrivalTime = jadwal.waktu_tiba.ToString("HH:mm"),
+                        ArrivalPort = arrivalPort,  // ? Sudah benar
+                        Duration = durationText,
+                        Capacity = $"Kapasitas Tersedia ({jadwal.sisa_kapasitas_penumpang})",
+                        Price = priceText,
+                        PortName = $"{departurePort} ({jadwal.pelabuhan_asal?.kota ?? "N/A"})",
+                        ShipName = jadwal.kapal?.nama_kapal ?? "N/A",
+                        PortFacilities = ParseFacilities(jadwal.pelabuhan_asal?.fasilitas),
+                        ShipFacilities = ParseFacilities(jadwal.kapal?.fasilitas),
+                        JadwalId = jadwal.jadwal_id
+                    };
+
+                    ScheduleItems.Add(scheduleItem);
+
+                    System.Diagnostics.Debug.WriteLine($"[LoadSchedule] Added item:");
+                    System.Diagnostics.Debug.WriteLine($"  DeparturePort: {scheduleItem.DeparturePort}");
+                    System.Diagnostics.Debug.WriteLine($"  ArrivalPort: {scheduleItem.ArrivalPort}");
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[ScheduleWindow] Error processing jadwal {jadwal.jadwal_id}: {ex.Message}");
+                    // Skip jadwal yang error
+                    continue;
+                }
             }
 
             icScheduleList.ItemsSource = ScheduleItems;
+            
+            System.Diagnostics.Debug.WriteLine($"[ScheduleWindow] Total loaded: {ScheduleItems.Count} schedules");
         }
 
         /// <summary>
@@ -114,11 +258,12 @@ namespace TiketLaut.Views
         private List<string> ParseFacilities(string? fasilitasString)
         {
             if (string.IsNullOrEmpty(fasilitasString))
-                return new List<string>();
+                return new List<string> { "Informasi fasilitas tidak tersedia" };
 
             return fasilitasString
                 .Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries)
                 .Select(f => f.Trim())
+                .Where(f => !string.IsNullOrWhiteSpace(f))
                 .ToList();
         }
 
@@ -127,7 +272,7 @@ namespace TiketLaut.Views
         /// </summary>
         private void LoadScheduleData()
         {
-            // Sample data - nanti diganti dengan data dari database
+            // Sample data - untuk testing tanpa database
             ScheduleItems = new ObservableCollection<ScheduleItem>
             {
                 new ScheduleItem
@@ -141,31 +286,24 @@ namespace TiketLaut.Views
                     ArrivalPort = "Merak",
                     Duration = "2 jam 10 menit",
                     Capacity = "Kapasitas Tersedia (390)",
-                    Price = "IDR 187.853",
+                    Price = "IDR 187,853",
                     PortName = "Bakauheni (Lampung Selatan)",
                     ShipName = "KMP Portlink III",
                     PortFacilities = new List<string>
                     {
-                        "Ruang Tunggu",
-                        "Musala",
-                        "Toilet Umum",
+                        "Ruang Tunggu", "Musala", "Toilet Umum",
                         "Area Pengisian Daya (Charging Station)",
-                        "ATM Center",
-                        "Minimarket & Toko Oleh-oleh",
+                        "ATM Center", "Minimarket & Toko Oleh-oleh",
                         "Kantin / Pujasera (Food Court)",
-                        "Pos Kesehatan",
-                        "Area Merokok (Smoking Area)"
+                        "Pos Kesehatan", "Area Merokok (Smoking Area)"
                     },
                     ShipFacilities = new List<string>
                     {
                         "Ruang Penumpang (AC dan non-AC)",
-                        "Kantin / Kafetaria",
-                        "Musala",
-                        "Toilet",
+                        "Kantin / Kafetaria", "Musala", "Toilet",
                         "Dek Terbuka (Area Merokok)",
                         "Ruang Lesehan bertikar",
-                        "Hiburan",
-                        "Colokan Listrik"
+                        "Hiburan", "Colokan Listrik"
                     }
                 },
                 new ScheduleItem
@@ -389,7 +527,7 @@ namespace TiketLaut.Views
         private string _shipName = string.Empty;
         private List<string> _portFacilities = new List<string>();
         private List<string> _shipFacilities = new List<string>();
-        private int _jadwalId = 0; // ? Tambahan untuk menyimpan ID jadwal
+        private int _jadwalId = 0;
 
         public string FerryType
         {
@@ -418,7 +556,12 @@ namespace TiketLaut.Views
         public string DeparturePort
         {
             get => _departurePort;
-            set { _departurePort = value; OnPropertyChanged(nameof(DeparturePort)); }
+            set
+            {
+                _departurePort = value;
+                OnPropertyChanged(nameof(DeparturePort));  
+                System.Diagnostics.Debug.WriteLine($"[ScheduleItem] DeparturePort set to: {value}");
+            }
         }
 
         public string ArrivalTime
@@ -430,7 +573,12 @@ namespace TiketLaut.Views
         public string ArrivalPort
         {
             get => _arrivalPort;
-            set { _arrivalPort = value; OnPropertyChanged(nameof(ArrivalPort)); }
+            set
+            {
+                _arrivalPort = value;
+                OnPropertyChanged(nameof(ArrivalPort));
+                System.Diagnostics.Debug.WriteLine($"[ScheduleItem] ArrivalPort set to: {value}");
+            }
         }
 
         public string Duration
@@ -475,7 +623,6 @@ namespace TiketLaut.Views
             set { _shipFacilities = value; OnPropertyChanged(nameof(ShipFacilities)); }
         }
 
-        // ? Property baru untuk menyimpan jadwal_id
         public int JadwalId
         {
             get => _jadwalId;
