@@ -6,13 +6,17 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using TiketLaut.Models;
 
 namespace TiketLaut.Views
 {
     public partial class ScheduleWindow : Window
     {
         public ObservableCollection<ScheduleItem> ScheduleItems { get; set; } = new ObservableCollection<ScheduleItem>();
+        private List<Jadwal>? _jadwals;
+        private SearchCriteria? _searchCriteria;
 
+        // Constructor default (backward compatibility)
         public ScheduleWindow()
         {
             InitializeComponent();
@@ -22,6 +26,105 @@ namespace TiketLaut.Views
             navbarPostLogin.SetUserInfo("Admin User");
         }
 
+        // ? Constructor baru dengan parameter dari database
+        public ScheduleWindow(List<Jadwal> jadwals, SearchCriteria searchCriteria)
+        {
+            InitializeComponent();
+            _jadwals = jadwals;
+            _searchCriteria = searchCriteria;
+            
+            LoadScheduleFromDatabase();
+            
+            // Set user info di navbar
+            if (TiketLaut.Services.SessionManager.IsLoggedIn && 
+                TiketLaut.Services.SessionManager.CurrentUser != null)
+            {
+                navbarPostLogin.SetUserInfo(TiketLaut.Services.SessionManager.CurrentUser.nama);
+            }
+            else
+            {
+                navbarPostLogin.SetUserInfo("Guest User");
+            }
+        }
+
+        /// <summary>
+        /// Load schedule data dari database (real data)
+        /// </summary>
+        private void LoadScheduleFromDatabase()
+        {
+            if (_jadwals == null || !_jadwals.Any())
+            {
+                MessageBox.Show("Tidak ada data jadwal yang tersedia.", "Info", 
+                    MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
+            ScheduleItems.Clear();
+
+            foreach (var jadwal in _jadwals)
+            {
+                // Format tanggal keberangkatan
+                var tanggal = _searchCriteria?.TanggalKeberangkatan ?? DateTime.Today;
+                var boardingDate = tanggal.ToString("dddd, dd MMMM yyyy", 
+                    new System.Globalization.CultureInfo("id-ID"));
+
+                // Hitung durasi perjalanan
+                var duration = jadwal.waktu_tiba.ToTimeSpan() - jadwal.waktu_berangkat.ToTimeSpan();
+                var durationText = $"{duration.Hours} jam {duration.Minutes} menit";
+
+                // Format waktu check-in (15 menit sebelum berangkat)
+                var checkInTime = jadwal.waktu_berangkat.AddMinutes(-15);
+                var warningText = $"Masuk pelabuhan (check-in) sebelum {checkInTime:HH:mm}";
+
+                // Cari harga kendaraan yang sesuai
+                var detailKendaraan = jadwal.DetailKendaraans
+                    .FirstOrDefault(dk => dk.jenis_kendaraan == _searchCriteria?.JenisKendaraanId);
+
+                decimal harga = detailKendaraan?.harga_kendaraan ?? 0;
+                var priceText = $"IDR {harga:N0}";
+
+                var scheduleItem = new ScheduleItem
+                {
+                    FerryType = jadwal.kelas_layanan,
+                    BoardingDate = boardingDate,
+                    WarningText = warningText,
+                    DepartureTime = jadwal.waktu_berangkat.ToString("HH:mm"),
+                    DeparturePort = jadwal.pelabuhan_asal?.nama_pelabuhan ?? "N/A",
+                    ArrivalTime = jadwal.waktu_tiba.ToString("HH:mm"),
+                    ArrivalPort = jadwal.pelabuhan_tujuan?.nama_pelabuhan ?? "N/A",
+                    Duration = durationText,
+                    Capacity = $"Kapasitas Tersedia ({jadwal.sisa_kapasitas_penumpang})",
+                    Price = priceText,
+                    PortName = $"{jadwal.pelabuhan_asal?.nama_pelabuhan} ({jadwal.pelabuhan_asal?.kota})",
+                    ShipName = jadwal.kapal?.nama_kapal ?? "N/A",
+                    PortFacilities = ParseFacilities(jadwal.pelabuhan_asal?.fasilitas),
+                    ShipFacilities = ParseFacilities(jadwal.kapal?.fasilitas),
+                    JadwalId = jadwal.jadwal_id // Simpan ID untuk booking
+                };
+
+                ScheduleItems.Add(scheduleItem);
+            }
+
+            icScheduleList.ItemsSource = ScheduleItems;
+        }
+
+        /// <summary>
+        /// Parse fasilitas dari string (comma-separated) ke List
+        /// </summary>
+        private List<string> ParseFacilities(string? fasilitasString)
+        {
+            if (string.IsNullOrEmpty(fasilitasString))
+                return new List<string>();
+
+            return fasilitasString
+                .Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries)
+                .Select(f => f.Trim())
+                .ToList();
+        }
+
+        /// <summary>
+        /// Load sample data (untuk backward compatibility)
+        /// </summary>
         private void LoadScheduleData()
         {
             // Sample data - nanti diganti dengan data dari database
@@ -150,7 +253,10 @@ namespace TiketLaut.Views
         private void BtnKembali_Click(object sender, RoutedEventArgs e)
         {
             // Kembali ke HomePage dengan state login
-            var homePage = new HomePage(isLoggedIn: true, username: "Admin User");
+            bool isLoggedIn = TiketLaut.Services.SessionManager.IsLoggedIn;
+            string username = TiketLaut.Services.SessionManager.CurrentUser?.nama ?? "";
+            
+            var homePage = new HomePage(isLoggedIn: isLoggedIn, username: username);
             homePage.Left = this.Left;
             homePage.Top = this.Top;
             homePage.Width = this.Width;
@@ -283,6 +389,7 @@ namespace TiketLaut.Views
         private string _shipName = string.Empty;
         private List<string> _portFacilities = new List<string>();
         private List<string> _shipFacilities = new List<string>();
+        private int _jadwalId = 0; // ? Tambahan untuk menyimpan ID jadwal
 
         public string FerryType
         {
@@ -366,6 +473,13 @@ namespace TiketLaut.Views
         {
             get => _shipFacilities;
             set { _shipFacilities = value; OnPropertyChanged(nameof(ShipFacilities)); }
+        }
+
+        // ? Property baru untuk menyimpan jadwal_id
+        public int JadwalId
+        {
+            get => _jadwalId;
+            set { _jadwalId = value; OnPropertyChanged(nameof(JadwalId)); }
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;
