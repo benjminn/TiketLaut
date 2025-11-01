@@ -35,7 +35,7 @@ namespace TiketLaut.Services
         }
 
         /// <summary>
-        /// Search jadwal dengan kriteria lengkap (UPDATED)
+        /// Search jadwal dengan kriteria lengkap (UPDATED - WITH KELAS LAYANAN)
         /// </summary>
         public async Task<List<Jadwal>> SearchJadwalAsync(
             int pelabuhanAsalId,
@@ -46,10 +46,11 @@ namespace TiketLaut.Services
         {
             try
             {
+                // ? PASTIKAN .Include() untuk navigation properties
                 var query = _context.Jadwals
-                    .Include(j => j.pelabuhan_asal)
-                    .Include(j => j.pelabuhan_tujuan)
-                    .Include(j => j.kapal)
+                    .Include(j => j.pelabuhan_asal)        // ? WAJIB!
+                    .Include(j => j.pelabuhan_tujuan)      // ? WAJIB!
+                    .Include(j => j.kapal)                 // ? WAJIB!
                     .Include(j => j.DetailKendaraans)
                     .Where(j => j.pelabuhan_asal_id == pelabuhanAsalId &&
                                j.pelabuhan_tujuan_id == pelabuhanTujuanId &&
@@ -57,27 +58,37 @@ namespace TiketLaut.Services
                                j.status == "Active" &&
                                j.sisa_kapasitas_penumpang > 0);
 
-                // Filter berdasarkan jam jika dipilih
                 if (jamKeberangkatan.HasValue)
                 {
                     query = query.Where(j => j.waktu_berangkat >= jamKeberangkatan.Value);
                 }
 
-                var jadwals = await query.OrderBy(j => j.waktu_berangkat).ToListAsync();
+                var jadwals = await query
+                    .OrderBy(j => j.waktu_berangkat)
+                    .ToListAsync();
 
-                // Filter yang punya detail kendaraan sesuai jenis
-                if (jenisKendaraanId > 0)
+                if (jenisKendaraanId >= 0)
                 {
                     jadwals = jadwals.Where(j =>
                         j.DetailKendaraans.Any(dk => dk.jenis_kendaraan == jenisKendaraanId))
                         .ToList();
                 }
 
+                // ? DEBUG: Cek apakah navigation property ter-load
+                foreach (var jadwal in jadwals)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[JadwalService] Jadwal {jadwal.jadwal_id}:");
+                    System.Diagnostics.Debug.WriteLine($"  - Asal: {jadwal.pelabuhan_asal?.nama_pelabuhan ?? "NULL"}");
+                    System.Diagnostics.Debug.WriteLine($"  - Tujuan: {jadwal.pelabuhan_tujuan?.nama_pelabuhan ?? "NULL"}");
+                    System.Diagnostics.Debug.WriteLine($"  - Kapal: {jadwal.kapal?.nama_kapal ?? "NULL"}");
+                }
+
                 return jadwals;
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Error searching jadwal: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"[JadwalService] Error: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"[JadwalService] StackTrace: {ex.StackTrace}");
                 return new List<Jadwal>();
             }
         }

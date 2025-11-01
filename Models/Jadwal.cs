@@ -34,7 +34,7 @@ namespace TiketLaut
         [StringLength(50)]
         public string status { get; set; } = "Active";
 
-        // ⚠️ FIELD BARU - Sesuai schema database
+        // ✅ FIELD INI WAJIB ADA
         [Required]
         [StringLength(50)]
         public string kelas_layanan { get; set; } = "Reguler";
