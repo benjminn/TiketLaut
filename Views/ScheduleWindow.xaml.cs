@@ -774,7 +774,7 @@ namespace TiketLaut.Views
 
                     if (result == MessageBoxResult.Yes)
                     {
-                        // User ingin login - buka LoginWindow
+                        // ? BENAR - User ingin login, buka LoginWindow
                         try
                         {
                             var loginWindow = new LoginWindow();
@@ -799,18 +799,37 @@ namespace TiketLaut.Views
                         }
                     }
                     // Jika user pilih "No", tetap di halaman schedule (tidak ada aksi)
-
                     return; // Exit method - tidak lanjut ke booking
                 }
 
-                // USER SUDAH LOGIN - Lanjut ke booking
+                // ? USER SUDAH LOGIN - Lanjut ke booking
                 try
                 {
+                    // Debug log untuk memastikan _searchCriteria ada
+                    if (_searchCriteria != null)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"[ScheduleWindow] SearchCriteria found:");
+                        System.Diagnostics.Debug.WriteLine($"  JenisKendaraanId: {_searchCriteria.JenisKendaraanId}");
+                        System.Diagnostics.Debug.WriteLine($"  JumlahPenumpang: {_searchCriteria.JumlahPenumpang}");
+                        System.Diagnostics.Debug.WriteLine($"  PelabuhanAsalId: {_searchCriteria.PelabuhanAsalId}");
+                        System.Diagnostics.Debug.WriteLine($"  PelabuhanTujuanId: {_searchCriteria.PelabuhanTujuanId}");
+                    }
+                    else
+                    {
+                        System.Diagnostics.Debug.WriteLine("[ScheduleWindow] WARNING: _searchCriteria is null!");
+                    }
+
                     // Buat instance BookingDetailWindow
                     var bookingDetailWindow = new BookingDetailWindow(isFromSchedule: true);
 
                     // Set data schedule yang dipilih
                     bookingDetailWindow.SetScheduleData(schedule);
+
+                    // PENTING: Set search criteria juga
+                    if (_searchCriteria != null)
+                    {
+                        bookingDetailWindow.SetSearchCriteria(_searchCriteria);
+                    }
 
                     // Preserve window size and position
                     bookingDetailWindow.Left = this.Left;
@@ -823,7 +842,7 @@ namespace TiketLaut.Views
                     bookingDetailWindow.Show();
                     this.Close();
 
-                    System.Diagnostics.Debug.WriteLine($"[ScheduleWindow] User {TiketLaut.Services.SessionManager.CurrentUser.nama} proceeding to booking for schedule {schedule.JadwalId}");
+                    System.Diagnostics.Debug.WriteLine($"[ScheduleWindow] User {TiketLaut.Services.SessionManager.CurrentUser?.nama} proceeding to booking for schedule {schedule.JadwalId}");
                 }
                 catch (Exception ex)
                 {

@@ -227,7 +227,7 @@
                                                Style="{StaticResource CustomRadioButton}"
                                                Margin="0,0,16,0"/>
                                     <RadioButton x:Name="rbNona"
-                                               Content="Nona Ambon"
+                                               Content="Nona"
                                                GroupName="Title"
                                                Style="{StaticResource CustomRadioButton}"/>
                                 </StackPanel>
@@ -360,7 +360,8 @@
                                  Margin="0,0,0,16"/>
 
                         <!-- Penumpang 1 -->
-                        <Border Background="White"
+                        <Border x:Name="borderPassenger1"
+                              Background="White"
                               CornerRadius="17"
                               Padding="25,20"
                               BorderBrush="#00658D"
@@ -553,7 +554,8 @@
                         </Border>
 
                         <!-- Penumpang 2 -->
-                        <Border Background="White"
+                        <Border x:Name="borderPassenger2"
+                              Background="White"
                               CornerRadius="17"
                               Padding="25,20"
                               BorderBrush="#00658D"
@@ -746,7 +748,8 @@
                         </Border>
 
                         <!-- Penumpang 3 -->
-                        <Border Background="White"
+                        <Border x:Name="borderPassenger3"
+                              Background="White"
                               CornerRadius="17"
                               Padding="25,20"
                               BorderBrush="#00658D"
@@ -939,7 +942,7 @@
                     </StackPanel>
 
                     <!-- Detail Kendaraan Section -->
-                    <StackPanel Margin="0,0,0,30">
+                    <StackPanel x:Name="vehicleSection" Margin="0,0,0,30">
                         <TextBlock Text="Detail Kendaraan"
                                  FontSize="28"
                                  FontWeight="Bold"
@@ -962,12 +965,14 @@
 
                             <StackPanel>
                                 <StackPanel Margin="0,0,0,16">
-                                    <TextBlock Text="Sepeda Motor (&lt;500cc)"
+                                    <TextBlock x:Name="txtVehicleType"
+                                             Text="Sepeda Motor (&lt;500cc)"
                                              FontSize="18"
                                              FontWeight="Bold"
                                              Foreground="#042769"
                                              Margin="0,0,0,8"/>
-                                    <TextBlock Text="Golongan III (Maks. 3 Penumpang)"
+                                    <TextBlock x:Name="txtVehicleCapacity"
+                                             Text="Golongan III (Maks. 3 Penumpang)"
                                              FontSize="16"
                                              FontWeight="Medium"
                                              Foreground="#94A3B8"/>
@@ -1106,7 +1111,8 @@
                                     </StackPanel>
                                     
                                     <StackPanel Grid.Column="1" HorizontalAlignment="Right">
-                                        <TextBlock Text="IDR 487.853"
+                                        <TextBlock x:Name="txtSidebarPrice"
+                                                 Text="IDR 487.853"
                                                  FontSize="16"
                                                  FontWeight="SemiBold"
                                                  Foreground="#042769"
@@ -1211,14 +1217,16 @@
                 <StackPanel>
                     <!-- Ferry Info -->
                     <StackPanel Margin="0,0,0,20">
-                        <TextBlock Text="Reguler"
+                        <TextBlock x:Name="txtFerryType"
+                                 Text="Reguler"
                                  FontSize="18"
                                  FontWeight="Bold"
                                  Foreground="#042769"
                                  Margin="0,0,0,8"/>
 
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                            <TextBlock Text="Bakauheni"
+                            <TextBlock x:Name="txtDeparture"
+                                     Text="Bakauheni"
                                      FontSize="16"
                                      FontWeight="SemiBold"
                                      Foreground="#00658D"
@@ -1231,13 +1239,15 @@
                                   Stretch="Fill"
                                   VerticalAlignment="Center"
                                   Margin="0,0,8,0"/>
-                            <TextBlock Text="Merak"
+                            <TextBlock x:Name="txtArrival"
+                                     Text="Merak"
                                      FontSize="16"
                                      FontWeight="SemiBold"
                                      Foreground="#00658D"/>
                         </StackPanel>
 
-                        <TextBlock Text="Sepeda motor (&lt;500cc)"
+                        <TextBlock x:Name="txtVehicleInfo"
+                                 Text="Sepeda motor (&lt;500cc)"
                                  FontSize="14"
                                  FontWeight="Medium"
                                  Foreground="#00658D"/>
@@ -1252,7 +1262,8 @@
                                  FontWeight="Bold"
                                  Foreground="#042769"
                                  Margin="0,0,0,8"/>
-                        <TextBlock Text="Kam, 23 Okt 2025 - 20:15"
+                        <TextBlock x:Name="txtCheckInTime"
+                                 Text="Kam, 23 Okt 2025 - 20:15"
                                  FontSize="14"
                                  FontWeight="Medium"
                                  Foreground="#042769"/>
