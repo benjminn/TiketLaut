@@ -303,6 +303,30 @@ namespace TiketLaut.Views
             }
         }
 
+        private void BtnKembali_Click(object sender, RoutedEventArgs e)
+        {
+            var result = MessageBox.Show(
+                "Apakah Anda yakin membatalkan pembayaran?",
+                "Konfirmasi Pembatalan",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Question);
+
+            if (result == MessageBoxResult.Yes)
+            {
+                // Navigate to ScheduleWindow
+                var scheduleWindow = new ScheduleWindow();
+                scheduleWindow.Left = this.Left;
+                scheduleWindow.Top = this.Top;
+                scheduleWindow.Width = this.Width;
+                scheduleWindow.Height = this.Height;
+                scheduleWindow.WindowState = this.WindowState;
+                scheduleWindow.Show();
+                this.Close();
+            }
+            // If user clicks "No", stay on current window (do nothing)
+        }
+
+
         // Method untuk membuka PaymentWindow dari window lain
         public static void Open()
         {
