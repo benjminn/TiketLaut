@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Linq; // ? ADD THIS
+using System.Linq;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -15,11 +15,13 @@ namespace TiketLaut.Views
         public ObservableCollection<BookingItem> BookingItems { get; set; } = new ObservableCollection<BookingItem>();
 
         private readonly PembayaranService _pembayaranService;
+        private readonly RiwayatService _riwayatService;
 
         public CekBookingWindow()
         {
             InitializeComponent();
             _pembayaranService = new PembayaranService();
+            _riwayatService = new RiwayatService();
 
             // Set user info di navbar
             if (SessionManager.CurrentUser != null)
@@ -44,9 +46,39 @@ namespace TiketLaut.Views
                     return;
                 }
 
+                System.Diagnostics.Debug.WriteLine($"[CekBookingWindow] ========== START LOADING ==========");
+                System.Diagnostics.Debug.WriteLine($"[CekBookingWindow] User ID: {SessionManager.CurrentUser.pengguna_id}");
+
+                // ? AUTO-UPDATE: Pindahkan tiket yang sudah selesai ke riwayat
+                System.Diagnostics.Debug.WriteLine($"[CekBookingWindow] Calling AutoUpdatePembayaranSelesaiAsync...");
+                var updatedCount = await _riwayatService.AutoUpdatePembayaranSelesaiAsync();
+                System.Diagnostics.Debug.WriteLine($"[CekBookingWindow] AutoUpdate completed. Updated {updatedCount} records.");
+
                 // Get semua pembayaran user
+                System.Diagnostics.Debug.WriteLine($"[CekBookingWindow] Fetching all pembayarans...");
                 var pembayarans = await _pembayaranService.GetPembayaranByPenggunaIdAsync(
                     SessionManager.CurrentUser.pengguna_id);
+
+                System.Diagnostics.Debug.WriteLine($"[CekBookingWindow] Total pembayarans fetched: {pembayarans.Count}");
+
+                // ? DEBUG: Log semua status sebelum filter
+                foreach (var p in pembayarans)
+                {
+                    System.Diagnostics.Debug.WriteLine($"  - Pembayaran #{p.pembayaran_id}: status_bayar = '{p.status_bayar}', tiket = {p.tiket.kode_tiket}");
+                }
+
+                // ? FILTER: Jangan tampilkan tiket dengan status "Selesai" (sudah di riwayat)
+                pembayarans = pembayarans
+                    .Where(p => p.status_bayar != "Selesai")
+                    .ToList();
+
+                System.Diagnostics.Debug.WriteLine($"[CekBookingWindow] After filter (exclude 'Selesai'): {pembayarans.Count} records");
+
+                // ? DEBUG: Log semua status setelah filter
+                foreach (var p in pembayarans)
+                {
+                    System.Diagnostics.Debug.WriteLine($"  - After Filter #{p.pembayaran_id}: status_bayar = '{p.status_bayar}'");
+                }
 
                 BookingItems.Clear();
 
@@ -55,35 +87,44 @@ namespace TiketLaut.Views
                     var tiket = pembayaran.tiket;
                     var jadwal = tiket.Jadwal;
 
-                    // Tentukan status dan warna
+                    System.Diagnostics.Debug.WriteLine($"[CekBookingWindow] Processing pembayaran #{pembayaran.pembayaran_id}:");
+                    System.Diagnostics.Debug.WriteLine($"  - status_bayar: '{pembayaran.status_bayar}'");
+                    System.Diagnostics.Debug.WriteLine($"  - tiket: {tiket.kode_tiket}");
+
+                    // ? Tentukan status dan warna berdasarkan status_bayar
                     string status = pembayaran.status_bayar;
                     SolidColorBrush statusColor;
                     Visibility showWarning;
 
                     switch (status)
                     {
-                        case "Confirmed":
-                            statusColor = new SolidColorBrush(Color.FromRgb(106, 201, 54)); // Green
+                        case "Aktif":
+                            System.Diagnostics.Debug.WriteLine($"  - Matched case: Aktif (GREEN)");
+                            statusColor = new SolidColorBrush(Color.FromRgb(106, 201, 54)); // ?? Green #6AC936
                             showWarning = Visibility.Visible;
                             status = "Aktif";
                             break;
-                        case "Menunggu Konfirmasi":
-                            statusColor = new SolidColorBrush(Color.FromRgb(0, 180, 181)); // Cyan
-                            showWarning = Visibility.Visible;
+                        case "Menunggu Pembayaran":
+                            System.Diagnostics.Debug.WriteLine($"  - Matched case: Menunggu Pembayaran (CYAN)");
+                            statusColor = new SolidColorBrush(Color.FromRgb(0, 180, 181)); // ?? Cyan #00B4B5
+                            showWarning = Visibility.Collapsed;
                             status = "Menunggu Pembayaran";
                             break;
                         case "Gagal":
-                            statusColor = new SolidColorBrush(Color.FromRgb(248, 33, 33)); // Red
+                            System.Diagnostics.Debug.WriteLine($"  - Matched case: Gagal (RED)");
+                            statusColor = new SolidColorBrush(Color.FromRgb(248, 33, 33)); // ?? Red #F82121
                             showWarning = Visibility.Collapsed;
+                            status = "Gagal";
                             break;
                         default:
+                            System.Diagnostics.Debug.WriteLine($"  - Matched case: DEFAULT (GRAY) - status_bayar was: '{pembayaran.status_bayar}'");
                             statusColor = Brushes.Gray;
                             showWarning = Visibility.Collapsed;
                             break;
                     }
 
-                    // Format tanggal (dari search criteria atau default hari ini)
-                    var tanggal = SessionManager.LastSearchCriteria?.TanggalKeberangkatan ?? DateTime.Today;
+                    // Format tanggal
+                    var tanggal = tiket.tanggal_pemesanan;
                     var dateText = tanggal.ToString("dddd, dd MMMM yyyy",
                         new System.Globalization.CultureInfo("id-ID"));
 
@@ -104,14 +145,19 @@ namespace TiketLaut.Views
                     };
 
                     BookingItems.Add(bookingItem);
+
+                    System.Diagnostics.Debug.WriteLine($"[CekBookingWindow] ? Added booking: {tiket.kode_tiket} - Status: {status}");
                 }
 
                 icBookingList.ItemsSource = BookingItems;
 
+                System.Diagnostics.Debug.WriteLine($"[CekBookingWindow] ========== LOADING COMPLETE ==========");
+                System.Diagnostics.Debug.WriteLine($"[CekBookingWindow] Total bookings loaded: {BookingItems.Count}");
+
                 if (!BookingItems.Any())
                 {
                     MessageBox.Show(
-                        "Anda belum memiliki riwayat booking.",
+                        "Anda belum memiliki booking aktif.",
                         "Info",
                         MessageBoxButton.OK,
                         MessageBoxImage.Information);
@@ -125,7 +171,9 @@ namespace TiketLaut.Views
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
 
+                System.Diagnostics.Debug.WriteLine($"[CekBookingWindow] ========== ERROR ==========");
                 System.Diagnostics.Debug.WriteLine($"[CekBookingWindow] Error: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"[CekBookingWindow] StackTrace: {ex.StackTrace}");
             }
         }
 

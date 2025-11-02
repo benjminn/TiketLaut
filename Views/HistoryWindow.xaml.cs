@@ -1,9 +1,11 @@
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Linq;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
+using TiketLaut.Services;
 
 namespace TiketLaut.Views
 {
@@ -11,67 +13,138 @@ namespace TiketLaut.Views
     {
         public ObservableCollection<HistoryItem> HistoryItems { get; set; } = new ObservableCollection<HistoryItem>();
 
+        private readonly RiwayatService _riwayatService;
+
         public HistoryWindow()
         {
             InitializeComponent();
-            LoadHistoryData();
-            
-            // Set user info di navbar - element name: navbarPostLogin
-            navbarPostLogin.SetUserInfo("Admin User");
-        }
+            _riwayatService = new RiwayatService();
 
-        private void LoadHistoryData()
-        {
-            // Sample data - ganti dengan data dari database
-            HistoryItems = new ObservableCollection<HistoryItem>
+            // Set user info di navbar
+            if (SessionManager.CurrentUser != null)
             {
-                new HistoryItem
-                {
-                    Route = "Bakauheni - Merak",
-                    Status = "Selesai",
-                    StatusColor = new SolidColorBrush(Color.FromRgb(0, 180, 181)), // #00B4B5
-                    ShipName = "KMP Portlink III",
-                    Date = "Kamis, 23 Oktober 2025",
-                    Time = "20:30 - 22:40"
-                },
-                new HistoryItem
-                {
-                    Route = "Bakauheni - Merak",
-                    Status = "Selesai",
-                    StatusColor = new SolidColorBrush(Color.FromRgb(0, 180, 181)), // #00B4B5
-                    ShipName = "KMP Portlink III",
-                    Date = "Kamis, 23 Oktober 2025",
-                    Time = "20:30 - 22:40"
-                },
-                new HistoryItem
-                {
-                    Route = "Bakauheni - Merak",
-                    Status = "Selesai",
-                    StatusColor = new SolidColorBrush(Color.FromRgb(0, 180, 181)), // #00B4B5
-                    ShipName = "KMP Portlink III",
-                    Date = "Kamis, 23 Oktober 2025",
-                    Time = "20:30 - 22:40"
-                }
-            };
+                navbarPostLogin.SetUserInfo(SessionManager.CurrentUser.nama);
+            }
 
-            icHistoryList.ItemsSource = HistoryItems;
+            LoadHistoryDataFromDatabaseAsync();
         }
 
-        private void HistoryCard_Click(object sender, MouseButtonEventArgs e)
+        /// <summary>
+        /// Load riwayat data dari database
+        /// </summary>
+        private async void LoadHistoryDataFromDatabaseAsync()
         {
-            MessageBox.Show("Detail riwayat akan ditampilkan di sini", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+            try
+            {
+                if (SessionManager.CurrentUser == null)
+                {
+                    MessageBox.Show("Session user tidak ditemukan!", "Error",
+                        MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
+                System.Diagnostics.Debug.WriteLine($"[HistoryWindow] Loading history for user: {SessionManager.CurrentUser.pengguna_id}");
+
+                // Get riwayat dari database (HANYA yang "Selesai")
+                var riwayatList = await _riwayatService.GetRiwayatByPenggunaIdAsync(
+                    SessionManager.CurrentUser.pengguna_id);
+
+                HistoryItems.Clear();
+
+                foreach (var riwayat in riwayatList)
+                {
+                    var tiket = riwayat.tiket;
+                    var jadwal = tiket.Jadwal;
+
+                    // Format tanggal
+                    var dateText = tiket.tanggal_pemesanan.ToString("dddd, dd MMMM yyyy",
+                        new System.Globalization.CultureInfo("id-ID"));
+
+                    // ? Semua riwayat pasti "Selesai" karena sudah difilter di service
+                    var historyItem = new HistoryItem
+                    {
+                        PembayaranId = riwayat.pembayaran_id,
+                        TiketId = tiket.tiket_id,
+                        Route = $"{jadwal.pelabuhan_asal.nama_pelabuhan} - {jadwal.pelabuhan_tujuan.nama_pelabuhan}",
+                        Status = "Selesai", // ? Always "Selesai"
+                        StatusColor = new SolidColorBrush(Color.FromRgb(0, 180, 181)), // ?? Cyan #00B4B5
+                        ShipName = jadwal.kapal.nama_kapal,
+                        Date = dateText,
+                        Time = $"{jadwal.waktu_berangkat:HH:mm} - {jadwal.waktu_tiba:HH:mm}",
+                        KodeTiket = tiket.kode_tiket,
+                        TotalHarga = riwayat.jumlah_bayar
+                    };
+
+                    HistoryItems.Add(historyItem);
+
+                    System.Diagnostics.Debug.WriteLine($"[HistoryWindow] Added history: {historyItem.KodeTiket}");
+                }
+
+                icHistoryList.ItemsSource = HistoryItems;
+
+                if (!HistoryItems.Any())
+                {
+                    MessageBox.Show(
+                        "Anda belum memiliki riwayat perjalanan yang selesai.",
+                        "Info",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Information);
+                }
+                else
+                {
+                    System.Diagnostics.Debug.WriteLine($"[HistoryWindow] Total history loaded: {HistoryItems.Count}");
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    $"Terjadi kesalahan saat memuat riwayat:\n{ex.Message}",
+                    "Error",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+
+                System.Diagnostics.Debug.WriteLine($"[HistoryWindow] Error: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"[HistoryWindow] StackTrace: {ex.StackTrace}");
+            }
+        }
+
+        private async void HistoryCard_Click(object sender, MouseButtonEventArgs e)
+        {
+            if (sender is FrameworkElement element && element.DataContext is HistoryItem historyItem)
+            {
+                try
+                {
+                    // TODO: Bisa tambahkan detail window jika diperlukan
+                    MessageBox.Show(
+                        $"Detail Riwayat:\n\n" +
+                        $"Kode Tiket: {historyItem.KodeTiket}\n" +
+                        $"Rute: {historyItem.Route}\n" +
+                        $"Kapal: {historyItem.ShipName}\n" +
+                        $"Tanggal: {historyItem.Date}\n" +
+                        $"Waktu: {historyItem.Time}\n" +
+                        $"Total: Rp {historyItem.TotalHarga:N0}\n" +
+                        $"Status: {historyItem.Status}",
+                        "Detail Riwayat",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Information);
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[HistoryWindow] Error on card click: {ex.Message}");
+                }
+            }
         }
 
         private void BtnKembali_Click(object sender, RoutedEventArgs e)
         {
-            // Kembali ke HomePage dengan state login
-            var homePage = new HomePage(isLoggedIn: true, username: "Admin User");
-            homePage.Left = this.Left;
-            homePage.Top = this.Top;
-            homePage.Width = this.Width;
-            homePage.Height = this.Height;
-            homePage.WindowState = this.WindowState;
-            homePage.Show();
+            // Kembali ke CekBookingWindow
+            var cekBookingWindow = new CekBookingWindow();
+            cekBookingWindow.Left = this.Left;
+            cekBookingWindow.Top = this.Top;
+            cekBookingWindow.Width = this.Width;
+            cekBookingWindow.Height = this.Height;
+            cekBookingWindow.WindowState = this.WindowState;
+            cekBookingWindow.Show();
             this.Close();
         }
     }
@@ -79,12 +152,28 @@ namespace TiketLaut.Views
     // Model untuk History Item
     public class HistoryItem : INotifyPropertyChanged
     {
+        private int _pembayaranId;
+        private int _tiketId;
         private string _route = string.Empty;
         private string _status = string.Empty;
         private SolidColorBrush? _statusColor;
         private string _shipName = string.Empty;
         private string _date = string.Empty;
         private string _time = string.Empty;
+        private string _kodeTiket = string.Empty;
+        private decimal _totalHarga;
+
+        public int PembayaranId
+        {
+            get => _pembayaranId;
+            set { _pembayaranId = value; OnPropertyChanged(nameof(PembayaranId)); }
+        }
+
+        public int TiketId
+        {
+            get => _tiketId;
+            set { _tiketId = value; OnPropertyChanged(nameof(TiketId)); }
+        }
 
         public string Route
         {
@@ -120,6 +209,18 @@ namespace TiketLaut.Views
         {
             get => _time;
             set { _time = value; OnPropertyChanged(nameof(Time)); }
+        }
+
+        public string KodeTiket
+        {
+            get => _kodeTiket;
+            set { _kodeTiket = value; OnPropertyChanged(nameof(KodeTiket)); }
+        }
+
+        public decimal TotalHarga
+        {
+            get => _totalHarga;
+            set { _totalHarga = value; OnPropertyChanged(nameof(TotalHarga)); }
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;
