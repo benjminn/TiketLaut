@@ -288,6 +288,9 @@ namespace TiketLaut.Views
                     JenisKendaraanId = jenisKendaraanIndex
                 };
 
+                // SAVE TO SESSION - PENTING!
+                SessionManager.SaveSearchSession(searchCriteria, jadwals);
+
                 // Buka ScheduleWindow dengan hasil pencarian
                 var scheduleWindow = new ScheduleWindow(jadwals, searchCriteria);
                 scheduleWindow.Show();
@@ -295,11 +298,13 @@ namespace TiketLaut.Views
             }
             catch (Exception ex)
             {
-                MessageBox.Show(
-                    $"Terjadi kesalahan saat mencari jadwal:\n{ex.Message}",
-                    "Error",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Error);
+                {
+                    MessageBox.Show(
+                        $"Terjadi kesalahan saat mencari jadwal:\n{ex.Message}",
+                        "Error",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Error);
+                }
             }
             finally
             {

@@ -20,19 +20,21 @@ namespace TiketLaut.Views
         private bool _isFromSchedule = false;
         private ScheduleItem? _selectedSchedule;
         private SearchCriteria? _searchCriteria;
+        private Window? _parentWindow;
 
         public BookingDetailWindow()
         {
             InitializeComponent();
             ApplyResponsiveLayout();
-            
+
             // NavbarSelainHomepage tidak memerlukan SetUserInfo karena hanya menampilkan logo
         }
 
-        // Constructor untuk mengetahui apakah berasal dari schedule
-        public BookingDetailWindow(bool isFromSchedule) : this()
+        // Constructor dengan parent window parameter
+        public BookingDetailWindow(bool isFromSchedule, Window? parentWindow = null) : this()
         {
             _isFromSchedule = isFromSchedule;
+            _parentWindow = parentWindow;
         }
 
         /// <summary>
@@ -60,8 +62,76 @@ namespace TiketLaut.Views
             // Update detail kendaraan
             UpdateVehicleDetails();
 
+            // Update vehicle and passenger display specifically
+            UpdateVehicleAndPassengerDisplay();
+
             // Update price details
             UpdatePriceDetails();
+        }
+
+        private void UpdateVehicleAndPassengerDisplay()
+        {
+            if (_searchCriteria == null) return;
+
+            string jenisKendaraanText = GetJenisKendaraanText(_searchCriteria.JenisKendaraanId);
+            string penumpangText = $"Dewasa ({_searchCriteria.JumlahPenumpang}x)";
+
+            System.Diagnostics.Debug.WriteLine($"[BookingDetailWindow] UpdateVehicleAndPassengerDisplay:");
+            System.Diagnostics.Debug.WriteLine($"  jenisKendaraanText: {jenisKendaraanText}");
+            System.Diagnostics.Debug.WriteLine($"  penumpangText: {penumpangText}");
+
+            // Update all vehicle type displays
+            UpdateVehicleTypeDisplays(jenisKendaraanText);
+
+            // Update all passenger count displays
+            UpdatePassengerCountDisplays(penumpangText);
+        }
+
+        private void UpdatePassengerCountDisplays(string penumpangText)
+        {
+            // Update price breakdown sections
+            var txtPassengerPrice = FindName("txtPassengerPrice") as TextBlock;
+            if (txtPassengerPrice != null)
+            {
+                txtPassengerPrice.Text = penumpangText;
+            }
+
+            var txtSidebarPassengerCount = FindName("txtSidebarPassengerCount") as TextBlock;
+            if (txtSidebarPassengerCount != null)
+            {
+                txtSidebarPassengerCount.Text = penumpangText;
+            }
+
+            System.Diagnostics.Debug.WriteLine($"Updated all passenger count displays to: {penumpangText}");
+        }
+
+        private void UpdateVehicleTypeDisplays(string jenisKendaraanText)
+        {
+            // Update main vehicle section
+            if (txtVehicleType != null)
+            {
+                txtVehicleType.Text = jenisKendaraanText;
+            }
+
+            if (txtVehicleInfo != null)
+            {
+                txtVehicleInfo.Text = jenisKendaraanText;
+            }
+
+            // Update price breakdown sections
+            var txtVehicleTypePrice = FindName("txtVehicleTypePrice") as TextBlock;
+            if (txtVehicleTypePrice != null)
+            {
+                txtVehicleTypePrice.Text = jenisKendaraanText;
+            }
+
+            var txtSidebarVehicleType = FindName("txtSidebarVehicleType") as TextBlock;
+            if (txtSidebarVehicleType != null)
+            {
+                txtSidebarVehicleType.Text = jenisKendaraanText;
+            }
+
+            System.Diagnostics.Debug.WriteLine($"Updated all vehicle type displays to: {jenisKendaraanText}");
         }
 
         private void UpdateUIWithScheduleData()
@@ -92,7 +162,7 @@ namespace TiketLaut.Views
                     System.Diagnostics.Debug.WriteLine($"Updated txtArrival: {_selectedSchedule.ArrivalPort}");
                 }
 
-                // Update check-in time
+                // Update check-in time dan warning message
                 if (txtCheckInTime != null)
                 {
                     // Parse departure time dan kurangi 15 menit untuk check-in
@@ -100,16 +170,35 @@ namespace TiketLaut.Views
                     {
                         var checkInTime = departureTime.Subtract(TimeSpan.FromMinutes(15));
                         txtCheckInTime.Text = $"{_selectedSchedule.BoardingDate} - {checkInTime:hh\\:mm}";
+
+                        // Update warning message dengan waktu yang sama
+                        var txtWarningMessage = FindName("txtWarningMessage") as TextBlock;
+                        if (txtWarningMessage != null)
+                        {
+                            txtWarningMessage.Text = $"E-Tiket akan hangus bila anda belum masuk ke pelabuhan setelah {checkInTime:hh\\:mm}";
+                        }
                     }
                     else
                     {
                         txtCheckInTime.Text = $"{_selectedSchedule.BoardingDate} - {_selectedSchedule.DepartureTime}";
+
+                        var txtWarningMessage = FindName("txtWarningMessage") as TextBlock;
+                        if (txtWarningMessage != null)
+                        {
+                            txtWarningMessage.Text = $"E-Tiket akan hangus bila anda belum masuk ke pelabuhan setelah {_selectedSchedule.DepartureTime}";
+                        }
                     }
                     System.Diagnostics.Debug.WriteLine($"Updated txtCheckInTime: {txtCheckInTime.Text}");
                 }
 
                 // Update price displays immediately
                 UpdateAllPriceDisplays(_selectedSchedule.Price);
+
+                // Update vehicle and passenger details if search criteria is available
+                if (_searchCriteria != null)
+                {
+                    UpdateVehicleAndPassengerDisplay();
+                }
 
                 System.Diagnostics.Debug.WriteLine($"[BookingDetailWindow] UpdateUIWithScheduleData completed successfully");
             }
@@ -123,21 +212,111 @@ namespace TiketLaut.Views
         {
             System.Diagnostics.Debug.WriteLine($"[BookingDetailWindow] UpdateAllPriceDisplays called with: {price}");
 
-            // Update main price displays
-            if (txtTotalHargaCollapsed != null)
+            try
             {
-                txtTotalHargaCollapsed.Text = price;
-                System.Diagnostics.Debug.WriteLine($"Updated txtTotalHargaCollapsed: {price}");
+                // Update main collapsed price display
+                if (txtTotalHargaCollapsed != null)
+                {
+                    txtTotalHargaCollapsed.Text = price;
+                    System.Diagnostics.Debug.WriteLine($"Updated txtTotalHargaCollapsed: {price}");
+                }
+
+                // Update expanded detail prices in main section
+                if (txtSidebarPrice != null)
+                {
+                    txtSidebarPrice.Text = price;
+                    System.Diagnostics.Debug.WriteLine($"Updated txtSidebarPrice: {price}");
+                }
+
+                // Update all specific named TextBlocks for prices
+                UpdateNamedPriceElements(price);
+
+                // Update all other TextBlocks that contain hardcoded price
+                UpdateAllPriceTextBlocks(price);
+
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[BookingDetailWindow] Error updating prices: {ex.Message}");
+            }
+        }
+
+        private void UpdateNamedPriceElements(string price)
+        {
+            // Update expanded total price in main section
+            var txtTotalHargaExpanded = FindName("txtTotalHargaExpanded") as TextBlock;
+            if (txtTotalHargaExpanded != null)
+            {
+                txtTotalHargaExpanded.Text = price;
+                System.Diagnostics.Debug.WriteLine($"Updated txtTotalHargaExpanded: {price}");
             }
 
-            // Update sidebar prices
+            // Update sidebar total price (collapsed state)
+            var txtSidebarTotalPrice = FindName("txtSidebarTotalPrice") as TextBlock;
+            if (txtSidebarTotalPrice != null)
+            {
+                txtSidebarTotalPrice.Text = price;
+                System.Diagnostics.Debug.WriteLine($"Updated txtSidebarTotalPrice: {price}");
+            }
+
+            // Update sidebar detail price (expanded state)
+            var txtSidebarDetailPrice = FindName("txtSidebarDetailPrice") as TextBlock;
+            if (txtSidebarDetailPrice != null)
+            {
+                txtSidebarDetailPrice.Text = price;
+                System.Diagnostics.Debug.WriteLine($"Updated txtSidebarDetailPrice: {price}");
+            }
+
+            // Update sidebar final price (expanded state)
+            var txtSidebarFinalPrice = FindName("txtSidebarFinalPrice") as TextBlock;
+            if (txtSidebarFinalPrice != null)
+            {
+                txtSidebarFinalPrice.Text = price;
+                System.Diagnostics.Debug.WriteLine($"Updated txtSidebarFinalPrice: {price}");
+            }
+        }
+
+        private void UpdateAllPriceTextBlocks(string price)
+        {
+            // Find all TextBlocks in the visual tree and update those with price
+            var allTextBlocks = FindVisualChildren<TextBlock>(this);
+
+            foreach (var textBlock in allTextBlocks)
+            {
+                if (textBlock.Text.Contains("IDR") &&
+                    (textBlock.Text.Contains("487") || textBlock.Text.Contains("487.853")))
+                {
+                    textBlock.Text = price;
+                    System.Diagnostics.Debug.WriteLine($"Updated price TextBlock via FindVisual: {price}");
+                }
+            }
+        }
+
+        private void UpdatePriceBreakdownTexts(string jenisKendaraanText)
+        {
+            if (_searchCriteria == null) return;
+
+            string penumpangText = $"Dewasa ({_searchCriteria.JumlahPenumpang}x)";
+
+            // Call the specific update methods
+            UpdateVehicleTypeDisplays(jenisKendaraanText);
+            UpdatePassengerCountDisplays(penumpangText);
+
+            // Also update via visual tree search as fallback
             var allTextBlocks = FindVisualChildren<TextBlock>(this);
             foreach (var textBlock in allTextBlocks)
             {
-                if (textBlock.Text.Contains("IDR") && textBlock.Text.Contains("487"))
+                if (textBlock.Text.Contains("Sepeda Motor") && textBlock.Text.Contains("500cc") &&
+                    !textBlock.Text.Equals(jenisKendaraanText))
                 {
-                    textBlock.Text = price;
-                    System.Diagnostics.Debug.WriteLine($"Updated price TextBlock: {price}");
+                    textBlock.Text = jenisKendaraanText;
+                    System.Diagnostics.Debug.WriteLine($"Updated vehicle text via fallback: {jenisKendaraanText}");
+                }
+                else if (textBlock.Text.Contains("Dewasa") && textBlock.Text.Contains("x") &&
+                         !textBlock.Text.Equals(penumpangText))
+                {
+                    textBlock.Text = penumpangText;
+                    System.Diagnostics.Debug.WriteLine($"Updated passenger text via fallback: {penumpangText}");
                 }
             }
         }
@@ -213,29 +392,6 @@ namespace TiketLaut.Views
             UpdatePriceBreakdownTexts(jenisKendaraanText);
         }
 
-        private void UpdatePriceBreakdownTexts(string jenisKendaraanText)
-        {
-            if (_searchCriteria == null) return;
-
-            string penumpangText = $"Dewasa ({_searchCriteria.JumlahPenumpang}x)";
-
-            // Update semua TextBlock yang berisi text lama
-            var allTextBlocks = FindVisualChildren<TextBlock>(this);
-            foreach (var textBlock in allTextBlocks)
-            {
-                if (textBlock.Text.Contains("Sepeda Motor") && textBlock.Text.Contains("500cc"))
-                {
-                    textBlock.Text = jenisKendaraanText;
-                    System.Diagnostics.Debug.WriteLine($"Updated vehicle text: {jenisKendaraanText}");
-                }
-                else if (textBlock.Text.Contains("Dewasa") && textBlock.Text.Contains("3x"))
-                {
-                    textBlock.Text = penumpangText;
-                    System.Diagnostics.Debug.WriteLine($"Updated passenger text: {penumpangText}");
-                }
-            }
-        }
-
         private void UpdatePriceDetails()
         {
             if (_selectedSchedule == null || _searchCriteria == null) return;
@@ -248,33 +404,14 @@ namespace TiketLaut.Views
 
                 // Update semua tampilan harga
                 UpdateAllPriceDisplays(priceText);
+
+                // Update breakdown text
+                string jenisKendaraanText = GetJenisKendaraanText(_searchCriteria.JenisKendaraanId);
+                UpdatePriceBreakdownTexts(jenisKendaraanText);
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"[BookingDetailWindow] Error updating price: {ex.Message}");
-            }
-        }
-
-        private void UpdatePriceBreakdown()
-        {
-            if (_searchCriteria == null) return;
-
-            string jenisKendaraanText = GetJenisKendaraanText(_searchCriteria.JenisKendaraanId);
-            string penumpangText = $"Dewasa ({_searchCriteria.JumlahPenumpang}x)";
-
-            // Update text di detail harga (expanded view)
-            var detailElements = FindVisualChildren<TextBlock>(this);
-
-            foreach (var textBlock in detailElements)
-            {
-                if (textBlock.Text.Contains("Sepeda Motor") && textBlock.Text.Contains("500cc"))
-                {
-                    textBlock.Text = jenisKendaraanText;
-                }
-                else if (textBlock.Text.Contains("Dewasa") && textBlock.Text.Contains("x"))
-                {
-                    textBlock.Text = penumpangText;
-                }
             }
         }
 
@@ -452,11 +589,11 @@ namespace TiketLaut.Views
                         labelBorder.VerticalAlignment = VerticalAlignment.Top;
                         labelBorder.Margin = new Thickness(12, 8, 0, 0);
                     }
-                    
+
                     // Animate label to float up
                     label.FontSize = 11;
                     label.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#00658D"));
-                    
+
                     // Adjust TextBox padding when focused
                     textBox.Padding = new Thickness(16, 16, 16, 8);
                 }
@@ -477,11 +614,11 @@ namespace TiketLaut.Views
                         labelBorder.VerticalAlignment = VerticalAlignment.Center;
                         labelBorder.Margin = new Thickness(12, 0, 0, 0);
                     }
-                    
+
                     // Reset label if textbox is empty
                     label.FontSize = 14;
                     label.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#94A3B8"));
-                    
+
                     // Reset TextBox padding
                     textBox.Padding = new Thickness(16, 0, 16, 0);
                 }
@@ -496,7 +633,7 @@ namespace TiketLaut.Views
                 if (label != null)
                 {
                     var labelBorder = label.Parent as Border;
-                    
+
                     // Keep label floated if there's text
                     if (!string.IsNullOrWhiteSpace(textBox.Text))
                     {
@@ -539,7 +676,7 @@ namespace TiketLaut.Views
                         labelBorder.VerticalAlignment = VerticalAlignment.Top;
                         labelBorder.Margin = new Thickness(12, 8, 0, 0);
                     }
-                    
+
                     label.FontSize = 11;
                     label.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#00658D"));
                     comboBox.Padding = new Thickness(16, 16, 16, 8);
@@ -560,7 +697,7 @@ namespace TiketLaut.Views
                         labelBorder.VerticalAlignment = VerticalAlignment.Center;
                         labelBorder.Margin = new Thickness(12, 0, 0, 0);
                     }
-                    
+
                     label.FontSize = 14;
                     label.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#94A3B8"));
                     comboBox.Padding = new Thickness(16, 0, 16, 0);
@@ -576,7 +713,7 @@ namespace TiketLaut.Views
                 if (label != null)
                 {
                     var labelBorder = label.Parent as Border;
-                    
+
                     if (comboBox.SelectedIndex != -1)
                     {
                         if (labelBorder != null)
@@ -603,12 +740,39 @@ namespace TiketLaut.Views
             }
         }
 
+        // PERBAIKAN METHOD KEMBALI
         private void BtnKembali_Click(object sender, RoutedEventArgs e)
         {
-            if (_isFromSchedule)
+            if (_isFromSchedule && _parentWindow is ScheduleWindow scheduleWindow)
             {
-                var scheduleWindow = new ScheduleWindow();
+                // Kembalikan ke window yang sudah ada (parent window)
                 scheduleWindow.Show();
+                scheduleWindow.WindowState = this.WindowState;
+                scheduleWindow.Left = this.Left;
+                scheduleWindow.Top = this.Top;
+                scheduleWindow.Width = this.Width;
+                scheduleWindow.Height = this.Height;
+
+                this.Close();
+            }
+            else if (_isFromSchedule)
+            {
+                // Jika parent window tidak tersedia, buat ScheduleWindow baru dengan data yang sama
+                var newScheduleWindow = new ScheduleWindow();
+
+                // Copy window properties
+                newScheduleWindow.Left = this.Left;
+                newScheduleWindow.Top = this.Top;
+                newScheduleWindow.Width = this.Width;
+                newScheduleWindow.Height = this.Height;
+                newScheduleWindow.WindowState = this.WindowState;
+
+                newScheduleWindow.Show();
+                this.Close();
+            }
+            else
+            {
+                // Jika tidak dari schedule, tutup window
                 this.Close();
             }
         }
@@ -654,7 +818,7 @@ namespace TiketLaut.Views
             var txtHeader = this.FindName("txtHeaderHarga") as TextBlock;
             var txtPrice = this.FindName("txtTotalHargaCollapsed") as TextBlock;
             var borderSeparator = this.FindName("borderSeparatorCollapsed") as Border;
-            
+
             if (panel != null)
             {
                 if (panel.Visibility == Visibility.Collapsed)
@@ -680,6 +844,12 @@ namespace TiketLaut.Views
                     {
                         rotate.Angle = 0;
                     }
+                }
+
+                // Update semua harga setelah toggle untuk memastikan sinkronisasi
+                if (_selectedSchedule != null)
+                {
+                    UpdateAllPriceDisplays(_selectedSchedule.Price);
                 }
             }
         }
@@ -708,6 +878,12 @@ namespace TiketLaut.Views
                     {
                         rotate.Angle = 0;
                     }
+                }
+
+                // Update semua harga setelah toggle untuk memastikan sinkronisasi
+                if (_selectedSchedule != null)
+                {
+                    UpdateAllPriceDisplays(_selectedSchedule.Price);
                 }
             }
         }
@@ -799,8 +975,9 @@ namespace TiketLaut.Views
                 return;
             }
 
-            // Validate Detail Kendaraan
-            if (IsPlaceholderText(txtPlatNomor) || string.IsNullOrWhiteSpace(txtPlatNomor.Text))
+            // Validate Detail Kendaraan - Only check if vehicle section is visible
+            if (vehicleSection?.Visibility == Visibility.Visible &&
+                (IsPlaceholderText(txtPlatNomor) || string.IsNullOrWhiteSpace(txtPlatNomor.Text)))
             {
                 MessageBox.Show("Plat nomor kendaraan harus diisi!", "Validasi",
                     MessageBoxButton.OK, MessageBoxImage.Warning);
