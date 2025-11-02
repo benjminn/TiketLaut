@@ -4,33 +4,36 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TiketLaut
 {
-    [Table("rincian_penumpang")]
+    [Table("RincianPenumpang")]  // ? Fixed table name
     public class RincianPenumpang
     {
         [Key]
-        public int rincian_penumpang_id { get; set; }
+        public int rincian_id { get; set; }  // ? Changed from rincian_penumpang_id
         
-        [ForeignKey("tiket")]
+        [Required]
         public int tiket_id { get; set; }
         
-        [ForeignKey("penumpang")]
+        [Required]
         public int penumpang_id { get; set; }
 
         // Navigation properties
+        [ForeignKey("tiket_id")]
         public Tiket tiket { get; set; } = null!;
+        
+        [ForeignKey("penumpang_id")]
         public Penumpang penumpang { get; set; } = null!;
 
         public void tampilkanRincianPenumpang()
         {
             Console.WriteLine($"=== RINCIAN PENUMPANG ===");
-            Console.WriteLine($"ID Rincian: {rincian_penumpang_id}");
+            Console.WriteLine($"ID Rincian: {rincian_id}");
             Console.WriteLine($"ID Tiket: {tiket_id}");
             Console.WriteLine($"ID Penumpang: {penumpang_id}");
 
             if (penumpang != null)
             {
                 Console.WriteLine($"Nama Penumpang: {penumpang.nama}");
-                Console.WriteLine($"NIK: {penumpang.NIK_penumpang}");
+                Console.WriteLine($"Nomor Identitas: {penumpang.nomor_identitas}");
             }
 
             if (tiket != null)

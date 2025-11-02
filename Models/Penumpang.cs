@@ -1,8 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -11,17 +8,23 @@ namespace TiketLaut
     [Table("Penumpang")]
     public class Penumpang
     {
-        [Key]                                           // PRIMARY KEY
-        public int penumpang_id { get; set; }           // integer GENERATED ALWAYS AS IDENTITY
+        [Key]
+        public int penumpang_id { get; set; }
         
-        [Required]                                      // integer NOT NULL
-        public int pengguna_id { get; set; }            // FK to Pengguna
+        [Required]
+        public int pengguna_id { get; set; }
         
-        [Required]                                      // character varying NOT NULL
+        [Required]
         public string nama { get; set; } = string.Empty;
         
-        [Required]                                      // integer NOT NULL
-        public int NIK_penumpang { get; set; }
+        [Required]
+        public long nomor_identitas { get; set; }  // ? Changed from int to long (bigint)
+        
+        [Required]
+        public string jenis_identitas { get; set; } = string.Empty;  // ? Added
+        
+        [Required]
+        public string jenis_kelamin { get; set; } = string.Empty;  // ? Added
         
         // Navigation properties
         [ForeignKey("pengguna_id")]
