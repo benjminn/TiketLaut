@@ -1,8 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -11,32 +8,34 @@ namespace TiketLaut
     [Table("Tiket")]
     public class Tiket
     {
-        [Key]                                           // PRIMARY KEY
-        public int tiket_id { get; set; }               // integer GENERATED ALWAYS AS IDENTITY
+        [Key]
+        public int tiket_id { get; set; }
         
-        [Required]                                      // integer NOT NULL
-        public int pengguna_id { get; set; }            // FK to Pengguna
+        [Required]
+        public int pengguna_id { get; set; }
         
-        [Required]                                      // integer NOT NULL  
-        public int jadwal_id { get; set; }              // FK to Jadwal
+        [Required]
+        public int jadwal_id { get; set; }
         
-        [Required]                                      // character varying NOT NULL UNIQUE
+        [Required]
         public string kode_tiket { get; set; } = string.Empty;
         
-        [Required]                                      // integer NOT NULL CHECK >= 0
+        [Required]
         public int jumlah_penumpang { get; set; }
         
-        [Required]                                      // numeric NOT NULL CHECK > 0
+        [Required]
         public decimal total_harga { get; set; }
         
-        [Required]                                      // timestamp with time zone NOT NULL DEFAULT now()
+        [Required]
         public DateTime tanggal_pemesanan { get; set; } = DateTime.Now;
         
-        [Required]                                      // character varying NOT NULL
+        [Required]
         public string status_tiket { get; set; } = string.Empty;
         
-        [Required]                                      // character varying NOT NULL
+        [Required]
         public string jenis_kendaraan_enum { get; set; } = string.Empty;
+        
+        public string? plat_nomor { get; set; }  // ? Added - sesuai schema database
         
         // Navigation properties
         [ForeignKey("pengguna_id")]
@@ -44,7 +43,6 @@ namespace TiketLaut
         
         [ForeignKey("jadwal_id")]
         public Jadwal Jadwal { get; set; } = null!;
-
         
         public List<RincianPenumpang> RincianPenumpangs { get; set; } = new List<RincianPenumpang>();
         
@@ -52,7 +50,6 @@ namespace TiketLaut
 
         public bool buatTiket()
         {
-            // Generate kode tiket unik
             kode_tiket = $"TKT{DateTime.Now:yyyyMMdd}{tiket_id:D6}";
             tanggal_pemesanan = DateTime.Now;
             status_tiket = "Booked";
@@ -69,7 +66,6 @@ namespace TiketLaut
         {
             status_tiket = "Cancelled";
             Console.WriteLine($"Tiket {kode_tiket} telah dibatalkan.");
-
         }
 
         public void tampilkanDetailTiket()
@@ -79,6 +75,7 @@ namespace TiketLaut
             Console.WriteLine($"Status: {status_tiket}");
             Console.WriteLine($"Jumlah Penumpang: {jumlah_penumpang}");
             Console.WriteLine($"Jenis Kendaraan: {jenis_kendaraan_enum}");
+            Console.WriteLine($"Plat Nomor: {plat_nomor ?? "N/A"}");
             Console.WriteLine($"TOTAL HARGA: Rp {total_harga:N0}");
         }
 
@@ -87,7 +84,6 @@ namespace TiketLaut
             Console.WriteLine("=== TIKET KAPAL LAUT ===");
             tampilkanDetailTiket();
             Console.WriteLine("Simpan tiket ini sebagai bukti pembayaran.");
-
         }
     }
 }

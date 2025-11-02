@@ -429,7 +429,7 @@ namespace TiketLaut.Views
             }
         }
 
-        private void BtnLanjutPembayaran_Click(object sender, RoutedEventArgs e)
+        private async void BtnLanjutPembayaran_Click(object sender, RoutedEventArgs e)
         {
             // Validate Detail Pemesan
             if (IsPlaceholderText(txtNamaPemesan) || string.IsNullOrWhiteSpace(txtNamaPemesan.Text))
@@ -462,7 +462,6 @@ namespace TiketLaut.Views
                 MessageBox.Show("Data penumpang 1 harus diisi!", "Validasi",
                     MessageBoxButton.OK, MessageBoxImage.Warning);
 
-                // Open passenger 1 panel if collapsed
                 if (pnlPassenger1.Visibility == Visibility.Collapsed)
                 {
                     pnlPassenger1.Visibility = Visibility.Visible;
@@ -480,7 +479,6 @@ namespace TiketLaut.Views
                 MessageBox.Show("Nomor identitas penumpang 1 harus diisi!", "Validasi",
                     MessageBoxButton.OK, MessageBoxImage.Warning);
 
-                // Open passenger 1 panel if collapsed
                 if (pnlPassenger1.Visibility == Visibility.Collapsed)
                 {
                     pnlPassenger1.Visibility = Visibility.Visible;
@@ -502,23 +500,121 @@ namespace TiketLaut.Views
                 return;
             }
 
-            // All validations passed, navigate to Payment
-            var paymentWindow = new PaymentWindow();
-
-            // Pass schedule data to payment window if needed
-            if (_selectedSchedule != null)
+            // ============ KODE BARU: SIMPAN KE DATABASE ============
+            try
             {
-                // You can add a SetScheduleData method to PaymentWindow as well
-                // paymentWindow.SetScheduleData(_selectedSchedule);
-            }
+                // Show loading
+                btnLanjutPembayaran.IsEnabled = false;
+                btnLanjutPembayaran.Content = "Memproses...";
 
-            paymentWindow.Left = this.Left;
-            paymentWindow.Top = this.Top;
-            paymentWindow.Width = this.Width;
-            paymentWindow.Height = this.Height;
-            paymentWindow.WindowState = this.WindowState;
-            paymentWindow.Show();
-            this.Close();
+                // Validasi session user
+                if (TiketLaut.Services.SessionManager.CurrentUser == null)
+                {
+                    MessageBox.Show("Sesi login Anda telah berakhir. Silakan login kembali.", 
+                        "Session Expired", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                // Validasi data schedule dan search criteria
+                if (_selectedSchedule == null || _searchCriteria == null)
+                {
+                    MessageBox.Show("Data jadwal tidak lengkap. Silakan ulangi pemesanan dari awal.", 
+                        "Data Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
+                // Ambil data dari form
+                var bookingData = new TiketLaut.Services.BookingData
+                {
+                    PenggunaId = TiketLaut.Services.SessionManager.CurrentUser.pengguna_id,
+                    JadwalId = _selectedSchedule.JadwalId,
+                    JenisKendaraanId = _searchCriteria.JenisKendaraanId,
+                    JumlahPenumpang = _searchCriteria.JumlahPenumpang,
+                    PlatNomor = vehicleSection?.Visibility == Visibility.Visible ? txtPlatNomor?.Text : null,
+                    DataPenumpang = new List<TiketLaut.Services.PenumpangData>()
+                };
+
+                // Ambil data penumpang dari form (maksimal 3 penumpang sesuai UI)
+                for (int i = 1; i <= Math.Min(_searchCriteria.JumlahPenumpang, 3); i++)
+                {
+                    var txtNama = FindName($"txtNamaPassenger{i}") as TextBox;
+                    var txtId = FindName($"txtIdPassenger{i}") as TextBox;
+                    var cmbJenisIdentitas = FindName($"cmbJenisIdentitasPassenger{i}") as ComboBox;
+                    var cmbJenisKelamin = FindName($"cmbJenisKelaminPassenger{i}") as ComboBox;
+
+                    if (txtNama != null && txtId != null && 
+                        !string.IsNullOrWhiteSpace(txtNama.Text) && 
+                        !IsPlaceholderText(txtNama) &&
+                        !string.IsNullOrWhiteSpace(txtId.Text) &&
+                        !IsPlaceholderText(txtId))
+                    {
+                        // Parse nomor identitas
+                        if (!long.TryParse(txtId.Text.Trim(), out long nomorIdentitas))
+                        {
+                            MessageBox.Show($"Nomor identitas penumpang {i} tidak valid!", 
+                                "Validasi", MessageBoxButton.OK, MessageBoxImage.Warning);
+                            txtId.Focus();
+                            return;
+                        }
+
+                        var penumpangData = new TiketLaut.Services.PenumpangData
+                        {
+                            Nama = txtNama.Text.Trim(),
+                            NomorIdentitas = nomorIdentitas,
+                            JenisIdentitas = (cmbJenisIdentitas?.SelectedItem as ComboBoxItem)?.Content.ToString() ?? "KTP",
+                            JenisKelamin = (cmbJenisKelamin?.SelectedItem as ComboBoxItem)?.Content.ToString() ?? "Laki-laki"
+                        };
+
+                        bookingData.DataPenumpang.Add(penumpangData);
+                    }
+                }
+
+                // Validasi minimal ada 1 penumpang
+                if (bookingData.DataPenumpang.Count == 0)
+                {
+                    MessageBox.Show("Data penumpang harus diisi minimal 1 orang!", 
+                        "Validasi", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                // Simpan booking ke database
+                var bookingService = new TiketLaut.Services.BookingService();
+                var tiket = await bookingService.CreateBookingAsync(bookingData);
+
+                MessageBox.Show(
+                    $"? Booking berhasil!\n\n" +
+                    $"Kode Tiket: {tiket.kode_tiket}\n" +
+                    $"Total: Rp {tiket.total_harga:N0}\n\n" +
+                    $"Silakan lanjutkan ke pembayaran.",
+                    "Booking Berhasil",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Information);
+
+                // Navigasi ke PaymentWindow
+                var paymentWindow = new PaymentWindow();
+                paymentWindow.Left = this.Left;
+                paymentWindow.Top = this.Top;
+                paymentWindow.Width = this.Width;
+                paymentWindow.Height = this.Height;
+                paymentWindow.WindowState = this.WindowState;
+                paymentWindow.Show();
+                this.Close();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    $"? Terjadi kesalahan saat memproses booking:\n\n{ex.Message}",
+                    "Error",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+
+                System.Diagnostics.Debug.WriteLine($"[BookingDetailWindow] Error: {ex.Message}\n{ex.StackTrace}");
+            }
+            finally
+            {
+                btnLanjutPembayaran.IsEnabled = true;
+                btnLanjutPembayaran.Content = "Lanjut Pembayaran";
+            }
         }
     }
 }
