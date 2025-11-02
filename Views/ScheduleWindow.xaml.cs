@@ -7,6 +7,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using TiketLaut.Models;
+using TiketLaut.Services;
 
 namespace TiketLaut.Views
 {
@@ -15,31 +16,65 @@ namespace TiketLaut.Views
         public ObservableCollection<ScheduleItem> ScheduleItems { get; set; } = new ObservableCollection<ScheduleItem>();
         private List<Jadwal>? _jadwals;
         private SearchCriteria? _searchCriteria;
+        private readonly JadwalService _jadwalService;
 
         // Constructor default (backward compatibility)
+        // Constructor default (backward compatibility) - UPDATED
         public ScheduleWindow()
         {
             InitializeComponent();
-            LoadScheduleData();
-            
-            // Set user info di navbar
-            navbarPostLogin.SetUserInfo("Admin User");
+            _jadwalService = new JadwalService();
+
+            // Set user info di navbar - FIXED to use SessionManager
+            if (SessionManager.IsLoggedIn && SessionManager.CurrentUser != null)
+            {
+                navbarPostLogin.SetUserInfo(SessionManager.CurrentUser.nama);
+            }
+            else
+            {
+                navbarPostLogin.SetUserInfo("Guest User");
+            }
+
+            // CHECK: Apakah ada data pencarian tersimpan di session?
+            if (SessionManager.LastSearchCriteria != null && SessionManager.LastSearchResults != null)
+            {
+                System.Diagnostics.Debug.WriteLine("[ScheduleWindow] Loading from saved search session");
+
+                // Gunakan data dari session
+                _searchCriteria = SessionManager.LastSearchCriteria;
+                _jadwals = SessionManager.LastSearchResults;
+
+                // Load dropdown dengan data dari session
+                LoadFilterDropdownsAsync();
+
+                // Load jadwal dari database (bukan sample data)
+                LoadScheduleFromDatabase();
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine("[ScheduleWindow] No saved search session, loading sample data");
+
+                // Fallback ke sample data jika tidak ada session
+                LoadScheduleData();
+            }
         }
 
-        // ? Constructor baru dengan parameter dari database
+
+        // Constructor baru dengan parameter dari database
         public ScheduleWindow(List<Jadwal> jadwals, SearchCriteria searchCriteria)
         {
             InitializeComponent();
+            _jadwalService = new JadwalService();
             _jadwals = jadwals;
             _searchCriteria = searchCriteria;
-            
-            // ? Populate filter dropdown dengan data user
-            PopulateFilterDropdowns();
-            
+
+            // Populate filter dropdown dengan data user
+            LoadFilterDropdownsAsync();
+
             LoadScheduleFromDatabase();
-            
+
             // Set user info di navbar
-            if (TiketLaut.Services.SessionManager.IsLoggedIn && 
+            if (TiketLaut.Services.SessionManager.IsLoggedIn &&
                 TiketLaut.Services.SessionManager.CurrentUser != null)
             {
                 navbarPostLogin.SetUserInfo(TiketLaut.Services.SessionManager.CurrentUser.nama);
@@ -51,82 +86,285 @@ namespace TiketLaut.Views
         }
 
         /// <summary>
-        /// ? Populate dropdown filter dengan data search criteria dari HomePage
+        /// Load dan populate semua dropdown filter dengan data lengkap dari database
         /// </summary>
-        private async void PopulateFilterDropdowns()
+        private async void LoadFilterDropdownsAsync()
         {
-            if (_searchCriteria == null || _jadwals == null || !_jadwals.Any())
-                return;
-
             try
             {
-                var jadwalService = new TiketLaut.Services.JadwalService();
-                
                 // Load semua pelabuhan untuk dropdown
-                var pelabuhans = await jadwalService.GetAllPelabuhanAsync();
+                var pelabuhans = await _jadwalService.GetAllPelabuhanAsync();
 
-                // ? Populate Pelabuhan Asal
-                cmbFilterFrom.Items.Clear();
-                var pelabuhanAsal = pelabuhans.FirstOrDefault(p => p.pelabuhan_id == _searchCriteria.PelabuhanAsalId);
-                if (pelabuhanAsal != null)
+                if (pelabuhans.Any())
                 {
-                    cmbFilterFrom.Items.Add(new ComboBoxItem
+                    // Populate Pelabuhan Asal dengan semua pilihan
+                    cmbFilterFrom.Items.Clear();
+                    cmbFilterFrom.Items.Add(new PelabuhanComboBoxItem
                     {
-                        Content = pelabuhanAsal.nama_pelabuhan,
-                        Tag = pelabuhanAsal.pelabuhan_id
+                        Id = 0,
+                        DisplayText = "Pilih Pelabuhan Asal"
                     });
-                    cmbFilterFrom.SelectedIndex = 0;
-                }
 
-                // ? Populate Pelabuhan Tujuan
-                cmbFilterTo.Items.Clear();
-                var pelabuhanTujuan = pelabuhans.FirstOrDefault(p => p.pelabuhan_id == _searchCriteria.PelabuhanTujuanId);
-                if (pelabuhanTujuan != null)
-                {
-                    cmbFilterTo.Items.Add(new ComboBoxItem
+                    foreach (var pelabuhan in pelabuhans)
                     {
-                        Content = pelabuhanTujuan.nama_pelabuhan,
-                        Tag = pelabuhanTujuan.pelabuhan_id
+                        cmbFilterFrom.Items.Add(new PelabuhanComboBoxItem
+                        {
+                            Id = pelabuhan.pelabuhan_id,
+                            DisplayText = $"{pelabuhan.nama_pelabuhan} ({pelabuhan.kota})"
+                        });
+                    }
+
+                    // Set selected berdasarkan search criteria
+                    if (_searchCriteria != null)
+                    {
+                        var selectedAsal = cmbFilterFrom.Items.Cast<PelabuhanComboBoxItem>()
+                            .FirstOrDefault(item => item.Id == _searchCriteria.PelabuhanAsalId);
+                        if (selectedAsal != null)
+                        {
+                            cmbFilterFrom.SelectedItem = selectedAsal;
+                        }
+                        else
+                        {
+                            cmbFilterFrom.SelectedIndex = 0;
+                        }
+                    }
+                    else
+                    {
+                        cmbFilterFrom.SelectedIndex = 0;
+                    }
+
+                    // Populate Pelabuhan Tujuan dengan semua pilihan
+                    cmbFilterTo.Items.Clear();
+                    cmbFilterTo.Items.Add(new PelabuhanComboBoxItem
+                    {
+                        Id = 0,
+                        DisplayText = "Pilih Pelabuhan Tujuan"
                     });
-                    cmbFilterTo.SelectedIndex = 0;
+
+                    foreach (var pelabuhan in pelabuhans)
+                    {
+                        cmbFilterTo.Items.Add(new PelabuhanComboBoxItem
+                        {
+                            Id = pelabuhan.pelabuhan_id,
+                            DisplayText = $"{pelabuhan.nama_pelabuhan} ({pelabuhan.kota})"
+                        });
+                    }
+
+                    // Set selected berdasarkan search criteria
+                    if (_searchCriteria != null)
+                    {
+                        var selectedTujuan = cmbFilterTo.Items.Cast<PelabuhanComboBoxItem>()
+                            .FirstOrDefault(item => item.Id == _searchCriteria.PelabuhanTujuanId);
+                        if (selectedTujuan != null)
+                        {
+                            cmbFilterTo.SelectedItem = selectedTujuan;
+                        }
+                        else
+                        {
+                            cmbFilterTo.SelectedIndex = 0;
+                        }
+                    }
+                    else
+                    {
+                        cmbFilterTo.SelectedIndex = 0;
+                    }
                 }
 
-                // ? Populate Tanggal
-                cmbFilterDate.Items.Clear();
-                var tanggalText = _searchCriteria.TanggalKeberangkatan.ToString("ddd, dd MMMM yyyy",
-                    new System.Globalization.CultureInfo("id-ID"));
-                cmbFilterDate.Items.Add(new ComboBoxItem { Content = tanggalText });
-                cmbFilterDate.SelectedIndex = 0;
+                // Populate Tanggal
+                PopulateDateFilter();
 
-                // ? Populate Jam (optional)
-                if (_searchCriteria.JamKeberangkatan.HasValue)
-                {
-                    cmbFilterTime.Items.Clear();
-                    var jamText = _searchCriteria.JamKeberangkatan.Value.ToString("HH:mm");
-                    cmbFilterTime.Items.Add(new ComboBoxItem { Content = jamText });
-                    cmbFilterTime.SelectedIndex = 0;
-                }
+                // Populate Jam
+                PopulateTimeFilter();
 
-                // ? Populate Jenis Kendaraan
-                cmbFilterVehicle.Items.Clear();
-                string jenisKendaraanText = GetJenisKendaraanText(_searchCriteria.JenisKendaraanId);
-                cmbFilterVehicle.Items.Add(new ComboBoxItem { Content = jenisKendaraanText });
-                cmbFilterVehicle.SelectedIndex = 0;
+                // Populate Jenis Kendaraan
+                PopulateVehicleFilter();
 
-                // ? Populate Jumlah Penumpang
-                cmbFilterPassenger.Items.Clear();
-                var penumpangText = $"{_searchCriteria.JumlahPenumpang} Penumpang";
-                cmbFilterPassenger.Items.Add(new ComboBoxItem { Content = penumpangText });
-                cmbFilterPassenger.SelectedIndex = 0;
+                // Populate Jumlah Penumpang
+                PopulatePassengerFilter();
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"[ScheduleWindow] Error populating filters: {ex.Message}");
+                MessageBox.Show(
+                    $"Terjadi kesalahan saat memuat data filter:\n{ex.Message}",
+                    "Error",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+                System.Diagnostics.Debug.WriteLine($"[ScheduleWindow] Error loading filter dropdowns: {ex.Message}");
             }
         }
 
         /// <summary>
-        /// ? Helper untuk convert jenis_kendaraan_id ke text
+        /// Populate dropdown tanggal
+        /// </summary>
+        private void PopulateDateFilter()
+        {
+            cmbFilterDate.Items.Clear();
+
+            // Add next 30 days
+            for (int i = 0; i < 30; i++)
+            {
+                var date = DateTime.Today.AddDays(i);
+                var dateText = date.ToString("ddd, dd MMMM yyyy", new System.Globalization.CultureInfo("id-ID"));
+                cmbFilterDate.Items.Add(new ComboBoxItem
+                {
+                    Content = dateText,
+                    Tag = date
+                });
+            }
+
+            // Set selected berdasarkan search criteria
+            if (_searchCriteria != null)
+            {
+                var selectedDateItem = cmbFilterDate.Items.Cast<ComboBoxItem>()
+                    .FirstOrDefault(item => item.Tag != null &&
+                        ((DateTime)item.Tag).Date == _searchCriteria.TanggalKeberangkatan.Date);
+                if (selectedDateItem != null)
+                {
+                    cmbFilterDate.SelectedItem = selectedDateItem;
+                }
+                else
+                {
+                    cmbFilterDate.SelectedIndex = 0;
+                }
+            }
+            else
+            {
+                cmbFilterDate.SelectedIndex = 0;
+            }
+        }
+
+        /// <summary>
+        /// Populate dropdown jam
+        /// </summary>
+        private void PopulateTimeFilter()
+        {
+            cmbFilterTime.Items.Clear();
+            cmbFilterTime.Items.Add(new ComboBoxItem { Content = "Pilih Jam" });
+
+            // Add common departure times
+            var times = new[] { "06:00", "08:00", "10:00", "12:00", "14:00", "16:00", "18:00", "20:00", "22:00" };
+            foreach (var time in times)
+            {
+                cmbFilterTime.Items.Add(new ComboBoxItem { Content = time });
+            }
+
+            // Set selected berdasarkan search criteria
+            if (_searchCriteria?.JamKeberangkatan.HasValue == true)
+            {
+                var jamText = _searchCriteria.JamKeberangkatan.Value.ToString("HH:mm");
+                var selectedTimeItem = cmbFilterTime.Items.Cast<ComboBoxItem>()
+                    .FirstOrDefault(item => item.Content.ToString() == jamText);
+                if (selectedTimeItem != null)
+                {
+                    cmbFilterTime.SelectedItem = selectedTimeItem;
+                }
+                else
+                {
+                    cmbFilterTime.SelectedIndex = 0;
+                }
+            }
+            else
+            {
+                cmbFilterTime.SelectedIndex = 0;
+            }
+        }
+
+        /// <summary>
+        /// Populate dropdown jenis kendaraan
+        /// </summary>
+        private void PopulateVehicleFilter()
+        {
+            cmbFilterVehicle.Items.Clear();
+            cmbFilterVehicle.Items.Add(new ComboBoxItem { Content = "Pilih Jenis Kendaraan" });
+
+            // Add vehicle types sesuai dengan Enums
+            var vehicleTypes = new[]
+            {
+                "Pejalan kaki tanpa kendaraan",
+                "Sepeda",
+                "Sepeda Motor (<500cc)",
+                "Sepeda Motor (>500cc) (Golongan III)",
+                "Mobil jeep, sedan, minibus",
+                "Mobil barang bak muatan",
+                "Mobil bus penumpang (5-7 meter)",
+                "Mobil barang (truk/tangki) ukuran sedang",
+                "Mobil bus penumpang (7-10 meter)",
+                "Mobil barang (truk/tangki) sedang",
+                "Mobil tronton, tangki, penarik + gandengan (10-12 meter)",
+                "Mobil tronton, tangki, alat berat (12-16 meter)",
+                "Mobil tronton, tangki, alat berat (>16 meter)"
+            };
+
+            for (int i = 0; i < vehicleTypes.Length; i++)
+            {
+                cmbFilterVehicle.Items.Add(new ComboBoxItem
+                {
+                    Content = vehicleTypes[i],
+                    Tag = i
+                });
+            }
+
+            // Set selected berdasarkan search criteria
+            if (_searchCriteria != null)
+            {
+                var selectedVehicleIndex = _searchCriteria.JenisKendaraanId + 1; // +1 karena index 0 adalah "Pilih"
+                if (selectedVehicleIndex > 0 && selectedVehicleIndex < cmbFilterVehicle.Items.Count)
+                {
+                    cmbFilterVehicle.SelectedIndex = selectedVehicleIndex;
+                }
+                else
+                {
+                    cmbFilterVehicle.SelectedIndex = 0;
+                }
+            }
+            else
+            {
+                cmbFilterVehicle.SelectedIndex = 0;
+            }
+        }
+
+        /// <summary>
+        /// Populate dropdown jumlah penumpang
+        /// </summary>
+        private void PopulatePassengerFilter()
+        {
+            cmbFilterPassenger.Items.Clear();
+            cmbFilterPassenger.Items.Add(new ComboBoxItem { Content = "Pilih Jumlah Penumpang" });
+
+            // Add passenger counts
+            for (int i = 1; i <= 10; i++)
+            {
+                var text = i == 10 ? "10+ Penumpang" : $"{i} Penumpang";
+                cmbFilterPassenger.Items.Add(new ComboBoxItem
+                {
+                    Content = text,
+                    Tag = i
+                });
+            }
+
+            // Set selected berdasarkan search criteria
+            if (_searchCriteria != null)
+            {
+                var selectedPassengerItem = cmbFilterPassenger.Items.Cast<ComboBoxItem>()
+                    .FirstOrDefault(item => item.Tag != null &&
+                        (int)item.Tag == _searchCriteria.JumlahPenumpang);
+                if (selectedPassengerItem != null)
+                {
+                    cmbFilterPassenger.SelectedItem = selectedPassengerItem;
+                }
+                else
+                {
+                    cmbFilterPassenger.SelectedIndex = 0;
+                }
+            }
+            else
+            {
+                cmbFilterPassenger.SelectedIndex = 0;
+            }
+        }
+
+        /// <summary>
+        /// Helper untuk convert jenis_kendaraan_id ke text
         /// </summary>
         private string GetJenisKendaraanText(int jenisKendaraanId)
         {
@@ -156,7 +394,7 @@ namespace TiketLaut.Views
         {
             if (_jadwals == null || !_jadwals.Any())
             {
-                MessageBox.Show("Tidak ada data jadwal yang tersedia.", "Info", 
+                MessageBox.Show("Tidak ada data jadwal yang tersedia.", "Info",
                     MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
             }
@@ -169,7 +407,7 @@ namespace TiketLaut.Views
                 {
                     // Format tanggal keberangkatan
                     var tanggal = _searchCriteria?.TanggalKeberangkatan ?? DateTime.Today;
-                    var boardingDate = tanggal.ToString("dddd, dd MMMM yyyy", 
+                    var boardingDate = tanggal.ToString("dddd, dd MMMM yyyy",
                         new System.Globalization.CultureInfo("id-ID"));
 
                     // Hitung durasi perjalanan
@@ -185,8 +423,8 @@ namespace TiketLaut.Views
                         ?.FirstOrDefault(dk => dk.jenis_kendaraan == _searchCriteria?.JenisKendaraanId);
 
                     decimal harga = detailKendaraan?.harga_kendaraan ?? 0;
-                    
-                    // ? LOGIC BARU: Hitung total harga berdasarkan jenis kendaraan
+
+                    // LOGIC BARU: Hitung total harga berdasarkan jenis kendaraan
                     int jumlahPenumpang = _searchCriteria?.JumlahPenumpang ?? 1;
                     int jenisKendaraanId = _searchCriteria?.JenisKendaraanId ?? 0;
                     decimal totalHarga;
@@ -203,10 +441,10 @@ namespace TiketLaut.Views
                         totalHarga = harga;
                         System.Diagnostics.Debug.WriteLine($"[LoadSchedule] Kendaraan - Harga: {harga} (tidak dikali penumpang)");
                     }
-                    
+
                     var priceText = $"IDR {totalHarga:N0}";
 
-                    // ? FIX: Pastikan nama pelabuhan ter-load dengan benar
+                    // FIX: Pastikan nama pelabuhan ter-load dengan benar
                     string departurePort = jadwal.pelabuhan_asal?.nama_pelabuhan ?? "N/A";
                     string arrivalPort = jadwal.pelabuhan_tujuan?.nama_pelabuhan ?? "N/A";
 
@@ -220,9 +458,9 @@ namespace TiketLaut.Views
                         BoardingDate = boardingDate,
                         WarningText = warningText,
                         DepartureTime = jadwal.waktu_berangkat.ToString("HH:mm"),
-                        DeparturePort = departurePort,  // ? Sudah benar
+                        DeparturePort = departurePort,
                         ArrivalTime = jadwal.waktu_tiba.ToString("HH:mm"),
-                        ArrivalPort = arrivalPort,  // ? Sudah benar
+                        ArrivalPort = arrivalPort,
                         Duration = durationText,
                         Capacity = $"Kapasitas Tersedia ({jadwal.sisa_kapasitas_penumpang})",
                         Price = priceText,
@@ -248,7 +486,7 @@ namespace TiketLaut.Views
             }
 
             icScheduleList.ItemsSource = ScheduleItems;
-            
+
             System.Diagnostics.Debug.WriteLine($"[ScheduleWindow] Total loaded: {ScheduleItems.Count} schedules");
         }
 
@@ -391,9 +629,9 @@ namespace TiketLaut.Views
         private void BtnKembali_Click(object sender, RoutedEventArgs e)
         {
             // Kembali ke HomePage dengan state login
-            bool isLoggedIn = TiketLaut.Services.SessionManager.IsLoggedIn;
-            string username = TiketLaut.Services.SessionManager.CurrentUser?.nama ?? "";
-            
+            bool isLoggedIn = SessionManager.IsLoggedIn;
+            string username = SessionManager.CurrentUser?.nama ?? "";
+
             var homePage = new HomePage(isLoggedIn: isLoggedIn, username: username);
             homePage.Left = this.Left;
             homePage.Top = this.Top;
@@ -404,32 +642,252 @@ namespace TiketLaut.Views
             this.Close();
         }
 
-        private void BtnCari_Click(object sender, RoutedEventArgs e)
+        /// <summary>
+        /// Implementasi pencarian dengan filter yang dipilih (simplified version)
+        /// </summary>
+        private async void BtnCari_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("Fungsi pencarian akan diimplementasikan dengan filter yang dipilih", 
-                           "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+            try
+            {
+                // Validasi Pelabuhan Asal
+                if (cmbFilterFrom.SelectedIndex < 0 ||
+                    !(cmbFilterFrom.SelectedItem is PelabuhanComboBoxItem pelabuhanAsal) ||
+                    pelabuhanAsal.Id == 0)
+                {
+                    MessageBox.Show("Silakan pilih Pelabuhan Asal!", "Peringatan",
+                        MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                // Validasi Pelabuhan Tujuan
+                if (cmbFilterTo.SelectedIndex < 0 ||
+                    !(cmbFilterTo.SelectedItem is PelabuhanComboBoxItem pelabuhanTujuan) ||
+                    pelabuhanTujuan.Id == 0)
+                {
+                    MessageBox.Show("Silakan pilih Pelabuhan Tujuan!", "Peringatan",
+                        MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                // Validasi Tanggal
+                if (cmbFilterDate.SelectedIndex < 0 ||
+                    !(cmbFilterDate.SelectedItem is ComboBoxItem selectedDateItem) ||
+                    selectedDateItem.Tag == null)
+                {
+                    MessageBox.Show("Silakan pilih Tanggal!", "Peringatan",
+                        MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                // Validasi Penumpang
+                if (cmbFilterPassenger.SelectedIndex <= 0 ||
+                    !(cmbFilterPassenger.SelectedItem is ComboBoxItem selectedPassengerItem) ||
+                    selectedPassengerItem.Tag == null)
+                {
+                    MessageBox.Show("Silakan pilih Jumlah Penumpang!", "Peringatan",
+                        MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                // Validasi Jenis Kendaraan
+                if (cmbFilterVehicle.SelectedIndex <= 0 ||
+                    !(cmbFilterVehicle.SelectedItem is ComboBoxItem selectedVehicleItem) ||
+                    selectedVehicleItem.Tag == null)
+                {
+                    MessageBox.Show("Silakan pilih Jenis Kendaraan!", "Peringatan",
+                        MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                // Ambil data dari form
+                var tanggalKeberangkatan = (DateTime)selectedDateItem.Tag;
+                var jenisKendaraanId = (int)selectedVehicleItem.Tag;
+                int jumlahPenumpang = (int)selectedPassengerItem.Tag;
+
+                // Parse jam keberangkatan (optional)
+                TimeOnly? jamKeberangkatan = null;
+                if (cmbFilterTime.SelectedIndex > 0 &&
+                    cmbFilterTime.SelectedItem is ComboBoxItem selectedTimeItem)
+                {
+                    var jamText = selectedTimeItem.Content.ToString();
+                    if (TimeOnly.TryParse(jamText, out TimeOnly jam))
+                    {
+                        jamKeberangkatan = jam;
+                    }
+                }
+
+                // Validasi pelabuhan asal dan tujuan tidak sama
+                if (pelabuhanAsal.Id == pelabuhanTujuan.Id)
+                {
+                    MessageBox.Show(
+                        "Pelabuhan asal dan tujuan tidak boleh sama!",
+                        "Peringatan",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Warning);
+                    return;
+                }
+
+                // Default kelas layanan (karena tidak ada ComboBox untuk ini di UI)
+                string kelasLayanan = _searchCriteria?.KelasLayanan ?? "Reguler";
+
+                // Search jadwal dari database
+                var jadwals = await _jadwalService.SearchJadwalAsync(
+                    pelabuhanAsal.Id,
+                    pelabuhanTujuan.Id,
+                    kelasLayanan,
+                    jamKeberangkatan,
+                    jenisKendaraanId
+                );
+
+                if (jadwals == null || !jadwals.Any())
+                {
+                    MessageBox.Show(
+                        "Tidak ditemukan jadwal yang sesuai dengan kriteria pencarian Anda.\n\n" +
+                        "Silakan coba dengan kriteria lain atau pilih tanggal berbeda.",
+                        "Jadwal Tidak Ditemukan",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Information);
+                    return;
+                }
+
+                // Update search criteria dan jadwals
+                _searchCriteria = new SearchCriteria
+                {
+                    PelabuhanAsalId = pelabuhanAsal.Id,
+                    PelabuhanTujuanId = pelabuhanTujuan.Id,
+                    KelasLayanan = kelasLayanan,
+                    TanggalKeberangkatan = tanggalKeberangkatan,
+                    JamKeberangkatan = jamKeberangkatan,
+                    JumlahPenumpang = jumlahPenumpang,
+                    JenisKendaraanId = jenisKendaraanId
+                };
+
+                _jadwals = jadwals;
+
+                // SAVE TO SESSION - PENTING!
+                SessionManager.SaveSearchSession(_searchCriteria, _jadwals);
+
+                // Reload schedule dengan data baru
+                LoadScheduleFromDatabase();
+
+                MessageBox.Show(
+                    $"Ditemukan {jadwals.Count} jadwal yang sesuai dengan kriteria pencarian.",
+                    "Hasil Pencarian",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    $"Terjadi kesalahan saat mencari jadwal:\n{ex.Message}",
+                    "Error",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+                System.Diagnostics.Debug.WriteLine($"[ScheduleWindow] Error searching schedules: {ex.Message}");
+            }
         }
 
+        /// <summary>
+        /// Session management untuk pilih tiket
+        /// </summary>
         private void BtnPilihTiket_Click(object sender, RoutedEventArgs e)
         {
             if (sender is Button button && button.Tag is ScheduleItem schedule)
             {
-                // Buat instance BookingDetailWindow
-                var bookingDetailWindow = new BookingDetailWindow(isFromSchedule: true);
-                
-                // Set data schedule yang dipilih
-                bookingDetailWindow.SetScheduleData(schedule);
-                
-                // Preserve window size and position
-                bookingDetailWindow.Left = this.Left;
-                bookingDetailWindow.Top = this.Top;
-                bookingDetailWindow.Width = this.Width;
-                bookingDetailWindow.Height = this.Height;
-                bookingDetailWindow.WindowState = this.WindowState;
-                
-                // Show new window and close current
-                bookingDetailWindow.Show();
-                this.Close();
+                // CEK SESSION LOGIN
+                if (!TiketLaut.Services.SessionManager.IsLoggedIn ||
+                    TiketLaut.Services.SessionManager.CurrentUser == null)
+                {
+                    // User belum login - tampilkan warning dengan opsi login
+                    MessageBoxResult result = MessageBox.Show(
+                        "Silakan login terlebih dahulu untuk melanjutkan pemesanan tiket.\n\n" +
+                        "Ingin login sekarang?",
+                        "Login Diperlukan",
+                        MessageBoxButton.YesNo,
+                        MessageBoxImage.Warning);
+
+                    if (result == MessageBoxResult.Yes)
+                    {
+                        // ? BENAR - User ingin login, buka LoginWindow
+                        try
+                        {
+                            var loginWindow = new LoginWindow();
+
+                            // Preserve window size and position for login window
+                            loginWindow.Left = this.Left;
+                            loginWindow.Top = this.Top;
+                            loginWindow.Width = this.Width;
+                            loginWindow.Height = this.Height;
+                            loginWindow.WindowState = this.WindowState;
+
+                            loginWindow.Show();
+                            this.Close();
+                        }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show(
+                                $"Terjadi kesalahan saat membuka halaman login:\n{ex.Message}",
+                                "Error",
+                                MessageBoxButton.OK,
+                                MessageBoxImage.Error);
+                        }
+                    }
+                    // Jika user pilih "No", tetap di halaman schedule (tidak ada aksi)
+                    return; // Exit method - tidak lanjut ke booking
+                }
+
+                // ? USER SUDAH LOGIN - Lanjut ke booking
+                try
+                {
+                    // Debug log untuk memastikan _searchCriteria ada
+                    if (_searchCriteria != null)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"[ScheduleWindow] SearchCriteria found:");
+                        System.Diagnostics.Debug.WriteLine($"  JenisKendaraanId: {_searchCriteria.JenisKendaraanId}");
+                        System.Diagnostics.Debug.WriteLine($"  JumlahPenumpang: {_searchCriteria.JumlahPenumpang}");
+                        System.Diagnostics.Debug.WriteLine($"  PelabuhanAsalId: {_searchCriteria.PelabuhanAsalId}");
+                        System.Diagnostics.Debug.WriteLine($"  PelabuhanTujuanId: {_searchCriteria.PelabuhanTujuanId}");
+                    }
+                    else
+                    {
+                        System.Diagnostics.Debug.WriteLine("[ScheduleWindow] WARNING: _searchCriteria is null!");
+                    }
+
+                    // Buat instance BookingDetailWindow
+                    var bookingDetailWindow = new BookingDetailWindow(isFromSchedule: true);
+
+                    // Set data schedule yang dipilih
+                    bookingDetailWindow.SetScheduleData(schedule);
+
+                    // PENTING: Set search criteria juga
+                    if (_searchCriteria != null)
+                    {
+                        bookingDetailWindow.SetSearchCriteria(_searchCriteria);
+                    }
+
+                    // Preserve window size and position
+                    bookingDetailWindow.Left = this.Left;
+                    bookingDetailWindow.Top = this.Top;
+                    bookingDetailWindow.Width = this.Width;
+                    bookingDetailWindow.Height = this.Height;
+                    bookingDetailWindow.WindowState = this.WindowState;
+
+                    // Show new window and close current
+                    bookingDetailWindow.Show();
+                    this.Close();
+
+                    System.Diagnostics.Debug.WriteLine($"[ScheduleWindow] User {TiketLaut.Services.SessionManager.CurrentUser?.nama} proceeding to booking for schedule {schedule.JadwalId}");
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(
+                        $"Terjadi kesalahan saat membuka halaman pemesanan:\n{ex.Message}",
+                        "Error",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Error);
+
+                    System.Diagnostics.Debug.WriteLine($"[ScheduleWindow] Error opening booking window: {ex.Message}");
+                }
             }
         }
 
@@ -477,12 +935,12 @@ namespace TiketLaut.Views
         private T? FindParent<T>(DependencyObject child) where T : DependencyObject
         {
             DependencyObject parent = System.Windows.Media.VisualTreeHelper.GetParent(child);
-            
+
             while (parent != null && !(parent is T))
             {
                 parent = System.Windows.Media.VisualTreeHelper.GetParent(parent);
             }
-            
+
             return parent as T;
         }
 
@@ -492,21 +950,35 @@ namespace TiketLaut.Views
             if (parent == null) return null;
 
             int childCount = System.Windows.Media.VisualTreeHelper.GetChildrenCount(parent);
-            
+
             for (int i = 0; i < childCount; i++)
             {
                 var child = System.Windows.Media.VisualTreeHelper.GetChild(parent, i);
-                
+
                 if (child is T typedChild && (string.IsNullOrEmpty(childName) || typedChild.Name == childName))
                 {
                     return typedChild;
                 }
-                
+
                 var foundChild = FindChild<T>(child, childName);
                 if (foundChild != null) return foundChild;
             }
-            
+
             return null;
+        }
+    }
+
+    /// <summary>
+    /// Helper class untuk ComboBox Pelabuhan
+    /// </summary>
+    public class PelabuhanComboBoxItem
+    {
+        public int Id { get; set; }
+        public string DisplayText { get; set; } = string.Empty;
+
+        public override string ToString()
+        {
+            return DisplayText;
         }
     }
 
@@ -559,7 +1031,7 @@ namespace TiketLaut.Views
             set
             {
                 _departurePort = value;
-                OnPropertyChanged(nameof(DeparturePort));  
+                OnPropertyChanged(nameof(DeparturePort));
                 System.Diagnostics.Debug.WriteLine($"[ScheduleItem] DeparturePort set to: {value}");
             }
         }
@@ -637,3 +1109,4 @@ namespace TiketLaut.Views
         }
     }
 }
+

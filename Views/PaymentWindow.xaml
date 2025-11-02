@@ -164,6 +164,27 @@
                      VerticalScrollBarVisibility="Auto"
                      HorizontalScrollBarVisibility="Disabled">
             <StackPanel Margin="55,30,55,30">
+                <!-- Back Button -->
+                <Button Click="BtnKembali_Click"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        Cursor="Hand"
+                        HorizontalAlignment="Left"
+                        Margin="0,0,0,30"
+                        Padding="0">
+                    <StackPanel Orientation="Horizontal">
+                        <Image Source="/Views/Assets/Icons/back.png"
+                               Width="24"
+                               Height="24"
+                               Margin="0,0,10,0"/>
+                        <TextBlock Text="Kembali"
+                                   FontSize="20"
+                                   FontWeight="SemiBold"
+                                   Foreground="#042769"
+                                   VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+
                 <Grid x:Name="MainContentGrid">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="1.9*" MinWidth="500"/>
@@ -174,29 +195,29 @@
                     <!-- Left Section - Payment Methods/Instructions -->
                     <StackPanel Grid.Column="0">
 
-                    <!-- Deadline Card -->
-                    <Border Background="White" 
+                        <!-- Deadline Card -->
+                        <Border Background="White" 
                             CornerRadius="20" 
                             Padding="25,20"
                             BorderBrush="#267DAE" 
                             BorderThickness="2"
                             Margin="0,0,0,20">
-                        <Border.Effect>
-                            <DropShadowEffect Color="#000000" 
+                            <Border.Effect>
+                                <DropShadowEffect Color="#000000" 
                                             Direction="270" 
                                             ShadowDepth="9" 
                                             BlurRadius="10.9" 
                                             Opacity="0.06"/>
-                        </Border.Effect>
+                            </Border.Effect>
 
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
 
-                            <TextBlock Grid.Column="0"
+                                <TextBlock Grid.Column="0"
                                      Text="Selesaikan pembayaran sebelum"
                                      FontSize="16"
                                      FontWeight="Medium"
@@ -205,391 +226,391 @@
                                      TextWrapping="Wrap"
                                      Margin="0,0,10,0"/>
 
-                            <TextBlock Grid.Column="2"
+                                <TextBlock Grid.Column="2"
                                      Text="24 Oktober 2025, 18:30 WIB"
                                      FontSize="16"
                                      FontWeight="Bold"
                                      Foreground="#042769"
                                      VerticalAlignment="Center"
                                      TextWrapping="Wrap"/>
-                        </Grid>
-                    </Border>
+                            </Grid>
+                        </Border>
 
-                    <!-- Payment Methods Card (Initially Visible) -->
-                    <Border x:Name="PaymentMethodsCard"
+                        <!-- Payment Methods Card (Initially Visible) -->
+                        <Border x:Name="PaymentMethodsCard"
                             Background="White" 
                             CornerRadius="20" 
                             Padding="25,20"
                             BorderBrush="#267DAE" 
                             BorderThickness="2">
-                        <Border.Effect>
-                            <DropShadowEffect Color="#000000" 
+                            <Border.Effect>
+                                <DropShadowEffect Color="#000000" 
                                             Direction="270" 
                                             ShadowDepth="9" 
                                             BlurRadius="10.9" 
                                             Opacity="0.06"/>
-                        </Border.Effect>
+                            </Border.Effect>
 
-                        <StackPanel>
-                            <!-- Title -->
-                            <TextBlock Text="Metode Pembayaran"
+                            <StackPanel>
+                                <!-- Title -->
+                                <TextBlock Text="Metode Pembayaran"
                                      FontSize="28"
                                      FontWeight="Bold"
                                      Foreground="#042769"
                                      Margin="0,0,0,20"/>
 
-                            <!-- Transfer Bank Section -->
-                            <StackPanel Margin="0,0,0,20">
-                                <!-- Transfer Bank Header (Visual indicator only) -->
-                                <RadioButton x:Name="rbTransferBank" 
+                                <!-- Transfer Bank Section -->
+                                <StackPanel Margin="0,0,0,20">
+                                    <!-- Transfer Bank Header (Visual indicator only) -->
+                                    <RadioButton x:Name="rbTransferBank" 
                                            GroupName="PaymentMethodHeader"
                                            IsHitTestVisible="False"
                                            Style="{StaticResource HeaderRadioButton}"
                                            Focusable="False"
                                            Margin="0,0,0,12">
-                                    <TextBlock Text="Transfer Bank"
+                                        <TextBlock Text="Transfer Bank"
                                              FontSize="20"
                                              FontWeight="Medium"
                                              Foreground="#042769"
                                              TextWrapping="Wrap"/>
-                                </RadioButton>
+                                    </RadioButton>
 
-                                <!-- BCA Transfer (Sub-option) -->
-                                <RadioButton x:Name="rbBCA" 
+                                    <!-- BCA Transfer (Sub-option) -->
+                                    <RadioButton x:Name="rbBCA" 
                                            GroupName="PaymentMethod"
                                            Tag="BCA"
                                            Checked="PaymentMethod_Checked"
                                            Unchecked="PaymentMethod_Unchecked"
                                            Cursor="Hand"
                                            Margin="32,0,0,12">
-                                    <RadioButton.Template>
-                                        <ControlTemplate TargetType="RadioButton">
-                                            <Border x:Name="PaymentBorder"
+                                        <RadioButton.Template>
+                                            <ControlTemplate TargetType="RadioButton">
+                                                <Border x:Name="PaymentBorder"
                                                   Background="Transparent"
                                                   BorderBrush="#E2E8F0"
                                                   BorderThickness="2"
                                                   CornerRadius="12"
                                                   Padding="12,8">
-                                                <Grid>
-                                                    <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition Width="Auto"/>
-                                                        <ColumnDefinition Width="*"/>
-                                                    </Grid.ColumnDefinitions>
-                                                    <Border Grid.Column="0"
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="Auto"/>
+                                                            <ColumnDefinition Width="*"/>
+                                                        </Grid.ColumnDefinitions>
+                                                        <Border Grid.Column="0"
                                                           Width="70" 
                                                           Height="30" 
                                                           CornerRadius="8" 
                                                           BorderBrush="#E2E8F0" 
                                                           BorderThickness="0.5"
                                                           Margin="0,0,12,0">
-                                                        <Image Source="/Views/Assets/Images/BCA.png" 
+                                                            <Image Source="/Views/Assets/Images/BCA.png" 
                                                              Stretch="Uniform"/>
-                                                    </Border>
-                                                    <TextBlock Grid.Column="1"
+                                                        </Border>
+                                                        <TextBlock Grid.Column="1"
                                                              Text="BCA Transfer"
                                                              FontSize="16"
                                                              FontWeight="Medium"
                                                              Foreground="#042769"
                                                              VerticalAlignment="Center"
                                                              TextWrapping="Wrap"/>
-                                                </Grid>
-                                            </Border>
-                                            <ControlTemplate.Triggers>
-                                                <Trigger Property="IsChecked" Value="True">
-                                                    <Setter TargetName="PaymentBorder" Property="BorderBrush" Value="#267DAE"/>
-                                                    <Setter TargetName="PaymentBorder" Property="BorderThickness" Value="3"/>
-                                                    <Setter TargetName="PaymentBorder" Property="Background" Value="#EFF6FF"/>
-                                                </Trigger>
-                                            </ControlTemplate.Triggers>
-                                        </ControlTemplate>
-                                    </RadioButton.Template>
-                                </RadioButton>
+                                                    </Grid>
+                                                </Border>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsChecked" Value="True">
+                                                        <Setter TargetName="PaymentBorder" Property="BorderBrush" Value="#267DAE"/>
+                                                        <Setter TargetName="PaymentBorder" Property="BorderThickness" Value="3"/>
+                                                        <Setter TargetName="PaymentBorder" Property="Background" Value="#EFF6FF"/>
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </RadioButton.Template>
+                                    </RadioButton>
 
-                                <!-- Mandiri Transfer (Sub-option) -->
-                                <RadioButton x:Name="rbMandiri" 
+                                    <!-- Mandiri Transfer (Sub-option) -->
+                                    <RadioButton x:Name="rbMandiri" 
                                            GroupName="PaymentMethod"
                                            Tag="Mandiri"
                                            Checked="PaymentMethod_Checked"
                                            Unchecked="PaymentMethod_Unchecked"
                                            Cursor="Hand"
                                            Margin="32,0,0,0">
-                                    <RadioButton.Template>
-                                        <ControlTemplate TargetType="RadioButton">
-                                            <Border x:Name="PaymentBorder"
+                                        <RadioButton.Template>
+                                            <ControlTemplate TargetType="RadioButton">
+                                                <Border x:Name="PaymentBorder"
                                                   Background="Transparent"
                                                   BorderBrush="#E2E8F0"
                                                   BorderThickness="2"
                                                   CornerRadius="12"
                                                   Padding="12,8">
-                                                <Grid>
-                                                    <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition Width="Auto"/>
-                                                        <ColumnDefinition Width="*"/>
-                                                    </Grid.ColumnDefinitions>
-                                                    <Border Grid.Column="0"
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="Auto"/>
+                                                            <ColumnDefinition Width="*"/>
+                                                        </Grid.ColumnDefinitions>
+                                                        <Border Grid.Column="0"
                                                           Width="70" 
                                                           Height="30" 
                                                           CornerRadius="8" 
                                                           BorderBrush="#E2E8F0" 
                                                           BorderThickness="0.5"
                                                           Margin="0,0,12,0">
-                                                        <Image Source="/Views/Assets/Images/Mandiri.png" 
+                                                            <Image Source="/Views/Assets/Images/Mandiri.png" 
                                                              Stretch="Uniform"/>
-                                                    </Border>
-                                                    <TextBlock Grid.Column="1"
+                                                        </Border>
+                                                        <TextBlock Grid.Column="1"
                                                              Text="Mandiri Transfer"
                                                              FontSize="16"
                                                              FontWeight="Medium"
                                                              Foreground="#042769"
                                                              VerticalAlignment="Center"
                                                              TextWrapping="Wrap"/>
-                                                </Grid>
-                                            </Border>
-                                            <ControlTemplate.Triggers>
-                                                <Trigger Property="IsChecked" Value="True">
-                                                    <Setter TargetName="PaymentBorder" Property="BorderBrush" Value="#267DAE"/>
-                                                    <Setter TargetName="PaymentBorder" Property="BorderThickness" Value="3"/>
-                                                    <Setter TargetName="PaymentBorder" Property="Background" Value="#EFF6FF"/>
-                                                </Trigger>
-                                            </ControlTemplate.Triggers>
-                                        </ControlTemplate>
-                                    </RadioButton.Template>
-                                </RadioButton>
-                            </StackPanel>
+                                                    </Grid>
+                                                </Border>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsChecked" Value="True">
+                                                        <Setter TargetName="PaymentBorder" Property="BorderBrush" Value="#267DAE"/>
+                                                        <Setter TargetName="PaymentBorder" Property="BorderThickness" Value="3"/>
+                                                        <Setter TargetName="PaymentBorder" Property="Background" Value="#EFF6FF"/>
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </RadioButton.Template>
+                                    </RadioButton>
+                                </StackPanel>
 
-                            <!-- QRIS Section -->
-                            <RadioButton x:Name="rbQRIS" 
+                                <!-- QRIS Section -->
+                                <RadioButton x:Name="rbQRIS" 
                                        GroupName="PaymentMethod"
                                        Tag="QRIS"
                                        Checked="PaymentMethod_Checked"
                                        Unchecked="PaymentMethod_Unchecked"
                                        Cursor="Hand"
                                        Margin="0,0,0,20">
-                                <TextBlock Text="QRIS"
+                                    <TextBlock Text="QRIS"
                                          FontSize="20"
                                          FontWeight="Medium"
                                          Foreground="#042769"
                                          TextWrapping="Wrap"/>
-                                <RadioButton.Style>
-                                    <Style TargetType="RadioButton" BasedOn="{StaticResource CustomRadioButton}">
-                                        <Setter Property="FontSize" Value="20"/>
-                                    </Style>
-                                </RadioButton.Style>
-                            </RadioButton>
+                                    <RadioButton.Style>
+                                        <Style TargetType="RadioButton" BasedOn="{StaticResource CustomRadioButton}">
+                                            <Setter Property="FontSize" Value="20"/>
+                                        </Style>
+                                    </RadioButton.Style>
+                                </RadioButton>
 
-                            <!-- Kartu Kredit/Debit Section -->
-                            <RadioButton x:Name="rbKartuKredit" 
+                                <!-- Kartu Kredit/Debit Section -->
+                                <RadioButton x:Name="rbKartuKredit" 
                                        GroupName="PaymentMethod"
                                        Tag="Kartu Kredit"
                                        Checked="PaymentMethod_Checked"
                                        Unchecked="PaymentMethod_Unchecked"
                                        Cursor="Hand"
                                        Margin="0,0,0,20">
-                                <TextBlock Text="Kartu Kredit/Debit"
+                                    <TextBlock Text="Kartu Kredit/Debit"
                                          FontSize="20"
                                          FontWeight="Medium"
                                          Foreground="#042769"
                                          TextWrapping="Wrap"/>
-                                <RadioButton.Style>
-                                    <Style TargetType="RadioButton" BasedOn="{StaticResource CustomRadioButton}">
-                                        <Setter Property="FontSize" Value="20"/>
-                                    </Style>
-                                </RadioButton.Style>
-                            </RadioButton>
+                                    <RadioButton.Style>
+                                        <Style TargetType="RadioButton" BasedOn="{StaticResource CustomRadioButton}">
+                                            <Setter Property="FontSize" Value="20"/>
+                                        </Style>
+                                    </RadioButton.Style>
+                                </RadioButton>
 
-                            <!-- Gerai Retail Section -->
-                            <StackPanel>
-                                <!-- Gerai Retail Header (Visual indicator only) -->
-                                <RadioButton x:Name="rbGeraiRetail" 
+                                <!-- Gerai Retail Section -->
+                                <StackPanel>
+                                    <!-- Gerai Retail Header (Visual indicator only) -->
+                                    <RadioButton x:Name="rbGeraiRetail" 
                                            GroupName="PaymentMethodHeader"
                                            IsHitTestVisible="False"
                                            Style="{StaticResource HeaderRadioButton}"
                                            Focusable="False"
                                            Margin="0,0,0,12">
-                                    <TextBlock Text="Gerai Retail"
+                                        <TextBlock Text="Gerai Retail"
                                              FontSize="20"
                                              FontWeight="Medium"
                                              Foreground="#042769"
                                              TextWrapping="Wrap"/>
-                                </RadioButton>
+                                    </RadioButton>
 
-                                <!-- Indomaret (Sub-option) -->
-                                <RadioButton x:Name="rbIndomaret" 
+                                    <!-- Indomaret (Sub-option) -->
+                                    <RadioButton x:Name="rbIndomaret" 
                                            GroupName="PaymentMethod"
                                            Tag="Indomaret"
                                            Checked="PaymentMethod_Checked"
                                            Unchecked="PaymentMethod_Unchecked"
                                            Cursor="Hand"
                                            Margin="32,0,0,12">
-                                    <RadioButton.Template>
-                                        <ControlTemplate TargetType="RadioButton">
-                                            <Border x:Name="PaymentBorder"
+                                        <RadioButton.Template>
+                                            <ControlTemplate TargetType="RadioButton">
+                                                <Border x:Name="PaymentBorder"
                                                   Background="Transparent"
                                                   BorderBrush="#E2E8F0"
                                                   BorderThickness="2"
                                                   CornerRadius="12"
                                                   Padding="12,8">
-                                                <Grid>
-                                                    <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition Width="Auto"/>
-                                                        <ColumnDefinition Width="*"/>
-                                                    </Grid.ColumnDefinitions>
-                                                    <Border Grid.Column="0"
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="Auto"/>
+                                                            <ColumnDefinition Width="*"/>
+                                                        </Grid.ColumnDefinitions>
+                                                        <Border Grid.Column="0"
                                                           Width="70" 
                                                           Height="30" 
                                                           CornerRadius="8" 
                                                           BorderBrush="#E2E8F0" 
                                                           BorderThickness="0.5"
                                                           Margin="0,0,12,0">
-                                                        <Image Source="/Views/Assets/Images/Indomaret.png" 
+                                                            <Image Source="/Views/Assets/Images/Indomaret.png" 
                                                              Stretch="Uniform"/>
-                                                    </Border>
-                                                    <TextBlock Grid.Column="1"
+                                                        </Border>
+                                                        <TextBlock Grid.Column="1"
                                                              Text="Indomaret"
                                                              FontSize="16"
                                                              FontWeight="Medium"
                                                              Foreground="#042769"
                                                              VerticalAlignment="Center"
                                                              TextWrapping="Wrap"/>
-                                                </Grid>
-                                            </Border>
-                                            <ControlTemplate.Triggers>
-                                                <Trigger Property="IsChecked" Value="True">
-                                                    <Setter TargetName="PaymentBorder" Property="BorderBrush" Value="#267DAE"/>
-                                                    <Setter TargetName="PaymentBorder" Property="BorderThickness" Value="3"/>
-                                                    <Setter TargetName="PaymentBorder" Property="Background" Value="#EFF6FF"/>
-                                                </Trigger>
-                                            </ControlTemplate.Triggers>
-                                        </ControlTemplate>
-                                    </RadioButton.Template>
-                                </RadioButton>
+                                                    </Grid>
+                                                </Border>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsChecked" Value="True">
+                                                        <Setter TargetName="PaymentBorder" Property="BorderBrush" Value="#267DAE"/>
+                                                        <Setter TargetName="PaymentBorder" Property="BorderThickness" Value="3"/>
+                                                        <Setter TargetName="PaymentBorder" Property="Background" Value="#EFF6FF"/>
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </RadioButton.Template>
+                                    </RadioButton>
 
-                                <!-- Alfamart (Sub-option) -->
-                                <RadioButton x:Name="rbAlfamart" 
+                                    <!-- Alfamart (Sub-option) -->
+                                    <RadioButton x:Name="rbAlfamart" 
                                            GroupName="PaymentMethod"
                                            Tag="Alfamart"
                                            Checked="PaymentMethod_Checked"
                                            Unchecked="PaymentMethod_Unchecked"
                                            Cursor="Hand"
                                            Margin="32,0,0,0">
-                                    <RadioButton.Template>
-                                        <ControlTemplate TargetType="RadioButton">
-                                            <Border x:Name="PaymentBorder"
+                                        <RadioButton.Template>
+                                            <ControlTemplate TargetType="RadioButton">
+                                                <Border x:Name="PaymentBorder"
                                                   Background="Transparent"
                                                   BorderBrush="#E2E8F0"
                                                   BorderThickness="2"
                                                   CornerRadius="12"
                                                   Padding="12,8">
-                                                <Grid>
-                                                    <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition Width="Auto"/>
-                                                        <ColumnDefinition Width="*"/>
-                                                    </Grid.ColumnDefinitions>
-                                                    <Border Grid.Column="0"
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="Auto"/>
+                                                            <ColumnDefinition Width="*"/>
+                                                        </Grid.ColumnDefinitions>
+                                                        <Border Grid.Column="0"
                                                           Width="70" 
                                                           Height="30" 
                                                           CornerRadius="8" 
                                                           BorderBrush="#E2E8F0" 
                                                           BorderThickness="0.5"
                                                           Margin="0,0,12,0">
-                                                        <Image Source="/Views/Assets/Images/Alfamart.png" 
+                                                            <Image Source="/Views/Assets/Images/Alfamart.png" 
                                                              Stretch="Uniform"/>
-                                                    </Border>
-                                                    <TextBlock Grid.Column="1"
+                                                        </Border>
+                                                        <TextBlock Grid.Column="1"
                                                              Text="Alfamart / Lawson / Mboh"
                                                              FontSize="16"
                                                              FontWeight="Medium"
                                                              Foreground="#042769"
                                                              VerticalAlignment="Center"
                                                              TextWrapping="Wrap"/>
-                                                </Grid>
-                                            </Border>
-                                            <ControlTemplate.Triggers>
-                                                <Trigger Property="IsChecked" Value="True">
-                                                    <Setter TargetName="PaymentBorder" Property="BorderBrush" Value="#267DAE"/>
-                                                    <Setter TargetName="PaymentBorder" Property="BorderThickness" Value="3"/>
-                                                    <Setter TargetName="PaymentBorder" Property="Background" Value="#EFF6FF"/>
-                                                </Trigger>
-                                            </ControlTemplate.Triggers>
-                                        </ControlTemplate>
-                                    </RadioButton.Template>
-                                </RadioButton>
+                                                    </Grid>
+                                                </Border>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsChecked" Value="True">
+                                                        <Setter TargetName="PaymentBorder" Property="BorderBrush" Value="#267DAE"/>
+                                                        <Setter TargetName="PaymentBorder" Property="BorderThickness" Value="3"/>
+                                                        <Setter TargetName="PaymentBorder" Property="Background" Value="#EFF6FF"/>
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </RadioButton.Template>
+                                    </RadioButton>
+                                </StackPanel>
+
                             </StackPanel>
+                        </Border>
 
-                        </StackPanel>
-                    </Border>
-
-                    <!-- Payment Instructions Card (Initially Hidden) -->
-                    <Border x:Name="PaymentInstructionsCard"
+                        <!-- Payment Instructions Card (Initially Hidden) -->
+                        <Border x:Name="PaymentInstructionsCard"
                             Visibility="Collapsed"
                             Background="White" 
                             CornerRadius="20" 
                             Padding="25,20"
                             BorderBrush="#267DAE" 
                             BorderThickness="2">
-                        <Border.Effect>
-                            <DropShadowEffect Color="#000000" 
+                            <Border.Effect>
+                                <DropShadowEffect Color="#000000" 
                                             Direction="270" 
                                             ShadowDepth="9" 
                                             BlurRadius="10.9" 
                                             Opacity="0.06"/>
-                        </Border.Effect>
+                            </Border.Effect>
 
-                        <StackPanel>
-                            <!-- Title -->
-                            <TextBlock Text="Instruksi Pembayaran"
+                            <StackPanel>
+                                <!-- Title -->
+                                <TextBlock Text="Instruksi Pembayaran"
                                      FontSize="28"
                                      FontWeight="Bold"
                                      Foreground="#042769"
                                      Margin="0,0,0,20"/>
 
-                            <!-- Transfer Info -->
-                            <StackPanel Margin="0,0,0,16">
-                                <TextBlock Text="Lakukan Transfer ke"
+                                <!-- Transfer Info -->
+                                <StackPanel Margin="0,0,0,16">
+                                    <TextBlock Text="Lakukan Transfer ke"
                                          FontSize="20"
                                          FontWeight="Medium"
                                          Foreground="#042769"
                                          Margin="0,0,0,12"/>
 
-                                <!-- Bank Logo and Info -->
-                                <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
-                                    <Border Width="100" 
+                                    <!-- Bank Logo and Info -->
+                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                                        <Border Width="100" 
                                           Height="45" 
                                           CornerRadius="12" 
                                           BorderBrush="#E2E8F0" 
                                           BorderThickness="1"
                                           Margin="0,0,12,0">
-                                        <Image x:Name="imgSelectedBank"
+                                            <Image x:Name="imgSelectedBank"
                                              Source="/Views/Assets/Images/BCA.png" 
                                              Stretch="Uniform"/>
-                                    </Border>
-                                    <StackPanel VerticalAlignment="Center">
-                                        <TextBlock x:Name="txtBankName"
+                                        </Border>
+                                        <StackPanel VerticalAlignment="Center">
+                                            <TextBlock x:Name="txtBankName"
                                                  Text="Bank BCA"
                                                  FontSize="16"
                                                  FontWeight="Bold"
                                                  Foreground="#042769"
                                                  TextWrapping="Wrap"
                                                  Margin="0,0,0,4"/>
-                                        <TextBlock Text="PT. Tiket Laut GasPol"
+                                            <TextBlock Text="PT. Tiket Laut GasPol"
                                                  FontSize="14"
                                                  FontWeight="Medium"
                                                  Foreground="#267DAE"
                                                  TextWrapping="Wrap"/>
+                                        </StackPanel>
                                     </StackPanel>
-                                </StackPanel>
 
-                                <!-- Account Number -->
-                                <Border Background="#F1F5F9" 
+                                    <!-- Account Number -->
+                                    <Border Background="#F1F5F9" 
                                       CornerRadius="12" 
                                       Padding="16,12"
                                       Margin="0,0,0,12">
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="Auto"/>
-                                        </Grid.ColumnDefinitions>
-                                        <TextBlock x:Name="txtAccountNumber"
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock x:Name="txtAccountNumber"
                                                  Grid.Column="0"
                                                  Text="385 0833 817"
                                                  FontSize="20"
@@ -597,68 +618,68 @@
                                                  Foreground="#042769"
                                                  VerticalAlignment="Center"
                                                  TextWrapping="Wrap"/>
-                                        <Button Grid.Column="1"
+                                            <Button Grid.Column="1"
                                               Click="BtnCopyAccount_Click"
                                               Style="{StaticResource CopyButtonStyle}"
                                               ToolTip="Copy Account Number">
-                                            <Border Width="24" Height="24" 
+                                                <Border Width="24" Height="24" 
                                                   BorderBrush="#267DAE" 
                                                   BorderThickness="2"
                                                   CornerRadius="4"/>
-                                        </Button>
-                                    </Grid>
-                                </Border>
+                                            </Button>
+                                        </Grid>
+                                    </Border>
 
-                                <!-- Total Amount -->
-                                <TextBlock Text="Total Nominal"
+                                    <!-- Total Amount -->
+                                    <TextBlock Text="Total Nominal"
                                          FontSize="20"
                                          FontWeight="Medium"
                                          Foreground="#042769"
                                          Margin="0,0,0,12"/>
 
-                                <Border Background="#F1F5F9" 
+                                    <Border Background="#F1F5F9" 
                                       CornerRadius="12" 
                                       Padding="16,12"
                                       Margin="0,0,0,16">
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="Auto"/>
-                                        </Grid.ColumnDefinitions>
-                                        <StackPanel Grid.Column="0" 
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel Grid.Column="0" 
                                                   Orientation="Horizontal" 
                                                   VerticalAlignment="Center">
-                                            <TextBlock Text="IDR  487."
+                                                <TextBlock Text="IDR  487."
                                                      FontSize="20"
                                                      FontWeight="Bold"
                                                      Foreground="#042769"/>
-                                            <TextBlock Text="123"
+                                                <TextBlock Text="123"
                                                      FontSize="20"
                                                      FontWeight="Bold"
                                                      Foreground="#267DAE"/>
-                                        </StackPanel>
-                                        <Button Grid.Column="1"
+                                            </StackPanel>
+                                            <Button Grid.Column="1"
                                               Click="BtnCopyAmount_Click"
                                               Style="{StaticResource CopyButtonStyle}"
                                               ToolTip="Copy Amount">
-                                            <Border Width="24" Height="24" 
+                                                <Border Width="24" Height="24" 
                                                   BorderBrush="#267DAE" 
                                                   BorderThickness="2"
                                                   CornerRadius="4"/>
-                                        </Button>
-                                    </Grid>
-                                </Border>
+                                            </Button>
+                                        </Grid>
+                                    </Border>
 
-                                <!-- Warning Message -->
-                                <Border Background="#FEE2E2" 
+                                    <!-- Warning Message -->
+                                    <Border Background="#FEE2E2" 
                                       CornerRadius="12" 
                                       Padding="12,10">
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="Auto"/>
-                                            <ColumnDefinition Width="*"/>
-                                        </Grid.ColumnDefinitions>
-                                        <Border Grid.Column="0"
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Border Grid.Column="0"
                                               Width="16" 
                                               Height="16" 
                                               Background="#267DAE" 
@@ -667,78 +688,78 @@
                                               CornerRadius="8"
                                               Margin="0,0,8,0"
                                               VerticalAlignment="Top"/>
-                                        <TextBlock Grid.Column="1"
+                                            <TextBlock Grid.Column="1"
                                                  Text="Transfer sesuai total pembayaran hingga 3 digit terakhir untuk kemudahan verifikasi."
                                                  FontSize="14"
                                                  FontWeight="Medium"
                                                  Foreground="#042769"
                                                  TextWrapping="Wrap"
                                                  VerticalAlignment="Center"/>
-                                    </Grid>
-                                </Border>
-                            </StackPanel>
+                                        </Grid>
+                                    </Border>
+                                </StackPanel>
 
-                            <!-- Action Buttons -->
-                            <WrapPanel Orientation="Horizontal" 
+                                <!-- Action Buttons -->
+                                <WrapPanel Orientation="Horizontal" 
                                       HorizontalAlignment="Right"
                                       Margin="0,16,0,0">
-                                <Button x:Name="btnGantiMetode"
+                                    <Button x:Name="btnGantiMetode"
                                       Content="Ganti Metode Pembayaran"
                                       MinHeight="48"
                                       Padding="16,12"
                                       Margin="0,0,12,0"
                                       Click="BtnGantiMetode_Click"
                                       Style="{StaticResource SecondaryButtonStyle}"/>
-                                <Button x:Name="btnCaraMembayar"
+                                    <Button x:Name="btnCaraMembayar"
                                       Content="Cara Membayar"
                                       MinHeight="48"
                                       Padding="16,12"
                                       Margin="0,0,0,0"
                                       Click="BtnCaraMembayar_Click"
                                       Style="{StaticResource RoundedButtonStyle}"/>
-                            </WrapPanel>
-                        </StackPanel>
-                    </Border>
-                </StackPanel>
+                                </WrapPanel>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
 
-                <!-- Right Section - Order Summary -->
-                <Border Grid.Column="2" 
+                    <!-- Right Section - Order Summary -->
+                    <Border Grid.Column="2" 
                         Background="White" 
                         CornerRadius="20" 
                         Padding="25,20"
                         BorderBrush="#267DAE" 
                         BorderThickness="2"
                         VerticalAlignment="Top">
-                    <Border.Effect>
-                        <DropShadowEffect Color="#000000" 
+                        <Border.Effect>
+                            <DropShadowEffect Color="#000000" 
                                         Direction="270" 
                                         ShadowDepth="9" 
                                         BlurRadius="10.9" 
                                         Opacity="0.06"/>
-                    </Border.Effect>
+                        </Border.Effect>
 
-                    <StackPanel>
-                        <!-- Order Details -->
-                        <StackPanel Margin="0,0,0,16">
-                            <TextBlock Text="Order ID: 1234567890"
+                        <StackPanel>
+                            <!-- Order Details -->
+                            <StackPanel Margin="0,0,0,16">
+                                <TextBlock Text="Order ID: 1234567890"
                                      FontSize="16"
                                      FontWeight="SemiBold"
                                      Foreground="#267DAE"
                                      TextWrapping="Wrap"
                                      Margin="0,0,0,12"/>
 
-                            <StackPanel>
-                                <TextBlock Text="Reguler"
+                                <StackPanel>
+                                    <TextBlock Text="Reguler"
                                          FontSize="20"
                                          FontWeight="Bold"
                                          Foreground="#042769"
                                          TextWrapping="Wrap"
                                          Margin="0,0,0,8"/>
 
-                                <StackPanel Orientation="Horizontal" 
+                                    <StackPanel Orientation="Horizontal" 
                                           HorizontalAlignment="Left"
                                           Margin="0,0,0,8">
-                                    <TextBlock Text="Bakauheni"
+                                        <TextBlock Text="Bakauheni"
                                              FontSize="16"
                                              FontWeight="SemiBold"
                                              Foreground="#267DAE"
@@ -746,7 +767,7 @@
                                              TextWrapping="Wrap"
                                              Margin="0,0,8,0"/>
 
-                                    <Path Data="M 20 4 L 14.444444444444445 0 M 20 4 L 14.444444444444445 8 M 20 4 L 0 4" 
+                                        <Path Data="M 20 4 L 14.444444444444445 0 M 20 4 L 14.444444444444445 8 M 20 4 L 0 4" 
                                           Stroke="#267DAE" 
                                           StrokeThickness="2"
                                           Width="16" 
@@ -755,29 +776,29 @@
                                           VerticalAlignment="Center"
                                           Margin="0,0,8,0"/>
 
-                                    <TextBlock Text="Merak"
+                                        <TextBlock Text="Merak"
                                              FontSize="16"
                                              FontWeight="SemiBold"
                                              Foreground="#267DAE"
                                              VerticalAlignment="Center"
                                              TextWrapping="Wrap"/>
-                                </StackPanel>
+                                    </StackPanel>
 
-                                <TextBlock Text="Kam, 23 Okt 2025 - 20:30"
+                                    <TextBlock Text="Kam, 23 Okt 2025 - 20:30"
                                          FontSize="16"
                                          FontWeight="Medium"
                                          Foreground="#042769"
                                          TextWrapping="Wrap"/>
+                                </StackPanel>
                             </StackPanel>
-                        </StackPanel>
 
-                        <!-- Divider -->
-                        <Border Height="2" 
+                            <!-- Divider -->
+                            <Border Height="2" 
                                 Background="#E2E8F0"
                                 Margin="0,0,0,20"/>
 
-                        <!-- Total Pembayaran (Clickable for Toggle) -->
-                        <Button x:Name="btnToggleDetailPembayaran"
+                            <!-- Total Pembayaran (Clickable for Toggle) -->
+                            <Button x:Name="btnToggleDetailPembayaran"
                               Background="Transparent"
                               BorderThickness="0"
                               Padding="0"
@@ -785,63 +806,63 @@
                               HorizontalContentAlignment="Stretch"
                               Click="BtnToggleDetailPembayaran_Click"
                               Margin="0,0,0,16">
-                            <Grid>
-                                <TextBlock Text="Total Pembayaran"
+                                <Grid>
+                                    <TextBlock Text="Total Pembayaran"
                                          FontSize="14"
                                          FontWeight="Medium"
                                          Foreground="#042769"
                                          HorizontalAlignment="Left"
                                          VerticalAlignment="Center"/>
-                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                                    <StackPanel Orientation="Horizontal" Margin="0,0,8,0">
-                                        <TextBlock x:Name="txtTotalPembayaran"
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                        <StackPanel Orientation="Horizontal" Margin="0,0,8,0">
+                                            <TextBlock x:Name="txtTotalPembayaran"
                                                  Text="IDR 487."
                                                  FontSize="16"
                                                  FontWeight="Bold"
                                                  Foreground="#042769"
                                                  VerticalAlignment="Center"/>
-                                        <TextBlock x:Name="txtTotalPembayaranDigit"
+                                            <TextBlock x:Name="txtTotalPembayaranDigit"
                                                  Text="123"
                                                  FontSize="16"
                                                  FontWeight="Bold"
                                                  Foreground="#267DAE"
                                                  VerticalAlignment="Center"/>
-                                    </StackPanel>
-                                    <Image x:Name="imgToggleDetailPembayaran"
+                                        </StackPanel>
+                                        <Image x:Name="imgToggleDetailPembayaran"
                                          Source="/Views/Assets/Icons/icondropdowngelap.png"
                                          Width="16" 
                                          Height="16"
                                          Stretch="Uniform"
                                          VerticalAlignment="Center"
                                          RenderTransformOrigin="0.5,0.5">
-                                        <Image.RenderTransform>
-                                            <RotateTransform Angle="0"/>
-                                        </Image.RenderTransform>
-                                    </Image>
-                                </StackPanel>
-                            </Grid>
-                        </Button>
-                        
-                        <!-- Detail Pembayaran Panel (Hidden by default) -->
-                        <StackPanel x:Name="pnlDetailPembayaran" 
+                                            <Image.RenderTransform>
+                                                <RotateTransform Angle="0"/>
+                                            </Image.RenderTransform>
+                                        </Image>
+                                    </StackPanel>
+                                </Grid>
+                            </Button>
+
+                            <!-- Detail Pembayaran Panel (Hidden by default) -->
+                            <StackPanel x:Name="pnlDetailPembayaran" 
                                   Visibility="Collapsed"
                                   Margin="0,0,0,16">
-                            <!-- Item Kendaraan -->
-                            <Grid Margin="0,0,0,8">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
-                                
-                                <TextBlock x:Name="txtDetailKendaraan"
+                                <!-- Item Kendaraan -->
+                                <Grid Margin="0,0,0,8">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <TextBlock x:Name="txtDetailKendaraan"
                                          Grid.Column="0"
                                          Text="Sepeda Motor (&lt;500cc)"
                                          FontSize="14"
                                          FontWeight="Medium"
                                          Foreground="#042769"
                                          VerticalAlignment="Center"/>
-                                
-                                <TextBlock x:Name="txtHargaKendaraan"
+
+                                    <TextBlock x:Name="txtHargaKendaraan"
                                          Grid.Column="1"
                                          Text="IDR 50.000"
                                          FontSize="14"
@@ -849,24 +870,24 @@
                                          Foreground="#042769"
                                          TextAlignment="Right"
                                          VerticalAlignment="Center"/>
-                            </Grid>
-                            
-                            <!-- Item Penumpang -->
-                            <Grid Margin="0,0,0,12">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
-                                
-                                <TextBlock x:Name="txtDetailPenumpang"
+                                </Grid>
+
+                                <!-- Item Penumpang -->
+                                <Grid Margin="0,0,0,12">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <TextBlock x:Name="txtDetailPenumpang"
                                          Grid.Column="0"
                                          Text="Dewasa (3x)"
                                          FontSize="14"
                                          FontWeight="Medium"
                                          Foreground="#042769"
                                          VerticalAlignment="Center"/>
-                                
-                                <TextBlock x:Name="txtHargaPenumpang"
+
+                                    <TextBlock x:Name="txtHargaPenumpang"
                                          Grid.Column="1"
                                          Text="Termasuk"
                                          FontSize="14"
@@ -874,62 +895,62 @@
                                          Foreground="#00658D"
                                          TextAlignment="Right"
                                          VerticalAlignment="Center"/>
-                            </Grid>
-                            
-                            <!-- Keterangan Pajak dan Kode Unik -->
-                            <StackPanel x:Name="pnlKeteranganPembayaran" Margin="0,0,0,12">
-                                <TextBlock Text="Harga sudah termasuk pajak"
+                                </Grid>
+
+                                <!-- Keterangan Pajak dan Kode Unik -->
+                                <StackPanel x:Name="pnlKeteranganPembayaran" Margin="0,0,0,12">
+                                    <TextBlock Text="Harga sudah termasuk pajak"
                                          FontSize="12"
                                          FontWeight="Medium"
                                          Foreground="#00658D"
                                          Margin="0,0,0,4"/>
-                                <!-- Keterangan Kode Unik (hanya muncul untuk Transfer Bank) -->
-                                <TextBlock x:Name="txtKodeUnik"
+                                    <!-- Keterangan Kode Unik (hanya muncul untuk Transfer Bank) -->
+                                    <TextBlock x:Name="txtKodeUnik"
                                          Text="Kode unik (+123) pada 3 digit terakhir"
                                          FontSize="12"
                                          FontWeight="Medium"
                                          Foreground="#DC2626"
                                          Visibility="Collapsed"/>
-                            </StackPanel>
-                            
-                            <Border Height="1" Background="#E2E8F0" Margin="0,0,0,12"/>
-                            
-                            <Grid>
-                                <TextBlock Text="Total Pembayaran"
+                                </StackPanel>
+
+                                <Border Height="1" Background="#E2E8F0" Margin="0,0,0,12"/>
+
+                                <Grid>
+                                    <TextBlock Text="Total Pembayaran"
                                          FontSize="14"
                                          FontWeight="Medium"
                                          Foreground="#042769"
                                          HorizontalAlignment="Left"/>
-                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                                    <TextBlock x:Name="txtDetailTotalPembayaran"
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                        <TextBlock x:Name="txtDetailTotalPembayaran"
                                              Text="IDR 487."
                                              FontSize="16"
                                              FontWeight="Bold"
                                              Foreground="#042769"/>
-                                    <TextBlock x:Name="txtDetailTotalPembayaranDigit"
+                                        <TextBlock x:Name="txtDetailTotalPembayaranDigit"
                                              Text="123"
                                              FontSize="16"
                                              FontWeight="Bold"
                                              Foreground="#267DAE"/>
-                                </StackPanel>
-                            </Grid>
-                        </StackPanel>
+                                    </StackPanel>
+                                </Grid>
+                            </StackPanel>
 
-                        <!-- Payment Button (Changes based on state) -->
-                        <Button x:Name="btnMainAction"
+                            <!-- Payment Button (Changes based on state) -->
+                            <Button x:Name="btnMainAction"
                                 MinHeight="48"
                                 HorizontalAlignment="Stretch"
                                 Click="BtnMainAction_Click"
                                 Style="{StaticResource RoundedButtonStyle}">
-                            <TextBlock x:Name="txtMainActionButton"
+                                <TextBlock x:Name="txtMainActionButton"
                                      Text="Pilih Metode Pembayaran" 
                                      TextAlignment="Center"
                                      TextWrapping="Wrap"
                                      FontSize="16"/>
-                        </Button>
+                            </Button>
 
-                    </StackPanel>
-                </Border>
+                        </StackPanel>
+                    </Border>
 
                 </Grid>
             </StackPanel>

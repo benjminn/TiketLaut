@@ -1,38 +1,28 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Animation;
-<<<<<<< Updated upstream
-=======
 using Microsoft.EntityFrameworkCore;
->>>>>>> Stashed changes
 using TiketLaut.Services;
 
 namespace TiketLaut.Views
 {
+    /// <summary>
+    /// Interaction logic for PaymentWindow.xaml
+    /// </summary>
     public partial class PaymentWindow : Window
     {
         private string selectedPaymentMethod = "";
         private bool isPaymentMethodSelected = false;
         private int kodeUnik = 0;
-<<<<<<< Updated upstream
-        private decimal totalHarga = 0;
-
-        // NEW: Payment tracking data
-        private int _tiketId;
-        private int _pembayaranId;
-        private string _paymentReference = "";
-        private readonly PaymentService _paymentService;
-=======
         private int hargaAsli = 487000;
         
-        // ADD: Properties untuk data tiket
+        // Properties untuk data tiket
         private Tiket? _tiket;
         private readonly PembayaranService _pembayaranService;
         private readonly BookingService _bookingService;
->>>>>>> Stashed changes
 
         public PaymentWindow()
         {
@@ -42,10 +32,6 @@ namespace TiketLaut.Views
             
             ApplyResponsiveLayout();
             GenerateKodeUnik();
-<<<<<<< Updated upstream
-
-            _paymentService = new PaymentService();
-=======
             
             // Load tiket data dari session
             LoadTiketData();
@@ -65,7 +51,7 @@ namespace TiketLaut.Views
                     return;
                 }
 
-                // ✅ FIX: Add using Microsoft.EntityFrameworkCore for .Include() and .Where()
+                // Get tiket terakhir user yang statusnya "Menunggu Pembayaran"
                 var tikets = await DatabaseService.GetContext().Tikets
                     .Include(t => t.Jadwal)
                     .Where(t => t.pengguna_id == SessionManager.CurrentUser.pengguna_id &&
@@ -95,51 +81,19 @@ namespace TiketLaut.Views
             {
                 System.Diagnostics.Debug.WriteLine($"[PaymentWindow] Error loading tiket: {ex.Message}");
             }
->>>>>>> Stashed changes
         }
 
-        /// <summary>
-        /// NEW: Set tiket ID dari BookingDetailWindow
-        /// </summary>
-        public void SetTiketData(int tiketId, decimal totalHarga)
+        private void Window_SizeChanged(object sender, SizeChangedEventArgs e)
         {
-            _tiketId = tiketId;
-            this.totalHarga = totalHarga;
-
-            // Update UI dengan harga yang benar
-            UpdateTotalPembayaran();
+            ApplyResponsiveLayout();
         }
 
-        private void GenerateKodeUnik()
+        private void ApplyResponsiveLayout()
         {
-            Random random = new Random();
-            kodeUnik = random.Next(1, 1000);
-            UpdateTotalPembayaran();
-        }
+            double windowWidth = this.ActualWidth;
 
-        private void UpdateTotalPembayaran()
-        {
-            decimal total = totalHarga + kodeUnik;
-            string totalString = total.ToString("F0");
-            
-            if (totalString.Length >= 3)
+            if (windowWidth < 1280)
             {
-<<<<<<< Updated upstream
-                string mainPart = totalString.Substring(0, totalString.Length - 3);
-                string lastThreeDigits = totalString.Substring(totalString.Length - 3);
-
-                if (txtTotalPembayaran != null)
-                {
-                    txtTotalPembayaran.Text = $"IDR {mainPart}.";
-                    txtTotalPembayaranDigit.Text = lastThreeDigits;
-                }
-
-                if (txtDetailTotalPembayaran != null)
-                {
-                    txtDetailTotalPembayaran.Text = $"IDR {mainPart}.";
-                    txtDetailTotalPembayaranDigit.Text = lastThreeDigits;
-                }
-=======
                 MainContentGrid.Margin = new Thickness(20, 15, 20, 20);
             }
             else if (windowWidth < 1600)
@@ -149,7 +103,6 @@ namespace TiketLaut.Views
             else
             {
                 MainContentGrid.Margin = new Thickness(40, 20, 40, 30);
->>>>>>> Stashed changes
             }
         }
 
@@ -157,7 +110,7 @@ namespace TiketLaut.Views
         {
             if (sender is RadioButton rb && rb.Tag != null)
             {
-                selectedPaymentMethod = rb.Tag.ToString() ?? ""; // ✅ FIX: Handle null
+                selectedPaymentMethod = rb.Tag.ToString() ?? "";
                 isPaymentMethodSelected = true;
 
                 if (txtMainActionButton != null)
@@ -165,16 +118,9 @@ namespace TiketLaut.Views
                     txtMainActionButton.Text = "Konfirmasi Pembayaran";
                 }
 
-                // Auto-check parent radio button
+                // Auto-check parent radio button based on selection
                 if (selectedPaymentMethod == "BCA" || selectedPaymentMethod == "Mandiri")
                 {
-<<<<<<< Updated upstream
-                    if (rbTransferBank != null) rbTransferBank.IsChecked = true;
-                }
-                else if (selectedPaymentMethod == "Indomaret" || selectedPaymentMethod == "Alfamart")
-                {
-                    if (rbGeraiRetail != null) rbGeraiRetail.IsChecked = true;
-=======
                     if (rbTransferBank != null)
                     {
                         rbTransferBank.IsChecked = true;
@@ -186,7 +132,6 @@ namespace TiketLaut.Views
                     {
                         rbGeraiRetail.IsChecked = true;
                     }
->>>>>>> Stashed changes
                 }
                 else
                 {
@@ -198,7 +143,10 @@ namespace TiketLaut.Views
             }
         }
 
-        private void PaymentMethod_Unchecked(object sender, RoutedEventArgs e) { }
+        private void PaymentMethod_Unchecked(object sender, RoutedEventArgs e)
+        {
+            // Optional: Handle unchecked state if needed
+        }
 
         private void UpdateBankInfo(string paymentMethod)
         {
@@ -251,10 +199,6 @@ namespace TiketLaut.Views
             }
         }
 
-<<<<<<< Updated upstream
-=======
-        // ✅ FIX: Change to async void (event handler)
->>>>>>> Stashed changes
         private async void BtnMainAction_Click(object sender, RoutedEventArgs e)
         {
             if (!isPaymentMethodSelected)
@@ -269,58 +213,6 @@ namespace TiketLaut.Views
 
             if (PaymentMethodsCard.Visibility == Visibility.Visible)
             {
-<<<<<<< Updated upstream
-                // SAVE TO DATABASE
-                try
-                {
-                    btnMainAction.IsEnabled = false;
-                    txtMainActionButton.Text = "Memproses...";
-
-                    // Create pembayaran
-                    var pembayaran = await _paymentService.CreatePembayaranAsync(
-                        _tiketId,
-                        selectedPaymentMethod,
-                        kodeUnik);
-
-                    _pembayaranId = pembayaran.pembayaran_id;
-                    _paymentReference = _paymentService.GeneratePaymentReference(
-                        _pembayaranId,
-                        selectedPaymentMethod);
-
-                    // Show payment instructions
-                    PaymentMethodsCard.Visibility = Visibility.Collapsed;
-                    PaymentInstructionsCard.Visibility = Visibility.Visible;
-                    txtMainActionButton.Text = "Cek Status Pembayaran";
-
-                    MessageBox.Show(
-                        $"✅ Pembayaran berhasil dibuat!\n\n" +
-                        $"Payment Ref: {_paymentReference}\n" +
-                        $"Metode: {selectedPaymentMethod}\n" +
-                        $"Total: Rp {pembayaran.jumlah_bayar:N0}\n\n" +
-                        $"Silakan selesaikan pembayaran sebelum {_paymentService.GetPaymentExpiry():dd/MM/yyyy HH:mm}",
-                        "Pembayaran Dibuat",
-                        MessageBoxButton.OK,
-                        MessageBoxImage.Information);
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show(
-                        $"❌ Terjadi kesalahan:\n{ex.Message}",
-                        "Error",
-                        MessageBoxButton.OK,
-                        MessageBoxImage.Error);
-                }
-                finally
-                {
-                    btnMainAction.IsEnabled = true;
-                    txtMainActionButton.Text = "Konfirmasi Pembayaran";
-                }
-            }
-            else
-            {
-                // Check payment status
-                await CheckPaymentStatus();
-=======
                 // Show payment instructions
                 PaymentMethodsCard.Visibility = Visibility.Collapsed;
                 PaymentInstructionsCard.Visibility = Visibility.Visible;
@@ -328,7 +220,7 @@ namespace TiketLaut.Views
             }
             else
             {
-                // ===== SIMPAN PEMBAYARAN KE DATABASE =====
+                // Simpan pembayaran ke database
                 await KonfirmasiPembayaranAsync();
             }
         }
@@ -426,28 +318,7 @@ namespace TiketLaut.Views
             {
                 btnMainAction.IsEnabled = true;
                 txtMainActionButton.Text = "Konfirmasi Pembayaran";
->>>>>>> Stashed changes
             }
-        }
-
-        private async System.Threading.Tasks.Task CheckPaymentStatus()
-        {
-            if (_pembayaranId == 0)
-            {
-                MessageBox.Show("Pembayaran belum dibuat!", "Info", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
-
-            var status = await _paymentService.CheckStatusPembayaranAsync(_pembayaranId);
-
-            MessageBox.Show(
-                $"📊 Status Pembayaran\n\n" +
-                $"Payment Ref: {_paymentReference}\n" +
-                $"Status: {status}\n\n" +
-                $"Untuk konfirmasi pembayaran, hubungi admin atau tunggu verifikasi otomatis.",
-                "Status Pembayaran",
-                MessageBoxButton.OK,
-                MessageBoxImage.Information);
         }
 
         private void BtnGantiMetode_Click(object sender, RoutedEventArgs e)
@@ -477,19 +348,16 @@ namespace TiketLaut.Views
             if (!string.IsNullOrEmpty(txtAccountNumber.Text))
             {
                 Clipboard.SetText(txtAccountNumber.Text);
-                MessageBox.Show("Nomor rekening telah disalin!", "Berhasil",
-                    MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show(
+                    "Nomor rekening telah disalin!",
+                    "Berhasil",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Information);
             }
         }
 
         private void BtnCopyAmount_Click(object sender, RoutedEventArgs e)
         {
-<<<<<<< Updated upstream
-            decimal total = totalHarga + kodeUnik;
-            Clipboard.SetText(total.ToString("F0"));
-            MessageBox.Show("Jumlah pembayaran telah disalin!", "Berhasil",
-                MessageBoxButton.OK, MessageBoxImage.Information);
-=======
             int totalPembayaran = hargaAsli + kodeUnik;
             Clipboard.SetText(totalPembayaran.ToString());
             MessageBox.Show(
@@ -501,11 +369,8 @@ namespace TiketLaut.Views
 
         private void GenerateKodeUnik()
         {
-            // Generate kode unik random antara 1-999
             Random random = new Random();
             kodeUnik = random.Next(1, 1000);
-
-            // Update total pembayaran dengan kode unik
             UpdateTotalPembayaran();
         }
 
@@ -513,22 +378,24 @@ namespace TiketLaut.Views
         {
             int totalPembayaran = hargaAsli + kodeUnik;
             string totalString = totalPembayaran.ToString();
-            string mainPart = totalString.Substring(0, totalString.Length - 3);
-            string lastThreeDigits = totalString.Substring(totalString.Length - 3);
-
-            // Update semua TextBlock total pembayaran
-            if (txtTotalPembayaran != null)
+            
+            if (totalString.Length >= 3)
             {
-                txtTotalPembayaran.Text = $"IDR {mainPart}.";
-                txtTotalPembayaranDigit.Text = lastThreeDigits;
-            }
+                string mainPart = totalString.Substring(0, totalString.Length - 3);
+                string lastThreeDigits = totalString.Substring(totalString.Length - 3);
 
-            if (txtDetailTotalPembayaran != null)
-            {
-                txtDetailTotalPembayaran.Text = $"IDR {mainPart}.";
-                txtDetailTotalPembayaranDigit.Text = lastThreeDigits;
+                if (txtTotalPembayaran != null)
+                {
+                    txtTotalPembayaran.Text = $"IDR {mainPart}.";
+                    txtTotalPembayaranDigit.Text = lastThreeDigits;
+                }
+
+                if (txtDetailTotalPembayaran != null)
+                {
+                    txtDetailTotalPembayaran.Text = $"IDR {mainPart}.";
+                    txtDetailTotalPembayaranDigit.Text = lastThreeDigits;
+                }
             }
->>>>>>> Stashed changes
         }
 
         private void BtnToggleDetailPembayaran_Click(object sender, RoutedEventArgs e)
@@ -536,12 +403,7 @@ namespace TiketLaut.Views
             if (pnlDetailPembayaran.Visibility == Visibility.Collapsed)
             {
                 pnlDetailPembayaran.Visibility = Visibility.Visible;
-<<<<<<< Updated upstream
-                
-=======
 
-                // Rotate arrow icon
->>>>>>> Stashed changes
                 var rotateTransform = imgToggleDetailPembayaran.RenderTransform as System.Windows.Media.RotateTransform;
                 if (rotateTransform != null)
                 {
@@ -552,12 +414,7 @@ namespace TiketLaut.Views
                     };
                     rotateTransform.BeginAnimation(System.Windows.Media.RotateTransform.AngleProperty, animation);
                 }
-<<<<<<< Updated upstream
-                
-=======
 
-                // Show kode unik notification if transfer bank is selected
->>>>>>> Stashed changes
                 if (selectedPaymentMethod == "BCA" || selectedPaymentMethod == "Mandiri")
                 {
                     if (txtKodeUnik != null)
@@ -570,12 +427,7 @@ namespace TiketLaut.Views
             else
             {
                 pnlDetailPembayaran.Visibility = Visibility.Collapsed;
-<<<<<<< Updated upstream
-                
-=======
 
-                // Rotate arrow icon back
->>>>>>> Stashed changes
                 var rotateTransform = imgToggleDetailPembayaran.RenderTransform as System.Windows.Media.RotateTransform;
                 if (rotateTransform != null)
                 {
@@ -589,10 +441,6 @@ namespace TiketLaut.Views
             }
         }
 
-<<<<<<< Updated upstream
-        // Method untuk membuka PaymentWindow dari window lain
-        public static void Open()
-=======
         private void BtnKembali_Click(object sender, RoutedEventArgs e)
         {
             var result = MessageBox.Show(
@@ -614,33 +462,10 @@ namespace TiketLaut.Views
             }
         }
 
-<<<<<<< Updated upstream
-        private void Window_SizeChanged(object sender, SizeChangedEventArgs e)
->>>>>>> Stashed changes
-=======
-        // Method untuk membuka PaymentWindow dari window lain
         public static void Open()
->>>>>>> Stashed changes
         {
-            ApplyResponsiveLayout();
-        }
-
-        private void ApplyResponsiveLayout()
-        {
-            double windowWidth = this.ActualWidth;
-
-            if (windowWidth < 1280)
-            {
-                MainContentGrid.Margin = new Thickness(20, 15, 20, 20);
-            }
-            else if (windowWidth < 1600)
-            {
-                MainContentGrid.Margin = new Thickness(30, 20, 30, 25);
-            }
-            else
-            {
-                MainContentGrid.Margin = new Thickness(40, 20, 40, 30);
-            }
+            var paymentWindow = new PaymentWindow();
+            paymentWindow.Show();
         }
     }
 }

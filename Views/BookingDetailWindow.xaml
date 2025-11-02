@@ -73,12 +73,12 @@
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
-                            
+
                             <Border Grid.Column="0" Grid.ColumnSpan="2"
                                   Background="White"
                                   BorderThickness="0"
                                   CornerRadius="12"/>
-                            
+
                             <ToggleButton x:Name="ToggleButton"
                                         Grid.Column="0" Grid.ColumnSpan="2"
                                         Background="Transparent"
@@ -86,7 +86,7 @@
                                         Focusable="False"
                                         IsChecked="{Binding Path=IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
                                         ClickMode="Press"/>
-                            
+
                             <ContentPresenter x:Name="ContentSite"
                                             Grid.Column="0"
                                             Content="{TemplateBinding SelectionBoxItem}"
@@ -96,7 +96,7 @@
                                             HorizontalAlignment="Left"
                                             VerticalAlignment="Center"
                                             IsHitTestVisible="False"/>
-                            
+
                             <Image x:Name="ArrowIcon"
                                  Grid.Column="1"
                                  Source="Assets/Icons/icondropdowngelap.png"
@@ -111,7 +111,7 @@
                                     <RotateTransform Angle="0"/>
                                 </Image.RenderTransform>
                             </Image>
-                            
+
                             <Popup x:Name="Popup"
                                  Grid.Column="0" Grid.ColumnSpan="2"
                                  Placement="Bottom"
@@ -227,7 +227,7 @@
                                                Style="{StaticResource CustomRadioButton}"
                                                Margin="0,0,16,0"/>
                                     <RadioButton x:Name="rbNona"
-                                               Content="Nona Ambon"
+                                               Content="Nona"
                                                GroupName="Title"
                                                Style="{StaticResource CustomRadioButton}"/>
                                 </StackPanel>
@@ -360,7 +360,8 @@
                                  Margin="0,0,0,16"/>
 
                         <!-- Penumpang 1 -->
-                        <Border Background="White"
+                        <Border x:Name="borderPassenger1"
+                              Background="White"
                               CornerRadius="17"
                               Padding="25,20"
                               BorderBrush="#00658D"
@@ -481,7 +482,7 @@
                                             <ColumnDefinition Width="16"/>
                                             <ColumnDefinition Width="*"/>
                                         </Grid.ColumnDefinitions>
-                                        
+
                                         <!-- ComboBox Identitas -->
                                         <Grid Grid.Column="0">
                                             <Border Style="{StaticResource FloatingLabelTextBox}">
@@ -513,7 +514,7 @@
                                                           Foreground="#94A3B8"/>
                                             </Border>
                                         </Grid>
-                                        
+
                                         <!-- Nomor Identitas -->
                                         <Grid Grid.Column="2">
                                             <Border Style="{StaticResource FloatingLabelTextBox}">
@@ -553,7 +554,8 @@
                         </Border>
 
                         <!-- Penumpang 2 -->
-                        <Border Background="White"
+                        <Border x:Name="borderPassenger2"
+                              Background="White"
                               CornerRadius="17"
                               Padding="25,20"
                               BorderBrush="#00658D"
@@ -674,7 +676,7 @@
                                             <ColumnDefinition Width="16"/>
                                             <ColumnDefinition Width="*"/>
                                         </Grid.ColumnDefinitions>
-                                        
+
                                         <!-- ComboBox Identitas -->
                                         <Grid Grid.Column="0">
                                             <Border Style="{StaticResource FloatingLabelTextBox}">
@@ -706,7 +708,7 @@
                                                           Foreground="#94A3B8"/>
                                             </Border>
                                         </Grid>
-                                        
+
                                         <!-- Nomor Identitas -->
                                         <Grid Grid.Column="2">
                                             <Border Style="{StaticResource FloatingLabelTextBox}">
@@ -746,7 +748,8 @@
                         </Border>
 
                         <!-- Penumpang 3 -->
-                        <Border Background="White"
+                        <Border x:Name="borderPassenger3"
+                              Background="White"
                               CornerRadius="17"
                               Padding="25,20"
                               BorderBrush="#00658D"
@@ -866,7 +869,7 @@
                                             <ColumnDefinition Width="16"/>
                                             <ColumnDefinition Width="*"/>
                                         </Grid.ColumnDefinitions>
-                                        
+
                                         <!-- ComboBox Identitas -->
                                         <Grid Grid.Column="0">
                                             <Border Style="{StaticResource FloatingLabelTextBox}">
@@ -898,7 +901,7 @@
                                                           Foreground="#94A3B8"/>
                                             </Border>
                                         </Grid>
-                                        
+
                                         <!-- Nomor Identitas -->
                                         <Grid Grid.Column="2">
                                             <Border Style="{StaticResource FloatingLabelTextBox}">
@@ -939,7 +942,7 @@
                     </StackPanel>
 
                     <!-- Detail Kendaraan Section -->
-                    <StackPanel Margin="0,0,0,30">
+                    <StackPanel x:Name="vehicleSection" Margin="0,0,0,30">
                         <TextBlock Text="Detail Kendaraan"
                                  FontSize="28"
                                  FontWeight="Bold"
@@ -962,12 +965,14 @@
 
                             <StackPanel>
                                 <StackPanel Margin="0,0,0,16">
-                                    <TextBlock Text="Sepeda Motor (&lt;500cc)"
+                                    <TextBlock x:Name="txtVehicleType"
+                                             Text="Sepeda Motor (&lt;500cc)"
                                              FontSize="18"
                                              FontWeight="Bold"
                                              Foreground="#042769"
                                              Margin="0,0,0,8"/>
-                                    <TextBlock Text="Golongan III (Maks. 3 Penumpang)"
+                                    <TextBlock x:Name="txtVehicleCapacity"
+                                             Text="Golongan III (Maks. 3 Penumpang)"
                                              FontSize="16"
                                              FontWeight="Medium"
                                              Foreground="#94A3B8"/>
@@ -1084,7 +1089,7 @@
                                     </Image>
                                 </Grid>
                             </Button>
-                            
+
                             <!-- Expandable Price Details -->
                             <StackPanel x:Name="pnlDetailHarga" Visibility="Collapsed" Margin="0,0,0,16">
                                 <Grid Margin="0,0,0,12">
@@ -1092,21 +1097,24 @@
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
-                                    
+
                                     <StackPanel Grid.Column="0">
-                                        <TextBlock Text="Sepeda Motor (&lt;500cc)"
+                                        <TextBlock x:Name="txtVehicleTypePrice"
+                                                 Text="Sepeda Motor (&lt;500cc)"
                                                  FontSize="16"
                                                  FontWeight="Medium"
                                                  Foreground="#042769"
                                                  Margin="0,0,0,4"/>
-                                        <TextBlock Text="Dewasa (3x)"
+                                        <TextBlock x:Name="txtPassengerPrice"
+                                                 Text="Dewasa (3x)"
                                                  FontSize="16"
                                                  FontWeight="Medium"
                                                  Foreground="#042769"/>
                                     </StackPanel>
-                                    
+
                                     <StackPanel Grid.Column="1" HorizontalAlignment="Right">
-                                        <TextBlock Text="IDR 487.853"
+                                        <TextBlock x:Name="txtSidebarPrice"
+                                                 Text="IDR 487.853"
                                                  FontSize="16"
                                                  FontWeight="SemiBold"
                                                  Foreground="#042769"
@@ -1119,33 +1127,34 @@
                                                  TextAlignment="Right"/>
                                     </StackPanel>
                                 </Grid>
-                                
+
                                 <TextBlock Text="Harga sudah termasuk pajak"
                                          FontSize="14"
                                          FontWeight="Medium"
                                          Foreground="#00658D"
                                          Margin="0,0,0,16"/>
-                                
+
                                 <!-- Garis Separator -->
                                 <Border Height="2" 
                                       Background="#E2E8F0" 
                                       Margin="0,0,0,16"/>
-                                
+
                                 <!-- Total Harga (saat expanded) -->
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
-                                    
+
                                     <TextBlock Grid.Column="0"
                                              Text="Total Harga"
                                              FontSize="28"
                                              FontWeight="Medium"
                                              Foreground="#042769"
                                              VerticalAlignment="Center"/>
-                                    
-                                    <TextBlock Grid.Column="1"
+
+                                    <TextBlock x:Name="txtTotalHargaExpanded"
+                                             Grid.Column="1"
                                              Text="IDR 487.853"
                                              FontSize="28"
                                              FontWeight="Medium"
@@ -1211,14 +1220,16 @@
                 <StackPanel>
                     <!-- Ferry Info -->
                     <StackPanel Margin="0,0,0,20">
-                        <TextBlock Text="Reguler"
+                        <TextBlock x:Name="txtFerryType"
+                                 Text="Reguler"
                                  FontSize="18"
                                  FontWeight="Bold"
                                  Foreground="#042769"
                                  Margin="0,0,0,8"/>
 
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                            <TextBlock Text="Bakauheni"
+                            <TextBlock x:Name="txtDeparture"
+                                     Text="Bakauheni"
                                      FontSize="16"
                                      FontWeight="SemiBold"
                                      Foreground="#00658D"
@@ -1231,13 +1242,15 @@
                                   Stretch="Fill"
                                   VerticalAlignment="Center"
                                   Margin="0,0,8,0"/>
-                            <TextBlock Text="Merak"
+                            <TextBlock x:Name="txtArrival"
+                                     Text="Merak"
                                      FontSize="16"
                                      FontWeight="SemiBold"
                                      Foreground="#00658D"/>
                         </StackPanel>
 
-                        <TextBlock Text="Sepeda motor (&lt;500cc)"
+                        <TextBlock x:Name="txtVehicleInfo"
+                                 Text="Sepeda motor (&lt;500cc)"
                                  FontSize="14"
                                  FontWeight="Medium"
                                  Foreground="#00658D"/>
@@ -1248,21 +1261,22 @@
                     <!-- Check-in Info -->
                     <StackPanel Margin="0,0,0,20">
                         <TextBlock Text="Waktu masuk ke Pelabuhan (check-in)"
-                                 FontSize="14"
-                                 FontWeight="Bold"
-                                 Foreground="#042769"
-                                 Margin="0,0,0,8"/>
-                        <TextBlock Text="Kam, 23 Okt 2025 - 20:15"
-                                 FontSize="14"
-                                 FontWeight="Medium"
-                                 Foreground="#042769"/>
+                             FontSize="14"
+                             FontWeight="Bold"
+                             Foreground="#042769"
+                             Margin="0,0,0,8"/>
+                        <TextBlock x:Name="txtCheckInTime"
+                             Text="Kam, 23 Okt 2025 - 20:15"
+                             FontSize="14"
+                             FontWeight="Medium"
+                             Foreground="#042769"
+                             Margin="0,0,0,8"/>
                     </StackPanel>
 
                     <!-- Warning -->
                     <Border Background="#E1F5FE"
                           CornerRadius="8"
-                          Padding="12"
-                          Margin="0,0,0,20">
+                          Padding="12">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto"/>
@@ -1275,18 +1289,19 @@
                                   Margin="0,0,8,0"
                                   VerticalAlignment="Top">
                                 <TextBlock Text="i"
-                                         FontSize="12"
-                                         FontWeight="Bold"
-                                         Foreground="White"
-                                         HorizontalAlignment="Center"
-                                         VerticalAlignment="Center"/>
-                            </Border>
-                            <TextBlock Grid.Column="1"
-                                     Text="E-Tiket akan hangus bila anda belum masuk ke pelabuhan setelah 20:15"
                                      FontSize="12"
-                                     FontWeight="Medium"
-                                     Foreground="#00658D"
-                                     TextWrapping="Wrap"/>
+                                     FontWeight="Bold"
+                                     Foreground="White"
+                                     HorizontalAlignment="Center"
+                                     VerticalAlignment="Center"/>
+                            </Border>
+                            <TextBlock x:Name="txtWarningMessage"
+                                 Grid.Column="1"
+                                 Text="E-Tiket akan hangus bila anda belum masuk ke pelabuhan setelah 20:15"
+                                 FontSize="12"
+                                 FontWeight="Medium"
+                                 Foreground="#00658D"
+                                 TextWrapping="Wrap"/>
                         </Grid>
                     </Border>
 
@@ -1308,7 +1323,8 @@
                                      HorizontalAlignment="Left"
                                      VerticalAlignment="Center"/>
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                                <TextBlock Text="IDR 487.853"
+                                <TextBlock x:Name="txtSidebarTotalPrice"
+                                         Text="IDR 487.853"
                                          FontSize="16"
                                          FontWeight="Bold"
                                          Foreground="#042769"
@@ -1328,7 +1344,7 @@
                             </StackPanel>
                         </Grid>
                     </Button>
-                    
+
                     <!-- Detail Harga Panel (Hidden by default) -->
                     <StackPanel x:Name="pnlSidebarDetailHarga" 
                               Visibility="Collapsed"
@@ -1338,21 +1354,24 @@
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
-                            
+
                             <StackPanel Grid.Column="0">
-                                <TextBlock Text="Sepeda Motor (&lt;500cc)"
+                                <TextBlock x:Name="txtSidebarVehicleType"
+                                         Text="Sepeda Motor (&lt;500cc)"
                                          FontSize="14"
                                          FontWeight="Medium"
                                          Foreground="#042769"
                                          Margin="0,0,0,4"/>
-                                <TextBlock Text="Dewasa (3x)"
+                                <TextBlock x:Name="txtSidebarPassengerCount"
+                                         Text="Dewasa (3x)"
                                          FontSize="14"
                                          FontWeight="Medium"
                                          Foreground="#042769"/>
                             </StackPanel>
-                            
+
                             <StackPanel Grid.Column="1" HorizontalAlignment="Right">
-                                <TextBlock Text="IDR 487.853"
+                                <TextBlock x:Name="txtSidebarDetailPrice"
+                                         Text="IDR 487.853"
                                          FontSize="14"
                                          FontWeight="SemiBold"
                                          Foreground="#042769"
@@ -1365,22 +1384,23 @@
                                          TextAlignment="Right"/>
                             </StackPanel>
                         </Grid>
-                        
+
                         <TextBlock Text="Harga sudah termasuk pajak"
                                  FontSize="12"
                                  FontWeight="Medium"
                                  Foreground="#00658D"
                                  Margin="0,0,0,12"/>
-                        
+
                         <Border Height="1" Background="#E2E8F0" Margin="0,0,0,12"/>
-                        
+
                         <Grid>
                             <TextBlock Text="Total Harga"
                                      FontSize="14"
                                      FontWeight="Medium"
                                      Foreground="#042769"
                                      HorizontalAlignment="Left"/>
-                            <TextBlock Text="IDR 487.853"
+                            <TextBlock x:Name="txtSidebarFinalPrice"
+                                     Text="IDR 487.853"
                                      FontSize="16"
                                      FontWeight="Bold"
                                      Foreground="#042769"
@@ -1392,4 +1412,3 @@
         </Grid>
     </Grid>
 </Window>
-
