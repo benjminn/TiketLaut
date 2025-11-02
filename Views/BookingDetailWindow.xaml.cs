@@ -1073,9 +1073,8 @@ namespace TiketLaut.Views
                     MessageBoxButton.OK,
                     MessageBoxImage.Information);
 
-                // NEW: Pass tiket data ke PaymentWindow
+                // Navigasi ke PaymentWindow
                 var paymentWindow = new PaymentWindow();
-                paymentWindow.SetTiketData(tiket.tiket_id, tiket.total_harga);  // <-- TAMBAHKAN INI
                 paymentWindow.Left = this.Left;
                 paymentWindow.Top = this.Top;
                 paymentWindow.Width = this.Width;
@@ -1087,10 +1086,12 @@ namespace TiketLaut.Views
             catch (Exception ex)
             {
                 MessageBox.Show(
-                    $"? Terjadi kesalahan:\n{ex.Message}",
+                    $"? Terjadi kesalahan saat memproses booking:\n\n{ex.Message}",
                     "Error",
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
+
+                System.Diagnostics.Debug.WriteLine($"[BookingDetailWindow] Error: {ex.Message}\n{ex.StackTrace}");
             }
             finally
             {
