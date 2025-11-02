@@ -19,15 +19,46 @@ namespace TiketLaut.Views
         private readonly JadwalService _jadwalService;
 
         // Constructor default (backward compatibility)
+        // Constructor default (backward compatibility) - UPDATED
         public ScheduleWindow()
         {
             InitializeComponent();
             _jadwalService = new JadwalService();
-            LoadScheduleData();
 
-            // Set user info di navbar
-            navbarPostLogin.SetUserInfo("Admin User");
+            // Set user info di navbar - FIXED to use SessionManager
+            if (SessionManager.IsLoggedIn && SessionManager.CurrentUser != null)
+            {
+                navbarPostLogin.SetUserInfo(SessionManager.CurrentUser.nama);
+            }
+            else
+            {
+                navbarPostLogin.SetUserInfo("Guest User");
+            }
+
+            // CHECK: Apakah ada data pencarian tersimpan di session?
+            if (SessionManager.LastSearchCriteria != null && SessionManager.LastSearchResults != null)
+            {
+                System.Diagnostics.Debug.WriteLine("[ScheduleWindow] Loading from saved search session");
+
+                // Gunakan data dari session
+                _searchCriteria = SessionManager.LastSearchCriteria;
+                _jadwals = SessionManager.LastSearchResults;
+
+                // Load dropdown dengan data dari session
+                LoadFilterDropdownsAsync();
+
+                // Load jadwal dari database (bukan sample data)
+                LoadScheduleFromDatabase();
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine("[ScheduleWindow] No saved search session, loading sample data");
+
+                // Fallback ke sample data jika tidak ada session
+                LoadScheduleData();
+            }
         }
+
 
         // Constructor baru dengan parameter dari database
         public ScheduleWindow(List<Jadwal> jadwals, SearchCriteria searchCriteria)
@@ -598,8 +629,8 @@ namespace TiketLaut.Views
         private void BtnKembali_Click(object sender, RoutedEventArgs e)
         {
             // Kembali ke HomePage dengan state login
-            bool isLoggedIn = TiketLaut.Services.SessionManager.IsLoggedIn;
-            string username = TiketLaut.Services.SessionManager.CurrentUser?.nama ?? "";
+            bool isLoggedIn = SessionManager.IsLoggedIn;
+            string username = SessionManager.CurrentUser?.nama ?? "";
 
             var homePage = new HomePage(isLoggedIn: isLoggedIn, username: username);
             homePage.Left = this.Left;
@@ -732,6 +763,9 @@ namespace TiketLaut.Views
                 };
 
                 _jadwals = jadwals;
+
+                // SAVE TO SESSION - PENTING!
+                SessionManager.SaveSearchSession(_searchCriteria, _jadwals);
 
                 // Reload schedule dengan data baru
                 LoadScheduleFromDatabase();
