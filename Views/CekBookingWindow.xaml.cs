@@ -2,9 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Linq; // ? ADD THIS
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
+using TiketLaut.Services;
 
 namespace TiketLaut.Views
 {
@@ -12,56 +14,119 @@ namespace TiketLaut.Views
     {
         public ObservableCollection<BookingItem> BookingItems { get; set; } = new ObservableCollection<BookingItem>();
 
+        private readonly PembayaranService _pembayaranService;
+
         public CekBookingWindow()
         {
             InitializeComponent();
-            LoadBookingData();
-            
+            _pembayaranService = new PembayaranService();
+
             // Set user info di navbar
-            navbarPostLogin.SetUserInfo("Admin User");
+            if (SessionManager.CurrentUser != null)
+            {
+                navbarPostLogin.SetUserInfo(SessionManager.CurrentUser.nama);
+            }
+
+            LoadBookingDataFromDatabaseAsync();
         }
 
-        private void LoadBookingData()
+        /// <summary>
+        /// Load booking data real dari database
+        /// </summary>
+        private async void LoadBookingDataFromDatabaseAsync()
         {
-            // Sample data - ganti dengan data dari database
-            BookingItems = new ObservableCollection<BookingItem>
+            try
             {
-                new BookingItem
+                if (SessionManager.CurrentUser == null)
                 {
-                    Route = "Bakauheni - Merak",
-                    Status = "Aktif",
-                    StatusColor = new SolidColorBrush(Color.FromRgb(106, 201, 54)), // #6AC936
-                    ShipName = "KMP Portlink III",
-                    Date = "Kamis, 23 Oktober 2025",
-                    Time = "20:30 - 22:40",
-                    ShowWarning = Visibility.Visible,
-                    WarningText = "Masuk pelabuhan (check-in) sebelum 20:15"
-                },
-                new BookingItem
-                {
-                    Route = "Bakauheni - Merak",
-                    Status = "Menunggu Pembayaran",
-                    StatusColor = new SolidColorBrush(Color.FromRgb(0, 180, 181)), // #00B4B5
-                    ShipName = "KMP Portlink III",
-                    Date = "Kamis, 23 Oktober 2025",
-                    Time = "20:30 - 22:40",
-                    ShowWarning = Visibility.Visible,
-                    WarningText = "Masuk pelabuhan (check-in) sebelum 20:15"
-                },
-                new BookingItem
-                {
-                    Route = "Bakauheni - Merak",
-                    Status = "Gagal",
-                    StatusColor = new SolidColorBrush(Color.FromRgb(248, 33, 33)), // #F82121
-                    ShipName = "KMP Portlink III",
-                    Date = "Kamis, 23 Oktober 2025",
-                    Time = "20:30 - 22:40",
-                    ShowWarning = Visibility.Collapsed,
-                    WarningText = ""
+                    MessageBox.Show("Session user tidak ditemukan!", "Error",
+                        MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
                 }
-            };
 
-            icBookingList.ItemsSource = BookingItems;
+                // Get semua pembayaran user
+                var pembayarans = await _pembayaranService.GetPembayaranByPenggunaIdAsync(
+                    SessionManager.CurrentUser.pengguna_id);
+
+                BookingItems.Clear();
+
+                foreach (var pembayaran in pembayarans)
+                {
+                    var tiket = pembayaran.tiket;
+                    var jadwal = tiket.Jadwal;
+
+                    // Tentukan status dan warna
+                    string status = pembayaran.status_bayar;
+                    SolidColorBrush statusColor;
+                    Visibility showWarning;
+
+                    switch (status)
+                    {
+                        case "Confirmed":
+                            statusColor = new SolidColorBrush(Color.FromRgb(106, 201, 54)); // Green
+                            showWarning = Visibility.Visible;
+                            status = "Aktif";
+                            break;
+                        case "Menunggu Konfirmasi":
+                            statusColor = new SolidColorBrush(Color.FromRgb(0, 180, 181)); // Cyan
+                            showWarning = Visibility.Visible;
+                            status = "Menunggu Pembayaran";
+                            break;
+                        case "Gagal":
+                            statusColor = new SolidColorBrush(Color.FromRgb(248, 33, 33)); // Red
+                            showWarning = Visibility.Collapsed;
+                            break;
+                        default:
+                            statusColor = Brushes.Gray;
+                            showWarning = Visibility.Collapsed;
+                            break;
+                    }
+
+                    // Format tanggal (dari search criteria atau default hari ini)
+                    var tanggal = SessionManager.LastSearchCriteria?.TanggalKeberangkatan ?? DateTime.Today;
+                    var dateText = tanggal.ToString("dddd, dd MMMM yyyy",
+                        new System.Globalization.CultureInfo("id-ID"));
+
+                    // Format warning text
+                    var checkInTime = jadwal.waktu_berangkat.AddMinutes(-15);
+                    var warningText = $"Masuk pelabuhan (check-in) sebelum {checkInTime:HH:mm}";
+
+                    var bookingItem = new BookingItem
+                    {
+                        Route = $"{jadwal.pelabuhan_asal.nama_pelabuhan} - {jadwal.pelabuhan_tujuan.nama_pelabuhan}",
+                        Status = status,
+                        StatusColor = statusColor,
+                        ShipName = jadwal.kapal.nama_kapal,
+                        Date = dateText,
+                        Time = $"{jadwal.waktu_berangkat:HH:mm} - {jadwal.waktu_tiba:HH:mm}",
+                        ShowWarning = showWarning,
+                        WarningText = warningText
+                    };
+
+                    BookingItems.Add(bookingItem);
+                }
+
+                icBookingList.ItemsSource = BookingItems;
+
+                if (!BookingItems.Any())
+                {
+                    MessageBox.Show(
+                        "Anda belum memiliki riwayat booking.",
+                        "Info",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Information);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    $"Terjadi kesalahan saat memuat data:\n{ex.Message}",
+                    "Error",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+
+                System.Diagnostics.Debug.WriteLine($"[CekBookingWindow] Error: {ex.Message}");
+            }
         }
 
         private void BtnRiwayat_Click(object sender, RoutedEventArgs e)
