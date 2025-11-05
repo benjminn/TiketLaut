@@ -48,16 +48,8 @@ namespace TiketLaut.Services
                 var idsToUpdate = pembayaranAktif
                     .Where(p =>
                     {
-                        // ⚠️ MASALAH: tanggal_pemesanan != tanggal keberangkatan!
-                        // Jika tiket dipesan untuk 3 hari kedepan, tapi hari ini auto-update jalan,
-                        // maka akan salah hitung!
-
-                        // ✅ SOLUSI: Gunakan tanggal keberangkatan yang sebenarnya
-                        // Tapi karena tidak ada field tanggal_keberangkatan di tabel Tiket,
-                        // kita pakai tanggal_pemesanan + waktu_tiba sebagai asumsi
-
-                        var waktuTiba = p.tanggal_pemesanan.Date.Add(p.waktu_tiba.ToTimeSpan());
-                        var waktuTibaUtc = DateTime.SpecifyKind(waktuTiba, DateTimeKind.Utc);
+                        // waktu_tiba sudah DateTime (timestamptz) dari database
+                        var waktuTibaUtc = DateTime.SpecifyKind(p.waktu_tiba, DateTimeKind.Utc);
 
                         System.Diagnostics.Debug.WriteLine(
                             $"[RiwayatService] Checking pembayaran {p.pembayaran_id} " +

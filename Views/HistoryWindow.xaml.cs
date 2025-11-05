@@ -108,7 +108,7 @@ namespace TiketLaut.Views
             }
         }
 
-        private async void HistoryCard_Click(object sender, MouseButtonEventArgs e)
+        private void HistoryCard_Click(object sender, MouseButtonEventArgs e)
         {
             if (sender is FrameworkElement element && element.DataContext is HistoryItem historyItem)
             {

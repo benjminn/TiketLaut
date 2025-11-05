@@ -52,10 +52,17 @@ namespace TiketLaut.Views
             }
             else
             {
-                System.Diagnostics.Debug.WriteLine("[ScheduleWindow] No saved search session, loading sample data");
+                System.Diagnostics.Debug.WriteLine("[ScheduleWindow] No saved search session");
 
-                // Fallback ke sample data jika tidak ada session
-                LoadScheduleData();
+                // Load dropdown saja, user perlu cari manual
+                LoadFilterDropdownsAsync();
+                
+                // Show info message
+                MessageBox.Show(
+                    "Silakan gunakan form pencarian untuk menemukan jadwal keberangkatan.",
+                    "Info",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Information);
             }
         }
 
@@ -248,25 +255,8 @@ namespace TiketLaut.Views
                 cmbFilterTime.Items.Add(new ComboBoxItem { Content = time });
             }
 
-            // Set selected berdasarkan search criteria
-            if (_searchCriteria?.JamKeberangkatan.HasValue == true)
-            {
-                var jamText = _searchCriteria.JamKeberangkatan.Value.ToString("HH:mm");
-                var selectedTimeItem = cmbFilterTime.Items.Cast<ComboBoxItem>()
-                    .FirstOrDefault(item => item.Content.ToString() == jamText);
-                if (selectedTimeItem != null)
-                {
-                    cmbFilterTime.SelectedItem = selectedTimeItem;
-                }
-                else
-                {
-                    cmbFilterTime.SelectedIndex = 0;
-                }
-            }
-            else
-            {
-                cmbFilterTime.SelectedIndex = 0;
-            }
+            // Set selected default (no time filter based on search criteria anymore)
+            cmbFilterTime.SelectedIndex = 0; // "Semua Waktu"
         }
 
         /// <summary>
@@ -411,8 +401,8 @@ namespace TiketLaut.Views
                         new System.Globalization.CultureInfo("id-ID"));
 
                     // Hitung durasi perjalanan
-                    var duration = jadwal.waktu_tiba.ToTimeSpan() - jadwal.waktu_berangkat.ToTimeSpan();
-                    var durationText = $"{duration.Hours} jam {duration.Minutes} menit";
+                    var duration = jadwal.waktu_tiba - jadwal.waktu_berangkat;
+                    var durationText = $"{(int)duration.TotalHours} jam {duration.Minutes} menit";
 
                     // Format waktu check-in (15 menit sebelum berangkat)
                     var checkInTime = jadwal.waktu_berangkat.AddMinutes(-15);
@@ -505,126 +495,7 @@ namespace TiketLaut.Views
                 .ToList();
         }
 
-        /// <summary>
-        /// Load sample data (untuk backward compatibility)
-        /// </summary>
-        private void LoadScheduleData()
-        {
-            // Sample data - untuk testing tanpa database
-            ScheduleItems = new ObservableCollection<ScheduleItem>
-            {
-                new ScheduleItem
-                {
-                    FerryType = "Reguler",
-                    BoardingDate = "Kamis, 23 Oktober 2025",
-                    WarningText = "Masuk pelabuhan (check-in) sebelum 20:15",
-                    DepartureTime = "20:30",
-                    DeparturePort = "Bakauheni",
-                    ArrivalTime = "22:40",
-                    ArrivalPort = "Merak",
-                    Duration = "2 jam 10 menit",
-                    Capacity = "Kapasitas Tersedia (390)",
-                    Price = "IDR 187,853",
-                    PortName = "Bakauheni (Lampung Selatan)",
-                    ShipName = "KMP Portlink III",
-                    PortFacilities = new List<string>
-                    {
-                        "Ruang Tunggu", "Musala", "Toilet Umum",
-                        "Area Pengisian Daya (Charging Station)",
-                        "ATM Center", "Minimarket & Toko Oleh-oleh",
-                        "Kantin / Pujasera (Food Court)",
-                        "Pos Kesehatan", "Area Merokok (Smoking Area)"
-                    },
-                    ShipFacilities = new List<string>
-                    {
-                        "Ruang Penumpang (AC dan non-AC)",
-                        "Kantin / Kafetaria", "Musala", "Toilet",
-                        "Dek Terbuka (Area Merokok)",
-                        "Ruang Lesehan bertikar",
-                        "Hiburan", "Colokan Listrik"
-                    }
-                },
-                new ScheduleItem
-                {
-                    FerryType = "Express",
-                    BoardingDate = "Kamis, 23 Oktober 2025",
-                    WarningText = "Masuk pelabuhan (check-in) sebelum 20:15",
-                    DepartureTime = "20:30",
-                    DeparturePort = "Bakauheni",
-                    ArrivalTime = "21:30",
-                    ArrivalPort = "Merak",
-                    Duration = "1 jam",
-                    Capacity = "Kapasitas Tersedia (90)",
-                    Price = "IDR 457.853",
-                    PortName = "Bakauheni (Lampung Selatan)",
-                    ShipName = "KMP Express III",
-                    PortFacilities = new List<string>
-                    {
-                        "Ruang Tunggu VIP",
-                        "Musala",
-                        "Toilet Umum",
-                        "Area Pengisian Daya (Charging Station)",
-                        "ATM Center",
-                        "Minimarket & Toko Oleh-oleh",
-                        "Kantin / Pujasera (Food Court)",
-                        "Pos Kesehatan",
-                        "Area Merokok (Smoking Area)"
-                    },
-                    ShipFacilities = new List<string>
-                    {
-                        "Ruang Penumpang AC (Premium)",
-                        "Kantin / Kafetaria",
-                        "Musala",
-                        "Toilet",
-                        "Dek Terbuka (Area Merokok)",
-                        "Ruang Lesehan bertikar",
-                        "Hiburan",
-                        "Colokan Listrik",
-                        "WiFi"
-                    }
-                },
-                new ScheduleItem
-                {
-                    FerryType = "Reguler",
-                    BoardingDate = "Kamis, 23 Oktober 2025",
-                    WarningText = "Masuk pelabuhan (check-in) sebelum 22:45",
-                    DepartureTime = "23:00",
-                    DeparturePort = "Bakauheni",
-                    ArrivalTime = "01:10",
-                    ArrivalPort = "Merak",
-                    Duration = "2 jam 10 menit",
-                    Capacity = "Kapasitas Tersedia (390)",
-                    Price = "IDR 187.853",
-                    PortName = "Bakauheni (Lampung Selatan)",
-                    ShipName = "KMP Portlink V",
-                    PortFacilities = new List<string>
-                    {
-                        "Ruang Tunggu",
-                        "Musala",
-                        "Toilet Umum",
-                        "Area Pengisian Daya (Charging Station)",
-                        "ATM Center",
-                        "Minimarket & Toko Oleh-oleh",
-                        "Kantin / Pujasera (Food Court)",
-                        "Pos Kesehatan",
-                        "Area Merokok (Smoking Area)"
-                    },
-                    ShipFacilities = new List<string>
-                    {
-                        "Ruang Penumpang (AC dan non-AC)",
-                        "Kantin / Kafetaria",
-                        "Musala",
-                        "Toilet",
-                        "Dek Terbuka (Area Merokok)",
-                        "Ruang Lesehan bertikar",
-                        "Hiburan",
-                        "Colokan Listrik"
-                    }
-                }
-            };
 
-            icScheduleList.ItemsSource = ScheduleItems;
-        }
 
         private void BtnKembali_Click(object sender, RoutedEventArgs e)
         {
@@ -704,17 +575,8 @@ namespace TiketLaut.Views
                 var jenisKendaraanId = (int)selectedVehicleItem.Tag;
                 int jumlahPenumpang = (int)selectedPassengerItem.Tag;
 
-                // Parse jam keberangkatan (optional)
-                TimeOnly? jamKeberangkatan = null;
-                if (cmbFilterTime.SelectedIndex > 0 &&
-                    cmbFilterTime.SelectedItem is ComboBoxItem selectedTimeItem)
-                {
-                    var jamText = selectedTimeItem.Content.ToString();
-                    if (TimeOnly.TryParse(jamText, out TimeOnly jam))
-                    {
-                        jamKeberangkatan = jam;
-                    }
-                }
+                // Use tanggal keberangkatan as DateTime (no separate time filter)
+                DateTime? tanggalKeberangkatanFilter = tanggalKeberangkatan;
 
                 // Validasi pelabuhan asal dan tujuan tidak sama
                 if (pelabuhanAsal.Id == pelabuhanTujuan.Id)
@@ -735,7 +597,7 @@ namespace TiketLaut.Views
                     pelabuhanAsal.Id,
                     pelabuhanTujuan.Id,
                     kelasLayanan,
-                    jamKeberangkatan,
+                    tanggalKeberangkatanFilter,
                     jenisKendaraanId
                 );
 
@@ -757,7 +619,6 @@ namespace TiketLaut.Views
                     PelabuhanTujuanId = pelabuhanTujuan.Id,
                     KelasLayanan = kelasLayanan,
                     TanggalKeberangkatan = tanggalKeberangkatan,
-                    JamKeberangkatan = jamKeberangkatan,
                     JumlahPenumpang = jumlahPenumpang,
                     JenisKendaraanId = jenisKendaraanId
                 };

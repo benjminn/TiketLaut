@@ -1,0 +1,16 @@
+<UserControl x:Class="TiketLaut.Views.AdminPembayaranPage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             FontFamily="Plus Jakarta Sans">
+    <StackPanel>
+        <TextBlock Text="Kelola Pembayaran - Under Construction" 
+                  FontSize="20" 
+                  FontWeight="Bold"
+                  HorizontalAlignment="Center"
+                  Margin="0,50,0,20"/>
+        <TextBlock Text="Gunakan PembayaranService untuk konfirmasi/tolak pembayaran"
+                  FontSize="14"
+                  HorizontalAlignment="Center"
+                  Foreground="#6C757D"/>
+    </StackPanel>
+</UserControl>

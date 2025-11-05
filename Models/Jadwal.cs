@@ -20,9 +20,13 @@ namespace TiketLaut
         [ForeignKey("kapal")]
         public int kapal_id { get; set; }
         
-        public TimeOnly waktu_berangkat { get; set; }
+        [Required]
+        [Column(TypeName = "timestamp with time zone")]
+        public DateTime waktu_berangkat { get; set; }
         
-        public TimeOnly waktu_tiba { get; set; }
+        [Required]
+        [Column(TypeName = "timestamp with time zone")]
+        public DateTime waktu_tiba { get; set; }
         
         [Range(0, int.MaxValue)]
         public int sisa_kapasitas_penumpang { get; set; }

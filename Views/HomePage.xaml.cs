@@ -217,15 +217,29 @@ namespace TiketLaut.Views
                 btnCariJadwal.Content = "Mencari jadwal...";
 
                 // Ambil data dari form
-                var pelabuhanAsal = (PelabuhanComboBoxItem)cmbPelabuhanAsal.SelectedItem;
-                var pelabuhanTujuan = (PelabuhanComboBoxItem)cmbPelabuhanTujuan.SelectedItem;
-                var kelasLayanan = ((ComboBoxItem)cmbKelasLayanan.SelectedItem).Content.ToString();
+                var pelabuhanAsal = (PelabuhanComboBoxItem?)cmbPelabuhanAsal.SelectedItem;
+                var pelabuhanTujuan = (PelabuhanComboBoxItem?)cmbPelabuhanTujuan.SelectedItem;
+                
+                // Double check null (untuk menghilangkan warning)
+                if (pelabuhanAsal == null || pelabuhanTujuan == null)
+                {
+                    MessageBox.Show("Pelabuhan tidak valid!", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    btnCariJadwal.IsEnabled = true;
+                    btnCariJadwal.Content = "Cari Jadwal";
+                    return;
+                }
+                
+                var kelasLayananItem = cmbKelasLayanan.SelectedItem as ComboBoxItem;
+                var kelasLayanan = kelasLayananItem?.Content?.ToString();
                 var jenisKendaraanIndex = cmbJenisKendaraan.SelectedIndex - 1; // -1 karena index 0 adalah "Pilih"
 
                 // Parse jumlah penumpang
-                var penumpangText = ((ComboBoxItem)cmbPenumpang.SelectedItem).Content.ToString();
+#pragma warning disable CS8602 // Dereference of a possibly null reference - cmbPenumpang is XAML control
+                var penumpangItem = cmbPenumpang.SelectedItem as ComboBoxItem;
+#pragma warning restore CS8602
+                var penumpangText = penumpangItem?.Content?.ToString();
                 int jumlahPenumpang = 1;
-                if (penumpangText != null && penumpangText.Contains("Penumpang"))
+                if (!string.IsNullOrEmpty(penumpangText) && penumpangText.Contains("Penumpang"))
                 {
                     var parts = penumpangText.Split(' ');
                     if (parts.Length > 0)
@@ -234,16 +248,10 @@ namespace TiketLaut.Views
                     }
                 }
 
-                // Parse jam keberangkatan (optional)
-                TimeOnly? jamKeberangkatan = null;
-                if (cmbJam.SelectedIndex > 0) // Index 0 = "Pilih Jam"
-                {
-                    var jamText = ((ComboBoxItem)cmbJam.SelectedItem).Content.ToString();
-                    if (TimeOnly.TryParse(jamText, out TimeOnly jam))
-                    {
-                        jamKeberangkatan = jam;
-                    }
-                }
+                // Parse tanggal keberangkatan (from dpTanggal DatePicker)
+#pragma warning disable CS8602
+                DateTime? tanggalKeberangkatan = dpTanggal.SelectedDate;
+#pragma warning restore CS8602
 
                 // Validasi pelabuhan asal dan tujuan tidak sama
                 if (pelabuhanAsal.Id == pelabuhanTujuan.Id)
@@ -261,7 +269,7 @@ namespace TiketLaut.Views
                     pelabuhanAsal.Id,
                     pelabuhanTujuan.Id,
                     kelasLayanan ?? "Reguler",
-                    jamKeberangkatan,
+                    tanggalKeberangkatan,
                     jenisKendaraanIndex
                 );
 
@@ -279,11 +287,10 @@ namespace TiketLaut.Views
                 // Buat search criteria untuk dikirim ke ScheduleWindow
                 var searchCriteria = new SearchCriteria
                 {
-                    PelabuhanAsalId = pelabuhanAsal.Id,
-                    PelabuhanTujuanId = pelabuhanTujuan.Id,
+                    PelabuhanAsalId = pelabuhanAsal!.Id,
+                    PelabuhanTujuanId = pelabuhanTujuan!.Id,
                     KelasLayanan = kelasLayanan ?? "Reguler",
-                    TanggalKeberangkatan = dpTanggal.SelectedDate.Value,
-                    JamKeberangkatan = jamKeberangkatan,
+                    TanggalKeberangkatan = tanggalKeberangkatan ?? DateTime.Today,
                     JumlahPenumpang = jumlahPenumpang,
                     JenisKendaraanId = jenisKendaraanIndex
                 };
