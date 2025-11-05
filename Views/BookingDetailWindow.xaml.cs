@@ -468,9 +468,12 @@ namespace TiketLaut.Views
                         yield return (T)child;
                     }
 
-                    foreach (T childOfChild in FindVisualChildren<T>(child))
+                    if (child != null)
                     {
-                        yield return childOfChild;
+                        foreach (T childOfChild in FindVisualChildren<T>(child))
+                        {
+                            yield return childOfChild;
+                        }
                     }
                 }
             }
@@ -480,13 +483,13 @@ namespace TiketLaut.Views
         {
             if (parent == null) return null;
 
-            T foundChild = null;
+            T? foundChild = null;
 
             int childrenCount = VisualTreeHelper.GetChildrenCount(parent);
             for (int i = 0; i < childrenCount; i++)
             {
                 var child = VisualTreeHelper.GetChild(parent, i);
-                T childType = child as T;
+                T? childType = child as T;
                 if (childType == null)
                 {
                     foundChild = FindChild<T>(child, childName);

@@ -37,8 +37,8 @@ namespace TiketLaut
 
         public bool canCreateAdmin()
         {
-            // SuperAdmin bisa buat admin baru 
-            return role == "SuperAdmin" || role == "super_admin";
+            // SuperAdmin (role = "0") bisa buat admin baru 
+            return role == "0";
         }
 
         public void kelolaPembayaran()

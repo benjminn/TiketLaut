@@ -4,18 +4,13 @@ using System.Linq;
 
 namespace TiketLaut.Services
 {
-    /// <summary>
-    /// Service untuk menangani sistem notifikasi broadcast dan personal
-    /// Mendukung notifikasi untuk perubahan jadwal, pembatalan, dan informasi umum
-    /// </summary>
+    /// notif untuk perubahan jadwal, pembatalan, dan info umum
     public class NotificationService
     {
         // Storage untuk history broadcast notifications
         private List<Notifikasi> broadcastHistory = new List<Notifikasi>();
 
-        /// <summary>
         /// Mengirim notifikasi broadcast ke semua pengguna
-        /// </summary>
         public void SendBroadcastNotification(Admin admin, string message, string type, Jadwal? relatedSchedule = null)
         {
             var broadcast = new Notifikasi
@@ -44,9 +39,7 @@ namespace TiketLaut.Services
             Console.WriteLine(new string('-', 50));
         }
 
-        /// <summary>
         /// Mengirim notifikasi untuk perubahan jadwal
-        /// </summary>
         public void SendScheduleChangeNotification(Admin admin, Jadwal oldSchedule, Jadwal newSchedule, string reason)
         {
             var message = $"PERUBAHAN JADWAL - Jadwal ID {oldSchedule.jadwal_id} telah diubah. " +
@@ -59,17 +52,13 @@ namespace TiketLaut.Services
             Console.WriteLine($"[SCHEDULE CHANGE] Jadwal {oldSchedule.jadwal_id} diubah oleh {admin.nama}");
         }
 
-        /// <summary>
         /// Mendapatkan history broadcast notifications
-        /// </summary>
         public List<Notifikasi> GetBroadcastHistory()
         {
             return broadcastHistory.OrderByDescending(x => x.waktu_kirim).ToList();
         }
 
-        /// <summary>
         /// Mengirim notifikasi personal ke pengguna tertentu
-        /// </summary>
         public void SendPersonalNotification(Pengguna pengguna, string message, string type = "Info")
         {
             var notification = new Notifikasi
@@ -88,9 +77,7 @@ namespace TiketLaut.Services
             Console.WriteLine(new string('-', 50));
         }
 
-        /// <summary>
         /// Menampilkan statistik notifikasi
-        /// </summary>
         public void ShowNotificationStats()
         {
             Console.WriteLine("=== STATISTIK NOTIFIKASI ===");

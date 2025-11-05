@@ -12,7 +12,6 @@ namespace TiketLaut.Models
         public int PelabuhanTujuanId { get; set; }
         public string KelasLayanan { get; set; } = "Reguler";
         public DateTime TanggalKeberangkatan { get; set; }
-        public TimeOnly? JamKeberangkatan { get; set; }
         public int JumlahPenumpang { get; set; }
         public int JenisKendaraanId { get; set; }
     }

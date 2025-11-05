@@ -6,8 +6,10 @@ namespace TiketLaut.Services
     public static class SessionManager
     {
         public static Pengguna? CurrentUser { get; set; }
+        public static Admin? CurrentAdmin { get; set; }
 
         public static bool IsLoggedIn => CurrentUser != null;
+        public static bool IsAdminLoggedIn => CurrentAdmin != null;
 
         // ADD: Properties untuk menyimpan state pencarian
         public static SearchCriteria? LastSearchCriteria { get; set; }
@@ -16,6 +18,7 @@ namespace TiketLaut.Services
         public static void Logout()
         {
             CurrentUser = null;
+            CurrentAdmin = null;
             // Clear search data saat logout
             LastSearchCriteria = null;
             LastSearchResults = null;

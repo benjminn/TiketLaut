@@ -36,6 +36,7 @@
 	  <None Remove="Views\Assets\Icons\iconmasuk.png" />
 	  <None Remove="Views\Assets\Icons\iconorang.png" />
 	  <None Remove="Views\Assets\Icons\iconsort.png" />
+	  <None Remove="Views\Assets\Icons\iconTambah.png" />
 	  <None Remove="Views\Assets\Icons\icontandatanya.png" />
 	  <None Remove="Views\Assets\Icons\icontanggal.png" />
 	  <None Remove="Views\Assets\Icons\iconwarning.png" />
@@ -52,6 +53,7 @@
 	  <None Remove="Views\Assets\Images\logo.png" />
 	  <None Remove="Views\Assets\Images\logosamping.png" />
 	  <None Remove="Views\Assets\Images\Mandiri.png" />
+	  <None Remove="Views\Assets\Images\iconTambah.png" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -97,6 +99,9 @@
 	  <Resource Include="Views\Assets\Icons\iconmasuk.png" />
 	  <Resource Include="Views\Assets\Icons\iconorang.png" />
 	  <Resource Include="Views\Assets\Icons\iconsort.png">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Resource>
+	  <Resource Include="Views\Assets\Icons\iconTambah.png">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Resource>
 	  <Resource Include="Views\Assets\Icons\icontandatanya.png" />

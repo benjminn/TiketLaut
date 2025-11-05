@@ -1,0 +1,217 @@
+<UserControl x:Class="TiketLaut.Views.AdminKapalPage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             FontFamily="Plus Jakarta Sans">
+
+    <UserControl.Resources>
+        <!-- Same styles as AdminDashboard -->
+        <Style x:Key="CardStyle" TargetType="Border">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="Padding" Value="20"/>
+            <Setter Property="Margin" Value="0,0,0,15"/>
+        </Style>
+
+        <Style x:Key="PrimaryButton" TargetType="Button">
+            <Setter Property="Background" Value="#00658D"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="15,10"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                CornerRadius="8"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#267DAE"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="DangerButton" TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
+            <Setter Property="Background" Value="#DC3545"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#C82333"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="SecondaryButton" TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
+            <Setter Property="Background" Value="#6C757D"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#5A6268"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- DataGrid Header Style - Bold & Centered -->
+        <Style TargetType="DataGridColumnHeader">
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Foreground" Value="#011C4B"/>
+            <Setter Property="Background" Value="#F8F9FA"/>
+            <Setter Property="Padding" Value="12,10"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="BorderThickness" Value="0,0,0,1"/>
+            <Setter Property="BorderBrush" Value="#DEE2E6"/>
+        </Style>
+
+        <!-- DataGrid Cell Style - Centered -->
+        <Style TargetType="DataGridCell">
+            <Setter Property="TextBlock.TextAlignment" Value="Center"/>
+            <Setter Property="Padding" Value="8"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Style.Triggers>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="#E7F3F8"/>
+                    <Setter Property="Foreground" Value="#011C4B"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid>
+        <!-- Action Bar -->
+        <StackPanel>
+            <Button Style="{StaticResource PrimaryButton}"
+                   Click="BtnAddKapal_Click"
+                   HorizontalAlignment="Left"
+                   VerticalAlignment="Center"
+                   Margin="0,0,0,20">
+                <StackPanel Orientation="Horizontal">
+                    <Image Source="/Views/Assets/Icons/iconTambah.png" 
+                           Width="13" 
+                           Height="13" 
+                           Margin="0,0,8,0"
+                           VerticalAlignment="Center"/>
+                    <TextBlock Text="Tambah Kapal Baru" 
+                              VerticalAlignment="Center"/>
+                </StackPanel>
+            </Button>
+
+            <!-- Kapal List -->
+            <DataGrid x:Name="dgKapal"
+                     AutoGenerateColumns="False"
+                     CanUserAddRows="False"
+                     CanUserDeleteRows="False"
+                     IsReadOnly="True"
+                     SelectionMode="Single"
+                     HeadersVisibility="Column"
+                     GridLinesVisibility="None"
+                     Background="White"
+                     BorderThickness="0"
+                     RowHeight="50">
+                
+                <DataGrid.Columns>
+                    <!-- ID Column - Center Horizontal & Vertical -->
+                    <DataGridTextColumn Header="ID" Binding="{Binding kapal_id}" Width="60">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="HorizontalAlignment" Value="Center"/>
+                                <Setter Property="VerticalAlignment" Value="Center"/>
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+                    
+                    <!-- Nama Kapal - Left Horizontal, Center Vertical -->
+                    <DataGridTextColumn Header="Nama Kapal" Binding="{Binding nama_kapal}" Width="*" MinWidth="200">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="HorizontalAlignment" Value="Left"/>
+                                <Setter Property="VerticalAlignment" Value="Center"/>
+                                <Setter Property="Padding" Value="12,0,0,0"/>
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+                    
+                    <!-- Kapasitas Penumpang - Center Horizontal & Vertical -->
+                    <DataGridTextColumn Header="Kapasitas Penumpang" Binding="{Binding kapasitas_penumpang_max}" Width="180">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="HorizontalAlignment" Value="Center"/>
+                                <Setter Property="VerticalAlignment" Value="Center"/>
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+                    
+                    <!-- Kapasitas Kendaraan - Center Horizontal & Vertical -->
+                    <DataGridTextColumn Header="Kapasitas Kendaraan" Binding="{Binding kapasitas_kendaraan_max}" Width="180">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="HorizontalAlignment" Value="Center"/>
+                                <Setter Property="VerticalAlignment" Value="Center"/>
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+                    
+                    <!-- Fasilitas - Left Horizontal, Center Vertical -->
+                    <DataGridTextColumn Header="Fasilitas" Binding="{Binding fasilitas}" Width="*" MinWidth="250">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="HorizontalAlignment" Value="Left"/>
+                                <Setter Property="VerticalAlignment" Value="Center"/>
+                                <Setter Property="TextWrapping" Value="Wrap"/>
+                                <Setter Property="Padding" Value="12,0,0,0"/>
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+                    
+                    <!-- Action Column - Centered with Uniform Button Padding -->
+                    <DataGridTemplateColumn Header="Aksi" Width="280">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal" 
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center">
+                                    <Button Content="Detail" 
+                                           Style="{StaticResource SecondaryButton}"
+                                           Click="BtnDetailKapal_Click"
+                                           Tag="{Binding kapal_id}"
+                                           Padding="12,6"
+                                           Margin="0,0,6,0"
+                                           MinWidth="60"/>
+                                    <Button Content="Edit" 
+                                           Style="{StaticResource PrimaryButton}"
+                                           Click="BtnEditKapal_Click"
+                                           Tag="{Binding kapal_id}"
+                                           Padding="12,6"
+                                           Margin="0,0,6,0"
+                                           MinWidth="60"/>
+                                    <Button Content="Hapus" 
+                                           Style="{StaticResource DangerButton}"
+                                           Click="BtnDeleteKapal_Click"
+                                           Tag="{Binding kapal_id}"
+                                           Padding="12,6"
+                                           MinWidth="60"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+
+                <DataGrid.RowStyle>
+                    <Style TargetType="DataGridRow">
+                        <Setter Property="Background" Value="White"/>
+                        <Style.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#F8F9FA"/>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </DataGrid.RowStyle>
+            </DataGrid>
+        </StackPanel>
+    </Grid>
+</UserControl>

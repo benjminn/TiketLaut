@@ -9,11 +9,13 @@ namespace TiketLaut.Views
     public partial class LoginWindow : Window
     {
         private readonly PenggunaService _penggunaService;
+        private readonly AdminService _adminService;
 
         public LoginWindow()
         {
             InitializeComponent();
             _penggunaService = new PenggunaService();
+            _adminService = new AdminService();
             
             // Test database connection on load
             TestDatabaseConnection();
@@ -69,7 +71,27 @@ namespace TiketLaut.Views
 
             try
             {
-                // Validate login dari database
+                // Cek dulu apakah admin
+                var admin = await _adminService.ValidateAdminLoginAsync(email, password);
+                
+                if (admin != null)
+                {
+                    // Login sebagai Admin - redirect ke Admin Dashboard
+                    SessionManager.CurrentAdmin = admin;
+
+                    MessageBox.Show($"Selamat datang, Admin {admin.nama}!",
+                                   "Login Berhasil",
+                                   MessageBoxButton.OK,
+                                   MessageBoxImage.Information);
+
+                    // Buka Admin Dashboard
+                    var adminDashboard = new AdminDashboard();
+                    adminDashboard.Show();
+                    this.Close();
+                    return;
+                }
+
+                // Jika bukan admin, cek sebagai pengguna biasa
                 var pengguna = await _penggunaService.ValidateLoginAsync(email, password);
 
                 if (pengguna != null)
