@@ -253,24 +253,24 @@ namespace TiketLaut.Views
         private void PopulateVehicleFilter()
         {
             cmbFilterVehicle.Items.Clear();
-            cmbFilterVehicle.Items.Add(new ComboBoxItem { Content = "Pilih Jenis Kendaraan" });
+            cmbFilterVehicle.Items.Add(new ComboBoxItem { Content = "Pilih Jenis Kendaraan", Tag = -1 }); // Tag -1 untuk placeholder
 
             // Add vehicle types sesuai dengan Enums
             var vehicleTypes = new[]
             {
-                "Pejalan kaki tanpa kendaraan",
-                "Sepeda",
-                "Sepeda Motor (<500cc)",
-                "Sepeda Motor (>500cc) (Golongan III)",
-                "Mobil jeep, sedan, minibus",
-                "Mobil barang bak muatan",
-                "Mobil bus penumpang (5-7 meter)",
-                "Mobil barang (truk/tangki) ukuran sedang",
-                "Mobil bus penumpang (7-10 meter)",
-                "Mobil barang (truk/tangki) sedang",
-                "Mobil tronton, tangki, penarik + gandengan (10-12 meter)",
-                "Mobil tronton, tangki, alat berat (12-16 meter)",
-                "Mobil tronton, tangki, alat berat (>16 meter)"
+                "Pejalan kaki tanpa kendaraan",           // Index 0 = JenisKendaraan 0
+                "Sepeda",                                  // Index 1 = JenisKendaraan 1
+                "Sepeda Motor (<500cc)",                   // Index 2 = JenisKendaraan 2
+                "Sepeda Motor (>500cc) (Golongan III)",   // Index 3 = JenisKendaraan 3
+                "Mobil jeep, sedan, minibus",              // Index 4 = JenisKendaraan 4
+                "Mobil barang bak muatan",                 // Index 5 = JenisKendaraan 5
+                "Mobil bus penumpang (5-7 meter)",         // Index 6 = JenisKendaraan 6
+                "Mobil barang (truk/tangki) ukuran sedang", // Index 7 = JenisKendaraan 7
+                "Mobil bus penumpang (7-10 meter)",        // Index 8 = JenisKendaraan 8
+                "Mobil barang (truk/tangki) sedang",       // Index 9 = JenisKendaraan 9
+                "Mobil tronton, tangki, penarik + gandengan (10-12 meter)", // Index 10 = JenisKendaraan 10
+                "Mobil tronton, tangki, alat berat (12-16 meter)",          // Index 11 = JenisKendaraan 11
+                "Mobil tronton, tangki, alat berat (>16 meter)"             // Index 12 = JenisKendaraan 12
             };
 
             for (int i = 0; i < vehicleTypes.Length; i++)
@@ -278,7 +278,7 @@ namespace TiketLaut.Views
                 cmbFilterVehicle.Items.Add(new ComboBoxItem
                 {
                     Content = vehicleTypes[i],
-                    Tag = i
+                    Tag = i  // Tag = JenisKendaraanId (0-12)
                 });
             }
 
@@ -342,12 +342,12 @@ namespace TiketLaut.Views
         /// </summary>
         private int GetMaksimalPenumpangFromFilterKendaraan()
         {
-            if (cmbFilterVehicle == null || cmbFilterVehicle.SelectedIndex < 0)
-                return 10; // Default maksimal jika belum pilih kendaraan
+            if (cmbFilterVehicle == null || cmbFilterVehicle.SelectedIndex <= 0)
+                return 100; // Default maksimal jika belum pilih kendaraan (seperti pejalan kaki)
 
-            // cmbFilterVehicle sudah diisi dari database dengan index yang sesuai
-            // Index dropdown = index jenis kendaraan (0-12)
-            int jenisKendaraanIndex = cmbFilterVehicle.SelectedIndex;
+            // cmbFilterVehicle memiliki "Pilih Jenis Kendaraan" di index 0
+            // Jadi jenisKendaraanIndex = SelectedIndex - 1
+            int jenisKendaraanIndex = cmbFilterVehicle.SelectedIndex - 1;
             return DetailKendaraan.GetMaksimalPenumpangByIndex(jenisKendaraanIndex);
         }
 
@@ -361,13 +361,16 @@ namespace TiketLaut.Views
 
             int selectedIndex = cmbFilterVehicle.SelectedIndex;
             
-            if (selectedIndex < 0)
+            if (selectedIndex <= 0)
                 return;
 
-            // Dapatkan maksimal penumpang untuk kendaraan ini
-            int maksimalPenumpang = DetailKendaraan.GetMaksimalPenumpangByIndex(selectedIndex);
+            // Kurangi 1 karena index 0 adalah "Pilih Jenis Kendaraan"
+            int jenisKendaraanIndex = selectedIndex - 1;
             
-            System.Diagnostics.Debug.WriteLine($"[ScheduleWindow] Kendaraan filter dipilih, Index: {selectedIndex}, Maks penumpang: {maksimalPenumpang}");
+            // Dapatkan maksimal penumpang untuk kendaraan ini
+            int maksimalPenumpang = DetailKendaraan.GetMaksimalPenumpangByIndex(jenisKendaraanIndex);
+            
+            System.Diagnostics.Debug.WriteLine($"[ScheduleWindow] Kendaraan filter dipilih, SelectedIndex: {selectedIndex}, JenisKendaraanIndex: {jenisKendaraanIndex}, Maks penumpang: {maksimalPenumpang}");
             
             // Ambil nilai penumpang saat ini
             if (int.TryParse(txtFilterPenumpang.Text, out int currentPenumpang))
