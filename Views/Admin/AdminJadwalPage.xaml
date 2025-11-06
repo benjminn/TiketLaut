@@ -4,11 +4,19 @@
              FontFamily="Plus Jakarta Sans">
 
     <UserControl.Resources>
+        <!-- Card Shadow -->
+        <DropShadowEffect x:Key="CardShadow" 
+                         BlurRadius="15" 
+                         ShadowDepth="3" 
+                         Opacity="0.15" 
+                         Color="#000000"/>
+
         <Style x:Key="CardStyle" TargetType="Border">
             <Setter Property="Background" Value="White"/>
             <Setter Property="CornerRadius" Value="12"/>
             <Setter Property="Padding" Value="20"/>
             <Setter Property="Margin" Value="0,0,0,15"/>
+            <Setter Property="Effect" Value="{StaticResource CardShadow}"/>
         </Style>
 
         <Style x:Key="PrimaryButton" TargetType="Button">
@@ -123,9 +131,7 @@
             </Grid>
 
             <!-- Filter Section -->
-            <Border Background="White" 
-                   CornerRadius="12" 
-                   Padding="20" 
+            <Border Style="{StaticResource CardStyle}" 
                    Margin="0,0,0,20">
                 <StackPanel>
                     <TextBlock Text="🔍 Filter Pencarian" 
@@ -306,6 +312,7 @@
             </Border>
 
             <!-- Jadwal List -->
+            <Border Style="{StaticResource CardStyle}">
             <DataGrid x:Name="dgJadwal"
                      AutoGenerateColumns="False"
                      CanUserAddRows="False"
@@ -314,7 +321,7 @@
                      SelectionMode="Extended"
                      HeadersVisibility="Column"
                      GridLinesVisibility="None"
-                     Background="White"
+                     Background="Transparent"
                      BorderThickness="0"
                      RowHeight="50">
                 
@@ -478,6 +485,7 @@
                     </DataGridTemplateColumn>
                 </DataGrid.Columns>
             </DataGrid>
+            </Border>
         </StackPanel>
     </Grid>
 </UserControl>

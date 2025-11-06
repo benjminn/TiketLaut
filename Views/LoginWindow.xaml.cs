@@ -183,12 +183,6 @@ namespace TiketLaut.Views
             }
         }
 
-        private void BtnFacebook_Click(object sender, RoutedEventArgs e)
-        {
-            MessageBox.Show("Login dengan Facebook akan segera tersedia!", "Info",
-                MessageBoxButton.OK, MessageBoxImage.Information);
-        }
-
         private async void BtnGoogle_Click(object sender, RoutedEventArgs e)
         {
             try

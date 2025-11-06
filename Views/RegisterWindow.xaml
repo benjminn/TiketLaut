@@ -58,86 +58,44 @@
                             <Run Text="Pendaftaran akun dapat dilakukan melalui"/>
                         </TextBlock>
 
-                        <!-- Tombol Social Register -->
-                        <Grid Margin="0,0,0,20">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="20"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-
-                            <!-- Tombol Facebook -->
-                            <Button Grid.Column="0" 
-                                    x:Name="btnFacebookRegister"
-                                    Height="47"
-                                    Background="#144AE9"
-                                    Foreground="White"
-                                    FontSize="12"
-                                    HorizontalAlignment="Stretch"
-                                    Click="BtnFacebookRegister_Click">
-                                <Button.Style>
-                                    <Style TargetType="{x:Type Button}">
-                                        <Setter Property="Template">
-                                            <Setter.Value>
-                                                <ControlTemplate TargetType="{x:Type Button}">
-                                                    <Border Background="{TemplateBinding Background}"
-                                                            CornerRadius="26">
-                                                        <ContentPresenter HorizontalAlignment="Center"
-                                                                          VerticalAlignment="Center"/>
-                                                    </Border>
-                                                </ControlTemplate>
-                                            </Setter.Value>
-                                        </Setter>
-                                    </Style>
-                                </Button.Style>
-                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                    <Image
-                                           Source="pack://application:,,,/Views/Assets/Icons/iconfacebook.png"
-                                           Width="20"
-                                           Height="18"
-                                           />
-                                    <TextBlock Text="Facebook" FontSize="14" FontFamily="Plus Jakarta Sans"/>
-                                </StackPanel>
-                            </Button>
-
-                            <!-- Tombol Google -->
-                            <Button Grid.Column="2" 
-                                    x:Name="btnGoogleRegister"
-                                    Height="47"
-                                    Background="White"
-                                    BorderBrush="#352555"
-                                    BorderThickness="0.88"
-                                    Foreground="#001B4A"
-                                    HorizontalAlignment="Stretch"
-                                    Click="BtnGoogleRegister_Click">
-                                <Button.Style>
-                                    <Style TargetType="{x:Type Button}">
-                                        <Setter Property="Template">
-                                            <Setter.Value>
-                                                <ControlTemplate TargetType="{x:Type Button}">
-                                                    <Border Background="{TemplateBinding Background}"
-                                                            BorderBrush="{TemplateBinding BorderBrush}"
-                                                            BorderThickness="{TemplateBinding BorderThickness}"
-                                                            CornerRadius="26">
-                                                        <ContentPresenter HorizontalAlignment="Center"
-                                                                          VerticalAlignment="Center"/>
-                                                    </Border>
-                                                </ControlTemplate>
-                                            </Setter.Value>
-                                        </Setter>
-                                    </Style>
-                                </Button.Style>
-                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                    <Image
-                                           Source="pack://application:,,,/Views/Assets/Icons/icongoogle.png"
-                                           Width="20"
-                                           Height="18"
-                                           Margin="0,0,5,0"
-                                           />
-                                    <TextBlock Text="Google" FontSize="14" FontFamily="Plus Jakarta Sans"/>
-                                </StackPanel>
-                            </Button>
-                        </Grid>
+                        <!-- Tombol Google Register -->
+                        <Button x:Name="btnGoogleRegister"
+                                Height="47"
+                                Background="White"
+                                BorderBrush="#352555"
+                                BorderThickness="0.88"
+                                Foreground="#001B4A"
+                                HorizontalAlignment="Stretch"
+                                Margin="0,0,0,20"
+                                Click="BtnGoogleRegister_Click">
+                            <Button.Style>
+                                <Style TargetType="{x:Type Button}">
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="{x:Type Button}">
+                                                <Border Background="{TemplateBinding Background}"
+                                                        BorderBrush="{TemplateBinding BorderBrush}"
+                                                        BorderThickness="{TemplateBinding BorderThickness}"
+                                                        CornerRadius="26">
+                                                    <ContentPresenter HorizontalAlignment="Center"
+                                                                      VerticalAlignment="Center"/>
+                                                </Border>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </Button.Style>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <Image Source="pack://application:,,,/Views/Assets/Icons/icongoogle.png"
+                                       Width="20"
+                                       Height="18"
+                                       Margin="0,0,8,0"/>
+                                <TextBlock Text="Daftar dengan Google" 
+                                           FontSize="14" 
+                                           FontFamily="Plus Jakarta Sans"
+                                           FontWeight="Medium"/>
+                            </StackPanel>
+                        </Button>
 
                         <TextBlock Text="atau" 
                                    FontSize="16"
