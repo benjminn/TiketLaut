@@ -63,12 +63,48 @@ namespace TiketLaut
                 JenisKendaraan.Golongan_V_A => (6, "Mobil bus penumpang", "Panjang 5 meter sampai dengan 7 meter"),
                 JenisKendaraan.Golongan_V_B => (7, "Mobil barang (truk/tangki) ukuran sedang", "Panjang 5 meter sampai dengan 7 meter"),
                 JenisKendaraan.Golongan_VI_A => (8, "Mobil bus penumpang", "Panjang 7 meter sampai dengan 10 meter"),
-                JenisKendaraan.Golongan_VI_B => (10, "Mobil barang (truk/tangki) sedang dan mobil penarik tanpa gandengan", "Panjang 7 meter sampai dengan 10 meter"),
+                JenisKendaraan.Golongan_VI_B => (10, "Mobil bagang (truk/tangki) sedang dan mobil penarik tanpa gandengan", "Panjang 7 meter sampai dengan 10 meter"),
                 JenisKendaraan.Golongan_VII => (12, "Mobil barang (truk) tronton, mobil tangki, mobil penarik berikut gandengan", "Panjang 10 meter sampai dengan 12 meter"),
                 JenisKendaraan.Golongan_VIII => (16, "Mobil barang (truk) tronton, mobil tangki, kendaraan alat berat, mobil penarik berikut gandengan", "Panjang 12 meter sampai dengan 16 meter"),
                 JenisKendaraan.Golongan_IX => (20, "Mobil barang (truk) tronton, mobil tangki, kendaraan alat berat, mobil penarik berikut gandengan", "Panjang lebih dari 16 meter"),
                 _ => (1, "Kendaraan tidak dikenal", "Tidak diketahui")
             };
+        }
+
+        /// <summary>
+        /// Mendapatkan kapasitas maksimal penumpang berdasarkan jenis kendaraan
+        /// Sesuai dengan standar ASDP Indonesia Ferry
+        /// </summary>
+        public static int GetMaksimalPenumpang(JenisKendaraan jenis)
+        {
+            return jenis switch
+            {
+                JenisKendaraan.Jalan_Kaki => 100,           // Pejalan Kaki - Tidak ada batasan praktis
+                JenisKendaraan.Golongan_I => 3,             // Sepeda - Maks. 3 penumpang
+                JenisKendaraan.Golongan_II => 3,            // Motor <500cc - Maks. 3 penumpang
+                JenisKendaraan.Golongan_III => 3,           // Motor >500cc - Maks. 3 penumpang
+                JenisKendaraan.Golongan_IV_A => 10,         // Mobil Penumpang - Maks. 10 penumpang
+                JenisKendaraan.Golongan_IV_B => 5,          // Truk Pickup - Maks. 5 penumpang
+                JenisKendaraan.Golongan_V_A => 35,          // Bus Sedang - Maks. 35 penumpang
+                JenisKendaraan.Golongan_V_B => 3,           // Truk Sedang - Maks. 3 penumpang
+                JenisKendaraan.Golongan_VI_A => 65,         // Bus Besar - Maks. 65 penumpang
+                JenisKendaraan.Golongan_VI_B => 3,          // Truk Besar - Maks. 3 penumpang
+                JenisKendaraan.Golongan_VII => 3,           // Truk Tronton - Maks. 3 penumpang
+                JenisKendaraan.Golongan_VIII => 3,          // Truk Tronton <16m - Maks. 3 penumpang
+                JenisKendaraan.Golongan_IX => 3,            // Truk Tronton >16m - Maks. 3 penumpang
+                _ => 1
+            };
+        }
+
+        /// <summary>
+        /// Mendapatkan kapasitas maksimal penumpang berdasarkan index (untuk backward compatibility)
+        /// </summary>
+        public static int GetMaksimalPenumpangByIndex(int jenisKendaraanIndex)
+        {
+            if (jenisKendaraanIndex < 0 || jenisKendaraanIndex > 12)
+                return 1;
+                
+            return GetMaksimalPenumpang((JenisKendaraan)jenisKendaraanIndex);
         }
 
         // Method helper untuk backward compatibility dengan sistem lama

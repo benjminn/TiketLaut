@@ -140,7 +140,8 @@
                                                      Foreground="#666666"
                                                      SelectedIndex="0"
                                                      Width="209"
-                                                     MaxDropDownHeight="250">
+                                                     MaxDropDownHeight="250"
+                                                     SelectionChanged="CmbPelabuhanAsal_SelectionChanged">
                                                 <ComboBox.Resources>
                                                     <Style TargetType="TextBlock">
                                                         <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
@@ -189,7 +190,8 @@
                                                      FontFamily="Plus Jakarta Sans"
                                                      Foreground="#666666"
                                                      SelectedIndex="0"
-                                                     Width="209">
+                                                     Width="209"
+                                                     SelectionChanged="CmbKelasLayanan_SelectionChanged">
                                                 <ComboBoxItem IsSelected="True" Content="Pilih Kelas" />
                                                 <ComboBoxItem Content="Reguler"/>
                                                 <ComboBoxItem Content="Express"/>
@@ -227,7 +229,8 @@
                                                        FontFamily="Plus Jakarta Sans"
                                                        Foreground="#666666"
                                                        SelectedDateFormat="Short"
-                                                       Width="146"/>
+                                                       Width="146"
+                                                       SelectedDateChanged="DpTanggal_SelectedDateChanged"/>
                                         </Border>
 
                                         <!-- Separator -->
@@ -343,7 +346,8 @@
                                                      Foreground="#666666"
                                                      SelectedIndex="0"
                                                      Width="209"
-                                                     MaxDropDownHeight="250">
+                                                     MaxDropDownHeight="250"
+                                                     SelectionChanged="CmbPelabuhanTujuan_SelectionChanged">
                                                 <ComboBox.Resources>
                                                     <Style TargetType="TextBlock">
                                                         <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
@@ -393,7 +397,8 @@
                                                      Foreground="#666666"
                                                      SelectedIndex="0"
                                                      MaxDropDownHeight="250"
-                                                     Width="209">
+                                                     Width="209"
+                                                     SelectionChanged="CmbJenisKendaraan_SelectionChanged">
                                                 <ComboBox.Resources>
                                                     <Style TargetType="TextBlock">
                                                         <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
@@ -447,7 +452,7 @@
                                     </Border>
                                 </StackPanel>
 
-                                <!-- ✅ Penumpang - FIXED WIDTH -->
+                                <!-- ✅ Penumpang - FIXED WIDTH with +/- buttons -->
                                 <StackPanel Grid.Column="2">
                                     <TextBlock Text="Penumpang" 
                                               FontSize="13" 
@@ -461,33 +466,88 @@
                                            BorderThickness="1.5"
                                            BorderBrush="#999999"
                                            Width="350"
-                                           HorizontalAlignment="Left">
-                                        <Grid Width="235">
+                                           >
+                                        <Grid Margin="0,0,74,0">
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="Auto"/>
-                                                <ColumnDefinition Width="8"/>
-                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="81"/>
+                                                <ColumnDefinition Width="Auto" MinWidth="18"/>
+                                                <ColumnDefinition Width="4"/>
+                                                <ColumnDefinition/>
+                                                <ColumnDefinition Width="0"/>
+                                                <ColumnDefinition Width="Auto" MinWidth="20"/>
                                             </Grid.ColumnDefinitions>
 
-                                            <Image Grid.Column="0"
+                                            <!-- Icon Orang di kiri -->
+                                            <Image
                                                    Source="/Views/Assets/Icons/iconorang.png"
-                                                   Height="18"
-                                                   VerticalAlignment="Center" Margin="-64,0,0,0"/>
+                                                   Width="16"
+                                                   Height="16"
+                                                   VerticalAlignment="Center"
+                                                   HorizontalAlignment="Center"/>
 
-                                            <ComboBox x:Name="cmbPenumpang"
-                                                     Background="Transparent" 
-                                                     BorderThickness="0"
-                                                     FontSize="12"
-                                                     FontFamily="Plus Jakarta Sans"
-                                                     Foreground="#666666"
-                                                     SelectedIndex="0" Grid.ColumnSpan="3" Margin="-18,0,-48,0">
-                                                <ComboBoxItem IsSelected="True" Content="Pilih Penumpang"/>
-                                                <ComboBoxItem Content="1 Penumpang"/>
-                                                <ComboBoxItem Content="2 Penumpang"/>
-                                                <ComboBoxItem Content="3 Penumpang"/>
-                                                <ComboBoxItem Content="4 Penumpang"/>
-                                                <ComboBoxItem Content="5+ Penumpang"/>
-                                            </ComboBox>
+                                            <!-- Button Plus -->
+                                            <Button x:Name="btnPlusPenumpang"
+                                                   Grid.Column="2"
+                                                   Width="18"
+                                                   Height="18"
+                                                   Background="Transparent"
+                                                   BorderThickness="0"
+                                                   Click="BtnPlusPenumpang_Click"
+                                                   Cursor="Hand"
+                                                   Padding="0"
+                                                   HorizontalAlignment="Center"
+                                                   VerticalAlignment="Center">
+                                                <Image Source="/Views/Assets/Icons/icontambah.png" 
+                                                      Width="10" 
+                                                      Height="16"
+                                                      Stretch="Uniform" RenderTransformOrigin="0.5,0.5">
+                                                    <Image.RenderTransform>
+                                                        <TransformGroup>
+                                                            <ScaleTransform ScaleX="-1"/>
+                                                            <SkewTransform/>
+                                                            <RotateTransform/>
+                                                            <TranslateTransform/>
+                                                        </TransformGroup>
+                                                    </Image.RenderTransform>
+                                                </Image>
+                                            </Button>
+
+                                            <!-- TextBlock Penumpang di tengah -->
+                                            <TextBlock x:Name="txtPenumpangDisplay"
+                                                      Grid.Column="4"
+                                                      Text="1 Penumpang"
+                                                      FontSize="12"
+                                                      FontFamily="Plus Jakarta Sans"
+                                                      FontWeight="Medium"
+                                                      TextAlignment="Center"
+                                                      VerticalAlignment="Center"
+                                                      Foreground="#666666"
+                                                      Margin="7,0,9,0" Height="16"/>
+
+                                            <!-- Hidden TextBox untuk hold value -->
+                                            <TextBox x:Name="txtPenumpang"
+                                                    Visibility="Collapsed"
+                                                    Text="1"
+                                                    TextChanged="TxtPenumpang_TextChanged"/>
+
+                                            <!-- Button Minus di kanan -->
+                                            <Button x:Name="btnMinusPenumpang"
+                                                   Grid.Column="6"
+                                                   Width="18"
+                                                   Height="18"
+                                                   Background="Transparent"
+                                                   BorderThickness="0"
+                                                   Click="BtnMinusPenumpang_Click"
+                                                   Cursor="Hand"
+                                                   Padding="0"
+                                                   HorizontalAlignment="Center"
+                                                   VerticalAlignment="Center">
+                                                <Image Source="/Views/Assets/Icons/iconKurang.png" 
+                                                      Width="11" 
+                                                      Height="16"
+                                                      Stretch="Uniform"/>
+                                            </Button>
                                         </Grid>
                                     </Border>
                                 </StackPanel>
