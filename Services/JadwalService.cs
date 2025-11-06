@@ -46,35 +46,69 @@ namespace TiketLaut.Services
         {
             try
             {
+                // ? DEBUG: Log input parameters
+                System.Diagnostics.Debug.WriteLine($"[JadwalService.SearchJadwal] INPUT:");
+                System.Diagnostics.Debug.WriteLine($"  - Pelabuhan Asal ID: {pelabuhanAsalId}");
+                System.Diagnostics.Debug.WriteLine($"  - Pelabuhan Tujuan ID: {pelabuhanTujuanId}");
+                System.Diagnostics.Debug.WriteLine($"  - Kelas Layanan: {kelasLayanan}");
+                System.Diagnostics.Debug.WriteLine($"  - Tanggal: {tanggalKeberangkatan?.ToString("yyyy-MM-dd") ?? "NULL"}");
+                System.Diagnostics.Debug.WriteLine($"  - Jenis Kendaraan ID: {jenisKendaraanId}");
+
                 // ? PASTIKAN .Include() untuk navigation properties
                 var query = _context.Jadwals
                     .Include(j => j.pelabuhan_asal)        // ? WAJIB!
                     .Include(j => j.pelabuhan_tujuan)      // ? WAJIB!
                     .Include(j => j.kapal)                 // ? WAJIB!
-                    .Include(j => j.DetailKendaraans)
+                    .Include(j => j.GrupKendaraan!)         // Include grup kendaraan
+                        .ThenInclude(g => g.DetailKendaraans)  // Include all detail kendaraan in grup
                     .Where(j => j.pelabuhan_asal_id == pelabuhanAsalId &&
                                j.pelabuhan_tujuan_id == pelabuhanTujuanId &&
                                j.kelas_layanan == kelasLayanan &&
                                j.status == "Active" &&
                                j.sisa_kapasitas_penumpang > 0);
 
+                // ? DEBUG: Check total jadwal before date filter
+                var countBeforeDate = await query.CountAsync();
+                System.Diagnostics.Debug.WriteLine($"[JadwalService] Found {countBeforeDate} jadwal(s) before date filter");
+
                 if (tanggalKeberangkatan.HasValue)
                 {
-                    // Filter by date (same day)
-                    var startDate = tanggalKeberangkatan.Value.Date;
-                    var endDate = startDate.AddDays(1);
-                    query = query.Where(j => j.waktu_berangkat >= startDate && j.waktu_berangkat < endDate);
+                    // ? FIX: Convert local date to UTC range properly
+                    // User memilih tanggal dalam local timezone, kita perlu convert ke UTC range
+                    // Contoh: User pilih 01/11/2025 (WIB) → cari 31/10/2025 17:00 UTC sampai 01/11/2025 17:00 UTC
+                    var localDate = tanggalKeberangkatan.Value.Date;
+                    var localStartDateTime = DateTime.SpecifyKind(localDate, DateTimeKind.Local);
+                    var localEndDateTime = localStartDateTime.AddDays(1);
+                    
+                    // Convert to UTC
+                    var startDateUtc = localStartDateTime.ToUniversalTime();
+                    var endDateUtc = localEndDateTime.ToUniversalTime();
+                    
+                    query = query.Where(j => j.waktu_berangkat >= startDateUtc && j.waktu_berangkat < endDateUtc);
+                    
+                    System.Diagnostics.Debug.WriteLine($"[JadwalService] Date filter:");
+                    System.Diagnostics.Debug.WriteLine($"  Local: {localStartDateTime:yyyy-MM-dd HH:mm} to {localEndDateTime:yyyy-MM-dd HH:mm}");
+                    System.Diagnostics.Debug.WriteLine($"  UTC:   {startDateUtc:yyyy-MM-dd HH:mm} to {endDateUtc:yyyy-MM-dd HH:mm}");
                 }
 
                 var jadwals = await query
                     .OrderBy(j => j.waktu_berangkat)
                     .ToListAsync();
 
-                if (jenisKendaraanId >= 0)
+                System.Diagnostics.Debug.WriteLine($"[JadwalService] Found {jadwals.Count} jadwal(s) after date filter");
+
+                if (jenisKendaraanId > 0)
                 {
+                    System.Diagnostics.Debug.WriteLine($"[JadwalService] Applying vehicle filter for jenis_kendaraan = {jenisKendaraanId}");
+                    
+                    // Filter only jadwal that has matching detail kendaraan in grup
                     jadwals = jadwals.Where(j =>
-                        j.DetailKendaraans.Any(dk => dk.jenis_kendaraan == jenisKendaraanId))
+                        j.GrupKendaraan != null && 
+                        j.GrupKendaraan.DetailKendaraans != null &&
+                        j.GrupKendaraan.DetailKendaraans.Any(dk => dk.jenis_kendaraan == jenisKendaraanId))
                         .ToList();
+                    
+                    System.Diagnostics.Debug.WriteLine($"[JadwalService] Found {jadwals.Count} jadwal(s) after vehicle filter");
                 }
 
                 // ? DEBUG: Cek apakah navigation property ter-load
@@ -84,14 +118,21 @@ namespace TiketLaut.Services
                     System.Diagnostics.Debug.WriteLine($"  - Asal: {jadwal.pelabuhan_asal?.nama_pelabuhan ?? "NULL"}");
                     System.Diagnostics.Debug.WriteLine($"  - Tujuan: {jadwal.pelabuhan_tujuan?.nama_pelabuhan ?? "NULL"}");
                     System.Diagnostics.Debug.WriteLine($"  - Kapal: {jadwal.kapal?.nama_kapal ?? "NULL"}");
+                    System.Diagnostics.Debug.WriteLine($"  - Kelas: {jadwal.kelas_layanan}");
+                    System.Diagnostics.Debug.WriteLine($"  - Waktu Berangkat: {jadwal.waktu_berangkat:yyyy-MM-dd HH:mm}");
+                    System.Diagnostics.Debug.WriteLine($"  - Grup: {jadwal.GrupKendaraan?.grup_kendaraan_id ?? 0} ({jadwal.GrupKendaraan?.DetailKendaraans?.Count ?? 0} detail)");
                 }
 
                 return jadwals;
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"[JadwalService] Error: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"[JadwalService] ERROR: {ex.Message}");
                 System.Diagnostics.Debug.WriteLine($"[JadwalService] StackTrace: {ex.StackTrace}");
+                if (ex.InnerException != null)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[JadwalService] InnerException: {ex.InnerException.Message}");
+                }
                 return new List<Jadwal>();
             }
         }
@@ -107,7 +148,8 @@ namespace TiketLaut.Services
                     .Include(j => j.pelabuhan_asal)
                     .Include(j => j.pelabuhan_tujuan)
                     .Include(j => j.kapal)
-                    .Include(j => j.DetailKendaraans)
+                    .Include(j => j.GrupKendaraan)
+                        .ThenInclude(g => g.DetailKendaraans)
                     .FirstOrDefaultAsync(j => j.jadwal_id == jadwalId);
             }
             catch (Exception ex)
@@ -118,21 +160,46 @@ namespace TiketLaut.Services
         }
 
         /// <summary>
-        /// Get detail kendaraan untuk jadwal tertentu
+        /// Get all detail kendaraan untuk jadwal tertentu (returns all 13 DetailKendaraan in grup)
         /// </summary>
         public async Task<List<DetailKendaraan>> GetDetailKendaraanByJadwalAsync(int jadwalId)
         {
             try
             {
-                return await _context.DetailKendaraans
-                    .Where(dk => dk.jadwal_id == jadwalId)
-                    .OrderBy(dk => dk.jenis_kendaraan)
-                    .ToListAsync();
+                var jadwal = await _context.Jadwals
+                    .Include(j => j.GrupKendaraan)
+                        .ThenInclude(g => g.DetailKendaraans)
+                    .FirstOrDefaultAsync(j => j.jadwal_id == jadwalId);
+                
+                return jadwal?.GrupKendaraan?.DetailKendaraans.OrderBy(dk => dk.jenis_kendaraan).ToList() 
+                    ?? new List<DetailKendaraan>();
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Error getting detail kendaraan: {ex.Message}");
                 return new List<DetailKendaraan>();
+            }
+        }
+
+        /// <summary>
+        /// Get specific detail kendaraan by jenis from jadwal's grup
+        /// </summary>
+        public async Task<DetailKendaraan?> GetDetailKendaraanByJenisAsync(int jadwalId, JenisKendaraan jenis)
+        {
+            try
+            {
+                var jadwal = await _context.Jadwals
+                    .Include(j => j.GrupKendaraan)
+                        .ThenInclude(g => g.DetailKendaraans)
+                    .FirstOrDefaultAsync(j => j.jadwal_id == jadwalId);
+                
+                return jadwal?.GrupKendaraan?.DetailKendaraans
+                    .FirstOrDefault(dk => dk.jenis_kendaraan == (int)jenis);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error getting detail kendaraan by jenis: {ex.Message}");
+                return null;
             }
         }
 
@@ -153,7 +220,8 @@ namespace TiketLaut.Services
                 // Check kapasitas kendaraan jika bukan jalan kaki
                 if (jenisKendaraanId > 0)
                 {
-                    var detailKendaraan = jadwal.DetailKendaraans
+                    // Get detail kendaraan from grup by jenis
+                    var detailKendaraan = jadwal.GrupKendaraan?.DetailKendaraans
                         .FirstOrDefault(dk => dk.jenis_kendaraan == jenisKendaraanId);
 
                     if (detailKendaraan == null) return false;
@@ -582,6 +650,26 @@ namespace TiketLaut.Services
             catch (Exception ex)
             {
                 return (false, $"Error: {ex.Message}", 0);
+            }
+        }
+
+        /// <summary>
+        /// Get all tikets for a specific jadwal
+        /// </summary>
+        public async Task<List<Tiket>> GetTiketsByJadwalIdAsync(int jadwalId)
+        {
+            try
+            {
+                return await _context.Tikets
+                    .Include(t => t.Pengguna)
+                    .Where(t => t.jadwal_id == jadwalId)
+                    .OrderByDescending(t => t.tanggal_pemesanan)
+                    .ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error getting tikets: {ex.Message}");
+                return new List<Tiket>();
             }
         }
     }

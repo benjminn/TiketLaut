@@ -319,7 +319,7 @@
                                             <!-- Left: Date and Warning -->
                                             <StackPanel Grid.Column="0"
                                                         VerticalAlignment="Top"
-                                                        Width="300">
+                                                        MinWidth="300">
                                                 <TextBlock Text="Jadwal masuk Pelabuhan"
                                                            FontSize="14"
                                                            FontWeight="Medium"
@@ -334,28 +334,20 @@
                                                 <!-- Warning -->
                                                 <Border Background="#FFD3C5"
                                                         CornerRadius="11"
-                                                        Padding="12,8"
-                                                        HorizontalAlignment="Left"
-                                                        MaxWidth="300">
-                                                    <Grid>
-                                                        <Grid.ColumnDefinitions>
-                                                            <ColumnDefinition Width="Auto"/>
-                                                            <ColumnDefinition Width="*"/>
-                                                        </Grid.ColumnDefinitions>
-                                                        <Image Grid.Column="0"
-                                                               Source="/Views/Assets/Icons/iconwarning.png"
+                                                        Padding="12,8">
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <Image Source="/Views/Assets/Icons/iconwarning.png"
                                                                Width="18"
                                                                Height="18"
                                                                Margin="0,0,8,0"
-                                                               VerticalAlignment="Top"/>
-                                                        <TextBlock Grid.Column="1"
-                                                                   Text="{Binding WarningText}"
+                                                               VerticalAlignment="Center"/>
+                                                        <TextBlock Text="{Binding WarningText}"
                                                                    FontSize="12"
                                                                    FontWeight="Medium"
                                                                    Foreground="#E74C3C"
-                                                                   TextWrapping="Wrap"
+                                                                   TextWrapping="NoWrap"
                                                                    VerticalAlignment="Center"/>
-                                                    </Grid>
+                                                    </StackPanel>
                                                 </Border>
                                             </StackPanel>
 

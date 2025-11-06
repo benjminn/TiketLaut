@@ -86,6 +86,17 @@ namespace TiketLaut.Views
             }
         }
 
+        private void BtnDetailJadwal_Click(object sender, RoutedEventArgs e)
+        {
+            var button = sender as Button;
+            if (button?.Tag is int jadwalId)
+            {
+                // Open detail window
+                var detailWindow = new AdminJadwalDetailWindow(jadwalId);
+                detailWindow.ShowDialog();
+            }
+        }
+
         private async void BtnEditJadwal_Click(object sender, RoutedEventArgs e)
         {
             var button = sender as Button;

@@ -17,6 +17,7 @@ namespace TiketLaut.Data
         public DbSet<Penumpang> Penumpangs { get; set; }
         public DbSet<RincianPenumpang> RincianPenumpangs { get; set; }
         public DbSet<Pembayaran> Pembayarans { get; set; }
+        public DbSet<GrupKendaraan> GrupKendaraans { get; set; }
         public DbSet<DetailKendaraan> DetailKendaraans { get; set; }
         public DbSet<Notifikasi> Notifikasis { get; set; }
 
@@ -35,6 +36,7 @@ namespace TiketLaut.Data
             modelBuilder.Entity<Penumpang>().ToTable("Penumpang");
             modelBuilder.Entity<RincianPenumpang>().ToTable("RincianPenumpang");
             modelBuilder.Entity<Pembayaran>().ToTable("Pembayaran");
+            modelBuilder.Entity<GrupKendaraan>().ToTable("GrupKendaraan");
             modelBuilder.Entity<DetailKendaraan>().ToTable("DetailKendaraan");
             modelBuilder.Entity<Notifikasi>().ToTable("Notifikasi");
 

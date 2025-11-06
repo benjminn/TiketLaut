@@ -11,9 +11,6 @@ namespace TiketLaut
         [Key]                                           // PRIMARY KEY
         public int detail_kendaraan_id { get; set; }    // integer GENERATED ALWAYS AS IDENTITY
         
-        [Required]                                      // integer NOT NULL
-        public int jadwal_id { get; set; }              // FK to Jadwal
-        
         [Required]                                      // integer NOT NULL (enum as int)
         public int jenis_kendaraan { get; set; }        // Enum as integer
         
@@ -29,18 +26,21 @@ namespace TiketLaut
         [Required]                                      // text NOT NULL
         public string spesifikasi_ukuran { get; set; } = string.Empty;
         
-        // Navigation property
-        [ForeignKey("jadwal_id")]
-        public Jadwal Jadwal { get; set; } = null!;
+        // Foreign key to GrupKendaraan
+        [Required]
+        public int grup_kendaraan_id { get; set; }
         
-        // Method untuk membuat detail kendaraan per jadwal
-        public static DetailKendaraan CreateForJadwal(int jadwalId, JenisKendaraan jenis, decimal harga)
+        // Navigation property - belongs to one grup
+        [ForeignKey("grup_kendaraan_id")]
+        public GrupKendaraan? GrupKendaraan { get; set; }
+        
+        // Method untuk membuat detail kendaraan (reusable)
+        public static DetailKendaraan Create(JenisKendaraan jenis, decimal harga)
         {
             var specs = GetSpecificationByJenis(jenis);
             
             return new DetailKendaraan
             {
-                jadwal_id = jadwalId,
                 jenis_kendaraan = (int)jenis,  // Cast enum to int
                 harga_kendaraan = harga,
                 bobot_unit = specs.Bobot,

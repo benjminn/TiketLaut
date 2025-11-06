@@ -1,0 +1,585 @@
+<Window x:Class="TiketLaut.Views.AdminJadwalDetailWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Detail Jadwal - Admin Panel" 
+        Height="900"
+        Width="1400"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="CanResize"
+        FontFamily="Plus Jakarta Sans"
+        Background="#F2F5FC">
+
+    <Window.Resources>
+        <!-- Card Style -->
+        <Style x:Key="CardStyle" TargetType="Border">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="Padding" Value="20"/>
+            <Setter Property="Margin" Value="0,0,0,15"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect Color="#000000" Opacity="0.05" BlurRadius="10" ShadowDepth="0"/>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Section Title Style -->
+        <Style x:Key="SectionTitleStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="18"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="#011C4B"/>
+            <Setter Property="Margin" Value="0,0,0,15"/>
+        </Style>
+
+        <!-- Info Label Style -->
+        <Style x:Key="InfoLabelStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Foreground" Value="#64748B"/>
+            <Setter Property="Margin" Value="0,0,0,4"/>
+        </Style>
+
+        <!-- Info Value Style -->
+        <Style x:Key="InfoValueStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="#011C4B"/>
+            <Setter Property="Margin" Value="0,0,0,12"/>
+        </Style>
+
+        <!-- Filter Button Style -->
+        <Style x:Key="FilterButton" TargetType="Button">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="Foreground" Value="#64748B"/>
+            <Setter Property="BorderBrush" Value="#E2E8F0"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="15,8"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontWeight" Value="Medium"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Margin" Value="0,0,8,0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="8"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="Tag" Value="Active">
+                    <Setter Property="Background" Value="#00658D"/>
+                    <Setter Property="Foreground" Value="White"/>
+                    <Setter Property="BorderBrush" Value="#00658D"/>
+                </Trigger>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#F8FAFC"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Primary Button Style -->
+        <Style x:Key="PrimaryButton" TargetType="Button">
+            <Setter Property="Background" Value="#00658D"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="20,12"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                CornerRadius="8"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#267DAE"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- DataGrid Header Style -->
+        <Style TargetType="DataGridColumnHeader">
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Foreground" Value="#011C4B"/>
+            <Setter Property="Background" Value="#F8F9FA"/>
+            <Setter Property="Padding" Value="12,10"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="BorderThickness" Value="0,0,0,1"/>
+            <Setter Property="BorderBrush" Value="#DEE2E6"/>
+        </Style>
+
+        <!-- DataGrid Cell Style -->
+        <Style TargetType="DataGridCell">
+            <Setter Property="TextBlock.TextAlignment" Value="Center"/>
+            <Setter Property="Padding" Value="8"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Style.Triggers>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="#E7F3F8"/>
+                    <Setter Property="Foreground" Value="#011C4B"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Status Badge Style -->
+        <Style x:Key="StatusBadgeStyle" TargetType="Border">
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="Padding" Value="10,4"/>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="30">
+            <StackPanel MaxWidth="1340">
+                <!-- Header with Back Button -->
+                <Grid Margin="0,0,0,20">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Button Grid.Column="0"
+                            Style="{StaticResource PrimaryButton}"
+                            Click="BtnBack_Click"
+                            Padding="12,8"
+                            Margin="0,0,15,0">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="←" FontSize="18" Margin="0,0,8,0"/>
+                            <TextBlock Text="Kembali"/>
+                        </StackPanel>
+                    </Button>
+
+                    <TextBlock Grid.Column="1"
+                              Text="DETAIL JADWAL &amp; TIKET"
+                              FontSize="24"
+                              FontWeight="Bold"
+                              Foreground="#011C4B"
+                              VerticalAlignment="Center"/>
+                </Grid>
+
+                <!-- Jadwal Info Card -->
+                <Border Style="{StaticResource CardStyle}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Column 1: Rute -->
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="RUTE PERJALANAN" Style="{StaticResource InfoLabelStyle}"/>
+                            <TextBlock x:Name="txtRute" Style="{StaticResource InfoValueStyle}" FontSize="16"/>
+                            
+                            <TextBlock Text="PELABUHAN ASAL" Style="{StaticResource InfoLabelStyle}" Margin="0,8,0,4"/>
+                            <TextBlock x:Name="txtPelabuhanAsal" Style="{StaticResource InfoValueStyle}"/>
+                            <TextBlock x:Name="txtLokasiAsal" FontSize="12" Foreground="#64748B" Margin="0,0,0,12"/>
+                            
+                            <TextBlock Text="PELABUHAN TUJUAN" Style="{StaticResource InfoLabelStyle}" Margin="0,8,0,4"/>
+                            <TextBlock x:Name="txtPelabuhanTujuan" Style="{StaticResource InfoValueStyle}"/>
+                            <TextBlock x:Name="txtLokasiTujuan" FontSize="12" Foreground="#64748B"/>
+                        </StackPanel>
+
+                        <!-- Column 2: Jadwal -->
+                        <StackPanel Grid.Column="1">
+                            <TextBlock Text="TANGGAL" Style="{StaticResource InfoLabelStyle}"/>
+                            <TextBlock x:Name="txtTanggal" Style="{StaticResource InfoValueStyle}"/>
+                            
+                            <TextBlock Text="WAKTU BERANGKAT" Style="{StaticResource InfoLabelStyle}"/>
+                            <TextBlock x:Name="txtWaktuBerangkat" Style="{StaticResource InfoValueStyle}" FontSize="18" Foreground="#00658D"/>
+                            
+                            <TextBlock Text="WAKTU TIBA" Style="{StaticResource InfoLabelStyle}"/>
+                            <TextBlock x:Name="txtWaktuTiba" Style="{StaticResource InfoValueStyle}" FontSize="18" Foreground="#00658D"/>
+                            
+                            <TextBlock Text="DURASI" Style="{StaticResource InfoLabelStyle}"/>
+                            <TextBlock x:Name="txtDurasi" Style="{StaticResource InfoValueStyle}"/>
+                        </StackPanel>
+
+                        <!-- Column 3: Kapal -->
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="KAPAL" Style="{StaticResource InfoLabelStyle}"/>
+                            <TextBlock x:Name="txtKapal" Style="{StaticResource InfoValueStyle}"/>
+                            
+                            <TextBlock Text="KELAS LAYANAN" Style="{StaticResource InfoLabelStyle}"/>
+                            <TextBlock x:Name="txtKelas" Style="{StaticResource InfoValueStyle}"/>
+                            
+                            <TextBlock Text="KAPASITAS PENUMPANG" Style="{StaticResource InfoLabelStyle}"/>
+                            <TextBlock x:Name="txtKapasitasPenumpang" Style="{StaticResource InfoValueStyle}"/>
+                            
+                            <TextBlock Text="KAPASITAS KENDARAAN" Style="{StaticResource InfoLabelStyle}"/>
+                            <TextBlock x:Name="txtKapasitasKendaraan" Style="{StaticResource InfoValueStyle}"/>
+                        </StackPanel>
+
+                        <!-- Column 4: Status -->
+                        <StackPanel Grid.Column="3">
+                            <TextBlock Text="STATUS JADWAL" Style="{StaticResource InfoLabelStyle}"/>
+                            <Border x:Name="borderStatus" Style="{StaticResource StatusBadgeStyle}" HorizontalAlignment="Left" Margin="0,0,0,12">
+                                <TextBlock x:Name="txtStatus" FontWeight="SemiBold" FontSize="13"/>
+                            </Border>
+                            
+                            <TextBlock Text="SISA KAPASITAS PENUMPANG" Style="{StaticResource InfoLabelStyle}"/>
+                            <TextBlock x:Name="txtSisaPenumpang" Style="{StaticResource InfoValueStyle}" Foreground="#28A745"/>
+                            
+                            <TextBlock Text="SISA KAPASITAS KENDARAAN" Style="{StaticResource InfoLabelStyle}"/>
+                            <TextBlock x:Name="txtSisaKendaraan" Style="{StaticResource InfoValueStyle}" Foreground="#28A745"/>
+                            
+                            <TextBlock Text="ID JADWAL" Style="{StaticResource InfoLabelStyle}"/>
+                            <TextBlock x:Name="txtJadwalId" Style="{StaticResource InfoValueStyle}"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <!-- Tiket Section -->
+                <Border Style="{StaticResource CardStyle}">
+                    <StackPanel>
+                        <!-- Header with Filter -->
+                        <Grid Margin="0,0,0,15">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Grid.Column="0"
+                                      Text="DAFTAR TIKET TERJUAL"
+                                      Style="{StaticResource SectionTitleStyle}"
+                                      Margin="0"/>
+
+                            <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                <Button x:Name="btnFilterAll"
+                                       Style="{StaticResource FilterButton}"
+                                       Content="Semua"
+                                       Tag="Active"
+                                       Click="BtnFilterAll_Click"/>
+                                <Button x:Name="btnFilterPending"
+                                       Style="{StaticResource FilterButton}"
+                                       Content="Pending"
+                                       Click="BtnFilterPending_Click"/>
+                                <Button x:Name="btnFilterPaid"
+                                       Style="{StaticResource FilterButton}"
+                                       Content="Sudah Bayar"
+                                       Click="BtnFilterPaid_Click"/>
+                                <Button x:Name="btnFilterCancelled"
+                                       Style="{StaticResource FilterButton}"
+                                       Content="Dibatalkan"
+                                       Click="BtnFilterCancelled_Click"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <!-- Tickets DataGrid -->
+                        <DataGrid x:Name="dgTikets"
+                                 AutoGenerateColumns="False"
+                                 CanUserAddRows="False"
+                                 CanUserDeleteRows="False"
+                                 IsReadOnly="True"
+                                 SelectionMode="Single"
+                                 HeadersVisibility="Column"
+                                 GridLinesVisibility="None"
+                                 Background="White"
+                                 BorderThickness="0"
+                                 RowHeight="50"
+                                 MinHeight="200">
+
+                            <DataGrid.Columns>
+                                <!-- Kode Tiket -->
+                                <DataGridTextColumn Header="Kode Tiket" Binding="{Binding kode_tiket}" Width="150">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="HorizontalAlignment" Value="Center"/>
+                                            <Setter Property="VerticalAlignment" Value="Center"/>
+                                            <Setter Property="FontWeight" Value="SemiBold"/>
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
+
+                                <!-- Username Pembeli -->
+                                <DataGridTextColumn Header="Username Pembeli" Binding="{Binding Pengguna.username}" Width="150">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="HorizontalAlignment" Value="Center"/>
+                                            <Setter Property="VerticalAlignment" Value="Center"/>
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
+
+                                <!-- Jumlah Penumpang -->
+                                <DataGridTextColumn Header="Jumlah Penumpang" Binding="{Binding jumlah_penumpang}" Width="130">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="HorizontalAlignment" Value="Center"/>
+                                            <Setter Property="VerticalAlignment" Value="Center"/>
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
+
+                                <!-- Jenis Kendaraan -->
+                                <DataGridTextColumn Header="Jenis Kendaraan" Binding="{Binding jenis_kendaraan_enum}" Width="150">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="HorizontalAlignment" Value="Center"/>
+                                            <Setter Property="VerticalAlignment" Value="Center"/>
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
+
+                                <!-- Plat Nomor -->
+                                <DataGridTextColumn Header="Plat Nomor" Binding="{Binding plat_nomor}" Width="120">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="HorizontalAlignment" Value="Center"/>
+                                            <Setter Property="VerticalAlignment" Value="Center"/>
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
+
+                                <!-- Total Harga -->
+                                <DataGridTextColumn Header="Total Harga" Width="140">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="HorizontalAlignment" Value="Center"/>
+                                            <Setter Property="VerticalAlignment" Value="Center"/>
+                                            <Setter Property="FontWeight" Value="SemiBold"/>
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                    <DataGridTextColumn.Binding>
+                                        <Binding Path="total_harga" StringFormat="Rp {0:N0}"/>
+                                    </DataGridTextColumn.Binding>
+                                </DataGridTextColumn>
+
+                                <!-- Tanggal Pesan -->
+                                <DataGridTextColumn Header="Tanggal Pesan" Width="140">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="HorizontalAlignment" Value="Center"/>
+                                            <Setter Property="VerticalAlignment" Value="Center"/>
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                    <DataGridTextColumn.Binding>
+                                        <Binding Path="tanggal_pemesanan" StringFormat="dd/MM/yyyy HH:mm"/>
+                                    </DataGridTextColumn.Binding>
+                                </DataGridTextColumn>
+
+                                <!-- Status -->
+                                <DataGridTemplateColumn Header="Status" Width="120">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Border x:Name="StatusBorder" 
+                                                   CornerRadius="12" 
+                                                   Padding="8,4" 
+                                                   HorizontalAlignment="Center">
+                                                <TextBlock Text="{Binding status_tiket}" 
+                                                          FontWeight="SemiBold" 
+                                                          FontSize="12"
+                                                          HorizontalAlignment="Center"/>
+                                            </Border>
+                                            <DataTemplate.Triggers>
+                                                <DataTrigger Binding="{Binding status_tiket}" Value="Booked">
+                                                    <Setter TargetName="StatusBorder" Property="Background" Value="#FFF3CD"/>
+                                                    <Setter TargetName="StatusBorder" Property="TextBlock.Foreground" Value="#856404"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding status_tiket}" Value="Paid">
+                                                    <Setter TargetName="StatusBorder" Property="Background" Value="#D4EDDA"/>
+                                                    <Setter TargetName="StatusBorder" Property="TextBlock.Foreground" Value="#155724"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding status_tiket}" Value="Cancelled">
+                                                    <Setter TargetName="StatusBorder" Property="Background" Value="#F8D7DA"/>
+                                                    <Setter TargetName="StatusBorder" Property="TextBlock.Foreground" Value="#721C24"/>
+                                                </DataTrigger>
+                                            </DataTemplate.Triggers>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
+
+                        <!-- Total Summary -->
+                        <Border Margin="0,15,0,0" Background="#F8F9FA" Padding="15">
+                            <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel Grid.Column="0" Orientation="Horizontal">
+                                <TextBlock Text="Total Tiket Terjual: " FontWeight="SemiBold" FontSize="14" Foreground="#011C4B"/>
+                                <TextBlock x:Name="txtTotalTiket" Text="0" FontWeight="Bold" FontSize="14" Foreground="#00658D"/>
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                <TextBlock Text="Total Pendapatan: " FontWeight="SemiBold" FontSize="14" Foreground="#011C4B" Margin="0,0,8,0"/>
+                                <TextBlock x:Name="txtTotalPendapatan" Text="Rp 0" FontWeight="Bold" FontSize="16" Foreground="#28A745"/>
+                            </StackPanel>
+                            </Grid>
+                        </Border>
+                    </StackPanel>
+                </Border>
+
+                <!-- Similar Schedules Section -->
+                <Border Style="{StaticResource CardStyle}">
+                    <StackPanel>
+                        <TextBlock Text="JADWAL SERUPA (Rute &amp; Tanggal Sama)"
+                                  Style="{StaticResource SectionTitleStyle}"/>
+
+                        <!-- Similar Schedules DataGrid -->
+                        <DataGrid x:Name="dgSimilarSchedules"
+                                 AutoGenerateColumns="False"
+                                 CanUserAddRows="False"
+                                 CanUserDeleteRows="False"
+                                 IsReadOnly="True"
+                                 SelectionMode="Single"
+                                 HeadersVisibility="Column"
+                                 GridLinesVisibility="None"
+                                 Background="White"
+                                 BorderThickness="0"
+                                 RowHeight="50"
+                                 MinHeight="150"
+                                 MouseDoubleClick="DgSimilarSchedules_MouseDoubleClick">
+
+                            <DataGrid.Columns>
+                                <!-- ID -->
+                                <DataGridTextColumn Header="ID" Binding="{Binding jadwal_id}" Width="60">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="HorizontalAlignment" Value="Center"/>
+                                            <Setter Property="VerticalAlignment" Value="Center"/>
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
+
+                                <!-- Rute -->
+                                <DataGridTextColumn Header="Rute" Width="250">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="HorizontalAlignment" Value="Left"/>
+                                            <Setter Property="VerticalAlignment" Value="Center"/>
+                                            <Setter Property="Padding" Value="12,0,0,0"/>
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                    <DataGridTextColumn.Binding>
+                                        <MultiBinding StringFormat="{}{0} → {1}">
+                                            <Binding Path="pelabuhan_asal.nama_pelabuhan"/>
+                                            <Binding Path="pelabuhan_tujuan.nama_pelabuhan"/>
+                                        </MultiBinding>
+                                    </DataGridTextColumn.Binding>
+                                </DataGridTextColumn>
+
+                                <!-- Kapal -->
+                                <DataGridTextColumn Header="Kapal" Binding="{Binding kapal.nama_kapal}" Width="150">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="HorizontalAlignment" Value="Center"/>
+                                            <Setter Property="VerticalAlignment" Value="Center"/>
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
+
+                                <!-- Tanggal -->
+                                <DataGridTextColumn Header="Tanggal" Width="120">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="HorizontalAlignment" Value="Center"/>
+                                            <Setter Property="VerticalAlignment" Value="Center"/>
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                    <DataGridTextColumn.Binding>
+                                        <Binding Path="waktu_berangkat" StringFormat="dd/MM/yyyy"/>
+                                    </DataGridTextColumn.Binding>
+                                </DataGridTextColumn>
+
+                                <!-- Jam Berangkat -->
+                                <DataGridTextColumn Header="Jam Berangkat" Width="120">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="HorizontalAlignment" Value="Center"/>
+                                            <Setter Property="VerticalAlignment" Value="Center"/>
+                                            <Setter Property="FontWeight" Value="SemiBold"/>
+                                            <Setter Property="Foreground" Value="#00658D"/>
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                    <DataGridTextColumn.Binding>
+                                        <Binding Path="waktu_berangkat" StringFormat="HH:mm"/>
+                                    </DataGridTextColumn.Binding>
+                                </DataGridTextColumn>
+
+                                <!-- Jam Tiba -->
+                                <DataGridTextColumn Header="Jam Tiba" Width="120">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="HorizontalAlignment" Value="Center"/>
+                                            <Setter Property="VerticalAlignment" Value="Center"/>
+                                            <Setter Property="FontWeight" Value="SemiBold"/>
+                                            <Setter Property="Foreground" Value="#00658D"/>
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                    <DataGridTextColumn.Binding>
+                                        <Binding Path="waktu_tiba" StringFormat="HH:mm"/>
+                                    </DataGridTextColumn.Binding>
+                                </DataGridTextColumn>
+
+                                <!-- Kelas -->
+                                <DataGridTextColumn Header="Kelas" Binding="{Binding kelas_layanan}" Width="100">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="HorizontalAlignment" Value="Center"/>
+                                            <Setter Property="VerticalAlignment" Value="Center"/>
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
+
+                                <!-- Sisa Penumpang -->
+                                <DataGridTextColumn Header="Sisa Penumpang" Binding="{Binding sisa_kapasitas_penumpang}" Width="130">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="HorizontalAlignment" Value="Center"/>
+                                            <Setter Property="VerticalAlignment" Value="Center"/>
+                                            <Setter Property="Foreground" Value="#28A745"/>
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
+
+                                <!-- Status -->
+                                <DataGridTextColumn Header="Status" Binding="{Binding status}" Width="100">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="HorizontalAlignment" Value="Center"/>
+                                            <Setter Property="VerticalAlignment" Value="Center"/>
+                                            <Setter Property="FontWeight" Value="SemiBold"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding status}" Value="Active">
+                                                    <Setter Property="Foreground" Value="#28A745"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding status}" Value="Inactive">
+                                                    <Setter Property="Foreground" Value="#DC3545"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
+
+                        <TextBlock Text="💡 Double-click pada jadwal untuk melihat detailnya"
+                                  FontSize="12"
+                                  Foreground="#64748B"
+                                  FontStyle="Italic"
+                                  Margin="0,10,0,0"
+                                  HorizontalAlignment="Center"/>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</Window>

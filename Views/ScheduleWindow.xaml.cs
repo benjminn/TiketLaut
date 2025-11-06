@@ -395,24 +395,40 @@ namespace TiketLaut.Views
             {
                 try
                 {
-                    // Format tanggal keberangkatan
-                    var tanggal = _searchCriteria?.TanggalKeberangkatan ?? DateTime.Today;
+                    // ? FIX TIMEZONE: Convert UTC to pelabuhan timezone
+                    // Database menyimpan dalam UTC, convert ke timezone pelabuhan
+                    var offsetAsalHours = jadwal.pelabuhan_asal?.TimezoneOffsetHours ?? 7;  // Default WIB
+                    var offsetTujuanHours = jadwal.pelabuhan_tujuan?.TimezoneOffsetHours ?? 7;
+                    
+                    var waktuBerangkatLocal = jadwal.waktu_berangkat.AddHours(offsetAsalHours);
+                    var waktuTibaLocal = jadwal.waktu_tiba.AddHours(offsetTujuanHours);
+
+                    // Format tanggal keberangkatan (gunakan timezone pelabuhan asal)
+                    var tanggal = waktuBerangkatLocal.Date;
                     var boardingDate = tanggal.ToString("dddd, dd MMMM yyyy",
                         new System.Globalization.CultureInfo("id-ID"));
 
-                    // Hitung durasi perjalanan
+                    // Hitung durasi perjalanan (ACTUAL duration, bukan display time difference)
                     var duration = jadwal.waktu_tiba - jadwal.waktu_berangkat;
                     var durationText = $"{(int)duration.TotalHours} jam {duration.Minutes} menit";
 
-                    // Format waktu check-in (15 menit sebelum berangkat)
-                    var checkInTime = jadwal.waktu_berangkat.AddMinutes(-15);
+                    // Format waktu check-in (15 menit sebelum berangkat) - gunakan timezone pelabuhan asal
+                    var checkInTime = waktuBerangkatLocal.AddMinutes(-15);
                     var warningText = $"Masuk pelabuhan (check-in) sebelum {checkInTime:HH:mm}";
 
-                    // Cari harga kendaraan yang sesuai
-                    var detailKendaraan = jadwal.DetailKendaraans
-                        ?.FirstOrDefault(dk => dk.jenis_kendaraan == _searchCriteria?.JenisKendaraanId);
+                    // Cari harga kendaraan yang sesuai dari GrupKendaraan
+                    var detailKendaraan = jadwal.GrupKendaraan?.DetailKendaraans?
+                        .FirstOrDefault(d => d.jenis_kendaraan == _searchCriteria?.JenisKendaraanId);
+                    
+                    // Validasi jenis kendaraan tersedia
+                    if (detailKendaraan == null)
+                    {
+                        // Jadwal ini tidak support jenis kendaraan yang dicari
+                        System.Diagnostics.Debug.WriteLine($"[LoadSchedule] Skip jadwal {jadwal.jadwal_id} - jenis kendaraan tidak tersedia dalam grup");
+                        continue;
+                    }
 
-                    decimal harga = detailKendaraan?.harga_kendaraan ?? 0;
+                    decimal harga = detailKendaraan.harga_kendaraan;
 
                     // LOGIC BARU: Hitung total harga berdasarkan jenis kendaraan
                     int jumlahPenumpang = _searchCriteria?.JumlahPenumpang ?? 1;
@@ -447,9 +463,9 @@ namespace TiketLaut.Views
                         FerryType = jadwal.kelas_layanan ?? "Reguler",
                         BoardingDate = boardingDate,
                         WarningText = warningText,
-                        DepartureTime = jadwal.waktu_berangkat.ToString("HH:mm"),
+                        DepartureTime = waktuBerangkatLocal.ToString("HH:mm"),  // Tanpa label timezone
                         DeparturePort = departurePort,
-                        ArrivalTime = jadwal.waktu_tiba.ToString("HH:mm"),
+                        ArrivalTime = waktuTibaLocal.ToString("HH:mm"),  // Tanpa label timezone
                         ArrivalPort = arrivalPort,
                         Duration = durationText,
                         Capacity = $"Kapasitas Tersedia ({jadwal.sisa_kapasitas_penumpang})",
