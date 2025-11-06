@@ -32,6 +32,19 @@ namespace TiketLaut.Views
             LoadBookingDataFromDatabaseAsync();
         }
 
+        private string GetStatusDisplayText(string statusString)
+        {
+            return statusString switch
+            {
+                "Menunggu Pembayaran" => "Menunggu Pembayaran",
+                "Menunggu Validasi" => "Menunggu Validasi",
+                "Sukses" => "Sukses",
+                "Gagal" => "Gagal",
+                "Selesai" => "Selesai",
+                _ => statusString
+            };
+        }
+
         /// <summary>
         /// Load booking data real dari database
         /// </summary>
@@ -92,32 +105,34 @@ namespace TiketLaut.Views
                     System.Diagnostics.Debug.WriteLine($"  - tiket: {tiket.kode_tiket}");
 
                     // ? Tentukan status dan warna berdasarkan status_bayar
-                    string status = pembayaran.status_bayar;
+                    string status = GetStatusDisplayText(pembayaran.status_bayar);
                     SolidColorBrush statusColor;
                     Visibility showWarning;
 
                     switch (status)
                     {
-                        case "Aktif":
-                            System.Diagnostics.Debug.WriteLine($"  - Matched case: Aktif (GREEN)");
-                            statusColor = new SolidColorBrush(Color.FromRgb(106, 201, 54)); // ?? Green #6AC936
+                        case "Sukses":
+                            System.Diagnostics.Debug.WriteLine($"  - Matched case: Sukses (GREEN)");
+                            statusColor = new SolidColorBrush(Color.FromRgb(106, 201, 54)); // Green
                             showWarning = Visibility.Visible;
-                            status = "Aktif";
                             break;
                         case "Menunggu Pembayaran":
-                            System.Diagnostics.Debug.WriteLine($"  - Matched case: Menunggu Pembayaran (CYAN)");
-                            statusColor = new SolidColorBrush(Color.FromRgb(0, 180, 181)); // ?? Cyan #00B4B5
+                            System.Diagnostics.Debug.WriteLine($"  - Matched case: Menunggu Pembayaran (ORANGE)");
+                            statusColor = new SolidColorBrush(Color.FromRgb(255, 165, 0)); // Orange
                             showWarning = Visibility.Collapsed;
-                            status = "Menunggu Pembayaran";
+                            break;
+                        case "Menunggu Validasi":
+                            System.Diagnostics.Debug.WriteLine($"  - Matched case: Menunggu Validasi (CYAN)");
+                            statusColor = new SolidColorBrush(Color.FromRgb(0, 180, 181)); // Cyan
+                            showWarning = Visibility.Collapsed;
                             break;
                         case "Gagal":
                             System.Diagnostics.Debug.WriteLine($"  - Matched case: Gagal (RED)");
-                            statusColor = new SolidColorBrush(Color.FromRgb(248, 33, 33)); // ?? Red #F82121
+                            statusColor = new SolidColorBrush(Color.FromRgb(248, 33, 33)); // Red
                             showWarning = Visibility.Collapsed;
-                            status = "Gagal";
                             break;
                         default:
-                            System.Diagnostics.Debug.WriteLine($"  - Matched case: DEFAULT (GRAY) - status_bayar was: '{pembayaran.status_bayar}'");
+                            System.Diagnostics.Debug.WriteLine($"  - Matched case: DEFAULT (GRAY)");
                             statusColor = Brushes.Gray;
                             showWarning = Visibility.Collapsed;
                             break;
@@ -157,7 +172,7 @@ namespace TiketLaut.Views
                 if (!BookingItems.Any())
                 {
                     MessageBox.Show(
-                        "Anda belum memiliki booking aktif.",
+                        "Anda belum memiliki booking Sukses.",
                         "Info",
                         MessageBoxButton.OK,
                         MessageBoxImage.Information);

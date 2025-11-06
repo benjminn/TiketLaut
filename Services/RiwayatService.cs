@@ -27,8 +27,9 @@ namespace TiketLaut.Services
             try
             {
                 var nowUtc = DateTime.UtcNow;
+                int totalUpdated = 0;
 
-                // Get IDs yang perlu di-update
+                // ✅ BAGIAN 1: Update "Aktif" menjadi "Selesai" jika waktu tiba sudah lewat
                 var pembayaranAktif = await _context.Pembayarans
                     .AsNoTracking()
                     .Include(p => p.tiket)
@@ -37,54 +38,141 @@ namespace TiketLaut.Services
                     .Select(p => new
                     {
                         p.pembayaran_id,
-                        p.tiket.tanggal_pemesanan,  // ❌ INI YANG SALAH - Harusnya tanggal keberangkatan
+                        p.tiket.tanggal_pemesanan,
                         p.tiket.Jadwal.waktu_berangkat,
                         p.tiket.Jadwal.waktu_tiba,
                         p.tiket.kode_tiket
                     })
                     .ToListAsync();
 
-                // ✅ FIX: Hanya update jika kapal sudah TIBA (bukan hanya berangkat)
-                var idsToUpdate = pembayaranAktif
+                var idsToComplete = pembayaranAktif
                     .Where(p =>
                     {
-                        // waktu_tiba sudah DateTime (timestamptz) dari database
                         var waktuTibaUtc = DateTime.SpecifyKind(p.waktu_tiba, DateTimeKind.Utc);
-
-                        System.Diagnostics.Debug.WriteLine(
-                            $"[RiwayatService] Checking pembayaran {p.pembayaran_id} " +
-                            $"(Tiket: {p.kode_tiket}): waktuTiba={waktuTibaUtc:yyyy-MM-dd HH:mm}, now={nowUtc:yyyy-MM-dd HH:mm}");
-
                         return waktuTibaUtc < nowUtc;
                     })
                     .Select(p => p.pembayaran_id)
                     .ToList();
 
-                if (!idsToUpdate.Any())
+                if (idsToComplete.Any())
+                {
+                    System.Diagnostics.Debug.WriteLine($"[RiwayatService] Found {idsToComplete.Count} payments to update to Selesai");
+
+                    string completeIds = string.Join(",", idsToComplete);
+                    string completeSql = $@"
+                UPDATE ""Pembayaran"" 
+                SET status_bayar = 'Selesai' 
+                WHERE pembayaran_id IN ({completeIds})";
+
+                    int completedRows = await _context.Database.ExecuteSqlRawAsync(completeSql);
+                    totalUpdated += completedRows;
+
+                    System.Diagnostics.Debug.WriteLine($"[RiwayatService] Updated {completedRows} payments to Selesai");
+                }
+
+                // ✅ BAGIAN 2: Mark pembayaran yang timeout (24 jam) sebagai "Gagal"
+                var timeoutCutoff = nowUtc.AddHours(-24); // 24 hours ago
+
+                var pembayaranTimeout = await _context.Pembayarans
+                    .AsNoTracking()
+                    .Include(p => p.tiket)
+                    .Where(p => p.status_bayar == "Menunggu Pembayaran" &&
+                               p.tiket.tanggal_pemesanan < timeoutCutoff)
+                    .Select(p => new
+                    {
+                        p.pembayaran_id,
+                        p.tiket.kode_tiket,
+                        p.tiket.tanggal_pemesanan
+                    })
+                    .ToListAsync();
+
+                if (pembayaranTimeout.Any())
+                {
+                    System.Diagnostics.Debug.WriteLine($"[RiwayatService] Found {pembayaranTimeout.Count} timed-out payments to mark as Gagal");
+
+                    foreach (var timeout in pembayaranTimeout)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"  - Tiket: {timeout.kode_tiket}, Booking: {timeout.tanggal_pemesanan}");
+                    }
+
+                    string timeoutIds = string.Join(",", pembayaranTimeout.Select(p => p.pembayaran_id));
+                    string timeoutSql = $@"
+                UPDATE ""Pembayaran"" 
+                SET status_bayar = 'Gagal' 
+                WHERE pembayaran_id IN ({timeoutIds})";
+
+                    int timeoutRows = await _context.Database.ExecuteSqlRawAsync(timeoutSql);
+                    totalUpdated += timeoutRows;
+
+                    System.Diagnostics.Debug.WriteLine($"[RiwayatService] Marked {timeoutRows} timed-out payments as Gagal");
+
+                    // ✅ BAGIAN 3: Update status tiket yang timeout juga menjadi "Gagal"
+                    var tiketIds = string.Join(",", pembayaranTimeout.Select(p => p.pembayaran_id));
+                    string updateTiketSql = $@"
+                UPDATE ""Tiket"" 
+                SET status_tiket = 'Gagal' 
+                WHERE tiket_id IN (
+                    SELECT tiket_id FROM ""Pembayaran"" 
+                    WHERE pembayaran_id IN ({timeoutIds})
+                )";
+
+                    await _context.Database.ExecuteSqlRawAsync(updateTiketSql);
+                    System.Diagnostics.Debug.WriteLine($"[RiwayatService] Updated corresponding tickets to Gagal status");
+                }
+
+                // ✅ BAGIAN 4: Mark pembayaran "Menunggu Validasi" yang sudah 48 jam sebagai "Gagal"
+                var validationTimeoutCutoff = nowUtc.AddHours(-48); // 48 hours ago
+
+                var pembayaranValidationTimeout = await _context.Pembayarans
+                    .AsNoTracking()
+                    .Include(p => p.tiket)
+                    .Where(p => p.status_bayar == "Menunggu Validasi" &&
+                               p.tanggal_bayar < validationTimeoutCutoff)
+                    .Select(p => new
+                    {
+                        p.pembayaran_id,
+                        p.tiket.kode_tiket,
+                        p.tanggal_bayar
+                    })
+                    .ToListAsync();
+
+                if (pembayaranValidationTimeout.Any())
+                {
+                    System.Diagnostics.Debug.WriteLine($"[RiwayatService] Found {pembayaranValidationTimeout.Count} validation-timed-out payments to mark as Gagal");
+
+                    string validationTimeoutIds = string.Join(",", pembayaranValidationTimeout.Select(p => p.pembayaran_id));
+                    string validationTimeoutSql = $@"
+                UPDATE ""Pembayaran"" 
+                SET status_bayar = 'Gagal' 
+                WHERE pembayaran_id IN ({validationTimeoutIds})";
+
+                    int validationTimeoutRows = await _context.Database.ExecuteSqlRawAsync(validationTimeoutSql);
+                    totalUpdated += validationTimeoutRows;
+
+                    System.Diagnostics.Debug.WriteLine($"[RiwayatService] Marked {validationTimeoutRows} validation-timed-out payments as Gagal");
+
+                    // Update corresponding tickets
+                    string updateValidationTiketSql = $@"
+                UPDATE ""Tiket"" 
+                SET status_tiket = 'Gagal' 
+                WHERE tiket_id IN (
+                    SELECT tiket_id FROM ""Pembayaran"" 
+                    WHERE pembayaran_id IN ({validationTimeoutIds})
+                )";
+
+                    await _context.Database.ExecuteSqlRawAsync(updateValidationTiketSql);
+                }
+
+                if (totalUpdated == 0)
                 {
                     System.Diagnostics.Debug.WriteLine("[RiwayatService] No payments to update");
-                    return 0;
                 }
-
-                System.Diagnostics.Debug.WriteLine($"[RiwayatService] Found {idsToUpdate.Count} payments to update to Selesai");
-                foreach (var id in idsToUpdate)
+                else
                 {
-                    System.Diagnostics.Debug.WriteLine($"  - Pembayaran ID: {id}");
+                    System.Diagnostics.Debug.WriteLine($"[RiwayatService] Total updated payments: {totalUpdated}");
                 }
 
-                // ✅ USE RAW SQL - Bypass EF tracking
-                string ids = string.Join(",", idsToUpdate);
-                string sql = $@"
-                    UPDATE ""Pembayaran"" 
-                    SET status_bayar = 'Selesai' 
-                    WHERE pembayaran_id IN ({ids})";
-
-                int rowsAffected = await _context.Database.ExecuteSqlRawAsync(sql);
-
-                System.Diagnostics.Debug.WriteLine(
-                    $"[RiwayatService] Updated {rowsAffected} payments using raw SQL");
-
-                return rowsAffected;
+                return totalUpdated;
             }
             catch (Exception ex)
             {
@@ -104,7 +192,7 @@ namespace TiketLaut.Services
                 // ✅ AUTO-UPDATE: Jalankan auto-update dulu
                 await AutoUpdatePembayaranSelesaiAsync();
 
-                // ✅ HANYA ambil pembayaran dengan status "Selesai"
+                // ✅ UPDATED: Include both "Selesai" and "Gagal" in history
                 var riwayat = await _context.Pembayarans
                     .Include(p => p.tiket)
                         .ThenInclude(t => t.Jadwal)
@@ -118,11 +206,11 @@ namespace TiketLaut.Services
                     .Include(p => p.tiket)
                         .ThenInclude(t => t.Pengguna)
                     .Where(p => p.tiket.pengguna_id == penggunaId &&
-                                p.status_bayar == "Selesai") // ✅ HANYA "Selesai"
+                                (p.status_bayar == "Selesai" || p.status_bayar == "Gagal"))
                     .OrderByDescending(p => p.tiket.tanggal_pemesanan)
                     .ToListAsync();
 
-                System.Diagnostics.Debug.WriteLine($"[RiwayatService] Found {riwayat.Count} completed trips for user {penggunaId}");
+                System.Diagnostics.Debug.WriteLine($"[RiwayatService] Found {riwayat.Count} completed/failed trips for user {penggunaId}");
 
                 return riwayat;
             }
@@ -215,3 +303,4 @@ namespace TiketLaut.Services
         public string RuteFavorit { get; set; } = string.Empty;
     }
 }
+

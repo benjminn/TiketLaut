@@ -196,7 +196,8 @@
                     <StackPanel Grid.Column="0">
 
                         <!-- Deadline Card -->
-                        <Border Background="White" 
+                        <Border x:Name="DeadlineCard"
+                            Background="White" 
                             CornerRadius="20" 
                             Padding="25,20"
                             BorderBrush="#267DAE" 
@@ -204,10 +205,10 @@
                             Margin="0,0,0,20">
                             <Border.Effect>
                                 <DropShadowEffect Color="#000000" 
-                                            Direction="270" 
-                                            ShadowDepth="9" 
-                                            BlurRadius="10.9" 
-                                            Opacity="0.06"/>
+                                    Direction="270" 
+                                    ShadowDepth="9" 
+                                    BlurRadius="10.9" 
+                                    Opacity="0.06"/>
                             </Border.Effect>
 
                             <Grid>
@@ -227,7 +228,8 @@
                                      Margin="0,0,10,0"/>
 
                                 <TextBlock Grid.Column="2"
-                                     Text="24 Oktober 2025, 18:30 WIB"
+                                     x:Name="txtDeadlineTime"
+                                     Text="24 Oktober 2025, 18:30 WIB (23:59:59)"
                                      FontSize="16"
                                      FontWeight="Bold"
                                      Foreground="#042769"
@@ -741,7 +743,8 @@
                         <StackPanel>
                             <!-- Order Details -->
                             <StackPanel Margin="0,0,0,16">
-                                <TextBlock Text="Order ID: 1234567890"
+                                <TextBlock x:Name="txtOrderId"
+                                    Text="Order ID: 1234567890"
                                      FontSize="16"
                                      FontWeight="SemiBold"
                                      Foreground="#267DAE"
@@ -749,7 +752,8 @@
                                      Margin="0,0,0,12"/>
 
                                 <StackPanel>
-                                    <TextBlock Text="Reguler"
+                                    <TextBlock x:Name="txtFerryType"
+                                         Text="Reguler"
                                          FontSize="20"
                                          FontWeight="Bold"
                                          Foreground="#042769"
@@ -759,7 +763,8 @@
                                     <StackPanel Orientation="Horizontal" 
                                           HorizontalAlignment="Left"
                                           Margin="0,0,0,8">
-                                        <TextBlock Text="Bakauheni"
+                                        <TextBlock x:Name="txtDeparturePort"
+                                            Text="Bakauheni"
                                              FontSize="16"
                                              FontWeight="SemiBold"
                                              Foreground="#267DAE"
@@ -776,7 +781,8 @@
                                           VerticalAlignment="Center"
                                           Margin="0,0,8,0"/>
 
-                                        <TextBlock Text="Merak"
+                                        <TextBlock x:Name="txtArrivalPort"
+                                            Text="Merak"
                                              FontSize="16"
                                              FontWeight="SemiBold"
                                              Foreground="#267DAE"
@@ -784,7 +790,8 @@
                                              TextWrapping="Wrap"/>
                                     </StackPanel>
 
-                                    <TextBlock Text="Kam, 23 Okt 2025 - 20:30"
+                                    <TextBlock x:Name="txtDateTime" 
+                                        Text="Kam, 23 Okt 2025 - 20:30"
                                          FontSize="16"
                                          FontWeight="Medium"
                                          Foreground="#042769"

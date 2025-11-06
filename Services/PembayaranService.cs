@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,7 +18,7 @@ namespace TiketLaut.Services
 
         /// <summary>
         /// Buat pembayaran baru setelah user konfirmasi di PaymentWindow
-        /// Status awal: "Menunggu Konfirmasi"
+        /// Status awal: "Menunggu Pembayaran"
         /// </summary>
         public async Task<Pembayaran> CreatePembayaranAsync(
             int tiketId,
@@ -42,18 +42,20 @@ namespace TiketLaut.Services
 
                 System.Diagnostics.Debug.WriteLine($"[PembayaranService] Tiket found: {tiket.kode_tiket}");
 
-                // Validasi tiket belum dibayar
+                // Check existing pembayaran using correct enum values
                 var existingPembayaran = await _context.Pembayarans
-                    .FirstOrDefaultAsync(p => p.tiket_id == tiketId && p.status_bayar == "Confirmed");
+                    .FirstOrDefaultAsync(p => p.tiket_id == tiketId &&
+                        (p.status_bayar == "Menunggu Validasi" ||
+                         p.status_bayar == "Aktif"));
 
                 if (existingPembayaran != null)
                 {
-                    throw new Exception("Tiket ini sudah dibayar!");
+                    throw new Exception($"Tiket ini sudah memiliki pembayaran dengan status {existingPembayaran.status_bayar}!");
                 }
 
                 System.Diagnostics.Debug.WriteLine($"[PembayaranService] Creating new Pembayaran record...");
 
-                // Buat record pembayaran baru
+                // Status awal setelah pilih metode
                 var pembayaran = new Pembayaran
                 {
                     tiket_id = tiketId,
@@ -64,15 +66,9 @@ namespace TiketLaut.Services
                 };
 
                 _context.Pembayarans.Add(pembayaran);
+                await _context.SaveChangesAsync();
 
-                System.Diagnostics.Debug.WriteLine($"[PembayaranService] Pembayaran added to context, calling SaveChangesAsync...");
-
-                int rowsAffected = await _context.SaveChangesAsync();
-
-                System.Diagnostics.Debug.WriteLine($"[PembayaranService] SaveChangesAsync completed. Rows affected: {rowsAffected}");
-                System.Diagnostics.Debug.WriteLine($"[PembayaranService] Pembayaran created successfully:");
-                System.Diagnostics.Debug.WriteLine($"  pembayaran_id: {pembayaran.pembayaran_id}");
-                System.Diagnostics.Debug.WriteLine($"  status_bayar: {pembayaran.status_bayar}");
+                System.Diagnostics.Debug.WriteLine($"[PembayaranService] Created payment with status: {pembayaran.status_bayar}");
 
                 return pembayaran;
             }
@@ -130,7 +126,7 @@ namespace TiketLaut.Services
 
         /// <summary>
         /// Update status pembayaran (untuk admin konfirmasi)
-        /// Status yang valid: "Menunggu Pembayaran", "Menunggu Validasi", "Sukses", "Gagal"
+        /// Status yang valid: "Menunggu Pembayaran", "Menunggu Validasi", "Aktif", "Gagal", "Selesai"
         /// </summary>
         public async Task<bool> UpdateStatusPembayaranAsync(int pembayaranId, string statusBaru)
         {
@@ -146,7 +142,7 @@ namespace TiketLaut.Services
                 }
 
                 // Validasi status yang valid
-                var validStatuses = new[] { "Menunggu Pembayaran", "Menunggu Validasi", "Sukses", "Gagal" };
+                var validStatuses = new[] { "Menunggu Pembayaran", "Menunggu Validasi", "Aktif", "Gagal", "Selesai" };
                 if (!validStatuses.Contains(statusBaru))
                 {
                     throw new Exception($"Status '{statusBaru}' tidak valid! Gunakan: {string.Join(", ", validStatuses)}");
@@ -156,13 +152,17 @@ namespace TiketLaut.Services
                 pembayaran.status_bayar = statusBaru;
 
                 // Update status tiket sesuai status pembayaran
-                if (statusBaru == "Sukses")
+                switch (statusBaru)
                 {
-                    pembayaran.tiket.status_tiket = "Active";
-                }
-                else if (statusBaru == "Gagal")
-                {
-                    pembayaran.tiket.status_tiket = "Cancelled";
+                    case "Aktif":
+                        pembayaran.tiket.status_tiket = "Aktif";
+                        break;
+                    case "Gagal":
+                        pembayaran.tiket.status_tiket = "Gagal";
+                        break;
+                    case "Selesai":
+                        pembayaran.tiket.status_tiket = "Selesai";
+                        break;
                 }
 
                 await _context.SaveChangesAsync();
@@ -178,7 +178,53 @@ namespace TiketLaut.Services
         }
 
         /// <summary>
-        /// Get pembayaran berdasarkan tiket ID
+        /// Update payment method and amount (when user changes payment method)
+        /// </summary>
+        public async Task<bool> UpdatePembayaranMethodAsync(int pembayaranId, string newMethodePembayaran, decimal newJumlahBayar)
+        {
+            try
+            {
+                var pembayaran = await _context.Pembayarans
+                    .FirstOrDefaultAsync(p => p.pembayaran_id == pembayaranId);
+
+                if (pembayaran == null)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[PembayaranService] Payment {pembayaranId} not found");
+                    return false;
+                }
+
+                // Only allow updating if status is still "Menunggu Pembayaran"
+                if (pembayaran.status_bayar != "Menunggu Pembayaran")
+                {
+                    System.Diagnostics.Debug.WriteLine($"[PembayaranService] Cannot update payment method. Current status: {pembayaran.status_bayar}");
+                    return false;
+                }
+
+                var oldMethod = pembayaran.metode_pembayaran;
+                var oldAmount = pembayaran.jumlah_bayar;
+
+                // Update method and amount
+                pembayaran.metode_pembayaran = newMethodePembayaran;
+                pembayaran.jumlah_bayar = newJumlahBayar;
+                pembayaran.tanggal_bayar = DateTime.UtcNow; // Update timestamp
+
+                await _context.SaveChangesAsync();
+
+                System.Diagnostics.Debug.WriteLine($"[PembayaranService] Updated payment {pembayaranId}:");
+                System.Diagnostics.Debug.WriteLine($"  Method: {oldMethod} → {newMethodePembayaran}");
+                System.Diagnostics.Debug.WriteLine($"  Amount: {oldAmount} → {newJumlahBayar}");
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[PembayaranService] Error updating payment method: {ex.Message}");
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Get pembayaran by tiket ID
         /// </summary>
         public async Task<Pembayaran?> GetPembayaranByTiketIdAsync(int tiketId)
         {
@@ -200,6 +246,36 @@ namespace TiketLaut.Services
             {
                 System.Diagnostics.Debug.WriteLine($"[PembayaranService] Error getting pembayaran: {ex.Message}");
                 return null;
+            }
+        }
+
+        /// <summary>
+        /// Get pembayaran by ID dengan semua relasi untuk detail view
+        /// </summary>
+        public async Task<Pembayaran?> GetPembayaranByIdAsync(int pembayaranId)
+        {
+            try
+            {
+                return await _context.Pembayarans
+                    .Include(p => p.tiket)
+                        .ThenInclude(t => t.Pengguna)
+                    .Include(p => p.tiket)
+                        .ThenInclude(t => t.Jadwal)
+                            .ThenInclude(j => j.pelabuhan_asal)
+                    .Include(p => p.tiket)
+                        .ThenInclude(t => t.Jadwal)
+                            .ThenInclude(j => j.pelabuhan_tujuan)
+                    .Include(p => p.tiket)
+                        .ThenInclude(t => t.Jadwal)
+                            .ThenInclude(j => j.kapal)
+                    .Include(p => p.tiket)
+                        .ThenInclude(t => t.RincianPenumpangs)
+                    .FirstOrDefaultAsync(p => p.pembayaran_id == pembayaranId);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[PembayaranService] Error GetPembayaranByIdAsync: {ex.Message}");
+                throw;
             }
         }
 
@@ -301,37 +377,7 @@ namespace TiketLaut.Services
         }
 
         /// <summary>
-        /// Get pembayaran by ID dengan semua relasi untuk detail view
-        /// </summary>
-        public async Task<Pembayaran?> GetPembayaranByIdAsync(int pembayaranId)
-        {
-            try
-            {
-                return await _context.Pembayarans
-                    .Include(p => p.tiket)
-                        .ThenInclude(t => t.Pengguna)
-                    .Include(p => p.tiket)
-                        .ThenInclude(t => t.Jadwal)
-                            .ThenInclude(j => j.pelabuhan_asal)
-                    .Include(p => p.tiket)
-                        .ThenInclude(t => t.Jadwal)
-                            .ThenInclude(j => j.pelabuhan_tujuan)
-                    .Include(p => p.tiket)
-                        .ThenInclude(t => t.Jadwal)
-                            .ThenInclude(j => j.kapal)
-                    .Include(p => p.tiket)
-                        .ThenInclude(t => t.RincianPenumpangs)
-                    .FirstOrDefaultAsync(p => p.pembayaran_id == pembayaranId);
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"[PembayaranService] Error GetPembayaranByIdAsync: {ex.Message}");
-                throw;
-            }
-        }
-
-        /// <summary>
-        /// Admin validasi pembayaran - ubah status dari Menunggu Validasi ke Sukses
+        /// Admin validasi pembayaran - ubah status dari Menunggu Validasi ke Aktif
         /// </summary>
         public async Task<(bool success, string message)> ValidasiPembayaranAsync(int pembayaranId)
         {
@@ -346,7 +392,7 @@ namespace TiketLaut.Services
                     return (false, "Pembayaran tidak ditemukan");
                 }
 
-                if (pembayaran.status_bayar == "Sukses")
+                if (pembayaran.status_bayar == "Aktif")
                 {
                     return (false, "Pembayaran sudah divalidasi sebelumnya");
                 }
@@ -357,12 +403,12 @@ namespace TiketLaut.Services
                 }
 
                 // Update status pembayaran
-                pembayaran.status_bayar = "Sukses";
+                pembayaran.status_bayar = "Aktif";
                 
                 // Update status tiket menjadi aktif
                 if (pembayaran.tiket != null)
                 {
-                    pembayaran.tiket.status_tiket = "Active";
+                    pembayaran.tiket.status_tiket = "Aktif";
                 }
 
                 await _context.SaveChangesAsync();
@@ -393,18 +439,18 @@ namespace TiketLaut.Services
                     return (false, "Pembayaran tidak ditemukan");
                 }
 
-                if (pembayaran.status_bayar == "Sukses")
+                if (pembayaran.status_bayar == "Aktif")
                 {
-                    return (false, "Pembayaran yang sudah sukses tidak bisa ditolak");
+                    return (false, "Pembayaran yang sudah aktif tidak bisa ditolak");
                 }
 
                 // Update status pembayaran
                 pembayaran.status_bayar = "Gagal";
                 
-                // Update status tiket menjadi cancelled
+                // Update status tiket menjadi gagal
                 if (pembayaran.tiket != null)
                 {
-                    pembayaran.tiket.status_tiket = "Cancelled";
+                    pembayaran.tiket.status_tiket = "Gagal";
                 }
 
                 await _context.SaveChangesAsync();
@@ -416,6 +462,102 @@ namespace TiketLaut.Services
             {
                 System.Diagnostics.Debug.WriteLine($"[PembayaranService] Error TolakPembayaranAsync: {ex.Message}");
                 return (false, $"Gagal tolak pembayaran: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Mark payment as failed due to validation timeout or admin rejection
+        /// </summary>
+        public async Task<bool> MarkPaymentAsFailedAsync(int pembayaranId, string reason = "Tidak tervalidasi")
+        {
+            try
+            {
+                var pembayaran = await _context.Pembayarans
+                    .Include(p => p.tiket)
+                    .FirstOrDefaultAsync(p => p.pembayaran_id == pembayaranId);
+
+                if (pembayaran == null)
+                {
+                    throw new Exception($"Pembayaran dengan ID {pembayaranId} tidak ditemukan!");
+                }
+
+                // Only allow changing status if currently waiting for validation
+                if (pembayaran.status_bayar != "Menunggu Validasi")
+                {
+                    throw new Exception($"Pembayaran tidak dalam status 'Menunggu Validasi'. Status saat ini: {pembayaran.status_bayar}");
+                }
+
+                // Update payment status to failed
+                pembayaran.status_bayar = "Gagal";
+
+                // Update ticket status to failed
+                pembayaran.tiket.status_tiket = "Gagal";
+
+                await _context.SaveChangesAsync();
+
+                System.Diagnostics.Debug.WriteLine($"[PembayaranService] Payment {pembayaranId} marked as failed. Reason: {reason}");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[PembayaranService] Error marking payment as failed: {ex.Message}");
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Get all payments that are pending validation and past deadline (for automated cleanup)
+        /// </summary>
+        public async Task<List<Pembayaran>> GetExpiredPendingPaymentsAsync(int timeoutHours = 48)
+        {
+            try
+            {
+                var cutoffTime = DateTime.UtcNow.AddHours(-timeoutHours);
+
+                return await _context.Pembayarans
+                    .Include(p => p.tiket)
+                        .ThenInclude(t => t.Jadwal)
+                    .Where(p => p.status_bayar == "Menunggu Validasi" &&
+                               p.tanggal_bayar < cutoffTime)
+                    .ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[PembayaranService] Error getting expired pending payments: {ex.Message}");
+                return new List<Pembayaran>();
+            }
+        }
+
+        /// <summary>
+        /// Auto-mark expired pending payments as failed (for background service)
+        /// </summary>
+        public async Task<int> AutoMarkExpiredPaymentsAsFailedAsync(int timeoutHours = 48)
+        {
+            try
+            {
+                var expiredPayments = await GetExpiredPendingPaymentsAsync(timeoutHours);
+                int failedCount = 0;
+
+                foreach (var payment in expiredPayments)
+                {
+                    try
+                    {
+                        await MarkPaymentAsFailedAsync(payment.pembayaran_id, "Timeout validasi");
+                        failedCount++;
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"[PembayaranService] Failed to mark payment {payment.pembayaran_id} as failed: {ex.Message}");
+                    }
+                }
+
+                System.Diagnostics.Debug.WriteLine($"[PembayaranService] Auto-marked {failedCount} expired payments as failed");
+                return failedCount;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[PembayaranService] Error in auto-mark expired payments: {ex.Message}");
+                return 0;
             }
         }
 
