@@ -63,7 +63,7 @@ namespace TiketLaut
                 JenisKendaraan.Golongan_V_A => (6, "Mobil bus penumpang", "Panjang 5 meter sampai dengan 7 meter"),
                 JenisKendaraan.Golongan_V_B => (7, "Mobil barang (truk/tangki) ukuran sedang", "Panjang 5 meter sampai dengan 7 meter"),
                 JenisKendaraan.Golongan_VI_A => (8, "Mobil bus penumpang", "Panjang 7 meter sampai dengan 10 meter"),
-                JenisKendaraan.Golongan_VI_B => (10, "Mobil bagang (truk/tangki) sedang dan mobil penarik tanpa gandengan", "Panjang 7 meter sampai dengan 10 meter"),
+                JenisKendaraan.Golongan_VI_B => (10, "Mobil barang (truk/tangki) sedang dan mobil penarik tanpa gandengan", "Panjang 7 meter sampai dengan 10 meter"),
                 JenisKendaraan.Golongan_VII => (12, "Mobil barang (truk) tronton, mobil tangki, mobil penarik berikut gandengan", "Panjang 10 meter sampai dengan 12 meter"),
                 JenisKendaraan.Golongan_VIII => (16, "Mobil barang (truk) tronton, mobil tangki, kendaraan alat berat, mobil penarik berikut gandengan", "Panjang 12 meter sampai dengan 16 meter"),
                 JenisKendaraan.Golongan_IX => (20, "Mobil barang (truk) tronton, mobil tangki, kendaraan alat berat, mobil penarik berikut gandengan", "Panjang lebih dari 16 meter"),
