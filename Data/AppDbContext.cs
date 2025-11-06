@@ -27,6 +27,7 @@ namespace TiketLaut.Data
 
             modelBuilder.HasDefaultSchema("public");
 
+            // Table configurations
             modelBuilder.Entity<Pengguna>().ToTable("Pengguna");
             modelBuilder.Entity<Admin>().ToTable("Admin");
             modelBuilder.Entity<Pelabuhan>().ToTable("Pelabuhan");
@@ -40,6 +41,7 @@ namespace TiketLaut.Data
             modelBuilder.Entity<DetailKendaraan>().ToTable("DetailKendaraan");
             modelBuilder.Entity<Notifikasi>().ToTable("Notifikasi");
 
+            // Other configurations
             modelBuilder.Entity<Pengguna>()
                 .Property(p => p.alamat)
                 .IsRequired(false);
@@ -71,6 +73,13 @@ namespace TiketLaut.Data
             modelBuilder.Entity<Pengguna>()
                 .HasIndex(p => p.email)
                 .IsUnique();
+
+            // ? SIMPLE FIX: Store enum as string in text column
+            modelBuilder.Entity<Pembayaran>()
+                .Property(p => p.status_bayar)
+                .HasConversion<string>()  // Simple enum-to-string conversion
+                .HasColumnType("text")    // Use text column instead of enum
+                .HasDefaultValue("MenungguPembayaran");
         }
     }
 }

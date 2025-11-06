@@ -172,26 +172,30 @@ namespace TiketLaut.Services
                     TotalJadwal = await _context.Jadwals.Where(j => j.status == "Active").CountAsync(),
                     TotalKapal = await _context.Kapals.CountAsync(),
                     TotalPelabuhan = await _context.Pelabuhans.CountAsync(),
-                    
+
                     TiketMenungguPembayaran = await _context.Tikets
                         .CountAsync(t => t.status_tiket == "Menunggu Pembayaran"),
-                    
-                    TiketAktif = await _context.Tikets
+
+                    TiketSukses = await _context.Tikets
                         .CountAsync(t => t.status_tiket == "Aktif"),
-                    
+
                     PembayaranMenungguKonfirmasi = await _context.Pembayarans
-                        .CountAsync(p => p.status_bayar == "Menunggu Konfirmasi"),
-                    
+                    .CountAsync(p => p.status_bayar == "Menunggu Validasi"),
+
+                    // ? FIXED: Use enum instead of string
                     TotalPendapatanHariIni = await _context.Pembayarans
-                        .Where(p => p.status_bayar == "Confirmed" && 
-                                   p.tanggal_bayar.Date == DateTime.Today)
-                        .SumAsync(p => (decimal?)p.jumlah_bayar) ?? 0,
-                    
+                    .Where(p => p.status_bayar == "Sukses" &&
+                               p.tanggal_bayar.Date == DateTime.Today)
+                    .SumAsync(p => (decimal?)p.jumlah_bayar) ?? 0,
+
+                    // ? FIXED: Use enum instead of string  
                     TotalPendapatanBulanIni = await _context.Pembayarans
-                        .Where(p => p.status_bayar == "Confirmed" && 
-                                   p.tanggal_bayar.Month == DateTime.Now.Month &&
-                                   p.tanggal_bayar.Year == DateTime.Now.Year)
-                        .SumAsync(p => (decimal?)p.jumlah_bayar) ?? 0
+                    .Where(p => p.status_bayar == "Sukses" &&
+                               p.tanggal_bayar.Month == DateTime.Now.Month &&
+                               p.tanggal_bayar.Year == DateTime.Now.Year)
+                    .SumAsync(p => (decimal?)p.jumlah_bayar) ?? 0
+
+
                 };
 
                 return stats;
@@ -215,9 +219,10 @@ namespace TiketLaut.Services
         public int TotalKapal { get; set; }
         public int TotalPelabuhan { get; set; }
         public int TiketMenungguPembayaran { get; set; }
-        public int TiketAktif { get; set; }
+        public int TiketSukses { get; set; }
         public int PembayaranMenungguKonfirmasi { get; set; }
         public decimal TotalPendapatanHariIni { get; set; }
         public decimal TotalPendapatanBulanIni { get; set; }
     }
 }
+

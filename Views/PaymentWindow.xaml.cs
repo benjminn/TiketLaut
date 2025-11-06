@@ -4,8 +4,10 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Animation;
+using System.Windows.Threading;
 using Microsoft.EntityFrameworkCore;
 using TiketLaut.Services;
+using TiketLaut.Views;
 
 namespace TiketLaut.Views
 {
@@ -14,11 +16,18 @@ namespace TiketLaut.Views
         private string selectedPaymentMethod = "";
         private bool isPaymentMethodSelected = false;
         private int kodeUnik = 0;
-        private int hargaAsli = 487000;
+        private decimal hargaAsli = 0;
 
         private Tiket? _tiket;
         private readonly PembayaranService _pembayaranService;
         private readonly BookingService _bookingService;
+
+        // ✅ TAMBAHAN: Track payment record
+        private Pembayaran? _currentPembayaran = null;
+
+        // ✅ TAMBAHAN: Timer untuk countdown
+        private DispatcherTimer? _countdownTimer;
+        private DateTime _paymentDeadline;
 
         public PaymentWindow()
         {
@@ -28,65 +37,128 @@ namespace TiketLaut.Views
 
             ApplyResponsiveLayout();
             GenerateKodeUnik();
+
+            // ✅ TAMBAHAN: Initialize countdown timer
+            InitializeCountdownTimer();
+
             LoadTiketData();
         }
 
-        private async void LoadTiketData()
+        // ✅ TAMBAHAN: Initialize countdown timer 24 hours
+        private void InitializeCountdownTimer()
         {
-            try
+            // Set deadline 24 jam dari sekarang
+            _paymentDeadline = DateTime.Now.AddHours(24);
+
+            // Create timer yang update setiap detik
+            _countdownTimer = new DispatcherTimer
             {
-                if (SessionManager.CurrentUser == null)
+                Interval = TimeSpan.FromSeconds(1)
+            };
+            _countdownTimer.Tick += CountdownTimer_Tick;
+            _countdownTimer.Start();
+
+            // Update tampilan pertama kali
+            UpdateCountdownDisplay();
+        }
+
+        // ✅ TAMBAHAN: Update countdown display
+        private void CountdownTimer_Tick(object? sender, EventArgs e)
+        {
+            UpdateCountdownDisplay();
+        }
+
+        private async void UpdateCountdownDisplay()
+        {
+            var timeRemaining = _paymentDeadline - DateTime.Now;
+
+            if (timeRemaining.TotalSeconds <= 0)
+            {
+                // Waktu habis
+                _countdownTimer?.Stop();
+
+                // Update UI untuk menunjukkan waktu habis
+                var deadlineCard = FindName("DeadlineCard") as Border;
+                if (deadlineCard != null)
                 {
-                    MessageBox.Show("Session user tidak ditemukan!", "Error",
-                        MessageBoxButton.OK, MessageBoxImage.Error);
-                    return;
+                    deadlineCard.BorderBrush = new System.Windows.Media.SolidColorBrush(
+                        System.Windows.Media.Color.FromRgb(220, 38, 38)); // Red color
                 }
 
-                var tikets = await DatabaseService.GetContext().Tikets
-                    .Include(t => t.Jadwal)
-                    .Where(t => t.pengguna_id == SessionManager.CurrentUser.pengguna_id &&
-                                t.status_tiket == "Menunggu Pembayaran")
-                    .OrderByDescending(t => t.tanggal_pemesanan)
-                    .ToListAsync();
+                // Update text menjadi "EXPIRED"
+                if (txtDeadlineTime != null)
+                {
+                    txtDeadlineTime.Text = "WAKTU PEMBAYARAN TELAH HABIS";
+                    txtDeadlineTime.Foreground = new System.Windows.Media.SolidColorBrush(
+                        System.Windows.Media.Color.FromRgb(220, 38, 38));
+                }
 
-                if (tikets.Any())
+                // Disable payment button
+                if (btnMainAction != null)
                 {
-                    _tiket = tikets.First();
-                    hargaAsli = (int)_tiket.total_harga;
-                    UpdateTotalPembayaran();
-                    System.Diagnostics.Debug.WriteLine($"[PaymentWindow] Loaded tiket: {_tiket.kode_tiket}, Total: {_tiket.total_harga}");
+                    btnMainAction.IsEnabled = false;
+                    txtMainActionButton.Text = "Waktu Pembayaran Habis";
                 }
-                else
-                {
-                    MessageBox.Show(
-                        "Tidak ditemukan tiket yang menunggu pembayaran.\nSilakan lakukan booking terlebih dahulu.",
-                        "Info",
-                        MessageBoxButton.OK,
-                        MessageBoxImage.Information);
-                }
+
+                // ✅ TAMBAHAN: Actually call the method to mark payment as failed
+                await MarkPaymentAsFailedDueToTimeout();
+
+                MessageBox.Show(
+                    "Waktu pembayaran telah berakhir. Pembayaran Anda telah dibatalkan secara otomatis.\nSilakan lakukan booking ulang.",
+                    "Waktu Habis",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Warning);
+
+                // Navigate back to schedule window
+                var scheduleWindow = new ScheduleWindow();
+                scheduleWindow.Left = this.Left;
+                scheduleWindow.Top = this.Top;
+                scheduleWindow.Width = this.Width;
+                scheduleWindow.Height = this.Height;
+                scheduleWindow.WindowState = this.WindowState;
+                scheduleWindow.Show();
+                this.Close();
+
+                return;
             }
-            catch (Exception ex)
+
+            // Format countdown: "DD hari HH:MM:SS"
+            string countdownText;
+            if (timeRemaining.Days > 0)
             {
-                System.Diagnostics.Debug.WriteLine($"[PaymentWindow] Error loading tiket: {ex.Message}");
+                countdownText = $"{timeRemaining.Days} hari {timeRemaining.Hours:D2}:{timeRemaining.Minutes:D2}:{timeRemaining.Seconds:D2}";
+            }
+            else
+            {
+                countdownText = $"{timeRemaining.Hours:D2}:{timeRemaining.Minutes:D2}:{timeRemaining.Seconds:D2}";
+            }
+
+            // Update deadline text dengan format yang lebih informatif
+            if (txtDeadlineTime != null)
+            {
+                var culture = new System.Globalization.CultureInfo("id-ID");
+                var deadlineFormatted = _paymentDeadline.ToString("dd MMMM yyyy, HH:mm", culture);
+                txtDeadlineTime.Text = $"{deadlineFormatted} WIB ({countdownText})";
             }
         }
 
-        // ✅ ADD: Window_SizeChanged event handler
-        private void Window_SizeChanged(object sender, SizeChangedEventArgs e)
-        {
-            ApplyResponsiveLayout();
-        }
-
-        private void PaymentMethod_Checked(object sender, RoutedEventArgs e)
+        // ✅ UPDATED: Payment method selection with automatic database operations
+        private async void PaymentMethod_Checked(object sender, RoutedEventArgs e)
         {
             if (sender is RadioButton rb && rb.Tag != null)
             {
-                selectedPaymentMethod = rb.Tag.ToString() ?? "";
+                string newPaymentMethod = rb.Tag.ToString() ?? "";
+
+                // Don't process if same method is selected
+                if (selectedPaymentMethod == newPaymentMethod) return;
+
+                selectedPaymentMethod = newPaymentMethod;
                 isPaymentMethodSelected = true;
 
                 if (txtMainActionButton != null)
                     txtMainActionButton.Text = "Konfirmasi Pembayaran";
 
+                // Update UI categories
                 if (selectedPaymentMethod == "BCA" || selectedPaymentMethod == "Mandiri")
                 {
                     if (rbTransferBank != null)
@@ -104,7 +176,525 @@ namespace TiketLaut.Views
                 }
 
                 UpdateBankInfo(selectedPaymentMethod);
+                UpdateTotalPembayaran();
+
+                // ✅ TAMBAHAN: Automatic database operations
+                await HandlePaymentMethodSelection();
             }
+        }
+
+        // ✅ TAMBAHAN: Handle payment method selection with database operations
+        private async Task HandlePaymentMethodSelection()
+        {
+            try
+            {
+                if (_tiket == null) return;
+
+                System.Diagnostics.Debug.WriteLine($"[PaymentWindow] Payment method selected: {selectedPaymentMethod}");
+
+                // Calculate payment amount based on method (with unique code for bank transfers)
+                decimal jumlahBayar = CalculateTotalPayment();
+
+                if (_currentPembayaran == null)
+                {
+                    // ✅ CREATE: First time selecting payment method - create new payment record
+                    System.Diagnostics.Debug.WriteLine($"[PaymentWindow] Creating new payment record...");
+
+                    _currentPembayaran = await _pembayaranService.CreatePembayaranAsync(
+                        tiketId: _tiket.tiket_id,
+                        metodePembayaran: selectedPaymentMethod,
+                        jumlahBayar: jumlahBayar
+                    );
+
+                    System.Diagnostics.Debug.WriteLine($"[PaymentWindow] ✅ Created payment ID: {_currentPembayaran.pembayaran_id}");
+                    System.Diagnostics.Debug.WriteLine($"[PaymentWindow] Status: {_currentPembayaran.status_bayar}");
+                    System.Diagnostics.Debug.WriteLine($"[PaymentWindow] Amount: {_currentPembayaran.jumlah_bayar}");
+                }
+                else
+                {
+                    // ✅ UPDATE: Payment method changed - update existing payment record
+                    System.Diagnostics.Debug.WriteLine($"[PaymentWindow] Updating existing payment record...");
+                    System.Diagnostics.Debug.WriteLine($"[PaymentWindow] Old method: {_currentPembayaran.metode_pembayaran}");
+                    System.Diagnostics.Debug.WriteLine($"[PaymentWindow] New method: {selectedPaymentMethod}");
+                    System.Diagnostics.Debug.WriteLine($"[PaymentWindow] Old amount: {_currentPembayaran.jumlah_bayar}");
+                    System.Diagnostics.Debug.WriteLine($"[PaymentWindow] New amount: {jumlahBayar}");
+
+                    bool updated = await _pembayaranService.UpdatePembayaranMethodAsync(
+                        pembayaranId: _currentPembayaran.pembayaran_id,
+                        newMethodePembayaran: selectedPaymentMethod,
+                        newJumlahBayar: jumlahBayar
+                    );
+
+                    if (updated)
+                    {
+                        // Update local object
+                        _currentPembayaran.metode_pembayaran = selectedPaymentMethod;
+                        _currentPembayaran.jumlah_bayar = jumlahBayar;
+
+                        System.Diagnostics.Debug.WriteLine($"[PaymentWindow] ✅ Updated payment method successfully");
+                    }
+                    else
+                    {
+                        System.Diagnostics.Debug.WriteLine($"[PaymentWindow] ❌ Failed to update payment method");
+                    }
+                }
+
+                System.Diagnostics.Debug.WriteLine($"[PaymentWindow] Current payment status: {_currentPembayaran?.status_bayar}");
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[PaymentWindow] Error handling payment method selection: {ex.Message}");
+                MessageBox.Show($"Terjadi kesalahan saat memproses metode pembayaran: {ex.Message}",
+                    "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+        }
+
+        // ✅ UPDATED: Load existing payment when window opens
+        private async void LoadTiketData()
+        {
+            try
+            {
+                if (SessionManager.CurrentUser == null)
+                {
+                    MessageBox.Show("Session user tidak ditemukan!", "Error",
+                        MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
+                // Load ticket data
+                var tikets = await DatabaseService.GetContext().Tikets
+                    .Include(t => t.Jadwal)
+                        .ThenInclude(j => j.pelabuhan_asal)
+                    .Include(t => t.Jadwal)
+                        .ThenInclude(j => j.pelabuhan_tujuan)
+                    .Include(t => t.Jadwal)
+                        .ThenInclude(j => j.kapal)
+                    .Include(t => t.Jadwal)
+                        .ThenInclude(j => j.GrupKendaraan)
+                            .ThenInclude(gk => gk != null ? gk.DetailKendaraans : null)
+                    .Include(t => t.RincianPenumpangs)
+                        .ThenInclude(rp => rp.penumpang)
+                    .Where(t => t.pengguna_id == SessionManager.CurrentUser.pengguna_id &&
+                                t.status_tiket == "Menunggu Pembayaran")
+                    .OrderByDescending(t => t.tanggal_pemesanan)
+                    .ToListAsync();
+
+                if (tikets.Any())
+                {
+                    _tiket = tikets.First();
+                    hargaAsli = _tiket.total_harga;
+
+                    // ✅ TAMBAHAN: Check if payment record already exists
+                    _currentPembayaran = await _pembayaranService.GetPembayaranByTiketIdAsync(_tiket.tiket_id);
+
+                    if (_currentPembayaran != null)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"[PaymentWindow] Found existing payment:");
+                        System.Diagnostics.Debug.WriteLine($"  - Payment ID: {_currentPembayaran.pembayaran_id}");
+                        System.Diagnostics.Debug.WriteLine($"  - Method: {_currentPembayaran.metode_pembayaran}");
+                        System.Diagnostics.Debug.WriteLine($"  - Amount: {_currentPembayaran.jumlah_bayar}");
+                        System.Diagnostics.Debug.WriteLine($"  - Status: {_currentPembayaran.status_bayar}");
+
+                        // ✅ Restore UI state if payment exists
+                        if (!string.IsNullOrEmpty(_currentPembayaran.metode_pembayaran))
+                        {
+                            selectedPaymentMethod = _currentPembayaran.metode_pembayaran;
+                            isPaymentMethodSelected = true;
+
+                            // Set the appropriate radio button
+                            RestorePaymentMethodSelection(_currentPembayaran.metode_pembayaran);
+                            UpdateBankInfo(selectedPaymentMethod);
+                        }
+                    }
+
+                    // Continue with existing debug and UI update code...
+                    System.Diagnostics.Debug.WriteLine($"[PaymentWindow] === LOADED TICKET DEBUG ===");
+                    System.Diagnostics.Debug.WriteLine($"Kode Tiket: {_tiket.kode_tiket}");
+                    System.Diagnostics.Debug.WriteLine($"Total Harga (hargaAsli): {hargaAsli}");
+                    System.Diagnostics.Debug.WriteLine($"Jenis Kendaraan Enum: '{_tiket.jenis_kendaraan_enum}'");
+                    System.Diagnostics.Debug.WriteLine($"Jumlah Penumpang: {_tiket.jumlah_penumpang}");
+                    System.Diagnostics.Debug.WriteLine($"Jadwal ID: {_tiket.jadwal_id}");
+                    System.Diagnostics.Debug.WriteLine($"Status Tiket: {_tiket.status_tiket}");
+
+                    // Debug detail kendaraan
+                    var grupKendaraanId = _tiket.Jadwal.grup_kendaraan_id;
+                    var allDetailKendaraan = await DatabaseService.GetContext().DetailKendaraans
+                        .Where(dk => dk.grup_kendaraan_id == grupKendaraanId)
+                        .ToListAsync();
+
+                    System.Diagnostics.Debug.WriteLine($"Available DetailKendaraan for grup_kendaraan_id {grupKendaraanId}:");
+                    foreach (var detail in allDetailKendaraan)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"  - Jenis: {detail.jenis_kendaraan}, Harga: {detail.harga_kendaraan}, Desc: {detail.deskripsi}");
+                    }
+
+                    UpdateUIWithTicketData();
+                    UpdateTotalPembayaran();
+                    System.Diagnostics.Debug.WriteLine($"[PaymentWindow] Loaded tiket: {_tiket.kode_tiket}, Total: {_tiket.total_harga}");
+                }
+                else
+                {
+                    MessageBox.Show(
+                        "Tidak ditemukan tiket yang menunggu pembayaran.\nSilakan lakukan booking terlebih dahulu.",
+                        "Info",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Information);
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[PaymentWindow] Error loading tiket: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Stack trace: {ex.StackTrace}");
+            }
+        }
+
+        // ✅ TAMBAHAN: Restore payment method selection in UI
+        private void RestorePaymentMethodSelection(string paymentMethod)
+        {
+            try
+            {
+                switch (paymentMethod)
+                {
+                    case "BCA":
+                        if (FindName("rbBCA") is RadioButton rbBCA) rbBCA.IsChecked = true;
+                        break;
+                    case "Mandiri":
+                        if (FindName("rbMandiri") is RadioButton rbMandiri) rbMandiri.IsChecked = true;
+                        break;
+                    case "Indomaret":
+                        if (FindName("rbIndomaret") is RadioButton rbIndomaret) rbIndomaret.IsChecked = true;
+                        break;
+                    case "Alfamart":
+                        if (FindName("rbAlfamart") is RadioButton rbAlfamart) rbAlfamart.IsChecked = true;
+                        break;
+                        // Add other payment methods as needed
+                }
+
+                if (txtMainActionButton != null)
+                    txtMainActionButton.Text = "Konfirmasi Pembayaran";
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[PaymentWindow] Error restoring payment method: {ex.Message}");
+            }
+        }
+
+        // ✅ UPDATED: Confirmation now only updates status to "Menunggu Validasi"
+        private async Task KonfirmasiPembayaranAsync()
+        {
+            try
+            {
+                System.Diagnostics.Debug.WriteLine("[PaymentWindow] KonfirmasiPembayaranAsync started");
+
+                if (_tiket == null || _currentPembayaran == null)
+                {
+                    MessageBox.Show(
+                        "Data pembayaran tidak ditemukan!\nSilakan pilih metode pembayaran terlebih dahulu.",
+                        "Error",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Error);
+                    return;
+                }
+
+                btnMainAction.IsEnabled = false;
+                txtMainActionButton.Text = "Memproses pembayaran...";
+
+                System.Diagnostics.Debug.WriteLine($"[PaymentWindow] Updating payment status to 'Menunggu Validasi'");
+                System.Diagnostics.Debug.WriteLine($"[PaymentWindow] Payment ID: {_currentPembayaran.pembayaran_id}");
+
+                // ✅ Only update status to "Menunggu Validasi" (payment record already exists)
+                bool updated = await _pembayaranService.UpdateStatusPembayaranAsync(
+                    _currentPembayaran.pembayaran_id,
+                    "Menunggu Validasi"
+                );
+
+                if (updated)
+                {
+                    _currentPembayaran.status_bayar = "Menunggu Validasi";
+
+                    // Stop countdown timer setelah payment berhasil
+                    _countdownTimer?.Stop();
+
+                    MessageBox.Show(
+                        $"✅ Pembayaran berhasil dikonfirmasi!\n\n" +
+                        $"Kode Tiket: {_tiket.kode_tiket}\n" +
+                        $"Metode: {selectedPaymentMethod}\n" +
+                        $"Jumlah: Rp {_currentPembayaran.jumlah_bayar:N0}\n" +
+                        $"Status: {_currentPembayaran.status_bayar}\n\n" +
+                        $"Pembayaran Anda sedang diverifikasi oleh admin.\n" +
+                        $"Anda dapat mengecek status di menu 'Cek Booking'.",
+                        "Pembayaran Berhasil",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Information);
+
+                    var cekBookingWindow = new CekBookingWindow();
+                    cekBookingWindow.Left = this.Left;
+                    cekBookingWindow.Top = this.Top;
+                    cekBookingWindow.Width = this.Width;
+                    cekBookingWindow.Height = this.Height;
+                    cekBookingWindow.WindowState = this.WindowState;
+                    cekBookingWindow.Show();
+                    this.Close();
+                }
+                else
+                {
+                    MessageBox.Show(
+                        "Gagal memperbarui status pembayaran. Silakan coba lagi.",
+                        "Error",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Error);
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[PaymentWindow] EXCEPTION in KonfirmasiPembayaranAsync:");
+                System.Diagnostics.Debug.WriteLine($"[PaymentWindow] Message: {ex.Message}");
+
+                MessageBox.Show(
+                    $"❌ Terjadi kesalahan saat memproses pembayaran:\n\n{ex.Message}",
+                    "Error",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+            }
+            finally
+            {
+                btnMainAction.IsEnabled = true;
+                txtMainActionButton.Text = "Konfirmasi Pembayaran";
+            }
+        }
+
+        // ✅ UPDATED: Update timeout method to work with existing payment
+        private async Task MarkPaymentAsFailedDueToTimeout()
+        {
+            try
+            {
+                if (_tiket == null) return;
+
+                System.Diagnostics.Debug.WriteLine($"[PaymentWindow] Marking payment as failed due to timeout for tiket: {_tiket.kode_tiket}");
+
+                if (_currentPembayaran != null)
+                {
+                    // Update existing payment to failed
+                    await _pembayaranService.UpdateStatusPembayaranAsync(_currentPembayaran.pembayaran_id, "Gagal");
+                    System.Diagnostics.Debug.WriteLine($"[PaymentWindow] Updated existing payment {_currentPembayaran.pembayaran_id} to Gagal");
+                }
+                else
+                {
+                    // Create a failed payment record if none exists
+                    _currentPembayaran = await _pembayaranService.CreatePembayaranAsync(
+                        tiketId: _tiket.tiket_id,
+                        metodePembayaran: string.IsNullOrEmpty(selectedPaymentMethod) ? "Timeout" : selectedPaymentMethod,
+                        jumlahBayar: _tiket.total_harga
+                    );
+
+                    await _pembayaranService.UpdateStatusPembayaranAsync(_currentPembayaran.pembayaran_id, "Gagal");
+                    System.Diagnostics.Debug.WriteLine($"[PaymentWindow] Created new failed payment record for timeout");
+                }
+
+                // Update ticket status to failed
+                _tiket.status_tiket = "Gagal";
+                DatabaseService.GetContext().Tikets.Update(_tiket);
+                await DatabaseService.GetContext().SaveChangesAsync();
+
+                System.Diagnostics.Debug.WriteLine($"[PaymentWindow] Payment marked as failed due to timeout");
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[PaymentWindow] Error marking payment as failed: {ex.Message}");
+            }
+        }
+
+        // ✅ TAMBAHAN: Update UI dengan data tiket yang sebenarnya
+        private void UpdateUIWithTicketData()
+        {
+            if (_tiket?.Jadwal == null) return;
+
+            try
+            {
+                var jadwal = _tiket.Jadwal;
+
+                // ✅ PERBAIKAN: Update Order ID dengan kode tiket dari database
+                if (txtOrderId != null)
+                {
+                    txtOrderId.Text = $"Order ID: {_tiket.kode_tiket}";
+                }
+
+                // Update Ferry Type
+                if (txtFerryType != null)
+                {
+                    txtFerryType.Text = jadwal.kelas_layanan ?? "Reguler";
+                }
+
+                // Update Route
+                if (txtDeparturePort != null && jadwal.pelabuhan_asal != null)
+                {
+                    txtDeparturePort.Text = jadwal.pelabuhan_asal.nama_pelabuhan;
+                }
+
+                if (txtArrivalPort != null && jadwal.pelabuhan_tujuan != null)
+                {
+                    txtArrivalPort.Text = jadwal.pelabuhan_tujuan.nama_pelabuhan;
+                }
+
+                // ✅ PERBAIKAN: Update Date and Time dengan tanggal keberangkatan yang benar
+                if (txtDateTime != null)
+                {
+                    var culture = new System.Globalization.CultureInfo("id-ID");
+                    string dateFormatted;
+
+                    // Gunakan tanggal keberangkatan dari session search criteria jika tersedia
+                    if (SessionManager.LastSearchCriteria?.TanggalKeberangkatan != null)
+                    {
+                        dateFormatted = SessionManager.LastSearchCriteria.TanggalKeberangkatan
+                            .ToString("ddd, dd MMM yyyy", culture);
+
+                        System.Diagnostics.Debug.WriteLine($"[PaymentWindow] Using departure date from search criteria: {SessionManager.LastSearchCriteria.TanggalKeberangkatan:yyyy-MM-dd}");
+                    }
+                    else
+                    {
+                        // Fallback ke tanggal pemesanan jika search criteria tidak tersedia
+                        dateFormatted = _tiket.tanggal_pemesanan.ToString("ddd, dd MMM yyyy", culture);
+
+                        System.Diagnostics.Debug.WriteLine($"[PaymentWindow] Fallback to booking date: {_tiket.tanggal_pemesanan:yyyy-MM-dd}");
+                    }
+
+                    var timeFormatted = jadwal.waktu_berangkat.ToString("HH:mm");
+                    txtDateTime.Text = $"{dateFormatted} - {timeFormatted}";
+
+                    System.Diagnostics.Debug.WriteLine($"[PaymentWindow] Final date-time display: {txtDateTime.Text}");
+                }
+
+                // ✅ TAMBAHAN: Update detail pembayaran dengan data sebenarnya
+                UpdatePaymentDetails();
+
+                System.Diagnostics.Debug.WriteLine($"[PaymentWindow] UI updated with ticket data: {_tiket.kode_tiket}");
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[PaymentWindow] Error updating UI: {ex.Message}");
+            }
+        }
+
+        // ✅ PERBAIKAN: Update detail pembayaran menggunakan grup_kendaraan_id
+        private async void UpdatePaymentDetails()
+        {
+            if (_tiket == null) return;
+
+            try
+            {
+                var txtDetailKendaraan = FindName("txtDetailKendaraan") as TextBlock;
+                var txtHargaKendaraan = FindName("txtHargaKendaraan") as TextBlock;
+
+                if (txtDetailKendaraan != null && txtHargaKendaraan != null)
+                {
+                    // ✅ PERBAIKAN: Debug info untuk tracking
+                    System.Diagnostics.Debug.WriteLine($"[PaymentWindow] === UPDATE PAYMENT DETAILS ===");
+                    System.Diagnostics.Debug.WriteLine($"Tiket Total Harga: {_tiket.total_harga}");
+                    System.Diagnostics.Debug.WriteLine($"Jenis Kendaraan Enum: '{_tiket.jenis_kendaraan_enum}'");
+                    System.Diagnostics.Debug.WriteLine($"Jumlah Penumpang: {_tiket.jumlah_penumpang}");
+
+                    // Parse jenis kendaraan dari enum string ke integer
+                    int jenisKendaraanId = GetJenisKendaraanIdFromEnum(_tiket.jenis_kendaraan_enum);
+                    System.Diagnostics.Debug.WriteLine($"Parsed Jenis Kendaraan ID: {jenisKendaraanId}");
+
+                    // ✅ PERBAIKAN: Ambil detail kendaraan dari database menggunakan grup_kendaraan_id
+                    var grupKendaraanId = _tiket.Jadwal.grup_kendaraan_id;
+                    var detailKendaraan = await DatabaseService.GetContext().DetailKendaraans
+                        .FirstOrDefaultAsync(dk =>
+                            dk.grup_kendaraan_id == grupKendaraanId &&
+                            dk.jenis_kendaraan == jenisKendaraanId);
+
+                    if (detailKendaraan != null)
+                    {
+                        // ✅ PERBAIKAN: Gunakan deskripsi kendaraan yang benar
+                        string jenisKendaraanText = GetJenisKendaraanText(detailKendaraan.jenis_kendaraan);
+                        txtDetailKendaraan.Text = jenisKendaraanText;
+
+                        // ✅ PERBAIKAN: Gunakan total harga dari tiket, bukan harga per unit
+                        txtHargaKendaraan.Text = $"IDR {_tiket.total_harga:N0}";
+
+                        System.Diagnostics.Debug.WriteLine($"Found DetailKendaraan: {jenisKendaraanText}");
+                        System.Diagnostics.Debug.WriteLine($"Unit Price: {detailKendaraan.harga_kendaraan}");
+                        System.Diagnostics.Debug.WriteLine($"Displayed Total: {_tiket.total_harga}");
+                    }
+                    else
+                    {
+                        // ✅ PERBAIKAN: Jika detail kendaraan tidak ditemukan
+                        System.Diagnostics.Debug.WriteLine($"DetailKendaraan not found for grup_kendaraan_id: {grupKendaraanId}, jenis: {jenisKendaraanId}");
+
+                        // Coba cari berdasarkan jenis kendaraan saja
+                        var fallbackDetail = await DatabaseService.GetContext().DetailKendaraans
+                            .FirstOrDefaultAsync(dk => dk.jenis_kendaraan == jenisKendaraanId);
+
+                        if (fallbackDetail != null)
+                        {
+                            string jenisKendaraanText = GetJenisKendaraanText(fallbackDetail.jenis_kendaraan);
+                            txtDetailKendaraan.Text = jenisKendaraanText;
+                            System.Diagnostics.Debug.WriteLine($"Using fallback DetailKendaraan: {jenisKendaraanText}");
+                        }
+                        else
+                        {
+                            // Ultimate fallback - gunakan enum string dari tiket
+                            txtDetailKendaraan.Text = _tiket.jenis_kendaraan_enum;
+                            System.Diagnostics.Debug.WriteLine($"Using enum string from tiket: {_tiket.jenis_kendaraan_enum}");
+                        }
+
+                        // ✅ PERBAIKAN: Selalu gunakan total harga dari tiket
+                        txtHargaKendaraan.Text = $"IDR {_tiket.total_harga:N0}";
+                    }
+                }
+
+                // Update detail penumpang
+                var txtDetailPenumpang = FindName("txtDetailPenumpang") as TextBlock;
+                if (txtDetailPenumpang != null)
+                {
+                    int jumlahPenumpang = _tiket.jumlah_penumpang;
+                    txtDetailPenumpang.Text = $"Dewasa ({jumlahPenumpang}x)";
+                }
+
+                System.Diagnostics.Debug.WriteLine($"[PaymentWindow] Payment details updated - Final display: {txtDetailKendaraan?.Text} = {txtHargaKendaraan?.Text}");
+                System.Diagnostics.Debug.WriteLine($"=======================================");
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[PaymentWindow] Error updating payment details: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Stack trace: {ex.StackTrace}");
+            }
+        }
+
+        // ✅ TAMBAHAN: Helper method untuk convert jenis kendaraan
+        private string GetJenisKendaraanText(int jenisKendaraanId)
+        {
+            return jenisKendaraanId switch
+            {
+                0 => "Pejalan kaki tanpa kendaraan",
+                1 => "Sepeda",
+                2 => "Sepeda Motor (<500cc)",
+                3 => "Sepeda Motor (>500cc) (Golongan III)",
+                4 => "Mobil jeep, sedan, minibus",
+                5 => "Mobil barang bak muatan",
+                6 => "Mobil bus penumpang (5-7 meter)",
+                7 => "Mobil barang (truk/tangki) ukuran sedang",
+                8 => "Mobil bus penumpang (7-10 meter)",
+                9 => "Mobil barang (truk/tangki) sedang",
+                10 => "Mobil tronton, tangki, penarik + gandengan (10-12 meter)",
+                11 => "Mobil tronton, tangki, alat berat (12-16 meter)",
+                12 => "Mobil tronton, tangki, alat berat (>16 meter)",
+                _ => "Kendaraan tidak diketahui"
+            };
+        }
+
+        // ✅ TAMBAHAN: Override window closing untuk stop timer
+        protected override void OnClosed(EventArgs e)
+        {
+            _countdownTimer?.Stop();
+            base.OnClosed(e);
+        }
+
+        // ✅ ADD: Window_SizeChanged event handler
+        private void Window_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            ApplyResponsiveLayout();
         }
 
         // ✅ ADD: PaymentMethod_Unchecked event handler
@@ -182,91 +772,27 @@ namespace TiketLaut.Views
             }
         }
 
-        private async Task KonfirmasiPembayaranAsync()
+        // ✅ TAMBAHAN: Method untuk menghitung total pembayaran sesuai metode
+        private decimal CalculateTotalPayment()
         {
-            try
+            bool isTransferBank = (selectedPaymentMethod == "BCA" || selectedPaymentMethod == "Mandiri");
+
+            if (isTransferBank)
             {
-                System.Diagnostics.Debug.WriteLine("[PaymentWindow] KonfirmasiPembayaranAsync started");
-
-                if (_tiket == null)
-                {
-                    System.Diagnostics.Debug.WriteLine("[PaymentWindow] ERROR: _tiket is null");
-                    MessageBox.Show(
-                        "Data tiket tidak ditemukan!\nSilakan ulangi proses booking dari awal.",
-                        "Error",
-                        MessageBoxButton.OK,
-                        MessageBoxImage.Error);
-                    return;
-                }
-
-                System.Diagnostics.Debug.WriteLine($"[PaymentWindow] _tiket found: {_tiket.kode_tiket}");
-                System.Diagnostics.Debug.WriteLine($"[PaymentWindow] _tiket.tiket_id: {_tiket.tiket_id}");
-                System.Diagnostics.Debug.WriteLine($"[PaymentWindow] selectedPaymentMethod: {selectedPaymentMethod}");
-                System.Diagnostics.Debug.WriteLine($"[PaymentWindow] hargaAsli: {hargaAsli}");
-                System.Diagnostics.Debug.WriteLine($"[PaymentWindow] kodeUnik: {kodeUnik}");
-
-                btnMainAction.IsEnabled = false;
-                txtMainActionButton.Text = "Memproses pembayaran...";
-
-                decimal jumlahBayar = hargaAsli + kodeUnik;
-                System.Diagnostics.Debug.WriteLine($"[PaymentWindow] Total jumlahBayar: {jumlahBayar}");
-
-                System.Diagnostics.Debug.WriteLine($"[PaymentWindow] Calling _pembayaranService.CreatePembayaranAsync...");
-
-                var pembayaran = await _pembayaranService.CreatePembayaranAsync(
-                    tiketId: _tiket.tiket_id,
-                    metodePembayaran: selectedPaymentMethod,
-                    jumlahBayar: jumlahBayar
-                );
-
-                System.Diagnostics.Debug.WriteLine($"[PaymentWindow] CreatePembayaranAsync completed");
-                System.Diagnostics.Debug.WriteLine($"[PaymentWindow] pembayaran.pembayaran_id: {pembayaran.pembayaran_id}");
-                System.Diagnostics.Debug.WriteLine($"[PaymentWindow] pembayaran.status_bayar: {pembayaran.status_bayar}");
-
-                MessageBox.Show(
-                    $"✅ Pembayaran berhasil dikonfirmasi!\n\n" +
-                    $"Kode Tiket: {_tiket.kode_tiket}\n" +
-                    $"Metode: {selectedPaymentMethod}\n" +
-                    $"Jumlah: Rp {jumlahBayar:N0}\n" +
-                    $"Status: {pembayaran.status_bayar}\n\n" +
-                    $"Pembayaran Anda sedang diverifikasi oleh admin.\n" +
-                    $"Anda dapat mengecek status di menu 'Cek Booking'.",
-                    "Pembayaran Berhasil",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Information);
-
-                var cekBookingWindow = new CekBookingWindow();
-                cekBookingWindow.Left = this.Left;
-                cekBookingWindow.Top = this.Top;
-                cekBookingWindow.Width = this.Width;
-                cekBookingWindow.Height = this.Height;
-                cekBookingWindow.WindowState = this.WindowState;
-                cekBookingWindow.Show();
-                this.Close();
+                // Untuk bank transfer, tambahkan kode unik
+                return hargaAsli + kodeUnik;
             }
-            catch (Exception ex)
+            else
             {
-                System.Diagnostics.Debug.WriteLine($"[PaymentWindow] EXCEPTION in KonfirmasiPembayaranAsync:");
-                System.Diagnostics.Debug.WriteLine($"[PaymentWindow] Message: {ex.Message}");
-                System.Diagnostics.Debug.WriteLine($"[PaymentWindow] StackTrace: {ex.StackTrace}");
-
-                if (ex.InnerException != null)
-                {
-                    System.Diagnostics.Debug.WriteLine($"[PaymentWindow] InnerException: {ex.InnerException.Message}")
-                        ;
-                }
-
-                MessageBox.Show(
-                    $"❌ Terjadi kesalahan saat memproses pembayaran:\n\n{ex.Message}",
-                    "Error",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Error);
+                // Untuk metode lain (QRIS, Indomaret, Alfamart, Kartu Kredit), gunakan harga asli saja
+                return hargaAsli;
             }
-            finally
-            {
-                btnMainAction.IsEnabled = true;
-                txtMainActionButton.Text = "Konfirmasi Pembayaran";
-            }
+        }
+
+        // ✅ TAMBAHAN: Check apakah metode pembayaran menggunakan kode unik
+        private bool IsTransferBankMethod()
+        {
+            return selectedPaymentMethod == "BCA" || selectedPaymentMethod == "Mandiri";
         }
 
         // ✅ ADD: BtnGantiMetode_Click event handler
@@ -305,7 +831,7 @@ namespace TiketLaut.Views
 
         private void BtnCopyAmount_Click(object sender, RoutedEventArgs e)
         {
-            int totalPembayaran = hargaAsli + kodeUnik;
+            decimal totalPembayaran = CalculateTotalPayment(); // ✅ PERBAIKAN: Gunakan method baru
             Clipboard.SetText(totalPembayaran.ToString());
             MessageBox.Show("Jumlah pembayaran telah disalin!", "Berhasil",
                 MessageBoxButton.OK, MessageBoxImage.Information);
@@ -318,7 +844,7 @@ namespace TiketLaut.Views
                 pnlDetailPembayaran.Visibility = Visibility.Visible;
                 AnimateArrow(180);
 
-                if (selectedPaymentMethod == "BCA" || selectedPaymentMethod == "Mandiri")
+                if (IsTransferBankMethod()) // ✅ PERBAIKAN: Gunakan method check
                 {
                     if (txtKodeUnik != null)
                     {
@@ -345,6 +871,8 @@ namespace TiketLaut.Views
 
             if (result == MessageBoxResult.Yes)
             {
+                _countdownTimer?.Stop();
+
                 var scheduleWindow = new ScheduleWindow();
                 scheduleWindow.Left = this.Left;
                 scheduleWindow.Top = this.Top;
@@ -377,10 +905,11 @@ namespace TiketLaut.Views
             UpdateTotalPembayaran();
         }
 
+        // ✅ PERBAIKAN: Update total pembayaran dengan logic kode unik yang benar
         private void UpdateTotalPembayaran()
         {
-            int totalPembayaran = hargaAsli + kodeUnik;
-            string totalString = totalPembayaran.ToString();
+            decimal totalPembayaran = CalculateTotalPayment();
+            string totalString = ((int)totalPembayaran).ToString();
 
             if (totalString.Length >= 3)
             {
@@ -399,6 +928,73 @@ namespace TiketLaut.Views
                     txtDetailTotalPembayaranDigit.Text = lastThreeDigits;
                 }
             }
+            else
+            {
+                // Untuk nominal kecil (kurang dari 1000)
+                if (txtTotalPembayaran != null)
+                {
+                    txtTotalPembayaran.Text = $"IDR {totalString}";
+                    txtTotalPembayaranDigit.Text = "";
+                }
+
+                if (txtDetailTotalPembayaran != null)
+                {
+                    txtDetailTotalPembayaran.Text = $"IDR {totalString}";
+                    txtDetailTotalPembayaranDigit.Text = "";
+                }
+            }
+
+            System.Diagnostics.Debug.WriteLine($"[PaymentWindow] Total pembayaran updated: {totalPembayaran} (Method: {selectedPaymentMethod}, IsBank: {IsTransferBankMethod()})");
+        }
+
+        // ✅ PERBAIKAN: Helper method dengan mapping yang sesuai BookingService + fix exhaustive switch
+        private int GetJenisKendaraanIdFromEnum(string jenisKendaraanEnum)
+        {
+            if (string.IsNullOrEmpty(jenisKendaraanEnum))
+            {
+                System.Diagnostics.Debug.WriteLine("[PaymentWindow] Empty or null jenis_kendaraan_enum, defaulting to 0");
+                return 0;
+            }
+
+            var normalized = jenisKendaraanEnum.ToLower().Trim();
+
+            System.Diagnostics.Debug.WriteLine($"[PaymentWindow] Converting enum: '{jenisKendaraanEnum}' -> normalized: '{normalized}'");
+
+            var result = normalized switch
+            {
+                // ✅ PERBAIKAN: Sesuai dengan output BookingService.GetJenisKendaraanText()
+                "pejalan kaki" => 0,
+                "sepeda" => 1,
+                "sepeda motor (<500cc)" => 2,
+                "sepeda motor (>500cc)" => 3,
+                "mobil sedan/jeep/minibus" => 4,  // ✅ Sesuai BookingService
+                "mobil barang bak muatan" => 5,   // ✅ Sesuai BookingService
+                "bus penumpang (5-7m)" => 6,      // ✅ Sesuai BookingService
+                "truk/tangki (5-7m)" => 7,        // ✅ Sesuai BookingService
+                "bus penumpang (7-10m)" => 8,     // ✅ Sesuai BookingService
+                "truk/tangki (7-10m)" => 9,       // ✅ Sesuai BookingService
+                "tronton/gandengan (10-12m)" => 10, // ✅ Sesuai BookingService
+                "alat berat (12-16m)" => 11,      // ✅ Sesuai BookingService
+                "alat berat (>16m)" => 12,        // ✅ Sesuai BookingService
+                "tidak diketahui" => 0,           // ✅ Sesuai BookingService fallback
+
+                // Fallback untuk variasi lain
+                "pejalan kaki tanpa kendaraan" => 0,
+                "mobil jeep, sedan, minibus" => 4,
+                "mobil barang" => 5,
+                "bus kecil" => 6,
+                "truk kecil" => 7,
+                "bus sedang" => 8,
+                "truk sedang" => 9,
+                "truk besar" => 10,
+                "alat berat sedang" => 11,
+                "alat berat besar" => 12,
+                "" => 0, // ✅ Handle empty string for exhaustive switch
+                _ => 0   // ✅ Default fallback
+            };
+
+            System.Diagnostics.Debug.WriteLine($"[PaymentWindow] Mapped '{jenisKendaraanEnum}' -> {result}");
+            return result;
         }
 
         private void ApplyResponsiveLayout()
