@@ -118,22 +118,54 @@ namespace TiketLaut.Views
             switch (filter)
             {
                 case "Pending":
-                    filteredTikets = _allTikets.Where(t => t.status_tiket == "Booked");
+                    // Status "Booked" atau "Menunggu Pembayaran"
+                    filteredTikets = _allTikets.Where(t => 
+                        t.status_tiket == "Booked" || 
+                        t.status_tiket == "Menunggu Pembayaran");
                     break;
-                case "Paid":
-                    filteredTikets = _allTikets.Where(t => t.status_tiket == "Paid");
+                case "Aktif":
+                    // Status "Paid" atau "Aktif"
+                    filteredTikets = _allTikets.Where(t => 
+                        t.status_tiket == "Paid" || 
+                        t.status_tiket == "Aktif");
                     break;
-                case "Cancelled":
-                    filteredTikets = _allTikets.Where(t => t.status_tiket == "Cancelled");
+                case "Gagal":
+                    // Status "Cancelled" atau "Gagal"
+                    filteredTikets = _allTikets.Where(t => 
+                        t.status_tiket == "Cancelled" || 
+                        t.status_tiket == "Gagal");
                     break;
             }
 
-            dgTikets.ItemsSource = filteredTikets.ToList();
+            // Map to display items with KeteranganGolongan
+            var displayItems = filteredTikets.Select(t =>
+            {
+                // Parse enum dari string
+                var jenisKendaraanEnum = Enum.TryParse<JenisKendaraan>(t.jenis_kendaraan_enum, out var parsedEnum)
+                    ? parsedEnum
+                    : JenisKendaraan.Jalan_Kaki;
+
+                return new TiketDisplayItem
+                {
+                    tiket_id = t.tiket_id,
+                    kode_tiket = t.kode_tiket,
+                    Pengguna = t.Pengguna,
+                    jumlah_penumpang = t.jumlah_penumpang,
+                    jenis_kendaraan_enum = jenisKendaraanEnum,
+                    KeteranganGolongan = GetKeteranganGolongan(jenisKendaraanEnum),
+                    plat_nomor = t.plat_nomor,
+                    total_harga = t.total_harga,
+                    tanggal_pemesanan = t.tanggal_pemesanan,
+                    status_tiket = t.status_tiket
+                };
+            }).ToList();
+
+            dgTikets.ItemsSource = displayItems;
 
             // Update summary
             txtTotalTiket.Text = filteredTikets.Count().ToString();
             var totalPendapatan = filteredTikets
-                .Where(t => t.status_tiket == "Paid")
+                .Where(t => t.status_tiket == "Paid" || t.status_tiket == "Aktif")
                 .Sum(t => t.total_harga);
             txtTotalPendapatan.Text = $"Rp {totalPendapatan:N0}";
         }
@@ -182,16 +214,16 @@ namespace TiketLaut.Views
             ApplyTiketFilter("Pending");
         }
 
-        private void BtnFilterPaid_Click(object sender, RoutedEventArgs e)
+        private void BtnFilterAktif_Click(object sender, RoutedEventArgs e)
         {
-            SetActiveFilter(btnFilterPaid);
-            ApplyTiketFilter("Paid");
+            SetActiveFilter(btnFilterAktif);
+            ApplyTiketFilter("Aktif");
         }
 
-        private void BtnFilterCancelled_Click(object sender, RoutedEventArgs e)
+        private void BtnFilterGagal_Click(object sender, RoutedEventArgs e)
         {
-            SetActiveFilter(btnFilterCancelled);
-            ApplyTiketFilter("Cancelled");
+            SetActiveFilter(btnFilterGagal);
+            ApplyTiketFilter("Gagal");
         }
 
         private void SetActiveFilter(Button activeButton)
@@ -199,21 +231,58 @@ namespace TiketLaut.Views
             // Reset all buttons
             btnFilterAll.Tag = null;
             btnFilterPending.Tag = null;
-            btnFilterPaid.Tag = null;
-            btnFilterCancelled.Tag = null;
+            btnFilterAktif.Tag = null;
+            btnFilterGagal.Tag = null;
 
             // Set active button
             activeButton.Tag = "Active";
+        }
+
+        private void DgTikets_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            if (dgTikets.SelectedItem is TiketDisplayItem selectedItem)
+            {
+                ShowTiketDetail(selectedItem.tiket_id);
+            }
+        }
+
+        private void ShowTiketDetail(int tiketId)
+        {
+            // Open new detail window instead of MessageBox
+            var detailWindow = new AdminTiketDetailWindow(tiketId);
+            detailWindow.ShowDialog();
+        }
+
+        private string GetKeteranganGolongan(JenisKendaraan jenisKendaraan)
+        {
+            return jenisKendaraan switch
+            {
+                JenisKendaraan.Jalan_Kaki => "Golongan 0 (Pejalan Kaki)",
+                JenisKendaraan.Golongan_I => "Golongan I (Sepeda)",
+                JenisKendaraan.Golongan_II => "Golongan II (Motor <500cc)",
+                JenisKendaraan.Golongan_III => "Golongan III (Motor >500cc)",
+                JenisKendaraan.Golongan_IV_A => "Golongan IV-A (Sedan/Minibus)",
+                JenisKendaraan.Golongan_IV_B => "Golongan IV-B (Mobil Bak)",
+                JenisKendaraan.Golongan_V_A => "Golongan V-A (Bus 5-7m)",
+                JenisKendaraan.Golongan_V_B => "Golongan V-B (Truk 5-7m)",
+                JenisKendaraan.Golongan_VI_A => "Golongan VI-A (Bus 7-10m)",
+                JenisKendaraan.Golongan_VI_B => "Golongan VI-B (Truk 7-10m)",
+                JenisKendaraan.Golongan_VII => "Golongan VII (Tronton 10-12m)",
+                JenisKendaraan.Golongan_VIII => "Golongan VIII (Alat Berat 12-16m)",
+                JenisKendaraan.Golongan_IX => "Golongan IX (Alat Berat >16m)",
+                _ => "-"
+            };
         }
 
         private void DgSimilarSchedules_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
             if (dgSimilarSchedules.SelectedItem is Jadwal selectedJadwal)
             {
-                // Open detail window for the selected jadwal
+                // Open detail window for the selected jadwal as a dialog (modal)
+                // This way the current window stays open in the background
                 var detailWindow = new AdminJadwalDetailWindow(selectedJadwal.jadwal_id);
-                detailWindow.Show();
-                this.Close();
+                detailWindow.Owner = this; // Set owner so it appears on top
+                detailWindow.ShowDialog(); // Use ShowDialog instead of Show to make it modal
             }
         }
 
@@ -221,5 +290,82 @@ namespace TiketLaut.Views
         {
             this.Close();
         }
+
+        private void BtnEditJadwal_Click(object sender, RoutedEventArgs e)
+        {
+            if (_currentJadwal == null) return;
+
+            try
+            {
+                // Open edit dialog
+                var formDialog = new AdminJadwalFormDialog(_currentJadwal);
+                if (formDialog.ShowDialog() == true)
+                {
+                    // Reload data after successful edit
+                    LoadData();
+                    MessageBox.Show("Jadwal berhasil diupdate!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private async void BtnDeleteJadwal_Click(object sender, RoutedEventArgs e)
+        {
+            if (_currentJadwal == null) return;
+
+            var result = MessageBox.Show(
+                $"Apakah Anda yakin ingin menghapus jadwal ini?\n\n" +
+                $"Rute: {_currentJadwal.pelabuhan_asal?.nama_pelabuhan} → {_currentJadwal.pelabuhan_tujuan?.nama_pelabuhan}\n" +
+                $"Tanggal: {_currentJadwal.waktu_berangkat:dd MMM yyyy}\n" +
+                $"Waktu: {_currentJadwal.waktu_berangkat:HH:mm}\n\n" +
+                $"Jadwal yang dihapus tidak dapat dikembalikan!",
+                "Konfirmasi Hapus",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Warning
+            );
+
+            if (result == MessageBoxResult.Yes)
+            {
+                try
+                {
+                    var deleteResult = await _jadwalService.DeleteJadwalAsync(_jadwalId);
+                    
+                    if (deleteResult.success)
+                    {
+                        MessageBox.Show("Jadwal berhasil dihapus!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                        
+                        // Close this window and notify parent to refresh
+                        DialogResult = true;
+                        this.Close();
+                    }
+                    else
+                    {
+                        MessageBox.Show($"Gagal menghapus jadwal: {deleteResult.message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
+    }
+
+    // Helper class for displaying tiket with keterangan golongan
+    public class TiketDisplayItem
+    {
+        public int tiket_id { get; set; }
+        public string? kode_tiket { get; set; }
+        public Pengguna? Pengguna { get; set; }
+        public int jumlah_penumpang { get; set; }
+        public JenisKendaraan jenis_kendaraan_enum { get; set; }
+        public string? KeteranganGolongan { get; set; }
+        public string? plat_nomor { get; set; }
+        public decimal total_harga { get; set; }
+        public DateTime? tanggal_pemesanan { get; set; }
+        public string? status_tiket { get; set; }
     }
 }

@@ -279,7 +279,7 @@
                         </TextBox>
 
                         <!-- Input Email -->
-                        <TextBlock Text="Email atau Nomor Handphone" 
+                        <TextBlock Text="Email" 
                                    FontSize="16"
                                    FontFamily="Plus Jakarta Sans"
                                    Foreground="#011C4B"

@@ -1,0 +1,161 @@
+using System;
+using System.Linq;
+using System.Windows;
+using System.Windows.Media;
+using TiketLaut.Services;
+
+namespace TiketLaut.Views
+{
+    public partial class AdminTiketDetailWindow : Window
+    {
+        private Tiket? _tiket;
+        private readonly int _tiketId;
+
+        public AdminTiketDetailWindow(int tiketId)
+        {
+            InitializeComponent();
+            _tiketId = tiketId;
+            LoadTiketDetail();
+        }
+
+        private async void LoadTiketDetail()
+        {
+            try
+            {
+                var tiketService = new TiketService();
+                _tiket = await tiketService.GetTiketByIdAsync(_tiketId);
+
+                if (_tiket != null)
+                {
+                    // Informasi Tiket
+                    txtKodeTiket.Text = _tiket.kode_tiket ?? "-";
+                    txtStatus.Text = _tiket.status_tiket ?? "-";
+                    SetStatusColor(_tiket.status_tiket ?? "Unknown");
+                    txtTanggalPemesanan.Text = _tiket.tanggal_pemesanan.ToString("dd MMMM yyyy HH:mm");
+                    txtTotalHarga.Text = $"Rp {_tiket.total_harga:N0}";
+                    
+                    // Get metode pembayaran from Pembayaran table (latest payment)
+                    var pembayaran = _tiket.Pembayarans?.OrderByDescending(p => p.tanggal_bayar).FirstOrDefault();
+                    txtMetodePembayaran.Text = pembayaran?.metode_pembayaran ?? "Belum dibayar";
+
+                    // Show/Hide Verifikasi Pembayaran button
+                    if (_tiket.status_tiket == "Menunggu Pembayaran" || _tiket.status_tiket == "Booked")
+                    {
+                        btnVerifikasiPembayaran.Visibility = Visibility.Visible;
+                    }
+
+                    // Informasi Pembeli
+                    if (_tiket.Pengguna != null)
+                    {
+                        txtNamaPembeli.Text = _tiket.Pengguna.nama ?? "-";
+                        txtNIK.Text = _tiket.Pengguna.nomor_induk_kependudukan ?? "-";
+                        txtEmail.Text = _tiket.Pengguna.email ?? "-";
+                        // Note: Pengguna hanya punya NIK, belum ada field telepon terpisah
+                        txtTelepon.Text = _tiket.Pengguna.nomor_induk_kependudukan ?? "-";
+                    }
+
+                    // Detail Perjalanan
+                    txtJumlahPenumpang.Text = $"{_tiket.jumlah_penumpang} orang";
+                    
+                    // Golongan Kendaraan dengan keterangan
+                    // Parse enum dari string
+                    if (Enum.TryParse<JenisKendaraan>(_tiket.jenis_kendaraan_enum, out var jenisKendaraanEnum))
+                    {
+                        var golongan = jenisKendaraanEnum.ToString().Replace("_", " ");
+                        txtGolonganKendaraan.Text = golongan;
+                        txtKeteranganGolongan.Text = GetKeteranganGolongan(jenisKendaraanEnum);
+                    }
+                    else
+                    {
+                        txtGolonganKendaraan.Text = _tiket.jenis_kendaraan_enum;
+                        txtKeteranganGolongan.Text = "";
+                    }
+                    
+                    txtPlatNomor.Text = _tiket.plat_nomor ?? "-";
+
+                    // Rute (load from jadwal)
+                    if (_tiket.Jadwal != null)
+                    {
+                        var asalNama = _tiket.Jadwal.pelabuhan_asal?.nama_pelabuhan ?? "Unknown";
+                        var tujuanNama = _tiket.Jadwal.pelabuhan_tujuan?.nama_pelabuhan ?? "Unknown";
+                        txtRute.Text = $"{asalNama} → {tujuanNama}";
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error loading tiket detail: {ex.Message}", "Error", 
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void SetStatusColor(string status)
+        {
+            switch (status)
+            {
+                case "Menunggu Pembayaran":
+                case "Booked":
+                    borderStatus.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFC107")); // Yellow
+                    break;
+                case "Paid":
+                case "Aktif":
+                    borderStatus.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#28A745")); // Green
+                    break;
+                case "Cancelled":
+                case "Gagal":
+                    borderStatus.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#DC3545")); // Red
+                    break;
+                default:
+                    borderStatus.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#6C757D")); // Gray
+                    break;
+            }
+        }
+
+        private string GetKeteranganGolongan(JenisKendaraan jenisKendaraan)
+        {
+            return jenisKendaraan switch
+            {
+                JenisKendaraan.Jalan_Kaki => "(Pejalan Kaki)",
+                JenisKendaraan.Golongan_I => "(Sepeda)",
+                JenisKendaraan.Golongan_II => "(Motor <500cc)",
+                JenisKendaraan.Golongan_III => "(Motor >500cc / Roda 3)",
+                JenisKendaraan.Golongan_IV_A => "(Mobil Sedan/Minibus ≤5m)",
+                JenisKendaraan.Golongan_IV_B => "(Mobil Bak ≤5m)",
+                JenisKendaraan.Golongan_V_A => "(Bus 5-7m)",
+                JenisKendaraan.Golongan_V_B => "(Truk 5-7m)",
+                JenisKendaraan.Golongan_VI_A => "(Bus 7-10m)",
+                JenisKendaraan.Golongan_VI_B => "(Truk 7-10m)",
+                JenisKendaraan.Golongan_VII => "(Truk Tronton 10-12m)",
+                JenisKendaraan.Golongan_VIII => "(Truk/Alat Berat 12-16m)",
+                JenisKendaraan.Golongan_IX => "(Truk/Alat Berat >16m)",
+                _ => ""
+            };
+        }
+
+        private void BtnVerifikasiPembayaran_Click(object sender, RoutedEventArgs e)
+        {
+            if (_tiket == null) return;
+            
+            // Show message untuk navigasi manual
+            var result = MessageBox.Show(
+                $"Tiket: {_tiket.kode_tiket}\n" +
+                $"Status: {_tiket.status_tiket}\n\n" +
+                "Silakan buka menu 'Kelola Pembayaran' di Admin Panel untuk verifikasi pembayaran tiket ini.\n\n" +
+                "Apakah Anda ingin menutup window ini?",
+                "Info Verifikasi Pembayaran",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Information
+            );
+
+            if (result == MessageBoxResult.Yes)
+            {
+                Close();
+            }
+        }
+
+        private void BtnClose_Click(object sender, RoutedEventArgs e)
+        {
+            Close();
+        }
+    }
+}

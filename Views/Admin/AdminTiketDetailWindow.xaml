@@ -1,0 +1,269 @@
+<Window x:Class="TiketLaut.Views.AdminTiketDetailWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Detail Tiket" 
+        Height="700"
+        Width="900"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="CanResize"
+        FontFamily="Plus Jakarta Sans"
+        Background="#F2F5FC">
+
+    <Window.Resources>
+        <!-- Card Style -->
+        <Style x:Key="CardStyle" TargetType="Border">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="Padding" Value="25"/>
+            <Setter Property="Margin" Value="0,0,0,15"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect Color="#000000" Opacity="0.05" BlurRadius="10" ShadowDepth="0"/>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Primary Button -->
+        <Style x:Key="PrimaryButton" TargetType="Button">
+            <Setter Property="Background" Value="#00658D"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="20,12"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                CornerRadius="8"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#267DAE"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Warning Button -->
+        <Style x:Key="WarningButton" TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
+            <Setter Property="Background" Value="#FFC107"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#E0A800"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Secondary Button -->
+        <Style x:Key="SecondaryButton" TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
+            <Setter Property="Background" Value="#6C757D"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#5A6268"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <Grid Margin="30">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- Header -->
+            <TextBlock Grid.Row="0" 
+                      Text="DETAIL TIKET" 
+                      FontSize="24" 
+                      FontWeight="Bold" 
+                      Foreground="#011C4B"
+                      Margin="0,0,0,20"/>
+
+            <!-- Content -->
+            <StackPanel Grid.Row="1">
+                <!-- Informasi Tiket -->
+                <Border Style="{StaticResource CardStyle}">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Grid.Row="0" 
+                                  Text="Informasi Tiket" 
+                                  FontSize="18" 
+                                  FontWeight="Bold" 
+                                  Foreground="#011C4B"
+                                  Margin="0,0,0,20"/>
+
+                        <Grid Grid.Row="1">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="200"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <!-- Kode Tiket -->
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Kode Tiket" FontWeight="SemiBold" Foreground="#64748B" Margin="0,0,0,15"/>
+                            <TextBlock Grid.Row="0" Grid.Column="1" x:Name="txtKodeTiket" Text="-" FontWeight="Bold" Foreground="#011C4B" FontSize="16" Margin="0,0,0,15"/>
+
+                            <!-- Status -->
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Status" FontWeight="SemiBold" Foreground="#64748B" Margin="0,0,0,15"/>
+                            <Border Grid.Row="1" Grid.Column="1" x:Name="borderStatus" Background="#FFC107" CornerRadius="6" Padding="12,6" HorizontalAlignment="Left" Margin="0,0,0,15">
+                                <TextBlock x:Name="txtStatus" Text="Menunggu Pembayaran" FontWeight="Bold" Foreground="White" FontSize="12"/>
+                            </Border>
+
+                            <!-- Tanggal Pemesanan -->
+                            <TextBlock Grid.Row="2" Grid.Column="0" Text="Tanggal Pemesanan" FontWeight="SemiBold" Foreground="#64748B" Margin="0,0,0,15"/>
+                            <TextBlock Grid.Row="2" Grid.Column="1" x:Name="txtTanggalPemesanan" Text="-" Foreground="#011C4B" Margin="0,0,0,15"/>
+
+                            <!-- Total Harga -->
+                            <TextBlock Grid.Row="3" Grid.Column="0" Text="Total Harga" FontWeight="SemiBold" Foreground="#64748B" Margin="0,0,0,15"/>
+                            <TextBlock Grid.Row="3" Grid.Column="1" x:Name="txtTotalHarga" Text="Rp 0" FontWeight="Bold" Foreground="#00658D" FontSize="18" Margin="0,0,0,15"/>
+
+                            <!-- Metode Pembayaran -->
+                            <TextBlock Grid.Row="4" Grid.Column="0" Text="Metode Pembayaran" FontWeight="SemiBold" Foreground="#64748B"/>
+                            <TextBlock Grid.Row="4" Grid.Column="1" x:Name="txtMetodePembayaran" Text="-" Foreground="#011C4B"/>
+                        </Grid>
+                    </Grid>
+                </Border>
+
+                <!-- Informasi Pembeli -->
+                <Border Style="{StaticResource CardStyle}">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Grid.Row="0" 
+                                  Text="Informasi Pembeli" 
+                                  FontSize="18" 
+                                  FontWeight="Bold" 
+                                  Foreground="#011C4B"
+                                  Margin="0,0,0,20"/>
+
+                        <Grid Grid.Row="1">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="200"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <!-- Nama Pembeli -->
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Nama Pembeli" FontWeight="SemiBold" Foreground="#64748B" Margin="0,0,0,15"/>
+                            <TextBlock Grid.Row="0" Grid.Column="1" x:Name="txtNamaPembeli" Text="-" Foreground="#011C4B" Margin="0,0,0,15"/>
+
+                            <!-- NIK -->
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="NIK" FontWeight="SemiBold" Foreground="#64748B" Margin="0,0,0,15"/>
+                            <TextBlock Grid.Row="1" Grid.Column="1" x:Name="txtNIK" Text="-" Foreground="#011C4B" Margin="0,0,0,15"/>
+
+                            <!-- Email -->
+                            <TextBlock Grid.Row="2" Grid.Column="0" Text="Email" FontWeight="SemiBold" Foreground="#64748B" Margin="0,0,0,15"/>
+                            <TextBlock Grid.Row="2" Grid.Column="1" x:Name="txtEmail" Text="-" Foreground="#011C4B" Margin="0,0,0,15"/>
+
+                            <!-- Telepon -->
+                            <TextBlock Grid.Row="3" Grid.Column="0" Text="Telepon" FontWeight="SemiBold" Foreground="#64748B"/>
+                            <TextBlock Grid.Row="3" Grid.Column="1" x:Name="txtTelepon" Text="-" Foreground="#011C4B"/>
+                        </Grid>
+                    </Grid>
+                </Border>
+
+                <!-- Detail Perjalanan -->
+                <Border Style="{StaticResource CardStyle}">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Grid.Row="0" 
+                                  Text="Detail Perjalanan" 
+                                  FontSize="18" 
+                                  FontWeight="Bold" 
+                                  Foreground="#011C4B"
+                                  Margin="0,0,0,20"/>
+
+                        <Grid Grid.Row="1">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="200"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <!-- Jumlah Penumpang -->
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Jumlah Penumpang" FontWeight="SemiBold" Foreground="#64748B" Margin="0,0,0,15"/>
+                            <TextBlock Grid.Row="0" Grid.Column="1" x:Name="txtJumlahPenumpang" Text="0 orang" Foreground="#011C4B" Margin="0,0,0,15"/>
+
+                            <!-- Golongan Kendaraan -->
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Golongan Kendaraan" FontWeight="SemiBold" Foreground="#64748B" Margin="0,0,0,15"/>
+                            <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" Margin="0,0,0,15">
+                                <TextBlock x:Name="txtGolonganKendaraan" Text="-" Foreground="#011C4B" FontWeight="SemiBold" Margin="0,0,10,0"/>
+                                <TextBlock x:Name="txtKeteranganGolongan" Text="" Foreground="#64748B" FontSize="12"/>
+                            </StackPanel>
+
+                            <!-- Plat Nomor -->
+                            <TextBlock Grid.Row="2" Grid.Column="0" Text="Plat Nomor" FontWeight="SemiBold" Foreground="#64748B" Margin="0,0,0,15"/>
+                            <TextBlock Grid.Row="2" Grid.Column="1" x:Name="txtPlatNomor" Text="-" Foreground="#011C4B" Margin="0,0,0,15"/>
+
+                            <!-- Rute -->
+                            <TextBlock Grid.Row="3" Grid.Column="0" Text="Rute" FontWeight="SemiBold" Foreground="#64748B"/>
+                            <TextBlock Grid.Row="3" Grid.Column="1" x:Name="txtRute" Text="-" Foreground="#011C4B"/>
+                        </Grid>
+                    </Grid>
+                </Border>
+            </StackPanel>
+
+            <!-- Footer Buttons -->
+            <Grid Grid.Row="2" Margin="0,20,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Verifikasi Pembayaran Button (Only for Menunggu Pembayaran) -->
+                <Button Grid.Column="0"
+                       x:Name="btnVerifikasiPembayaran"
+                       Content="Verifikasi Pembayaran"
+                       Style="{StaticResource WarningButton}"
+                       Click="BtnVerifikasiPembayaran_Click"
+                       HorizontalAlignment="Left"
+                       Visibility="Collapsed"
+                       Padding="25,12"/>
+
+                <!-- Close Button -->
+                <Button Grid.Column="2"
+                       Content="Tutup"
+                       Style="{StaticResource SecondaryButton}"
+                       Click="BtnClose_Click"
+                       MinWidth="120"
+                       Margin="10,0,0,0"/>
+            </Grid>
+        </Grid>
+    </ScrollViewer>
+</Window>
