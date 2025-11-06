@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Documents;
 using System.Windows.Input;
 using TiketLaut.Models;
 using TiketLaut.Services;
@@ -322,19 +323,16 @@ namespace TiketLaut.Views
         /// </summary>
         private void UpdateFilterPenumpangDisplay(int count)
         {
-            if (txtFilterPenumpangDisplay == null || btnFilterMinusPenumpang == null || btnFilterPlusPenumpang == null)
+            if (txtFilterPenumpangDisplay == null)
                 return;
 
-            txtFilterPenumpangDisplay.Text = $"{count} Penumpang";
+            // Update menggunakan Inlines karena TextBlock menggunakan Run elements
+            txtFilterPenumpangDisplay.Inlines.Clear();
+            txtFilterPenumpangDisplay.Inlines.Add(new Run(count.ToString()));
+            txtFilterPenumpangDisplay.Inlines.Add(new Run(" "));
+            txtFilterPenumpangDisplay.Inlines.Add(new Run("Penumpang"));
             
-            // Dapatkan maksimal penumpang berdasarkan kendaraan yang dipilih
-            int maksimalPenumpang = GetMaksimalPenumpangFromFilterKendaraan();
-            
-            // Update button states
-            btnFilterMinusPenumpang.IsEnabled = count > 1;
-            btnFilterPlusPenumpang.IsEnabled = count < maksimalPenumpang;
-            
-            System.Diagnostics.Debug.WriteLine($"[ScheduleWindow] UpdateFilterPenumpangDisplay: count={count}, max={maksimalPenumpang}, plus_enabled={count < maksimalPenumpang}");
+            System.Diagnostics.Debug.WriteLine($"[ScheduleWindow] UpdateFilterPenumpangDisplay: count={count}");
         }
 
         /// <summary>
@@ -409,7 +407,11 @@ namespace TiketLaut.Views
                 {
                     current++;
                     txtFilterPenumpang.Text = current.ToString();
+                    txtPopupPenumpang.Text = current.ToString();
                     UpdateFilterPenumpangDisplay(current);
+                    
+                    // Update button states in popup
+                    UpdatePopupButtonStates(current);
                 }
                 else
                 {
@@ -434,7 +436,191 @@ namespace TiketLaut.Views
                 {
                     current--;
                     txtFilterPenumpang.Text = current.ToString();
+                    txtPopupPenumpang.Text = current.ToString();
                     UpdateFilterPenumpangDisplay(current);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Event handler ketika button tanggal diklik
+        /// </summary>
+        private void BtnFilterDate_Click(object sender, RoutedEventArgs e)
+        {
+            if (dpFilterDate != null)
+            {
+                // Pastikan DatePicker visible sebentar untuk bisa membuka calendar
+                dpFilterDate.Visibility = Visibility.Visible;
+                dpFilterDate.IsDropDownOpen = true;
+                // Akan di-collapsed lagi setelah calendar tertutup di event CalendarClosed
+            }
+        }
+
+        /// <summary>
+        /// Event handler ketika TextBlock tanggal diklik (deprecated, diganti dengan BtnFilterDate_Click)
+        /// </summary>
+        private void TxtFilterDateDisplay_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (dpFilterDate != null)
+            {
+                dpFilterDate.IsDropDownOpen = true;
+            }
+        }
+
+        /// <summary>
+        /// Event handler ketika tanggal dipilih dari DatePicker
+        /// </summary>
+        private void DpFilterDate_SelectedDateChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (dpFilterDate.SelectedDate.HasValue && txtFilterDateDisplay != null)
+            {
+                DateTime selectedDate = dpFilterDate.SelectedDate.Value;
+                
+                // Format: "Sab, 1 November 2025"
+                string[] namaBulan = { "Januari", "Februari", "Maret", "April", "Mei", "Juni", 
+                                      "Juli", "Agustus", "September", "Oktober", "November", "Desember" };
+                string[] namaHari = { "Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab" };
+                
+                string formattedDate = $"{namaHari[(int)selectedDate.DayOfWeek]}, {selectedDate.Day} {namaBulan[selectedDate.Month - 1]} {selectedDate.Year}";
+                txtFilterDateDisplay.Text = formattedDate;
+            }
+        }
+
+        /// <summary>
+        /// Event handler ketika calendar dibuka
+        /// </summary>
+        private void DpFilterDate_CalendarOpened(object sender, RoutedEventArgs e)
+        {
+            System.Diagnostics.Debug.WriteLine("[ScheduleWindow] Calendar opened");
+        }
+
+        /// <summary>
+        /// Event handler ketika calendar ditutup
+        /// </summary>
+        private void DpFilterDate_CalendarClosed(object sender, RoutedEventArgs e)
+        {
+            System.Diagnostics.Debug.WriteLine("[ScheduleWindow] Calendar closed");
+            
+            // Sembunyikan DatePicker lagi setelah calendar ditutup
+            if (dpFilterDate != null)
+            {
+                dpFilterDate.Visibility = Visibility.Collapsed;
+            }
+        }
+
+        /// <summary>
+        /// Event handler untuk button toggle popup penumpang
+        /// </summary>
+        private void BtnFilterPenumpang_Click(object sender, RoutedEventArgs e)
+        {
+            if (popupPenumpang != null)
+            {
+                // Sync nilai dari hidden textbox ke popup textbox
+                if (int.TryParse(txtFilterPenumpang.Text, out int current))
+                {
+                    txtPopupPenumpang.Text = current.ToString();
+                    UpdatePopupButtonStates(current);
+                }
+                
+                popupPenumpang.IsOpen = !popupPenumpang.IsOpen;
+            }
+        }
+
+        /// <summary>
+        /// Validasi input hanya angka untuk TextBox penumpang
+        /// </summary>
+        private void TxtPopupPenumpang_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        {
+            // Hanya terima angka
+            e.Handled = !int.TryParse(e.Text, out _);
+        }
+
+        /// <summary>
+        /// Event handler ketika text penumpang berubah (manual input)
+        /// </summary>
+        private void TxtPopupPenumpang_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (txtPopupPenumpang == null || txtFilterPenumpang == null)
+                return;
+
+            // Jika kosong, biarkan kosong (user sedang menghapus untuk ketik angka baru)
+            if (string.IsNullOrWhiteSpace(txtPopupPenumpang.Text))
+            {
+                // Tidak auto-set ke 1, biarkan user mengetik angka baru
+                return;
+            }
+
+            if (int.TryParse(txtPopupPenumpang.Text, out int value))
+            {
+                // Validasi tidak boleh 0
+                if (value == 0)
+                {
+                    // Hapus angka 0, biarkan kosong
+                    txtPopupPenumpang.Text = "";
+                    txtPopupPenumpang.SelectionStart = 0;
+                    return;
+                }
+
+                // Validasi minimal 1
+                if (value < 1)
+                {
+                    value = 1;
+                    txtPopupPenumpang.Text = "1";
+                    txtPopupPenumpang.SelectionStart = 1;
+                }
+
+                // Validasi maksimal sesuai kendaraan
+                int maksimalPenumpang = GetMaksimalPenumpangFromFilterKendaraan();
+                if (value > maksimalPenumpang)
+                {
+                    value = maksimalPenumpang;
+                    txtPopupPenumpang.Text = maksimalPenumpang.ToString();
+                    txtPopupPenumpang.SelectionStart = maksimalPenumpang.ToString().Length;
+                }
+
+                // Sync ke hidden textbox dan update display
+                txtFilterPenumpang.Text = value.ToString();
+                UpdateFilterPenumpangDisplay(value);
+                UpdatePopupButtonStates(value);
+            }
+        }
+
+        /// <summary>
+        /// Update state enabled/disabled untuk button +/- di popup
+        /// </summary>
+        private void UpdatePopupButtonStates(int current)
+        {
+            int maksimalPenumpang = GetMaksimalPenumpangFromFilterKendaraan();
+            
+            if (btnPopupMinusPenumpang != null)
+                btnPopupMinusPenumpang.IsEnabled = current > 1;
+            
+            if (btnPopupPlusPenumpang != null)
+                btnPopupPlusPenumpang.IsEnabled = current < maksimalPenumpang;
+        }
+
+        /// <summary>
+        /// Event handler ketika popup penumpang ditutup
+        /// </summary>
+        private void PopupPenumpang_Closed(object sender, EventArgs e)
+        {
+            // Saat popup ditutup, jika TextBox kosong atau invalid, restore ke nilai terakhir yang valid
+            if (txtPopupPenumpang != null && txtFilterPenumpang != null)
+            {
+                if (string.IsNullOrWhiteSpace(txtPopupPenumpang.Text))
+                {
+                    // Restore dari hidden textbox
+                    if (int.TryParse(txtFilterPenumpang.Text, out int lastValue) && lastValue >= 1)
+                    {
+                        txtPopupPenumpang.Text = lastValue.ToString();
+                    }
+                    else
+                    {
+                        // Fallback ke 1
+                        txtPopupPenumpang.Text = "1";
+                        txtFilterPenumpang.Text = "1";
+                        UpdateFilterPenumpangDisplay(1);
+                    }
                 }
             }
         }
