@@ -163,7 +163,7 @@
                     </DataGridTextColumn>
                     
                     <!-- Rute -->
-                    <DataGridTextColumn Header="Rute" Width="*" MinWidth="250">
+                    <DataGridTextColumn Header="Rute" Width="*">
                         <DataGridTextColumn.ElementStyle>
                             <Style TargetType="TextBlock">
                                 <Setter Property="HorizontalAlignment" Value="Left"/>
@@ -203,7 +203,7 @@
                     </DataGridTextColumn>
                     
                     <!-- Waktu Berangkat -->
-                    <DataGridTextColumn Header="Jam Berangkat" Width="120">
+                    <DataGridTextColumn Header="Jam Berangkat" Width="140">
                         <DataGridTextColumn.ElementStyle>
                             <Style TargetType="TextBlock">
                                 <Setter Property="HorizontalAlignment" Value="Center"/>
@@ -260,14 +260,22 @@
                     </DataGridTextColumn>
                     
                     <!-- Actions Column -->
-                    <DataGridTemplateColumn Header="Aksi" Width="180">
+                    <DataGridTemplateColumn Header="Aksi" Width="260">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <StackPanel Orientation="Horizontal" 
                                           HorizontalAlignment="Center"
                                           VerticalAlignment="Center">
-                                    <!-- Edit Button -->
+                                    <!-- Detail Button -->
                                     <Button Style="{StaticResource PrimaryButton}"
+                                           Content="Detail"
+                                           Tag="{Binding jadwal_id}"
+                                           Click="BtnDetailJadwal_Click"
+                                           Margin="0,0,6,0"
+                                           Padding="12,6"
+                                           MinWidth="60"/>
+                                    <!-- Edit Button -->
+                                    <Button Style="{StaticResource WarningButton}"
                                            Content="Edit"
                                            Tag="{Binding jadwal_id}"
                                            Click="BtnEditJadwal_Click"

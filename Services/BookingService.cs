@@ -130,14 +130,29 @@ namespace TiketLaut.Services
         /// </summary>
         private async Task<decimal> CalculateTotalHargaAsync(int jadwalId, int jenisKendaraanId, int jumlahPenumpang)
         {
-            var detailKendaraan = await _context.DetailKendaraans
-                .FirstOrDefaultAsync(dk => 
-                    dk.jadwal_id == jadwalId && 
-                    dk.jenis_kendaraan == jenisKendaraanId);
+            // Get jadwal with its GrupKendaraan and DetailKendaraans
+            var jadwal = await _context.Jadwals
+                .Include(j => j.GrupKendaraan)
+                    .ThenInclude(g => g.DetailKendaraans)
+                .FirstOrDefaultAsync(j => j.jadwal_id == jadwalId);
+
+            if (jadwal == null)
+            {
+                throw new Exception($"Jadwal {jadwalId} tidak ditemukan");
+            }
+
+            if (jadwal.GrupKendaraan == null || jadwal.GrupKendaraan.DetailKendaraans == null)
+            {
+                throw new Exception($"Grup kendaraan tidak ditemukan untuk jadwal {jadwalId}");
+            }
+
+            // Find the DetailKendaraan for the requested jenis_kendaraan
+            var detailKendaraan = jadwal.GrupKendaraan.DetailKendaraans
+                .FirstOrDefault(d => d.jenis_kendaraan == jenisKendaraanId);
 
             if (detailKendaraan == null)
             {
-                throw new Exception($"Detail kendaraan tidak ditemukan untuk jadwal {jadwalId} dan jenis kendaraan {jenisKendaraanId}");
+                throw new Exception($"Jenis kendaraan {jenisKendaraanId} tidak tersedia dalam grup kendaraan untuk jadwal {jadwalId}");
             }
 
             decimal harga = detailKendaraan.harga_kendaraan;

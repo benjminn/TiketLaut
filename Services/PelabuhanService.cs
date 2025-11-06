@@ -63,6 +63,7 @@ namespace TiketLaut.Services
                 existing.provinsi = pelabuhan.provinsi;
                 existing.fasilitas = pelabuhan.fasilitas;
                 existing.deskripsi = pelabuhan.deskripsi;
+                existing.timezone = pelabuhan.timezone;  // ? NEW: Update timezone
 
                 await _context.SaveChangesAsync();
                 return (true, "Pelabuhan berhasil diupdate!");

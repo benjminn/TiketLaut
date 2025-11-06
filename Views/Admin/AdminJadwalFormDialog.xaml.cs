@@ -4,10 +4,12 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using Microsoft.EntityFrameworkCore;
 using TiketLaut.Services;
 
 namespace TiketLaut.Views
@@ -17,12 +19,15 @@ namespace TiketLaut.Views
         private readonly JadwalService _jadwalService;
         private readonly PelabuhanService _pelabuhanService;
         private readonly KapalService _kapalService;
+        private readonly GrupKendaraanService _grupKendaraanService;
         private Jadwal? _existingJadwal;
         private bool _isEditMode;
         private ObservableCollection<BulkTimeRow> _bulkTimeRows;
         private ObservableCollection<DateTime> _selectedDates;
+        private ObservableCollection<DetailKendaraanInputRow> _detailKendaraanRows;
         private bool _isDragging = false;
         private DateTime? _dragStartDate = null;
+        private bool _isDragSelecting = true; // true = select, false = deselect
 
         public AdminJadwalFormDialog(Jadwal? jadwal = null)
         {
@@ -30,6 +35,7 @@ namespace TiketLaut.Views
             _jadwalService = new JadwalService();
             _pelabuhanService = new PelabuhanService();
             _kapalService = new KapalService();
+            _grupKendaraanService = new GrupKendaraanService();
             _existingJadwal = jadwal;
             _isEditMode = jadwal != null;
 
@@ -41,23 +47,15 @@ namespace TiketLaut.Views
             _selectedDates = new ObservableCollection<DateTime>();
             icSelectedDates.ItemsSource = _selectedDates;
 
-            LoadInitialData();
+            // Initialize detail kendaraan grid
+            _detailKendaraanRows = new ObservableCollection<DetailKendaraanInputRow>();
+            dgDetailKendaraan.ItemsSource = _detailKendaraanRows;
 
-            if (_isEditMode && jadwal != null)
-            {
-                txtTitle.Text = "Edit Jadwal";
-                btnSave.Content = "Update";
-                btnBulkSave.Visibility = Visibility.Collapsed;
-                dgBulkWaktu.IsEnabled = false;
-                btnAddRow.IsEnabled = false;
-                btnClearRows.IsEnabled = false;
-                calendarMultiSelect.IsEnabled = false;
-                btnClearDates.IsEnabled = false;
-                LoadJadwalData(jadwal);
-            }
+            // Load initial data dan jadwal data (jika edit mode)
+            LoadInitialDataAndJadwal();
         }
 
-        private async void LoadInitialData()
+        private async void LoadInitialDataAndJadwal()
         {
             try
             {
@@ -69,6 +67,37 @@ namespace TiketLaut.Views
                 // Load kapal
                 var kapals = await _kapalService.GetAllKapalAsync();
                 cbKapal.ItemsSource = kapals;
+
+                // Load existing grup kendaraan
+                await LoadGrupKendaraanAsync();
+
+                // Load Detail Kendaraan DataGrid (semua 13 golongan dengan input harga)
+                LoadDetailKendaraanGrid();
+
+                // Jika edit mode, load data jadwal SETELAH semua data master ter-load
+                if (_isEditMode && _existingJadwal != null)
+                {
+                    txtTitle.Text = "Edit Jadwal";
+                    btnSave.Content = "Update";
+                    btnBulkSave.Visibility = Visibility.Collapsed;
+                    dgBulkWaktu.IsEnabled = false;
+                    btnAddRow.IsEnabled = false;
+                    btnClearRows.IsEnabled = false;
+                    calendarMultiSelect.IsEnabled = false;
+                    btnClearDates.IsEnabled = false;
+                    
+                    // Disable grup kendaraan section di edit mode (grup tidak bisa diubah)
+                    rbGunakanGrupLama.IsEnabled = false;
+                    rbBuatGrupBaru.IsEnabled = false;
+                    cbGrupKendaraan.IsEnabled = false;
+                    txtNamaGrup.IsEnabled = false;
+                    dgDetailKendaraan.IsReadOnly = true;
+                    dgDetailKendaraan.Background = new System.Windows.Media.SolidColorBrush(
+                        System.Windows.Media.Color.FromRgb(245, 245, 245));
+                    
+                    // Load jadwal data setelah grup kendaraan ter-load
+                    LoadJadwalData(_existingJadwal);
+                }
             }
             catch (Exception ex)
             {
@@ -76,6 +105,8 @@ namespace TiketLaut.Views
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+
+
 
         private void LoadJadwalData(Jadwal jadwal)
         {
@@ -112,6 +143,86 @@ namespace TiketLaut.Views
                     break;
                 }
             }
+
+            // Load grup kendaraan yang digunakan oleh jadwal ini
+            if (jadwal.grup_kendaraan_id > 0)
+            {
+                // Set radio button ke "Gunakan Grup Lama"
+                rbGunakanGrupLama.IsChecked = true;
+                
+                // Set selected grup kendaraan
+                cbGrupKendaraan.SelectedValue = jadwal.grup_kendaraan_id;
+            }
+        }
+
+        private async Task LoadGrupKendaraanAsync()
+        {
+            try
+            {
+                // Load fresh data setiap kali dipanggil untuk menghindari stale data
+                var allGrups = await _grupKendaraanService.GetAllGrupWithUsageAsync();
+                
+                // Clear existing data source sebelum set yang baru
+                cbGrupKendaraan.ItemsSource = null;
+                cbGrupKendaraan.ItemsSource = allGrups;
+                
+                // JANGAN set DisplayMemberPath karena XAML sudah punya ItemTemplate
+                // DisplayMemberPath dan ItemTemplate tidak bisa digunakan bersamaan
+                // SelectedValuePath sudah di-set di XAML
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error loading grup kendaraan: {ex.Message}\n\nStack Trace: {ex.StackTrace}", 
+                    "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void RbGunakanGrupLama_Checked(object sender, RoutedEventArgs e)
+        {
+            if (cbGrupKendaraan != null && txtNamaGrup != null && dgDetailKendaraan != null)
+            {
+                cbGrupKendaraan.IsEnabled = true;
+                txtNamaGrup.IsEnabled = false;
+                txtNamaGrup.Text = "";
+                dgDetailKendaraan.IsReadOnly = true;
+                dgDetailKendaraan.Background = new System.Windows.Media.SolidColorBrush(
+                    System.Windows.Media.Color.FromRgb(245, 245, 245));
+            }
+        }
+
+        private void RbBuatGrupBaru_Checked(object sender, RoutedEventArgs e)
+        {
+            if (cbGrupKendaraan != null && txtNamaGrup != null && dgDetailKendaraan != null)
+            {
+                cbGrupKendaraan.IsEnabled = false;
+                cbGrupKendaraan.SelectedIndex = -1;
+                txtNamaGrup.IsEnabled = true;
+                dgDetailKendaraan.IsReadOnly = false;
+                dgDetailKendaraan.Background = System.Windows.Media.Brushes.White;
+                
+                // Clear detail kendaraan rows
+                foreach (var row in _detailKendaraanRows)
+                {
+                    row.Harga = 0;
+                }
+            }
+        }
+
+        private void CbGrupKendaraan_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (cbGrupKendaraan.SelectedItem is GrupKendaraanWithUsage selectedGrup)
+            {
+                // Load harga dari grup yang dipilih ke DataGrid (read-only)
+                foreach (var row in _detailKendaraanRows)
+                {
+                    var detailKendaraan = selectedGrup.detail_kendaraans
+                        .FirstOrDefault(d => d.jenis_kendaraan == (int)row.JenisKendaraanEnum);
+                    if (detailKendaraan != null)
+                    {
+                        row.Harga = detailKendaraan.harga_kendaraan;
+                    }
+                }
+            }
         }
 
         private void NumericTextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
@@ -140,12 +251,12 @@ namespace TiketLaut.Views
             {
                 // Remove old handlers if exist to prevent duplicates
                 button.PreviewMouseLeftButtonDown -= DayButton_PreviewMouseLeftButtonDown;
-                button.PreviewMouseMove -= DayButton_PreviewMouseMove;
+                button.MouseEnter -= DayButton_MouseEnter;
                 button.PreviewMouseLeftButtonUp -= DayButton_PreviewMouseLeftButtonUp;
                 
                 // Add new handlers
                 button.PreviewMouseLeftButtonDown += DayButton_PreviewMouseLeftButtonDown;
-                button.PreviewMouseMove += DayButton_PreviewMouseMove;
+                button.MouseEnter += DayButton_MouseEnter;
                 button.PreviewMouseLeftButtonUp += DayButton_PreviewMouseLeftButtonUp;
             }
         }
@@ -184,31 +295,81 @@ namespace TiketLaut.Views
                 {
                     _isDragging = true;
                     _dragStartDate = date;
-                    dayButton.CaptureMouse();
+                    
+                    // Tentukan mode drag: select (jika belum terpilih) atau deselect (jika sudah terpilih)
+                    _isDragSelecting = !_selectedDates.Contains(date);
                     
                     // Toggle the clicked date
-                    if (!_selectedDates.Contains(date))
+                    if (_isDragSelecting)
                     {
-                        _selectedDates.Add(date);
-                        UpdateDayButtonStyles();
+                        if (!_selectedDates.Contains(date))
+                        {
+                            _selectedDates.Add(date);
+                        }
                     }
+                    else
+                    {
+                        if (_selectedDates.Contains(date))
+                        {
+                            _selectedDates.Remove(date);
+                        }
+                    }
+                    
+                    UpdateSelectedCountText();
+                    UpdateDayButtonStyles();
                 }
             }
         }
 
-        private void DayButton_PreviewMouseMove(object sender, MouseEventArgs e)
+        private void DayButton_MouseEnter(object sender, MouseEventArgs e)
         {
+            // Trigger saat mouse masuk ke button (lebih reliable untuk drag selection)
             if (_isDragging && e.LeftButton == MouseButtonState.Pressed)
             {
                 if (sender is System.Windows.Controls.Primitives.CalendarDayButton dayButton &&
-                    dayButton.DataContext is DateTime hoverDate)
+                    dayButton.DataContext is DateTime currentDate)
                 {
-                    var date = hoverDate.Date;
+                    var date = currentDate.Date;
                     
-                    // Add to selection if not already selected
-                    if (!_selectedDates.Contains(date))
+                    if (_dragStartDate.HasValue)
                     {
-                        _selectedDates.Add(date);
+                        // Pilih SEMUA tanggal di antara _dragStartDate dan currentDate
+                        var startDate = _dragStartDate.Value < date ? _dragStartDate.Value : date;
+                        var endDate = _dragStartDate.Value > date ? _dragStartDate.Value : date;
+                        
+                        // Clear selection dulu, lalu isi ulang dengan range
+                        var originalDates = _selectedDates.ToList();
+                        _selectedDates.Clear();
+                        
+                        // Tambahkan tanggal yang tidak ada di range (untuk preserve selection lain)
+                        foreach (var origDate in originalDates)
+                        {
+                            if (origDate < startDate || origDate > endDate)
+                            {
+                                _selectedDates.Add(origDate);
+                            }
+                        }
+                        
+                        // Tambahkan/hapus semua tanggal dalam range berdasarkan mode drag
+                        if (_isDragSelecting)
+                        {
+                            // Mode select: tambahkan semua tanggal dalam range
+                            for (var d = startDate; d <= endDate; d = d.AddDays(1))
+                            {
+                                if (!_selectedDates.Contains(d))
+                                {
+                                    _selectedDates.Add(d);
+                                }
+                            }
+                        }
+                        else
+                        {
+                            // Mode deselect: hapus semua tanggal dalam range
+                            for (var d = startDate; d <= endDate; d = d.AddDays(1))
+                            {
+                                _selectedDates.Remove(d);
+                            }
+                        }
                         
                         // Sort dates
                         var sortedDates = _selectedDates.OrderBy(d => d).ToList();
@@ -231,11 +392,7 @@ namespace TiketLaut.Views
             {
                 _isDragging = false;
                 _dragStartDate = null;
-                
-                if (sender is System.Windows.Controls.Primitives.CalendarDayButton dayButton)
-                {
-                    dayButton.ReleaseMouseCapture();
-                }
+                // Tidak perlu ReleaseMouseCapture() karena tidak pakai CaptureMouse()
             }
         }
 
@@ -401,11 +558,19 @@ namespace TiketLaut.Views
                 var durasiJam = int.Parse(txtDurasiJam.Text);
                 var durasiMenit = int.Parse(txtDurasiMenit.Text);
 
+                // ? NEW: Get timezone info from pelabuhan asal
+                var pelabuhanAsal = await _pelabuhanService.GetPelabuhanByIdAsync(pelabuhan_asal_id);
+                var timezoneOffsetHours = pelabuhanAsal?.TimezoneOffsetHours ?? 7;  // Default WIB
+
                 if (_isEditMode && _existingJadwal != null)
                 {
                     // Update mode - use existing date
                     var tanggal = _existingJadwal.waktu_berangkat.Date;
-                    var waktu_berangkat = new DateTime(tanggal.Year, tanggal.Month, tanggal.Day, jam, menit, 0, DateTimeKind.Utc);
+                    
+                    // ? FIX: Convert timezone pelabuhan to UTC
+                    // Admin input waktu dalam timezone pelabuhan, convert ke UTC untuk database
+                    var waktuLokal = new DateTime(tanggal.Year, tanggal.Month, tanggal.Day, jam, menit, 0);
+                    var waktu_berangkat = waktuLokal.AddHours(-timezoneOffsetHours);  // Convert to UTC
                     var waktu_tiba = waktu_berangkat.AddHours(durasiJam).AddMinutes(durasiMenit);
                     
                     _existingJadwal.pelabuhan_asal_id = pelabuhan_asal_id;
@@ -437,15 +602,86 @@ namespace TiketLaut.Views
                         btnSave.Content = "💾 Simpan";
                         return;
                     }
+
+                    int grupKendaraanId;
+                    string grupNama;
+
+                    // Check mode: Gunakan Grup Lama atau Buat Baru
+                    if (rbGunakanGrupLama.IsChecked == true)
+                    {
+                        // Mode: Gunakan Grup Lama
+                        if (cbGrupKendaraan.SelectedValue == null)
+                        {
+                            MessageBox.Show("Pilih grup kendaraan yang akan digunakan!", "Validasi", 
+                                MessageBoxButton.OK, MessageBoxImage.Warning);
+                            btnSave.IsEnabled = true;
+                            btnSave.Content = "💾 Simpan";
+                            return;
+                        }
+
+                        grupKendaraanId = (int)cbGrupKendaraan.SelectedValue;
+                        grupNama = ((GrupKendaraanWithUsage)cbGrupKendaraan.SelectedItem).nama_grup_kendaraan;
+                    }
+                    else
+                    {
+                        // Mode: Buat Grup Baru
+                        // Validasi: nama grup harus diisi
+                        if (string.IsNullOrWhiteSpace(txtNamaGrup.Text))
+                        {
+                            MessageBox.Show("Nama grup harga wajib diisi!", "Validasi", 
+                                MessageBoxButton.OK, MessageBoxImage.Warning);
+                            btnSave.IsEnabled = true;
+                            btnSave.Content = "💾 Simpan";
+                            return;
+                        }
+
+                        // Validasi: semua 13 golongan harus diisi harganya
+                        var unfilledRows = _detailKendaraanRows.Where(r => r.Harga <= 0).ToList();
+                        if (unfilledRows.Any())
+                        {
+                            var golonganList = string.Join(", ", unfilledRows.Select(r => r.Golongan));
+                            MessageBox.Show($"Semua golongan kendaraan harus diisi harganya!\n\nBelum diisi: {golonganList}", 
+                                "Validasi", MessageBoxButton.OK, MessageBoxImage.Warning);
+                            btnSave.IsEnabled = true;
+                            btnSave.Content = "💾 Simpan";
+                            return;
+                        }
+
+                        // Build prices dictionary from DataGrid
+                        var prices = new Dictionary<JenisKendaraan, decimal>();
+                        foreach (var row in _detailKendaraanRows)
+                        {
+                            prices[row.JenisKendaraanEnum] = row.Harga;
+                        }
+
+                        // Create GrupKendaraan with 13 DetailKendaraan
+                        var grupResult = await _grupKendaraanService.CreateGrupWithDetailAsync(
+                            txtNamaGrup.Text.Trim(), prices);
+                        
+                        if (grupResult.grup == null)
+                        {
+                            MessageBox.Show("Error membuat grup kendaraan", "Error", 
+                                MessageBoxButton.OK, MessageBoxImage.Error);
+                            btnSave.IsEnabled = true;
+                            btnSave.Content = "💾 Simpan";
+                            return;
+                        }
+
+                        grupKendaraanId = grupResult.grup.grup_kendaraan_id;
+                        grupNama = grupResult.grup.nama_grup_kendaraan;
+                    }
                     
                     var jadwals = new List<Jadwal>();
                     
-                    // Create jadwal for each selected date
+                    // Create jadwal for each selected date (all sharing the same grup_kendaraan_id)
                     foreach (var dateToCreate in _selectedDates)
                     {
-                        var waktu_berangkat_for_date = new DateTime(
+                        // ? FIX: Convert timezone pelabuhan to UTC
+                        // Admin input waktu dalam timezone pelabuhan, convert ke UTC untuk database
+                        var waktuLokal = new DateTime(
                             dateToCreate.Year, dateToCreate.Month, dateToCreate.Day, 
-                            jam, menit, 0, DateTimeKind.Utc);
+                            jam, menit, 0);
+                        var waktu_berangkat_for_date = waktuLokal.AddHours(-timezoneOffsetHours);  // Convert to UTC
                         var waktu_tiba_for_date = waktu_berangkat_for_date.AddHours(durasiJam).AddMinutes(durasiMenit);
                         
                         jadwals.Add(new Jadwal
@@ -456,33 +692,24 @@ namespace TiketLaut.Views
                             waktu_berangkat = waktu_berangkat_for_date,
                             waktu_tiba = waktu_tiba_for_date,
                             kelas_layanan = kelas_layanan,
-                            status = status
+                            status = status,
+                            grup_kendaraan_id = grupKendaraanId
                         });
                     }
 
-                    if (jadwals.Count == 1)
-                    {
-                        var result = await _jadwalService.CreateJadwalAsync(jadwals[0]);
-                        MessageBox.Show(result.message, result.success ? "Success" : "Error",
-                            MessageBoxButton.OK, result.success ? MessageBoxImage.Information : MessageBoxImage.Error);
+                    // Use bulk create for all jadwals
+                    var result = await _jadwalService.BulkCreateJadwalAsync(jadwals);
+                    var totalDates = _selectedDates.Count;
+                    var totalJadwals = jadwals.Count;
+                    MessageBox.Show(
+                        $"{result.message}\n\nGrup: \"{grupNama}\"\nTotal: {totalJadwals} jadwal dibuat untuk {totalDates} tanggal\n(Setiap jadwal memiliki 13 golongan kendaraan dalam 1 grup)", 
+                        result.success ? "Success" : "Error",
+                        MessageBoxButton.OK, result.success ? MessageBoxImage.Information : MessageBoxImage.Error);
 
-                        if (result.success)
-                        {
-                            DialogResult = true;
-                            Close();
-                        }
-                    }
-                    else
+                    if (result.success)
                     {
-                        var result = await _jadwalService.BulkCreateJadwalAsync(jadwals);
-                        MessageBox.Show(result.message, result.success ? "Success" : "Error",
-                            MessageBoxButton.OK, result.success ? MessageBoxImage.Information : MessageBoxImage.Error);
-
-                        if (result.success)
-                        {
-                            DialogResult = true;
-                            Close();
-                        }
+                        DialogResult = true;
+                        Close();
                     }
                 }
             }
@@ -542,6 +769,78 @@ namespace TiketLaut.Views
                 var durasiJam = int.Parse(txtDurasiJam.Text);
                 var durasiMenit = int.Parse(txtDurasiMenit.Text);
 
+                // ? NEW: Get timezone info from pelabuhan asal for bulk save
+                var pelabuhanAsal = await _pelabuhanService.GetPelabuhanByIdAsync(pelabuhan_asal_id);
+                var timezoneOffsetHours = pelabuhanAsal?.TimezoneOffsetHours ?? 7;  // Default WIB
+
+                int grupKendaraanId;
+                string grupNama;
+
+                // Check mode: Gunakan Grup Lama atau Buat Baru
+                if (rbGunakanGrupLama.IsChecked == true)
+                {
+                    // Mode: Gunakan Grup Lama
+                    if (cbGrupKendaraan.SelectedValue == null)
+                    {
+                        MessageBox.Show("Pilih grup kendaraan yang akan digunakan!", "Validasi", 
+                            MessageBoxButton.OK, MessageBoxImage.Warning);
+                        btnBulkSave.IsEnabled = true;
+                        btnBulkSave.Content = "💾 Bulk Save";
+                        return;
+                    }
+
+                    grupKendaraanId = (int)cbGrupKendaraan.SelectedValue;
+                    grupNama = ((GrupKendaraanWithUsage)cbGrupKendaraan.SelectedItem).nama_grup_kendaraan;
+                }
+                else
+                {
+                    // Mode: Buat Grup Baru
+                    // Validasi: nama grup harus diisi
+                    if (string.IsNullOrWhiteSpace(txtNamaGrup.Text))
+                    {
+                        MessageBox.Show("Nama grup harga wajib diisi!", "Validasi", 
+                            MessageBoxButton.OK, MessageBoxImage.Warning);
+                        btnBulkSave.IsEnabled = true;
+                        btnBulkSave.Content = "💾 Bulk Save";
+                        return;
+                    }
+
+                    // Validasi: semua 13 golongan harus diisi harganya
+                    var unfilledRows = _detailKendaraanRows.Where(r => r.Harga <= 0).ToList();
+                    if (unfilledRows.Any())
+                    {
+                        var golonganList = string.Join(", ", unfilledRows.Select(r => r.Golongan));
+                        MessageBox.Show($"Semua golongan kendaraan harus diisi harganya!\n\nBelum diisi: {golonganList}", 
+                            "Validasi", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        btnBulkSave.IsEnabled = true;
+                        btnBulkSave.Content = "💾 Bulk Save";
+                        return;
+                    }
+
+                    // Build prices dictionary from DataGrid
+                    var prices = new Dictionary<JenisKendaraan, decimal>();
+                    foreach (var row in _detailKendaraanRows)
+                    {
+                        prices[row.JenisKendaraanEnum] = row.Harga;
+                    }
+
+                    // Create GrupKendaraan with 13 DetailKendaraan
+                    var grupResult = await _grupKendaraanService.CreateGrupWithDetailAsync(
+                        txtNamaGrup.Text.Trim(), prices);
+                    
+                    if (grupResult.grup == null)
+                    {
+                        MessageBox.Show("Error membuat grup kendaraan", "Error", 
+                            MessageBoxButton.OK, MessageBoxImage.Error);
+                        btnBulkSave.IsEnabled = true;
+                        btnBulkSave.Content = "💾 Bulk Save";
+                        return;
+                    }
+
+                    grupKendaraanId = grupResult.grup.grup_kendaraan_id;
+                    grupNama = grupResult.grup.nama_grup_kendaraan;
+                }
+
                 // Use selected dates
                 var datesToCreate = _selectedDates.ToList();
 
@@ -565,9 +864,13 @@ namespace TiketLaut.Views
                             int.TryParse(parts[0], out int jam) && jam >= 0 && jam <= 23 &&
                             int.TryParse(parts[1], out int menit) && menit >= 0 && menit <= 59)
                         {
-                            var waktuBerangkat = new DateTime(dateToCreate.Year, dateToCreate.Month, dateToCreate.Day, jam, menit, 0, DateTimeKind.Utc);
+                            // ? FIX: Convert timezone pelabuhan to UTC
+                            // Admin input waktu dalam timezone pelabuhan, convert ke UTC untuk database
+                            var waktuLokal = new DateTime(dateToCreate.Year, dateToCreate.Month, dateToCreate.Day, jam, menit, 0);
+                            var waktuBerangkat = waktuLokal.AddHours(-timezoneOffsetHours);  // Convert to UTC
                             var waktuTiba = waktuBerangkat.AddHours(durasiJam).AddMinutes(durasiMenit);
 
+                            // Create jadwal for this time slot (all using the same grup_kendaraan_id)
                             jadwals.Add(new Jadwal
                             {
                                 pelabuhan_asal_id = pelabuhan_asal_id,
@@ -576,7 +879,8 @@ namespace TiketLaut.Views
                                 waktu_berangkat = waktuBerangkat,
                                 waktu_tiba = waktuTiba,
                                 kelas_layanan = kelas_layanan,
-                                status = status
+                                status = status,
+                                grup_kendaraan_id = grupKendaraanId
                             });
                         }
                         else
@@ -602,7 +906,11 @@ namespace TiketLaut.Views
                 }
 
                 var result = await _jadwalService.BulkCreateJadwalAsync(jadwals);
-                MessageBox.Show(result.message, result.success ? "Success" : "Error",
+                var totalDates = datesToCreate.Count;
+                var totalTimeSlots = _bulkTimeRows.Count(r => !string.IsNullOrWhiteSpace(r.JamBerangkat));
+                MessageBox.Show(
+                    $"{result.message}\n\nGrup: \"{grupNama}\"\nTotal: {jadwals.Count} jadwal dibuat ({totalDates} tanggal × {totalTimeSlots} waktu)\n(Setiap jadwal memiliki 13 golongan kendaraan dalam 1 grup)", 
+                    result.success ? "Success" : "Error",
                     MessageBoxButton.OK, result.success ? MessageBoxImage.Information : MessageBoxImage.Error);
 
                 if (result.success)
@@ -744,6 +1052,63 @@ namespace TiketLaut.Views
             }
         }
 
+
+
+        // Load semua golongan detail kendaraan (13 rows) ke DataGrid untuk input harga
+        private void LoadDetailKendaraanGrid()
+        {
+            _detailKendaraanRows.Clear();
+            
+            // Loop semua enum JenisKendaraan
+            foreach (JenisKendaraan jenis in Enum.GetValues(typeof(JenisKendaraan)))
+            {
+                var spec = DetailKendaraan.GetSpecificationByJenis(jenis);
+                _detailKendaraanRows.Add(new DetailKendaraanInputRow
+                {
+                    JenisKendaraanEnum = jenis,
+                    Golongan = GetGolonganDisplayName(jenis),
+                    Bobot = spec.Bobot,
+                    Deskripsi = spec.Deskripsi,
+                    SpesifikasiUkuran = spec.SpesifikasiUkuran,
+                    Harga = 0 // Default harga 0, user harus isi
+                });
+            }
+        }
+
+        private string GetGolonganDisplayName(JenisKendaraan jenis)
+        {
+            return jenis switch
+            {
+                JenisKendaraan.Jalan_Kaki => "Jalan Kaki",
+                JenisKendaraan.Golongan_I => "Golongan I",
+                JenisKendaraan.Golongan_II => "Golongan II",
+                JenisKendaraan.Golongan_III => "Golongan III",
+                JenisKendaraan.Golongan_IV_A => "Golongan IV-A",
+                JenisKendaraan.Golongan_IV_B => "Golongan IV-B",
+                JenisKendaraan.Golongan_V_A => "Golongan V-A",
+                JenisKendaraan.Golongan_V_B => "Golongan V-B",
+                JenisKendaraan.Golongan_VI_A => "Golongan VI-A",
+                JenisKendaraan.Golongan_VI_B => "Golongan VI-B",
+                JenisKendaraan.Golongan_VII => "Golongan VII",
+                JenisKendaraan.Golongan_VIII => "Golongan VIII",
+                JenisKendaraan.Golongan_IX => "Golongan IX",
+                _ => jenis.ToString()
+            };
+        }
+
+
+
+        // Numeric only input untuk harga
+        private void TxtNumericOnly_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        {
+            e.Handled = !IsTextNumeric(e.Text);
+        }
+
+        private static bool IsTextNumeric(string text)
+        {
+            return text.All(char.IsDigit);
+        }
+
         private void DgBulkWaktu_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
         {
             if (e.EditAction == DataGridEditAction.Commit)
@@ -774,6 +1139,35 @@ namespace TiketLaut.Views
                             MessageBox.Show("Format harus HH:mm (contoh: 08:00, 14:30)", "Format Tidak Valid",
                                 MessageBoxButton.OK, MessageBoxImage.Warning);
                             textBox.Text = row.JamBerangkat; // Revert to previous value
+                        }
+                    }
+                }
+            }
+        }
+
+        // Event handler untuk edit harga pada DataGrid Detail Kendaraan
+        private void DgDetailKendaraan_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
+        {
+            if (e.EditAction == DataGridEditAction.Commit)
+            {
+                var row = e.Row.Item as DetailKendaraanInputRow;
+                if (row != null && e.Column.Header.ToString() == "Harga (Rp)")
+                {
+                    var textBox = e.EditingElement as System.Windows.Controls.TextBox;
+                    if (textBox != null)
+                    {
+                        var hargaText = textBox.Text.Trim().Replace(",", "").Replace(".", "");
+                        
+                        // Validate numeric
+                        if (decimal.TryParse(hargaText, out decimal harga) && harga >= 0)
+                        {
+                            row.Harga = harga;
+                        }
+                        else if (!string.IsNullOrWhiteSpace(hargaText))
+                        {
+                            MessageBox.Show("Harga harus berupa angka positif!", "Format Tidak Valid",
+                                MessageBoxButton.OK, MessageBoxImage.Warning);
+                            textBox.Text = row.Harga.ToString("N0"); // Revert to previous value
                         }
                     }
                 }
@@ -856,6 +1250,39 @@ namespace TiketLaut.Views
             var tiba = berangkat.AddHours(durasiJam).AddMinutes(durasiMenit);
             
             JamTiba = tiba.ToString("HH:mm");
+        }
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+        protected void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+    }
+
+
+
+    // Helper class untuk input detail kendaraan dengan harga per golongan
+    public class DetailKendaraanInputRow : INotifyPropertyChanged
+    {
+        public JenisKendaraan JenisKendaraanEnum { get; set; }
+        public string Golongan { get; set; } = string.Empty;
+        public int Bobot { get; set; }
+        public string Deskripsi { get; set; } = string.Empty;
+        public string SpesifikasiUkuran { get; set; } = string.Empty;
+        
+        private decimal _harga;
+        public decimal Harga
+        {
+            get => _harga;
+            set
+            {
+                if (_harga != value)
+                {
+                    _harga = value;
+                    OnPropertyChanged(nameof(Harga));
+                }
+            }
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;
