@@ -35,6 +35,7 @@ namespace TiketLaut.Views
                     txtNamaPelabuhan.Text = pelabuhan.nama_pelabuhan;
                     txtKota.Text = pelabuhan.kota;
                     txtProvinsi.Text = pelabuhan.provinsi;
+                    txtTimezone.Text = $"{pelabuhan.timezone} (UTC+{pelabuhan.TimezoneOffsetHours})";
                     txtFasilitas.Text = pelabuhan.fasilitas;
                     txtDeskripsi.Text = pelabuhan.deskripsi ?? "(Tidak ada deskripsi)";
                 }

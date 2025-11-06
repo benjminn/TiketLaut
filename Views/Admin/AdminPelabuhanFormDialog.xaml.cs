@@ -32,6 +32,22 @@ namespace TiketLaut.Views
             txtProvinsi.Text = pelabuhan.provinsi;
             txtFasilitas.Text = pelabuhan.fasilitas;
             txtDeskripsi.Text = pelabuhan.deskripsi ?? "";
+            
+            // Set timezone
+            foreach (System.Windows.Controls.ComboBoxItem item in cmbTimezone.Items)
+            {
+                if (item.Tag?.ToString() == pelabuhan.timezone)
+                {
+                    cmbTimezone.SelectedItem = item;
+                    break;
+                }
+            }
+            
+            // Default to WIB if not found
+            if (cmbTimezone.SelectedItem == null)
+            {
+                cmbTimezone.SelectedIndex = 0;
+            }
         }
 
         private async void BtnSave_Click(object sender, RoutedEventArgs e)
@@ -61,17 +77,26 @@ namespace TiketLaut.Views
                 return;
             }
 
+            if (cmbTimezone.SelectedItem == null)
+            {
+                MessageBox.Show("Timezone harus dipilih!", "Validasi", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
             // Disable button
             btnSave.IsEnabled = false;
             btnSave.Content = "Menyimpan...";
 
             try
             {
+                var selectedTimezone = ((System.Windows.Controls.ComboBoxItem)cmbTimezone.SelectedItem).Tag?.ToString() ?? "WIB";
+                
                 var pelabuhan = new Pelabuhan
                 {
                     nama_pelabuhan = txtNamaPelabuhan.Text.Trim(),
                     kota = txtKota.Text.Trim(),
                     provinsi = txtProvinsi.Text.Trim(),
+                    timezone = selectedTimezone,
                     fasilitas = txtFasilitas.Text.Trim(),
                     deskripsi = string.IsNullOrWhiteSpace(txtDeskripsi.Text) ? null : txtDeskripsi.Text.Trim()
                 };

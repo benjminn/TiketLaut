@@ -62,6 +62,7 @@
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="150"/>
@@ -80,13 +81,17 @@
                     <TextBlock Grid.Row="2" Grid.Column="0" Text="Provinsi" FontWeight="SemiBold" Margin="0,0,0,10"/>
                     <TextBlock Grid.Row="2" Grid.Column="1" x:Name="txtProvinsi" Text="-" Margin="0,0,0,10"/>
 
+                    <!-- Timezone -->
+                    <TextBlock Grid.Row="3" Grid.Column="0" Text="Timezone" FontWeight="SemiBold" Margin="0,0,0,10"/>
+                    <TextBlock Grid.Row="3" Grid.Column="1" x:Name="txtTimezone" Text="-" Margin="0,0,0,10" FontWeight="SemiBold" Foreground="#00658D"/>
+
                     <!-- Fasilitas -->
-                    <TextBlock Grid.Row="3" Grid.Column="0" Text="Fasilitas" FontWeight="SemiBold" Margin="0,0,0,10" VerticalAlignment="Top"/>
-                    <TextBlock Grid.Row="3" Grid.Column="1" x:Name="txtFasilitas" Text="-" TextWrapping="Wrap" Margin="0,0,0,10"/>
+                    <TextBlock Grid.Row="4" Grid.Column="0" Text="Fasilitas" FontWeight="SemiBold" Margin="0,0,0,10" VerticalAlignment="Top"/>
+                    <TextBlock Grid.Row="4" Grid.Column="1" x:Name="txtFasilitas" Text="-" TextWrapping="Wrap" Margin="0,0,0,10"/>
 
                     <!-- Deskripsi -->
-                    <TextBlock Grid.Row="4" Grid.Column="0" Text="Deskripsi" FontWeight="SemiBold" VerticalAlignment="Top"/>
-                    <TextBlock Grid.Row="4" Grid.Column="1" x:Name="txtDeskripsi" Text="-" TextWrapping="Wrap"/>
+                    <TextBlock Grid.Row="5" Grid.Column="0" Text="Deskripsi" FontWeight="SemiBold" VerticalAlignment="Top"/>
+                    <TextBlock Grid.Row="5" Grid.Column="1" x:Name="txtDeskripsi" Text="-" TextWrapping="Wrap"/>
                 </Grid>
             </Border>
 

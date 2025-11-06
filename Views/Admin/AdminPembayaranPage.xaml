@@ -2,15 +2,444 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              FontFamily="Plus Jakarta Sans">
-    <StackPanel>
-        <TextBlock Text="Kelola Pembayaran - Under Construction" 
-                  FontSize="20" 
-                  FontWeight="Bold"
-                  HorizontalAlignment="Center"
-                  Margin="0,50,0,20"/>
-        <TextBlock Text="Gunakan PembayaranService untuk konfirmasi/tolak pembayaran"
-                  FontSize="14"
-                  HorizontalAlignment="Center"
-                  Foreground="#6C757D"/>
-    </StackPanel>
+
+    <UserControl.Resources>
+        <Style x:Key="CardStyle" TargetType="Border">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="Padding" Value="20"/>
+            <Setter Property="Margin" Value="0,0,0,15"/>
+        </Style>
+
+        <Style x:Key="PrimaryButton" TargetType="Button">
+            <Setter Property="Background" Value="#00658D"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="15,10"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                CornerRadius="8"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#267DAE"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="SuccessButton" TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
+            <Setter Property="Background" Value="#28A745"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#218838"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="DangerButton" TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
+            <Setter Property="Background" Value="#DC3545"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#C82333"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- DataGrid Header Style -->
+        <Style TargetType="DataGridColumnHeader">
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Foreground" Value="#011C4B"/>
+            <Setter Property="Background" Value="#F8F9FA"/>
+            <Setter Property="Padding" Value="12,10"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="BorderThickness" Value="0,0,0,1"/>
+            <Setter Property="BorderBrush" Value="#DEE2E6"/>
+        </Style>
+
+        <!-- DataGrid Cell Style -->
+        <Style TargetType="DataGridCell">
+            <Setter Property="TextBlock.TextAlignment" Value="Center"/>
+            <Setter Property="Padding" Value="8"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Style.Triggers>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="#E7F3F8"/>
+                    <Setter Property="Foreground" Value="#011C4B"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid>
+        <StackPanel>
+            <!-- Filter Section -->
+            <Border Style="{StaticResource CardStyle}">
+                    <StackPanel>
+                        <TextBlock Text="🔍 Filter Pencarian" 
+                                  FontSize="16" 
+                                  FontWeight="Bold" 
+                                  Foreground="#011C4B"
+                                  Margin="0,0,0,15"/>
+                        
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Row 1 -->
+                            <!-- Search Box -->
+                            <StackPanel Grid.Row="0" Grid.Column="0" Margin="0,0,10,0">
+                                <TextBlock Text="Pencarian" FontSize="12" Foreground="#64748B" Margin="0,0,0,5"/>
+                                <TextBox x:Name="txtSearch" 
+                                        Padding="10"
+                                        FontSize="13"
+                                        BorderBrush="#CED4DA"
+                                        BorderThickness="1"
+                                        TextChanged="TxtSearch_TextChanged">
+                                    <TextBox.Style>
+                                        <Style TargetType="TextBox">
+                                            <Setter Property="Background" Value="White"/>
+                                            <Style.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter Property="BorderBrush" Value="#00658D"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBox.Style>
+                                </TextBox>
+                            </StackPanel>
+
+                            <!-- Status Filter -->
+                            <StackPanel Grid.Row="0" Grid.Column="1" Margin="0,0,10,0">
+                                <TextBlock Text="Status Pembayaran" FontSize="12" Foreground="#64748B" Margin="0,0,0,5"/>
+                                <ComboBox x:Name="cmbStatus"
+                                         Padding="10"
+                                         FontSize="13"
+                                         BorderBrush="#CED4DA"
+                                         BorderThickness="1"
+                                         SelectionChanged="CmbStatus_SelectionChanged">
+                                    <ComboBoxItem Content="-- Semua Status --" Tag="" IsSelected="True"/>
+                                    <ComboBoxItem Content="Menunggu Pembayaran" Tag="Menunggu Pembayaran"/>
+                                    <ComboBoxItem Content="Menunggu Validasi" Tag="Menunggu Validasi"/>
+                                    <ComboBoxItem Content="Sukses" Tag="Sukses"/>
+                                    <ComboBoxItem Content="Gagal" Tag="Gagal"/>
+                                </ComboBox>
+                            </StackPanel>
+
+                            <!-- Metode Pembayaran Filter -->
+                            <StackPanel Grid.Row="0" Grid.Column="2" Margin="0,0,10,0">
+                                <TextBlock Text="Metode Pembayaran" FontSize="12" Foreground="#64748B" Margin="0,0,0,5"/>
+                                <ComboBox x:Name="cmbMetodePembayaran"
+                                         Padding="10"
+                                         FontSize="13"
+                                         BorderBrush="#CED4DA"
+                                         BorderThickness="1"
+                                         IsEditable="True"
+                                         IsTextSearchEnabled="True"
+                                         StaysOpenOnEdit="True"
+                                         SelectionChanged="CmbMetodePembayaran_SelectionChanged"/>
+                            </StackPanel>
+
+                            <!-- Pengguna Filter -->
+                            <StackPanel Grid.Row="0" Grid.Column="3">
+                                <TextBlock Text="Nama Pengguna" FontSize="12" Foreground="#64748B" Margin="0,0,0,5"/>
+                                <ComboBox x:Name="cmbPengguna"
+                                         Padding="10"
+                                         FontSize="13"
+                                         BorderBrush="#CED4DA"
+                                         BorderThickness="1"
+                                         IsEditable="True"
+                                         IsTextSearchEnabled="True"
+                                         StaysOpenOnEdit="True"
+                                         SelectionChanged="CmbPengguna_SelectionChanged"/>
+                            </StackPanel>
+
+                            <!-- Row 2 -->
+                            <!-- Tanggal Dari -->
+                            <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,15,10,0">
+                                <TextBlock Text="Tanggal Dari" FontSize="12" Foreground="#64748B" Margin="0,0,0,5"/>
+                                <DatePicker x:Name="dpTanggalDari"
+                                           Padding="10"
+                                           FontSize="13"
+                                           BorderBrush="#CED4DA"
+                                           BorderThickness="1"
+                                           SelectedDateChanged="DateFilter_Changed"/>
+                            </StackPanel>
+
+                            <!-- Tanggal Sampai -->
+                            <StackPanel Grid.Row="1" Grid.Column="1" Margin="0,15,10,0">
+                                <TextBlock Text="Tanggal Sampai" FontSize="12" Foreground="#64748B" Margin="0,0,0,5"/>
+                                <DatePicker x:Name="dpTanggalSampai"
+                                           Padding="10"
+                                           FontSize="13"
+                                           BorderBrush="#CED4DA"
+                                           BorderThickness="1"
+                                           SelectedDateChanged="DateFilter_Changed"/>
+                            </StackPanel>
+
+                            <!-- Jumlah Minimum -->
+                            <StackPanel Grid.Row="1" Grid.Column="2" Margin="0,15,10,0">
+                                <TextBlock Text="Jumlah Min (Rp)" FontSize="12" Foreground="#64748B" Margin="0,0,0,5"/>
+                                <TextBox x:Name="txtJumlahMin"
+                                        Padding="10"
+                                        FontSize="13"
+                                        BorderBrush="#CED4DA"
+                                        BorderThickness="1"
+                                        TextChanged="TxtJumlah_TextChanged"/>
+                            </StackPanel>
+
+                            <!-- Jumlah Maximum -->
+                            <StackPanel Grid.Row="1" Grid.Column="3" Margin="0,15,0,0">
+                                <TextBlock Text="Jumlah Max (Rp)" FontSize="12" Foreground="#64748B" Margin="0,0,0,5"/>
+                                <TextBox x:Name="txtJumlahMax"
+                                        Padding="10"
+                                        FontSize="13"
+                                        BorderBrush="#CED4DA"
+                                        BorderThickness="1"
+                                        TextChanged="TxtJumlah_TextChanged"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <!-- Reset Button -->
+                        <Button Style="{StaticResource PrimaryButton}"
+                               Click="BtnResetFilter_Click"
+                               HorizontalAlignment="Right"
+                               Margin="0,15,0,0"
+                               Background="#6C757D">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="🔄" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                <TextBlock Text="Reset Filter" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                </Border>
+
+                <!-- Data Grid -->
+                <Border Style="{StaticResource CardStyle}">
+                    <StackPanel>
+                        <TextBlock Text="📋 Daftar Pembayaran" 
+                                  FontSize="16" 
+                                  FontWeight="Bold" 
+                                  Foreground="#011C4B"
+                                  Margin="0,0,0,15"/>
+
+                        <DataGrid x:Name="dgPembayaran"
+                                 AutoGenerateColumns="False"
+                                 IsReadOnly="True"
+                                 CanUserAddRows="False"
+                                 CanUserDeleteRows="False"
+                                 CanUserResizeRows="False"
+                                 SelectionMode="Single"
+                                 GridLinesVisibility="Horizontal"
+                                 HeadersVisibility="Column"
+                                 RowHeight="50"
+                                 Background="White"
+                                 BorderBrush="#DEE2E6"
+                                 BorderThickness="1">
+                            <DataGrid.Columns>
+                                <!-- ID -->
+                                <DataGridTextColumn Header="ID" 
+                                                   Binding="{Binding pembayaran_id}" 
+                                                   Width="60"/>
+
+                                <!-- Kode Tiket -->
+                                <DataGridTextColumn Header="Kode Tiket" 
+                                                   Binding="{Binding tiket.kode_tiket}" 
+                                                   Width="120"/>
+
+                                <!-- Nama Pengguna -->
+                                <DataGridTextColumn Header="Nama Pengguna" 
+                                                   Binding="{Binding tiket.Pengguna.nama}" 
+                                                   Width="150"/>
+
+                                <!-- Rute -->
+                                <DataGridTemplateColumn Header="Rute" Width="200">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock TextAlignment="Center">
+                                                <Run Text="{Binding tiket.Jadwal.pelabuhan_asal.nama_pelabuhan}"/>
+                                                <Run Text=" → "/>
+                                                <Run Text="{Binding tiket.Jadwal.pelabuhan_tujuan.nama_pelabuhan}"/>
+                                            </TextBlock>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+
+                                <!-- Metode Pembayaran -->
+                                <DataGridTextColumn Header="Metode" 
+                                                   Binding="{Binding metode_pembayaran}" 
+                                                   Width="120"/>
+
+                                <!-- Jumlah Bayar -->
+                                <DataGridTemplateColumn Header="Jumlah" Width="130">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding jumlah_bayar, StringFormat='Rp {0:N0}'}" 
+                                                      TextAlignment="Center"
+                                                      FontWeight="SemiBold"/>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+
+                                <!-- Tanggal Bayar -->
+                                <DataGridTemplateColumn Header="Tanggal" Width="110">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding tanggal_bayar, StringFormat='dd/MM/yyyy'}" 
+                                                      TextAlignment="Center"/>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+
+                                <!-- Status -->
+                                <DataGridTemplateColumn Header="Status" Width="150">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Border CornerRadius="12" 
+                                                   Padding="8,4"
+                                                   HorizontalAlignment="Center">
+                                                <Border.Style>
+                                                    <Style TargetType="Border">
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding status_bayar}" Value="Sukses">
+                                                                <Setter Property="Background" Value="#D4EDDA"/>
+                                                            </DataTrigger>
+                                                            <DataTrigger Binding="{Binding status_bayar}" Value="Menunggu Validasi">
+                                                                <Setter Property="Background" Value="#FFF3CD"/>
+                                                            </DataTrigger>
+                                                            <DataTrigger Binding="{Binding status_bayar}" Value="Menunggu Pembayaran">
+                                                                <Setter Property="Background" Value="#E7F3FF"/>
+                                                            </DataTrigger>
+                                                            <DataTrigger Binding="{Binding status_bayar}" Value="Gagal">
+                                                                <Setter Property="Background" Value="#F8D7DA"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Border.Style>
+                                                <TextBlock Text="{Binding status_bayar}" 
+                                                          FontWeight="SemiBold"
+                                                          FontSize="12"
+                                                          HorizontalAlignment="Center">
+                                                    <TextBlock.Style>
+                                                        <Style TargetType="TextBlock">
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding status_bayar}" Value="Sukses">
+                                                                    <Setter Property="Foreground" Value="#155724"/>
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding status_bayar}" Value="Menunggu Validasi">
+                                                                    <Setter Property="Foreground" Value="#856404"/>
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding status_bayar}" Value="Menunggu Pembayaran">
+                                                                    <Setter Property="Foreground" Value="#004085"/>
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding status_bayar}" Value="Gagal">
+                                                                    <Setter Property="Foreground" Value="#721C24"/>
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </TextBlock.Style>
+                                                </TextBlock>
+                                            </Border>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+
+                                <!-- Actions -->
+                                <DataGridTemplateColumn Header="Aksi" Width="*">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <StackPanel Orientation="Horizontal" 
+                                                       HorizontalAlignment="Center">
+                                                <!-- Detail Button -->
+                                                <Button Style="{StaticResource PrimaryButton}"
+                                                       Padding="8,5"
+                                                       Margin="0,0,5,0"
+                                                       Tag="{Binding pembayaran_id}"
+                                                       Click="BtnDetail_Click">
+                                                    <TextBlock Text="📄 Detail"/>
+                                                </Button>
+
+                                                <!-- Validasi Button (only for Menunggu Validasi) -->
+                                                <Button Padding="8,5"
+                                                       Margin="0,0,5,0"
+                                                       Tag="{Binding pembayaran_id}"
+                                                       Click="BtnValidasi_Click">
+                                                    <Button.Style>
+                                                        <Style TargetType="Button" BasedOn="{StaticResource SuccessButton}">
+                                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding status_bayar}" Value="Menunggu Validasi">
+                                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </Button.Style>
+                                                    <TextBlock Text="✓ Validasi"/>
+                                                </Button>
+
+                                                <!-- Tolak Button (only for Menunggu Validasi) -->
+                                                <Button Padding="8,5"
+                                                       Tag="{Binding pembayaran_id}"
+                                                       Click="BtnTolak_Click">
+                                                    <Button.Style>
+                                                        <Style TargetType="Button" BasedOn="{StaticResource DangerButton}">
+                                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding status_bayar}" Value="Menunggu Validasi">
+                                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </Button.Style>
+                                                    <TextBlock Text="✗ Tolak"/>
+                                                </Button>
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
+
+                        <!-- Summary -->
+                        <Grid Margin="0,15,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Grid.Column="0"
+                                      x:Name="txtSummary"
+                                      FontSize="13"
+                                      Foreground="#64748B"
+                                      VerticalAlignment="Center"/>
+
+                            <TextBlock Grid.Column="1"
+                                      x:Name="txtTotalPembayaran"
+                                      FontSize="14"
+                                      FontWeight="Bold"
+                                      Foreground="#011C4B"
+                                      VerticalAlignment="Center"/>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+        </StackPanel>
+    </Grid>
 </UserControl>

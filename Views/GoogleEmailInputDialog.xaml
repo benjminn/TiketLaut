@@ -1,0 +1,178 @@
+<Window x:Class="TiketLaut.Views.GoogleEmailInputDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Simulasi Google Login" 
+        Height="350" 
+        Width="450"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize"
+        Background="White">
+
+    <Grid Margin="30">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <StackPanel Grid.Row="0" Margin="0,0,0,20">
+            <TextBlock Text="Simulasi Google Login" 
+                       FontSize="24"
+                       FontWeight="Bold"
+                       Foreground="#042769"
+                       FontFamily="Plus Jakarta Sans"
+                       HorizontalAlignment="Center"/>
+            
+            <TextBlock Text="Mode Development - Masukkan kredensial Google Anda"
+                       FontSize="12"
+                       Foreground="#717182"
+                       FontFamily="Plus Jakarta Sans"
+                       HorizontalAlignment="Center"
+                       Margin="0,10,0,0"
+                       TextWrapping="Wrap"
+                       TextAlignment="Center"/>
+        </StackPanel>
+
+        <!-- Form Fields -->
+        <StackPanel Grid.Row="1">
+            <TextBlock Text="Email Google" 
+                       FontSize="14"
+                       FontFamily="Plus Jakarta Sans"
+                       FontWeight="Medium"
+                       Foreground="#011C4B"
+                       Margin="0,0,0,8"/>
+            
+            <TextBox x:Name="txtEmail"
+                     Height="40"
+                     Padding="12,10"
+                     FontSize="14"
+                     FontFamily="Plus Jakarta Sans"
+                     BorderBrush="#A2A2A2"
+                     BorderThickness="1"
+                     Background="#F8F8F8"
+                     Margin="0,0,0,15"
+                     Text="user@gmail.com">
+                <TextBox.Style>
+                    <Style TargetType="{x:Type TextBox}">
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="{x:Type TextBox}">
+                                    <Border Background="{TemplateBinding Background}"
+                                            BorderBrush="{TemplateBinding BorderBrush}"
+                                            BorderThickness="{TemplateBinding BorderThickness}"
+                                            CornerRadius="8">
+                                        <ScrollViewer x:Name="PART_ContentHost" 
+                                                      VerticalAlignment="Center"
+                                                      Margin="10,0"/>
+                                    </Border>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </TextBox.Style>
+            </TextBox>
+
+            <TextBlock Text="Nama Lengkap (dari Google)" 
+                       FontSize="14"
+                       FontFamily="Plus Jakarta Sans"
+                       FontWeight="Medium"
+                       Foreground="#011C4B"
+                       Margin="0,0,0,8"/>
+            
+            <TextBox x:Name="txtName"
+                     Height="40"
+                     Padding="12,10"
+                     FontSize="14"
+                     FontFamily="Plus Jakarta Sans"
+                     BorderBrush="#A2A2A2"
+                     BorderThickness="1"
+                     Background="#F8F8F8"
+                     Margin="0,0,0,20"
+                     Text="User Name">
+                <TextBox.Style>
+                    <Style TargetType="{x:Type TextBox}">
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="{x:Type TextBox}">
+                                    <Border Background="{TemplateBinding Background}"
+                                            BorderBrush="{TemplateBinding BorderBrush}"
+                                            BorderThickness="{TemplateBinding BorderThickness}"
+                                            CornerRadius="8">
+                                        <ScrollViewer x:Name="PART_ContentHost" 
+                                                      VerticalAlignment="Center"
+                                                      Margin="10,0"/>
+                                    </Border>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </TextBox.Style>
+            </TextBox>
+        </StackPanel>
+
+        <!-- Buttons -->
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button x:Name="btnOk"
+                    Content="OK"
+                    Width="100"
+                    Height="40"
+                    Background="#D9A494"
+                    Foreground="White"
+                    FontSize="14"
+                    FontWeight="SemiBold"
+                    FontFamily="Plus Jakarta Sans"
+                    Click="BtnOk_Click"
+                    Margin="0,0,10,0"
+                    Cursor="Hand">
+                <Button.Style>
+                    <Style TargetType="{x:Type Button}">
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="{x:Type Button}">
+                                    <Border Background="{TemplateBinding Background}"
+                                            CornerRadius="20">
+                                        <ContentPresenter HorizontalAlignment="Center"
+                                                          VerticalAlignment="Center"/>
+                                    </Border>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </Button.Style>
+            </Button>
+
+            <Button x:Name="btnCancel"
+                    Content="Batal"
+                    Width="100"
+                    Height="40"
+                    Background="White"
+                    Foreground="#042769"
+                    BorderBrush="#042769"
+                    BorderThickness="2"
+                    FontSize="14"
+                    FontWeight="SemiBold"
+                    FontFamily="Plus Jakarta Sans"
+                    Click="BtnCancel_Click"
+                    Cursor="Hand">
+                <Button.Style>
+                    <Style TargetType="{x:Type Button}">
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="{x:Type Button}">
+                                    <Border Background="{TemplateBinding Background}"
+                                            BorderBrush="{TemplateBinding BorderBrush}"
+                                            BorderThickness="{TemplateBinding BorderThickness}"
+                                            CornerRadius="20">
+                                        <ContentPresenter HorizontalAlignment="Center"
+                                                          VerticalAlignment="Center"/>
+                                    </Border>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </Button.Style>
+            </Button>
+        </StackPanel>
+    </Grid>
+</Window>

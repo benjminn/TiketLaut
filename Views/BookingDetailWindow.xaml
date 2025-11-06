@@ -939,6 +939,11 @@
                                 </StackPanel>
                             </StackPanel>
                         </Border>
+
+                        <!-- Container for additional dynamic passenger forms (4+) -->
+                        <StackPanel x:Name="additionalPassengerFormsContainer">
+                            <!-- Additional passenger forms will be generated dynamically here -->
+                        </StackPanel>
                     </StackPanel>
 
                     <!-- Detail Kendaraan Section -->

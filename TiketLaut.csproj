@@ -24,6 +24,7 @@
 	  <None Remove="Views\Assets\Icons\iconbooking.png" />
 	  <None Remove="Views\Assets\Icons\icondropdown.png" />
 	  <None Remove="Views\Assets\Icons\icondropdowngelap.png" />
+	  <None Remove="Views\Assets\Icons\iconKurang.png" />
 	  <None Remove="Views\Assets\Icons\iconpullup.png" />
 	  <None Remove="Views\Assets\Icons\iconfacebook.png" />
 	  <None Remove="Views\Assets\Icons\iconfilter.png" />
@@ -73,6 +74,7 @@
 	  <Resource Include="Views\Assets\Icons\icondropdowngelap.png">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Resource>
+	  <Resource Include="Views\Assets\Icons\iconKurang.png" />
 	  <Resource Include="Views\Assets\Icons\iconpullup.png">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Resource>
@@ -131,12 +133,14 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <PackageReference Include="Google.Apis.Auth" Version="1.72.0" />
 	  <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.10" />
 	  <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.10">
 	    <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 	    <PrivateAssets>all</PrivateAssets>
 	  </PackageReference>
 	  <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.10" />
+	  <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="9.0.10" />
 	  <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.10" />
 	  <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />
 	</ItemGroup>

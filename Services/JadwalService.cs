@@ -35,14 +35,15 @@ namespace TiketLaut.Services
         }
 
         /// <summary>
-        /// Search jadwal dengan kriteria lengkap (UPDATED - WITH DateTime)
+        /// Search jadwal dengan kriteria lengkap (UPDATED - WITH DateTime and Hour)
         /// </summary>
         public async Task<List<Jadwal>> SearchJadwalAsync(
             int pelabuhanAsalId,
             int pelabuhanTujuanId,
             string kelasLayanan,
             DateTime? tanggalKeberangkatan = null,
-            int jenisKendaraanId = 0)
+            int jenisKendaraanId = 0,
+            int? jamKeberangkatan = null)
         {
             try
             {
@@ -52,6 +53,7 @@ namespace TiketLaut.Services
                 System.Diagnostics.Debug.WriteLine($"  - Pelabuhan Tujuan ID: {pelabuhanTujuanId}");
                 System.Diagnostics.Debug.WriteLine($"  - Kelas Layanan: {kelasLayanan}");
                 System.Diagnostics.Debug.WriteLine($"  - Tanggal: {tanggalKeberangkatan?.ToString("yyyy-MM-dd") ?? "NULL"}");
+                System.Diagnostics.Debug.WriteLine($"  - Jam: {jamKeberangkatan?.ToString() ?? "NULL"}");
                 System.Diagnostics.Debug.WriteLine($"  - Jenis Kendaraan ID: {jenisKendaraanId}");
 
                 // ? PASTIKAN .Include() untuk navigation properties
@@ -77,18 +79,39 @@ namespace TiketLaut.Services
                     // User memilih tanggal dalam local timezone, kita perlu convert ke UTC range
                     // Contoh: User pilih 01/11/2025 (WIB) → cari 31/10/2025 17:00 UTC sampai 01/11/2025 17:00 UTC
                     var localDate = tanggalKeberangkatan.Value.Date;
-                    var localStartDateTime = DateTime.SpecifyKind(localDate, DateTimeKind.Local);
-                    var localEndDateTime = localStartDateTime.AddDays(1);
                     
-                    // Convert to UTC
-                    var startDateUtc = localStartDateTime.ToUniversalTime();
-                    var endDateUtc = localEndDateTime.ToUniversalTime();
-                    
-                    query = query.Where(j => j.waktu_berangkat >= startDateUtc && j.waktu_berangkat < endDateUtc);
-                    
-                    System.Diagnostics.Debug.WriteLine($"[JadwalService] Date filter:");
-                    System.Diagnostics.Debug.WriteLine($"  Local: {localStartDateTime:yyyy-MM-dd HH:mm} to {localEndDateTime:yyyy-MM-dd HH:mm}");
-                    System.Diagnostics.Debug.WriteLine($"  UTC:   {startDateUtc:yyyy-MM-dd HH:mm} to {endDateUtc:yyyy-MM-dd HH:mm}");
+                    // Jika jam dipilih, tampilkan jadwal >= jam tersebut (sampai akhir hari)
+                    if (jamKeberangkatan.HasValue)
+                    {
+                        var localStartDateTime = DateTime.SpecifyKind(localDate.AddHours(jamKeberangkatan.Value), DateTimeKind.Local);
+                        var localEndDateTime = localStartDateTime.Date.AddDays(1); // Sampai akhir hari (23:59:59)
+                        
+                        // Convert to UTC
+                        var startDateUtc = localStartDateTime.ToUniversalTime();
+                        var endDateUtc = localEndDateTime.ToUniversalTime();
+                        
+                        query = query.Where(j => j.waktu_berangkat >= startDateUtc && j.waktu_berangkat < endDateUtc);
+                        
+                        System.Diagnostics.Debug.WriteLine($"[JadwalService] Date + Hour filter (>= jam {jamKeberangkatan.Value}):");
+                        System.Diagnostics.Debug.WriteLine($"  Local: {localStartDateTime:yyyy-MM-dd HH:mm} to {localEndDateTime:yyyy-MM-dd HH:mm}");
+                        System.Diagnostics.Debug.WriteLine($"  UTC:   {startDateUtc:yyyy-MM-dd HH:mm} to {endDateUtc:yyyy-MM-dd HH:mm}");
+                    }
+                    else
+                    {
+                        // Hanya filter tanggal (semua jam di hari itu)
+                        var localStartDateTime = DateTime.SpecifyKind(localDate, DateTimeKind.Local);
+                        var localEndDateTime = localStartDateTime.AddDays(1);
+                        
+                        // Convert to UTC
+                        var startDateUtc = localStartDateTime.ToUniversalTime();
+                        var endDateUtc = localEndDateTime.ToUniversalTime();
+                        
+                        query = query.Where(j => j.waktu_berangkat >= startDateUtc && j.waktu_berangkat < endDateUtc);
+                        
+                        System.Diagnostics.Debug.WriteLine($"[JadwalService] Date only filter:");
+                        System.Diagnostics.Debug.WriteLine($"  Local: {localStartDateTime:yyyy-MM-dd HH:mm} to {localEndDateTime:yyyy-MM-dd HH:mm}");
+                        System.Diagnostics.Debug.WriteLine($"  UTC:   {startDateUtc:yyyy-MM-dd HH:mm} to {endDateUtc:yyyy-MM-dd HH:mm}");
+                    }
                 }
 
                 var jadwals = await query
@@ -149,7 +172,7 @@ namespace TiketLaut.Services
                     .Include(j => j.pelabuhan_tujuan)
                     .Include(j => j.kapal)
                     .Include(j => j.GrupKendaraan)
-                        .ThenInclude(g => g.DetailKendaraans)
+                        .ThenInclude(g => g!.DetailKendaraans)
                     .FirstOrDefaultAsync(j => j.jadwal_id == jadwalId);
             }
             catch (Exception ex)
@@ -168,10 +191,10 @@ namespace TiketLaut.Services
             {
                 var jadwal = await _context.Jadwals
                     .Include(j => j.GrupKendaraan)
-                        .ThenInclude(g => g.DetailKendaraans)
+                        .ThenInclude(g => g!.DetailKendaraans)
                     .FirstOrDefaultAsync(j => j.jadwal_id == jadwalId);
                 
-                return jadwal?.GrupKendaraan?.DetailKendaraans.OrderBy(dk => dk.jenis_kendaraan).ToList() 
+                return jadwal?.GrupKendaraan?.DetailKendaraans?.OrderBy(dk => dk.jenis_kendaraan).ToList() 
                     ?? new List<DetailKendaraan>();
             }
             catch (Exception ex)
@@ -190,10 +213,10 @@ namespace TiketLaut.Services
             {
                 var jadwal = await _context.Jadwals
                     .Include(j => j.GrupKendaraan)
-                        .ThenInclude(g => g.DetailKendaraans)
+                        .ThenInclude(g => g!.DetailKendaraans)
                     .FirstOrDefaultAsync(j => j.jadwal_id == jadwalId);
                 
-                return jadwal?.GrupKendaraan?.DetailKendaraans
+                return jadwal?.GrupKendaraan?.DetailKendaraans?
                     .FirstOrDefault(dk => dk.jenis_kendaraan == (int)jenis);
             }
             catch (Exception ex)

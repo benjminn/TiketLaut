@@ -21,6 +21,10 @@ namespace TiketLaut.Views
         {
             InitializeComponent();
             _jadwalService = new JadwalService();
+            
+            // Set default penumpang value after controls are initialized
+            txtPenumpang.Text = "1";
+            
             SetNavbarVisibility();
             LoadDataAsync();
         }
@@ -97,6 +101,9 @@ namespace TiketLaut.Views
                     cmbKelasLayanan.Items.Add(new ComboBoxItem { Content = "Reguler" });
                     cmbKelasLayanan.Items.Add(new ComboBoxItem { Content = "Ekspress" }); // ? TYPO SESUAI DATABASE
                     cmbKelasLayanan.SelectedIndex = 0;
+
+                    // Set DatePicker default to today
+                    dpTanggal.SelectedDate = DateTime.Today;
                 }
                 else
                 {
@@ -196,19 +203,37 @@ namespace TiketLaut.Views
                     return;
                 }
 
-                // Validasi Penumpang
-                if (cmbPenumpang?.SelectedIndex <= 0)
-                {
-                    MessageBox.Show("Silakan pilih Jumlah Penumpang!", "Peringatan",
-                        MessageBoxButton.OK, MessageBoxImage.Warning);
-                    return;
-                }
-
-                // Validasi Jenis Kendaraan
+                // Validasi Jenis Kendaraan (harus sebelum validasi penumpang)
                 if (cmbJenisKendaraan.SelectedIndex <= 0)
                 {
                     MessageBox.Show("Silakan pilih Jenis Kendaraan!", "Peringatan",
                         MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                // Dapatkan index jenis kendaraan
+                int jenisKendaraanIndex = cmbJenisKendaraan.SelectedIndex - 1; // -1 karena index 0 adalah "Pilih"
+                
+                // Dapatkan maksimal penumpang untuk jenis kendaraan yang dipilih
+                int maksimalPenumpang = DetailKendaraan.GetMaksimalPenumpangByIndex(jenisKendaraanIndex);
+
+                // Validasi Penumpang
+                if (!int.TryParse(txtPenumpang.Text, out int jumlahPenumpangInput) || jumlahPenumpangInput < 1)
+                {
+                    MessageBox.Show("Jumlah penumpang minimal adalah 1!", "Peringatan",
+                        MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                // Validasi penumpang tidak melebihi maksimal untuk jenis kendaraan
+                if (jumlahPenumpangInput > maksimalPenumpang)
+                {
+                    string jenisKendaraanText = GetJenisKendaraanText(jenisKendaraanIndex);
+                    MessageBox.Show(
+                        $"Jumlah penumpang untuk {jenisKendaraanText} maksimal {maksimalPenumpang} orang!",
+                        "Peringatan",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Warning);
                     return;
                 }
 
@@ -231,27 +256,25 @@ namespace TiketLaut.Views
                 
                 var kelasLayananItem = cmbKelasLayanan.SelectedItem as ComboBoxItem;
                 var kelasLayanan = kelasLayananItem?.Content?.ToString();
-                var jenisKendaraanIndex = cmbJenisKendaraan.SelectedIndex - 1; // -1 karena index 0 adalah "Pilih"
 
-                // Parse jumlah penumpang
-#pragma warning disable CS8602 // Dereference of a possibly null reference - cmbPenumpang is XAML control
-                var penumpangItem = cmbPenumpang.SelectedItem as ComboBoxItem;
-#pragma warning restore CS8602
-                var penumpangText = penumpangItem?.Content?.ToString();
-                int jumlahPenumpang = 1;
-                if (!string.IsNullOrEmpty(penumpangText) && penumpangText.Contains("Penumpang"))
-                {
-                    var parts = penumpangText.Split(' ');
-                    if (parts.Length > 0)
-                    {
-                        int.TryParse(parts[0].Replace("+", ""), out jumlahPenumpang);
-                    }
-                }
+                // Parse jumlah penumpang dari TextBox
+                int jumlahPenumpang = int.Parse(txtPenumpang.Text);
 
                 // Parse tanggal keberangkatan (from dpTanggal DatePicker)
 #pragma warning disable CS8602
                 DateTime? tanggalKeberangkatan = dpTanggal.SelectedDate;
 #pragma warning restore CS8602
+
+                // Parse jam keberangkatan (optional)
+                int? jamKeberangkatan = null;
+                if (cmbJam.SelectedIndex > 0) // Index 0 adalah "Pilih Jam"
+                {
+                    var selectedJamItem = cmbJam.SelectedItem as ComboBoxItem;
+                    if (selectedJamItem?.Tag != null)
+                    {
+                        jamKeberangkatan = (int)selectedJamItem.Tag;
+                    }
+                }
 
                 // Validasi pelabuhan asal dan tujuan tidak sama
                 if (pelabuhanAsal.Id == pelabuhanTujuan.Id)
@@ -270,7 +293,8 @@ namespace TiketLaut.Views
                     pelabuhanTujuan.Id,
                     kelasLayanan ?? "Reguler",
                     tanggalKeberangkatan,
-                    jenisKendaraanIndex
+                    jenisKendaraanIndex,
+                    jamKeberangkatan
                 );
 
                 if (jadwals == null || !jadwals.Any())
@@ -291,6 +315,7 @@ namespace TiketLaut.Views
                     PelabuhanTujuanId = pelabuhanTujuan!.Id,
                     KelasLayanan = kelasLayanan ?? "Reguler",
                     TanggalKeberangkatan = tanggalKeberangkatan ?? DateTime.Today,
+                    JamKeberangkatan = jamKeberangkatan,
                     JumlahPenumpang = jumlahPenumpang,
                     JenisKendaraanId = jenisKendaraanIndex
                 };
@@ -329,6 +354,275 @@ namespace TiketLaut.Views
         private void navbarPreLogin_Loaded(object sender, RoutedEventArgs e)
         {
             // Event handler untuk navbar pre-login
+        }
+
+        // ========== EVENT HANDLERS UNTUK PENUMPANG INPUT ==========
+
+        /// <summary>
+        /// Button minus untuk mengurangi jumlah penumpang
+        /// </summary>
+        private void BtnMinusPenumpang_Click(object sender, RoutedEventArgs e)
+        {
+            if (int.TryParse(txtPenumpang.Text, out int currentValue))
+            {
+                if (currentValue > 1)
+                {
+                    currentValue--;
+                    txtPenumpang.Text = currentValue.ToString();
+                    UpdatePenumpangDisplay(currentValue);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Button plus untuk menambah jumlah penumpang
+        /// </summary>
+        private void BtnPlusPenumpang_Click(object sender, RoutedEventArgs e)
+        {
+            if (int.TryParse(txtPenumpang.Text, out int currentValue))
+            {
+                // Dapatkan maksimal penumpang berdasarkan kendaraan yang dipilih
+                int maksimalPenumpang = GetMaksimalPenumpangFromKendaraan();
+                
+                if (currentValue < maksimalPenumpang)
+                {
+                    currentValue++;
+                    txtPenumpang.Text = currentValue.ToString();
+                    UpdatePenumpangDisplay(currentValue);
+                }
+                else
+                {
+                    // Tampilkan pesan jika sudah maksimal
+                    MessageBox.Show(
+                        $"Jumlah penumpang maksimal untuk jenis kendaraan ini adalah {maksimalPenumpang} orang.",
+                        "Batas Maksimal",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Information);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Mendapatkan maksimal penumpang berdasarkan kendaraan yang dipilih
+        /// </summary>
+        private int GetMaksimalPenumpangFromKendaraan()
+        {
+            if (cmbJenisKendaraan == null || cmbJenisKendaraan.SelectedIndex <= 0)
+                return 10; // Default maksimal jika belum pilih kendaraan
+
+            int jenisKendaraanIndex = cmbJenisKendaraan.SelectedIndex - 1;
+            return DetailKendaraan.GetMaksimalPenumpangByIndex(jenisKendaraanIndex);
+        }
+
+        /// <summary>
+        /// Update tampilan text penumpang
+        /// </summary>
+        private void UpdatePenumpangDisplay(int count)
+        {
+            if (txtPenumpangDisplay != null)
+            {
+                txtPenumpangDisplay.Text = $"{count} Penumpang";
+            }
+        }
+
+        /// <summary>
+        /// Validasi input hanya angka di TextBox penumpang
+        /// </summary>
+        private void TxtPenumpang_PreviewTextInput(object sender, System.Windows.Input.TextCompositionEventArgs e)
+        {
+            // Hanya izinkan angka
+            e.Handled = !IsTextNumeric(e.Text);
+        }
+
+        /// <summary>
+        /// Handle perubahan text untuk update status button +/-
+        /// </summary>
+        private void TxtPenumpang_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            // Null check untuk semua controls
+            if (txtPenumpang == null || btnMinusPenumpang == null || btnPlusPenumpang == null)
+                return;
+
+            // Prevent infinite loop during initialization
+            if (string.IsNullOrEmpty(txtPenumpang.Text))
+                return;
+
+            if (int.TryParse(txtPenumpang.Text, out int value))
+            {
+                // Dapatkan maksimal penumpang berdasarkan kendaraan
+                int maksimalPenumpang = GetMaksimalPenumpangFromKendaraan();
+                
+                // Update button states
+                btnMinusPenumpang.IsEnabled = value > 1;
+                btnPlusPenumpang.IsEnabled = value < maksimalPenumpang;
+                
+                // Update display text
+                UpdatePenumpangDisplay(value);
+            }
+            else
+            {
+                // Jika input tidak valid, set ke 1 (dengan check untuk prevent recursion)
+                if (txtPenumpang.Text != "1")
+                    txtPenumpang.Text = "1";
+            }
+        }
+
+        /// <summary>
+        /// Helper method untuk cek apakah text adalah numeric
+        /// </summary>
+        private static bool IsTextNumeric(string text)
+        {
+            return int.TryParse(text, out _);
+        }
+
+        // ========== EVENT HANDLERS UNTUK JAM INPUT ==========
+
+        /// <summary>
+        /// Event handler saat tanggal dipilih
+        /// </summary>
+        private void DpTanggal_SelectedDateChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (IsLoaded) // Hanya jalankan jika window sudah fully loaded
+                LoadAvailableJamAsync();
+        }
+
+        /// <summary>
+        /// Event handler saat pelabuhan asal dipilih
+        /// </summary>
+        private void CmbPelabuhanAsal_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (IsLoaded) // Hanya jalankan jika window sudah fully loaded
+                LoadAvailableJamAsync();
+        }
+
+        /// <summary>
+        /// Event handler saat pelabuhan tujuan dipilih
+        /// </summary>
+        private void CmbPelabuhanTujuan_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (IsLoaded) // Hanya jalankan jika window sudah fully loaded
+                LoadAvailableJamAsync();
+        }
+
+        /// <summary>
+        /// Event handler saat kelas layanan dipilih
+        /// </summary>
+        private void CmbKelasLayanan_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (IsLoaded) // Hanya jalankan jika window sudah fully loaded
+                LoadAvailableJamAsync();
+        }
+
+        /// <summary>
+        /// Event handler saat jenis kendaraan dipilih - mengatur maksimal penumpang
+        /// </summary>
+        private void CmbJenisKendaraan_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (!IsLoaded || cmbJenisKendaraan == null || txtPenumpang == null)
+                return;
+
+            int selectedIndex = cmbJenisKendaraan.SelectedIndex;
+            
+            // Index 0 adalah "Pilih Jenis Kendaraan", skip
+            if (selectedIndex <= 0)
+                return;
+
+            // Get jenis kendaraan (index - 1 karena index 0 adalah placeholder)
+            int jenisKendaraanIndex = selectedIndex - 1;
+            
+            // Dapatkan maksimal penumpang untuk kendaraan ini
+            int maksimalPenumpang = DetailKendaraan.GetMaksimalPenumpangByIndex(jenisKendaraanIndex);
+            
+            // Ambil nilai penumpang saat ini
+            if (int.TryParse(txtPenumpang.Text, out int currentPenumpang))
+            {
+                // Jika jumlah penumpang saat ini melebihi maksimal, set ke maksimal
+                if (currentPenumpang > maksimalPenumpang)
+                {
+                    txtPenumpang.Text = maksimalPenumpang.ToString();
+                    UpdatePenumpangDisplay(maksimalPenumpang);
+                }
+            }
+            else
+            {
+                // Jika tidak valid, set ke 1
+                txtPenumpang.Text = "1";
+                UpdatePenumpangDisplay(1);
+            }
+
+            // Update button states dengan maksimal baru
+            UpdatePenumpangButtonStates(maksimalPenumpang);
+            
+            // Tampilkan notifikasi kepada user
+            string jenisKendaraanText = GetJenisKendaraanText(jenisKendaraanIndex);
+            System.Diagnostics.Debug.WriteLine($"[HomePage] Jenis kendaraan dipilih: {jenisKendaraanText}, Maks penumpang: {maksimalPenumpang}");
+        }
+
+        /// <summary>
+        /// Update status button +/- berdasarkan maksimal penumpang
+        /// </summary>
+        private void UpdatePenumpangButtonStates(int maksimalPenumpang)
+        {
+            if (btnMinusPenumpang == null || btnPlusPenumpang == null || txtPenumpang == null)
+                return;
+
+            if (int.TryParse(txtPenumpang.Text, out int value))
+            {
+                btnMinusPenumpang.IsEnabled = value > 1;
+                btnPlusPenumpang.IsEnabled = value < maksimalPenumpang;
+            }
+        }
+
+        /// <summary>
+        /// Get text deskripsi jenis kendaraan
+        /// </summary>
+        private string GetJenisKendaraanText(int index)
+        {
+            var jenis = (JenisKendaraan)index;
+            var specs = DetailKendaraan.GetSpecificationByJenis(jenis);
+            return specs.Deskripsi;
+        }
+
+        /// <summary>
+        /// Load jam yang tersedia dari database berdasarkan kriteria yang dipilih
+        /// </summary>
+        private void LoadAvailableJamAsync()
+        {
+            try
+            {
+                // Null check untuk semua controls
+                if (cmbJam == null)
+                    return;
+
+                // SELALU tampilkan semua jam 00:00 - 23:00
+                // Tidak peduli ada jadwal atau tidak, user bisa pilih jam apapun
+                // Backend akan menampilkan jadwal yang >= jam yang dipilih
+                cmbJam.Items.Clear();
+                cmbJam.Items.Add(new ComboBoxItem { Content = "Pilih Jam", Tag = null });
+                
+                for (int i = 0; i < 24; i++)
+                {
+                    cmbJam.Items.Add(new ComboBoxItem 
+                    { 
+                        Content = $"{i:D2}:00",
+                        Tag = i 
+                    });
+                }
+
+                cmbJam.SelectedIndex = 0;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error loading jam: {ex.Message}");
+                // Fallback ke semua jam jika error
+                cmbJam.Items.Clear();
+                cmbJam.Items.Add(new ComboBoxItem { Content = "Pilih Jam" });
+                for (int i = 0; i < 24; i++)
+                {
+                    cmbJam.Items.Add(new ComboBoxItem { Content = $"{i:D2}:00", Tag = i });
+                }
+                cmbJam.SelectedIndex = 0;
+            }
         }
     }
 }

@@ -1,0 +1,253 @@
+<Window x:Class="TiketLaut.Views.GoogleOAuthCompleteWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Lengkapi Profil Google" 
+        Height="650" 
+        Width="500"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize"
+        Background="White">
+
+    <Grid Margin="40">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <StackPanel Grid.Row="0" Margin="0,0,0,30">
+            <TextBlock Text="Lengkapi Profil Anda" 
+                       FontSize="28"
+                       FontWeight="Bold"
+                       Foreground="#042769"
+                       FontFamily="Plus Jakarta Sans"
+                       HorizontalAlignment="Center"/>
+            
+            <TextBlock x:Name="txtWelcome"
+                       Text="Selamat datang!"
+                       FontSize="16"
+                       Foreground="#3E4958"
+                       FontFamily="Plus Jakarta Sans"
+                       HorizontalAlignment="Center"
+                       Margin="0,10,0,0"
+                       TextWrapping="Wrap"
+                       TextAlignment="Center"/>
+            
+            <TextBlock Text="Mohon lengkapi informasi berikut untuk melanjutkan"
+                       FontSize="14"
+                       Foreground="#717182"
+                       FontFamily="Plus Jakarta Sans"
+                       HorizontalAlignment="Center"
+                       Margin="0,5,0,0"
+                       TextWrapping="Wrap"
+                       TextAlignment="Center"/>
+        </StackPanel>
+
+        <!-- Form Fields -->
+        <StackPanel Grid.Row="1">
+            <!-- Nama Lengkap -->
+            <TextBlock Text="Nama Lengkap" 
+                       FontSize="14"
+                       FontFamily="Plus Jakarta Sans"
+                       FontWeight="Medium"
+                       Foreground="#011C4B"
+                       Margin="0,0,0,8"/>
+            
+            <TextBox x:Name="txtNamaLengkap"
+                     Height="45"
+                     Padding="15,10"
+                     FontSize="14"
+                     FontFamily="Plus Jakarta Sans"
+                     BorderBrush="#A2A2A2"
+                     BorderThickness="1"
+                     Background="#F8F8F8"
+                     Margin="0,0,0,20">
+                <TextBox.Style>
+                    <Style TargetType="{x:Type TextBox}">
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="{x:Type TextBox}">
+                                    <Border Background="{TemplateBinding Background}"
+                                            BorderBrush="{TemplateBinding BorderBrush}"
+                                            BorderThickness="{TemplateBinding BorderThickness}"
+                                            CornerRadius="8">
+                                        <ScrollViewer x:Name="PART_ContentHost" 
+                                                      VerticalAlignment="Center"
+                                                      Margin="10,0"/>
+                                    </Border>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </TextBox.Style>
+            </TextBox>
+
+            <!-- NIK -->
+            <TextBlock Text="Nomor Induk Kependudukan (NIK)" 
+                       FontSize="14"
+                       FontFamily="Plus Jakarta Sans"
+                       FontWeight="Medium"
+                       Foreground="#011C4B"
+                       Margin="0,0,0,8"/>
+            
+            <TextBox x:Name="txtNIK"
+                     Height="45"
+                     Padding="15,10"
+                     FontSize="14"
+                     FontFamily="Plus Jakarta Sans"
+                     BorderBrush="#A2A2A2"
+                     BorderThickness="1"
+                     Background="#F8F8F8"
+                     MaxLength="16"
+                     PreviewTextInput="TxtNIK_PreviewTextInput"
+                     Margin="0,0,0,20">
+                <TextBox.Style>
+                    <Style TargetType="{x:Type TextBox}">
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="{x:Type TextBox}">
+                                    <Border Background="{TemplateBinding Background}"
+                                            BorderBrush="{TemplateBinding BorderBrush}"
+                                            BorderThickness="{TemplateBinding BorderThickness}"
+                                            CornerRadius="8">
+                                        <ScrollViewer x:Name="PART_ContentHost" 
+                                                      VerticalAlignment="Center"
+                                                      Margin="10,0"/>
+                                    </Border>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </TextBox.Style>
+            </TextBox>
+
+            <!-- Tanggal Lahir -->
+            <TextBlock Text="Tanggal Lahir" 
+                       FontSize="14"
+                       FontFamily="Plus Jakarta Sans"
+                       FontWeight="Medium"
+                       Foreground="#011C4B"
+                       Margin="0,0,0,8"/>
+            
+            <Border Height="45"
+                    BorderBrush="#A2A2A2"
+                    BorderThickness="1"
+                    Background="#F8F8F8"
+                    CornerRadius="8"
+                    Margin="0,0,0,20"
+                    Cursor="Hand">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <TextBlock x:Name="txtTanggalLahir"
+                               Grid.Column="0"
+                               Text="Pilih tanggal lahir..."
+                               FontSize="14"
+                               FontFamily="Plus Jakarta Sans"
+                               Foreground="#717182"
+                               VerticalAlignment="Center"
+                               Padding="15,0,0,0"/>
+                    
+                    <Button Grid.Column="1"
+                            Width="30"
+                            Height="30"
+                            Background="Transparent"
+                            BorderThickness="0"
+                            Cursor="Hand"
+                            Click="BtnCalendar_Click"
+                            Margin="0,0,10,0">
+                        <Path Data="M19,4H18V2H16V4H8V2H6V4H5C3.89,4 3,4.9 3,6V20A2,2 0 0,0 5,22H19A2,2 0 0,0 21,20V6A2,2 0 0,0 19,4M19,20H5V10H19V20Z"
+                              Fill="#717182"
+                              Stretch="Uniform"
+                              Width="18"
+                              Height="18"/>
+                    </Button>
+                    
+                    <!-- Hidden DatePicker untuk popup kalender -->
+                    <DatePicker x:Name="dpTanggalLahir"
+                                Grid.Column="0"
+                                Grid.ColumnSpan="2"
+                                Opacity="0"
+                                IsHitTestVisible="False"
+                                SelectedDateFormat="Long"/>
+                </Grid>
+            </Border>
+        </StackPanel>
+
+        <!-- Buttons -->
+        <StackPanel Grid.Row="2" Margin="0,20,0,0">
+            <Button x:Name="btnSimpan"
+                    Content="Simpan dan Lanjutkan"
+                    Height="50"
+                    Background="#D9A494"
+                    Foreground="White"
+                    FontSize="16"
+                    FontWeight="SemiBold"
+                    FontFamily="Plus Jakarta Sans"
+                    Click="BtnSimpan_Click"
+                    Cursor="Hand"
+                    Margin="0,0,0,10">
+                <Button.Style>
+                    <Style TargetType="{x:Type Button}">
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="{x:Type Button}">
+                                    <Border Background="{TemplateBinding Background}"
+                                            CornerRadius="25">
+                                        <ContentPresenter HorizontalAlignment="Center"
+                                                          VerticalAlignment="Center"/>
+                                    </Border>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                        <Style.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#C89484"/>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+            </Button>
+
+            <Button x:Name="btnBatal"
+                    Content="Batal"
+                    Height="50"
+                    Background="White"
+                    Foreground="#042769"
+                    BorderBrush="#042769"
+                    BorderThickness="2"
+                    FontSize="16"
+                    FontWeight="SemiBold"
+                    FontFamily="Plus Jakarta Sans"
+                    Click="BtnBatal_Click"
+                    Cursor="Hand">
+                <Button.Style>
+                    <Style TargetType="{x:Type Button}">
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="{x:Type Button}">
+                                    <Border Background="{TemplateBinding Background}"
+                                            BorderBrush="{TemplateBinding BorderBrush}"
+                                            BorderThickness="{TemplateBinding BorderThickness}"
+                                            CornerRadius="25">
+                                        <ContentPresenter HorizontalAlignment="Center"
+                                                          VerticalAlignment="Center"/>
+                                    </Border>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                        <Style.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#F0F0F0"/>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+            </Button>
+        </StackPanel>
+    </Grid>
+</Window>

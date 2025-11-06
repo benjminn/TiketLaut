@@ -71,6 +71,42 @@ namespace TiketLaut
             };
         }
 
+        /// <summary>
+        /// Mendapatkan kapasitas maksimal penumpang berdasarkan jenis kendaraan
+        /// Sesuai dengan standar ASDP Indonesia Ferry
+        /// </summary>
+        public static int GetMaksimalPenumpang(JenisKendaraan jenis)
+        {
+            return jenis switch
+            {
+                JenisKendaraan.Jalan_Kaki => 100,           // Pejalan Kaki - Tidak ada batasan praktis
+                JenisKendaraan.Golongan_I => 3,             // Sepeda - Maks. 3 penumpang
+                JenisKendaraan.Golongan_II => 3,            // Motor <500cc - Maks. 3 penumpang
+                JenisKendaraan.Golongan_III => 3,           // Motor >500cc - Maks. 3 penumpang
+                JenisKendaraan.Golongan_IV_A => 10,         // Mobil Penumpang - Maks. 10 penumpang
+                JenisKendaraan.Golongan_IV_B => 5,          // Truk Pickup - Maks. 5 penumpang
+                JenisKendaraan.Golongan_V_A => 35,          // Bus Sedang - Maks. 35 penumpang
+                JenisKendaraan.Golongan_V_B => 3,           // Truk Sedang - Maks. 3 penumpang
+                JenisKendaraan.Golongan_VI_A => 65,         // Bus Besar - Maks. 65 penumpang
+                JenisKendaraan.Golongan_VI_B => 3,          // Truk Besar - Maks. 3 penumpang
+                JenisKendaraan.Golongan_VII => 3,           // Truk Tronton - Maks. 3 penumpang
+                JenisKendaraan.Golongan_VIII => 3,          // Truk Tronton <16m - Maks. 3 penumpang
+                JenisKendaraan.Golongan_IX => 3,            // Truk Tronton >16m - Maks. 3 penumpang
+                _ => 1
+            };
+        }
+
+        /// <summary>
+        /// Mendapatkan kapasitas maksimal penumpang berdasarkan index (untuk backward compatibility)
+        /// </summary>
+        public static int GetMaksimalPenumpangByIndex(int jenisKendaraanIndex)
+        {
+            if (jenisKendaraanIndex < 0 || jenisKendaraanIndex > 12)
+                return 1;
+                
+            return GetMaksimalPenumpang((JenisKendaraan)jenisKendaraanIndex);
+        }
+
         // Method helper untuk backward compatibility dengan sistem lama
         public static DetailKendaraan GetDetailKendaraan(JenisKendaraan jenis)
         {

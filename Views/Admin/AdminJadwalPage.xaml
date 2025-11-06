@@ -122,6 +122,189 @@
                 </Button>
             </Grid>
 
+            <!-- Filter Section -->
+            <Border Background="White" 
+                   CornerRadius="12" 
+                   Padding="20" 
+                   Margin="0,0,0,20">
+                <StackPanel>
+                    <TextBlock Text="🔍 Filter Pencarian" 
+                              FontSize="16" 
+                              FontWeight="Bold" 
+                              Foreground="#011C4B"
+                              Margin="0,0,0,15"/>
+                    
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Row 1 -->
+                        <!-- Search Box -->
+                        <StackPanel Grid.Row="0" Grid.Column="0" Margin="0,0,10,0">
+                            <TextBlock Text="Pencarian Cepat" FontSize="12" Foreground="#64748B" Margin="0,0,0,5"/>
+                            <TextBox x:Name="txtSearch" 
+                                    Padding="10"
+                                    FontSize="13"
+                                    BorderBrush="#CED4DA"
+                                    BorderThickness="1"
+                                    TextChanged="TxtSearch_TextChanged">
+                                <TextBox.Style>
+                                    <Style TargetType="TextBox">
+                                        <Setter Property="Background" Value="White"/>
+                                        <Style.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter Property="BorderBrush" Value="#00658D"/>
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBox.Style>
+                            </TextBox>
+                        </StackPanel>
+
+                        <!-- Pelabuhan Asal -->
+                        <StackPanel Grid.Row="0" Grid.Column="1" Margin="0,0,10,0">
+                            <TextBlock Text="Pelabuhan Asal" FontSize="12" Foreground="#64748B" Margin="0,0,0,5"/>
+                            <ComboBox x:Name="cmbPelabuhanAsal"
+                                     Padding="10"
+                                     FontSize="13"
+                                     BorderBrush="#CED4DA"
+                                     BorderThickness="1"
+                                     IsEditable="True"
+                                     IsTextSearchEnabled="True"
+                                     StaysOpenOnEdit="True"
+                                     SelectionChanged="CmbPelabuhanAsal_SelectionChanged"/>
+                        </StackPanel>
+
+                        <!-- Pelabuhan Tujuan -->
+                        <StackPanel Grid.Row="0" Grid.Column="2" Margin="0,0,10,0">
+                            <TextBlock Text="Pelabuhan Tujuan" FontSize="12" Foreground="#64748B" Margin="0,0,0,5"/>
+                            <ComboBox x:Name="cmbPelabuhanTujuan"
+                                     Padding="10"
+                                     FontSize="13"
+                                     BorderBrush="#CED4DA"
+                                     BorderThickness="1"
+                                     IsEditable="True"
+                                     IsTextSearchEnabled="True"
+                                     StaysOpenOnEdit="True"
+                                     SelectionChanged="CmbPelabuhanTujuan_SelectionChanged"/>
+                        </StackPanel>
+
+                        <!-- Status -->
+                        <StackPanel Grid.Row="0" Grid.Column="3">
+                            <TextBlock Text="Status" FontSize="12" Foreground="#64748B" Margin="0,0,0,5"/>
+                            <ComboBox x:Name="cmbStatus"
+                                     Padding="10"
+                                     FontSize="13"
+                                     BorderBrush="#CED4DA"
+                                     BorderThickness="1"
+                                     SelectionChanged="CmbStatus_SelectionChanged">
+                                <ComboBoxItem Content="-- Semua Status --" Tag="" IsSelected="True"/>
+                                <ComboBoxItem Content="Active" Tag="Active"/>
+                                <ComboBoxItem Content="Inactive" Tag="Inactive"/>
+                            </ComboBox>
+                        </StackPanel>
+
+                        <!-- Row 2 -->
+                        <!-- Kapal -->
+                        <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,15,10,0">
+                            <TextBlock Text="Kapal" FontSize="12" Foreground="#64748B" Margin="0,0,0,5"/>
+                            <ComboBox x:Name="cmbKapal"
+                                     Padding="10"
+                                     FontSize="13"
+                                     BorderBrush="#CED4DA"
+                                     BorderThickness="1"
+                                     IsEditable="True"
+                                     IsTextSearchEnabled="True"
+                                     StaysOpenOnEdit="True"
+                                     SelectionChanged="CmbKapal_SelectionChanged"/>
+                        </StackPanel>
+
+                        <!-- Kelas Layanan -->
+                        <StackPanel Grid.Row="1" Grid.Column="1" Margin="0,15,10,0">
+                            <TextBlock Text="Kelas Layanan" FontSize="12" Foreground="#64748B" Margin="0,0,0,5"/>
+                            <ComboBox x:Name="cmbKelasLayanan"
+                                     Padding="10"
+                                     FontSize="13"
+                                     BorderBrush="#CED4DA"
+                                     BorderThickness="1"
+                                     SelectionChanged="CmbKelasLayanan_SelectionChanged">
+                                <ComboBoxItem Content="-- Semua Kelas --" Tag="" IsSelected="True"/>
+                                <ComboBoxItem Content="Reguler" Tag="Reguler"/>
+                                <ComboBoxItem Content="Express" Tag="Express"/>
+                            </ComboBox>
+                        </StackPanel>
+
+                        <!-- Tanggal Dari -->
+                        <StackPanel Grid.Row="1" Grid.Column="2" Margin="0,15,10,0">
+                            <TextBlock Text="Tanggal Dari" FontSize="12" Foreground="#64748B" Margin="0,0,0,5"/>
+                            <DatePicker x:Name="dpTanggalDari"
+                                       Padding="10"
+                                       FontSize="13"
+                                       BorderBrush="#CED4DA"
+                                       BorderThickness="1"
+                                       SelectedDateChanged="DateFilter_Changed"/>
+                        </StackPanel>
+
+                        <!-- Tanggal Sampai -->
+                        <StackPanel Grid.Row="1" Grid.Column="3" Margin="0,15,0,0">
+                            <TextBlock Text="Tanggal Sampai" FontSize="12" Foreground="#64748B" Margin="0,0,0,5"/>
+                            <DatePicker x:Name="dpTanggalSampai"
+                                       Padding="10"
+                                       FontSize="13"
+                                       BorderBrush="#CED4DA"
+                                       BorderThickness="1"
+                                       SelectedDateChanged="DateFilter_Changed"/>
+                        </StackPanel>
+
+                        <!-- Row 3 - Reset Button -->
+                        <StackPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="4" 
+                                   Orientation="Horizontal" 
+                                   HorizontalAlignment="Right"
+                                   VerticalAlignment="Bottom"
+                                   Margin="0,15,0,0">
+                            <Button Content="🔄 Reset Filter"
+                                   Click="BtnResetFilter_Click"
+                                   Background="#6C757D"
+                                   Foreground="White"
+                                   BorderThickness="0"
+                                   Padding="15,8"
+                                   FontSize="13"
+                                   Cursor="Hand">
+                                <Button.Style>
+                                    <Style TargetType="Button">
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate TargetType="Button">
+                                                    <Border Background="{TemplateBinding Background}"
+                                                           CornerRadius="6"
+                                                           Padding="{TemplateBinding Padding}">
+                                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                    </Border>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                        <Style.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter Property="Background" Value="#5A6268"/>
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                            </Button>
+                        </StackPanel>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
             <!-- Jadwal List -->
             <DataGrid x:Name="dgJadwal"
                      AutoGenerateColumns="False"

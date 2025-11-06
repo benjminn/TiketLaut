@@ -77,6 +77,20 @@
             <TextBlock Text="Provinsi *" FontWeight="SemiBold" Margin="0,0,0,5"/>
             <TextBox x:Name="txtProvinsi" Style="{StaticResource InputBox}" Margin="0,0,0,15"/>
 
+            <!-- Timezone -->
+            <TextBlock Text="Timezone *" FontWeight="SemiBold" Margin="0,0,0,5"/>
+            <ComboBox x:Name="cmbTimezone" 
+                     FontSize="14"
+                     Padding="12"
+                     Margin="0,0,0,15"
+                     Background="White"
+                     BorderBrush="#CED4DA"
+                     BorderThickness="1">
+                <ComboBoxItem Content="WIB (UTC+7)" Tag="WIB"/>
+                <ComboBoxItem Content="WITA (UTC+8)" Tag="WITA"/>
+                <ComboBoxItem Content="WIT (UTC+9)" Tag="WIT"/>
+            </ComboBox>
+
             <!-- Fasilitas -->
             <TextBlock Text="Fasilitas *" FontWeight="SemiBold" Margin="0,0,0,5"/>
             <TextBox x:Name="txtFasilitas" 

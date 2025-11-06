@@ -133,17 +133,12 @@ namespace TiketLaut.Services
             // Get jadwal with its GrupKendaraan and DetailKendaraans
             var jadwal = await _context.Jadwals
                 .Include(j => j.GrupKendaraan)
-                    .ThenInclude(g => g.DetailKendaraans)
+                    .ThenInclude(g => g!.DetailKendaraans)
                 .FirstOrDefaultAsync(j => j.jadwal_id == jadwalId);
 
-            if (jadwal == null)
+            if (jadwal?.GrupKendaraan?.DetailKendaraans == null)
             {
-                throw new Exception($"Jadwal {jadwalId} tidak ditemukan");
-            }
-
-            if (jadwal.GrupKendaraan == null || jadwal.GrupKendaraan.DetailKendaraans == null)
-            {
-                throw new Exception($"Grup kendaraan tidak ditemukan untuk jadwal {jadwalId}");
+                throw new Exception($"Jadwal {jadwalId} tidak ditemukan atau tidak memiliki data kendaraan");
             }
 
             // Find the DetailKendaraan for the requested jenis_kendaraan
