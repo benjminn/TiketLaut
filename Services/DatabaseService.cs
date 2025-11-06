@@ -21,10 +21,14 @@ namespace TiketLaut.Services
                     {
                         var configuration = new ConfigurationBuilder()
                             .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
-                            .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                            .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+                            .AddEnvironmentVariables() // Environment variables akan override appsettings
                             .Build();
 
-                        var connectionString = configuration.GetConnectionString("SupabaseConnection");
+                        // Prioritas: Environment Variables → appsettings.json
+                        var connectionString = Environment.GetEnvironmentVariable("SUPABASE_CONNECTION") 
+                            ?? configuration.GetConnectionString("SupabaseConnection")
+                            ?? throw new InvalidOperationException("SUPABASE_CONNECTION not configured in environment variables or appsettings.json");
 
                         var optionsBuilder = new DbContextOptionsBuilder<AppDbContext>();
                         optionsBuilder.UseNpgsql(connectionString);

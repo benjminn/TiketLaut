@@ -26,6 +26,7 @@ namespace TiketLaut
         public string password { get; set; } = string.Empty;
 
         [Required]
+        [MaxLength(16)]
         [Column("nomor_induk_kependudukan")]  // CHANGED: from "no_hp" to "nomor_induk_kependudukan"
         public string nomor_induk_kependudukan { get; set; } = string.Empty;
 

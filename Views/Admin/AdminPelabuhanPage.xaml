@@ -156,6 +156,18 @@
                         </DataGridTextColumn.ElementStyle>
                     </DataGridTextColumn>
                     
+                    <!-- Timezone - Center Horizontal & Vertical -->
+                    <DataGridTextColumn Header="Timezone" Binding="{Binding timezone}" Width="100">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="HorizontalAlignment" Value="Center"/>
+                                <Setter Property="VerticalAlignment" Value="Center"/>
+                                <Setter Property="FontWeight" Value="SemiBold"/>
+                                <Setter Property="Foreground" Value="#00658D"/>
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+                    
                     <!-- Fasilitas - Left Horizontal, Center Vertical -->
                     <DataGridTextColumn Header="Fasilitas" Binding="{Binding fasilitas}" Width="*" MinWidth="200">
                         <DataGridTextColumn.ElementStyle>

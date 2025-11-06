@@ -27,15 +27,38 @@ Nggak perlu lagi antre panjang di pelabuhan atau bingung cari jadwal kapal. Deng
 4. **📊 Real-time Data:** Jadwal, harga, dan ketersediaan kursi
 5. **📱 Notification System:** Push notification untuk update jadwal
 
-## How To Run �🏻‍♂️
+## How To Run ��🏻‍♂️
 
-Masukan perintah berikut ke dalam terminal
+### 1. Setup Configuration
+
+**Copy template configuration:**
+```powershell
+Copy-Item appsettings.example.json appsettings.json
 ```
+
+**Edit `appsettings.json` dan isi dengan credentials yang sebenarnya:**
+- **Supabase Connection String:** Ganti dengan connection string Supabase project kamu
+- **Google OAuth Credentials:** Isi Client ID dan Client Secret dari Google Cloud Console
+
+> 📖 **Dokumentasi lengkap:** Lihat [ENVIRONMENT_VARIABLES_GUIDE.md](./ENVIRONMENT_VARIABLES_GUIDE.md) dan [REAL_GOOGLE_OAUTH_SETUP.md](./REAL_GOOGLE_OAUTH_SETUP.md)
+
+### 2. Run Application
+
+Masukan perintah berikut ke dalam terminal:
+```powershell
 cd TiketLaut
 dotnet run
 
-dotnet build #untuk build
+# Atau untuk build saja
+dotnet build
 ```
+
+### 3. Test Google OAuth Login
+
+- Jika Google credentials **sudah dikonfigurasi** → Browser akan terbuka dengan Google login (real OAuth)
+- Jika credentials **belum dikonfigurasi** → Dialog manual input akan muncul (simulation mode)
+
+> 🔒 **Security Note:** File `appsettings.json` sudah ada di `.gitignore`, jadi credentials kamu tidak akan ter-commit ke Git.
 
 ## Pull & Push Schema 💪🏻
 

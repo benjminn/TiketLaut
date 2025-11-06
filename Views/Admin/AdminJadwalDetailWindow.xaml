@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Detail Jadwal - Admin Panel" 
         Height="900"
-        Width="1400"
+        Width="1600"
         WindowStartupLocation="CenterScreen"
         ResizeMode="CanResize"
         FontFamily="Plus Jakarta Sans"
@@ -109,6 +109,36 @@
             </Style.Triggers>
         </Style>
 
+        <!-- Warning Button Style (for Edit) -->
+        <Style x:Key="WarningButton" TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
+            <Setter Property="Background" Value="#FFC107"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#FFB300"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Danger Button Style (for Delete) -->
+        <Style x:Key="DangerButton" TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
+            <Setter Property="Background" Value="#DC3545"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#C82333"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Secondary Button Style (for Back) -->
+        <Style x:Key="SecondaryButton" TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
+            <Setter Property="Background" Value="#6C757D"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#5A6268"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
         <!-- DataGrid Header Style -->
         <Style TargetType="DataGridColumnHeader">
             <Setter Property="FontWeight" Value="Bold"/>
@@ -126,10 +156,27 @@
             <Setter Property="TextBlock.TextAlignment" Value="Center"/>
             <Setter Property="Padding" Value="8"/>
             <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
             <Style.Triggers>
                 <Trigger Property="IsSelected" Value="True">
                     <Setter Property="Background" Value="#E7F3F8"/>
                     <Setter Property="Foreground" Value="#011C4B"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        
+        <!-- DataGrid Row Style - Fix selection text color -->
+        <Style TargetType="DataGridRow">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="Foreground" Value="#011C4B"/>
+            <Style.Triggers>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="#E7F3F8"/>
+                    <Setter Property="Foreground" Value="#011C4B"/>
+                </Trigger>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#F8FAFC"/>
+                    <Setter Property="Cursor" Value="Hand"/>
                 </Trigger>
             </Style.Triggers>
         </Style>
@@ -144,15 +191,16 @@
     <Grid>
         <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="30">
             <StackPanel MaxWidth="1340">
-                <!-- Header with Back Button -->
+                <!-- Header with Back Button and Action Buttons -->
                 <Grid Margin="0,0,0,20">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
 
                     <Button Grid.Column="0"
-                            Style="{StaticResource PrimaryButton}"
+                            Style="{StaticResource SecondaryButton}"
                             Click="BtnBack_Click"
                             Padding="12,8"
                             Margin="0,0,15,0">
@@ -168,6 +216,38 @@
                               FontWeight="Bold"
                               Foreground="#011C4B"
                               VerticalAlignment="Center"/>
+
+                    <!-- Action Buttons (Edit & Delete) -->
+                    <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                        <Button Style="{StaticResource WarningButton}"
+                               Click="BtnEditJadwal_Click"
+                               Padding="15,8"
+                               Margin="0,0,10,0">
+                            <StackPanel Orientation="Horizontal">
+                                <Image Source="/Views/Assets/Icons/iconEdit.png" 
+                                       Width="16" 
+                                       Height="16" 
+                                       Margin="0,0,8,0"
+                                       VerticalAlignment="Center"/>
+                                <TextBlock Text="Edit Jadwal" 
+                                          VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+
+                        <Button Style="{StaticResource DangerButton}"
+                               Click="BtnDeleteJadwal_Click"
+                               Padding="15,8">
+                            <StackPanel Orientation="Horizontal">
+                                <Image Source="/Views/Assets/Icons/iconHapus.png" 
+                                       Width="16" 
+                                       Height="16" 
+                                       Margin="0,0,8,0"
+                                       VerticalAlignment="Center"/>
+                                <TextBlock Text="Hapus Jadwal" 
+                                          VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
                 </Grid>
 
                 <!-- Jadwal Info Card -->
@@ -268,16 +348,24 @@
                                        Style="{StaticResource FilterButton}"
                                        Content="Pending"
                                        Click="BtnFilterPending_Click"/>
-                                <Button x:Name="btnFilterPaid"
+                                <Button x:Name="btnFilterAktif"
                                        Style="{StaticResource FilterButton}"
-                                       Content="Sudah Bayar"
-                                       Click="BtnFilterPaid_Click"/>
-                                <Button x:Name="btnFilterCancelled"
+                                       Content="Aktif"
+                                       Click="BtnFilterAktif_Click"/>
+                                <Button x:Name="btnFilterGagal"
                                        Style="{StaticResource FilterButton}"
-                                       Content="Dibatalkan"
-                                       Click="BtnFilterCancelled_Click"/>
+                                       Content="Gagal"
+                                       Click="BtnFilterGagal_Click"/>
                             </StackPanel>
                         </Grid>
+
+                        <!-- Hint Text -->
+                        <TextBlock Text="💡 Double-click pada tiket untuk melihat detail lengkap" 
+                                  FontSize="12" 
+                                  Foreground="#64748B" 
+                                  FontStyle="Italic"
+                                  Margin="0,10,0,10"
+                                  HorizontalAlignment="Right"/>
 
                         <!-- Tickets DataGrid -->
                         <DataGrid x:Name="dgTikets"
@@ -291,11 +379,13 @@
                                  Background="White"
                                  BorderThickness="0"
                                  RowHeight="50"
-                                 MinHeight="200">
+                                 MinHeight="200"
+                                 MouseDoubleClick="DgTikets_MouseDoubleClick"
+                                 Cursor="Hand">
 
                             <DataGrid.Columns>
                                 <!-- Kode Tiket -->
-                                <DataGridTextColumn Header="Kode Tiket" Binding="{Binding kode_tiket}" Width="150">
+                                <DataGridTextColumn Header="Kode Tiket" Binding="{Binding kode_tiket}" Width="*" MinWidth="150">
                                     <DataGridTextColumn.ElementStyle>
                                         <Style TargetType="TextBlock">
                                             <Setter Property="HorizontalAlignment" Value="Center"/>
@@ -305,8 +395,8 @@
                                     </DataGridTextColumn.ElementStyle>
                                 </DataGridTextColumn>
 
-                                <!-- Username Pembeli -->
-                                <DataGridTextColumn Header="Username Pembeli" Binding="{Binding Pengguna.username}" Width="150">
+                                <!-- Nama Pembeli -->
+                                <DataGridTextColumn Header="Nama Pembeli" Binding="{Binding Pengguna.nama}" Width="*" MinWidth="150">
                                     <DataGridTextColumn.ElementStyle>
                                         <Style TargetType="TextBlock">
                                             <Setter Property="HorizontalAlignment" Value="Center"/>
@@ -316,7 +406,7 @@
                                 </DataGridTextColumn>
 
                                 <!-- Jumlah Penumpang -->
-                                <DataGridTextColumn Header="Jumlah Penumpang" Binding="{Binding jumlah_penumpang}" Width="130">
+                                <DataGridTextColumn Header="Jumlah Penumpang" Binding="{Binding jumlah_penumpang}" Width="*" MinWidth="130">
                                     <DataGridTextColumn.ElementStyle>
                                         <Style TargetType="TextBlock">
                                             <Setter Property="HorizontalAlignment" Value="Center"/>
@@ -325,18 +415,20 @@
                                     </DataGridTextColumn.ElementStyle>
                                 </DataGridTextColumn>
 
-                                <!-- Jenis Kendaraan -->
-                                <DataGridTextColumn Header="Jenis Kendaraan" Binding="{Binding jenis_kendaraan_enum}" Width="150">
+                                <!-- Jenis Kendaraan (Golongan) -->
+                                <DataGridTextColumn Header="Golongan Kendaraan" Binding="{Binding KeteranganGolongan}" Width="*" MinWidth="250">
                                     <DataGridTextColumn.ElementStyle>
                                         <Style TargetType="TextBlock">
                                             <Setter Property="HorizontalAlignment" Value="Center"/>
                                             <Setter Property="VerticalAlignment" Value="Center"/>
+                                            <Setter Property="FontWeight" Value="SemiBold"/>
+                                            <Setter Property="Foreground" Value="#011C4B"/>
                                         </Style>
                                     </DataGridTextColumn.ElementStyle>
                                 </DataGridTextColumn>
 
                                 <!-- Plat Nomor -->
-                                <DataGridTextColumn Header="Plat Nomor" Binding="{Binding plat_nomor}" Width="120">
+                                <DataGridTextColumn Header="Plat Nomor" Binding="{Binding plat_nomor}" Width="*" MinWidth="120">
                                     <DataGridTextColumn.ElementStyle>
                                         <Style TargetType="TextBlock">
                                             <Setter Property="HorizontalAlignment" Value="Center"/>
@@ -346,7 +438,7 @@
                                 </DataGridTextColumn>
 
                                 <!-- Total Harga -->
-                                <DataGridTextColumn Header="Total Harga" Width="140">
+                                <DataGridTextColumn Header="Total Harga" Width="*" MinWidth="140">
                                     <DataGridTextColumn.ElementStyle>
                                         <Style TargetType="TextBlock">
                                             <Setter Property="HorizontalAlignment" Value="Center"/>
@@ -360,7 +452,7 @@
                                 </DataGridTextColumn>
 
                                 <!-- Tanggal Pesan -->
-                                <DataGridTextColumn Header="Tanggal Pesan" Width="140">
+                                <DataGridTextColumn Header="Tanggal Pesan" Width="*" MinWidth="140">
                                     <DataGridTextColumn.ElementStyle>
                                         <Style TargetType="TextBlock">
                                             <Setter Property="HorizontalAlignment" Value="Center"/>
@@ -373,17 +465,19 @@
                                 </DataGridTextColumn>
 
                                 <!-- Status -->
-                                <DataGridTemplateColumn Header="Status" Width="120">
+                                <DataGridTemplateColumn Header="Status" Width="*" MinWidth="120">
                                     <DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>
                                             <Border x:Name="StatusBorder" 
                                                    CornerRadius="12" 
                                                    Padding="8,4" 
-                                                   HorizontalAlignment="Center">
+                                                   HorizontalAlignment="Center"
+                                                   VerticalAlignment="Center">
                                                 <TextBlock Text="{Binding status_tiket}" 
                                                           FontWeight="SemiBold" 
                                                           FontSize="12"
-                                                          HorizontalAlignment="Center"/>
+                                                          HorizontalAlignment="Center"
+                                                          VerticalAlignment="Center"/>
                                             </Border>
                                             <DataTemplate.Triggers>
                                                 <DataTrigger Binding="{Binding status_tiket}" Value="Booked">

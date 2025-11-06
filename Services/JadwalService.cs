@@ -149,7 +149,7 @@ namespace TiketLaut.Services
                     .Include(j => j.pelabuhan_tujuan)
                     .Include(j => j.kapal)
                     .Include(j => j.GrupKendaraan)
-                        .ThenInclude(g => g.DetailKendaraans)
+                        .ThenInclude(g => g!.DetailKendaraans)
                     .FirstOrDefaultAsync(j => j.jadwal_id == jadwalId);
             }
             catch (Exception ex)
@@ -168,10 +168,10 @@ namespace TiketLaut.Services
             {
                 var jadwal = await _context.Jadwals
                     .Include(j => j.GrupKendaraan)
-                        .ThenInclude(g => g.DetailKendaraans)
+                        .ThenInclude(g => g!.DetailKendaraans)
                     .FirstOrDefaultAsync(j => j.jadwal_id == jadwalId);
                 
-                return jadwal?.GrupKendaraan?.DetailKendaraans.OrderBy(dk => dk.jenis_kendaraan).ToList() 
+                return jadwal?.GrupKendaraan?.DetailKendaraans?.OrderBy(dk => dk.jenis_kendaraan).ToList() 
                     ?? new List<DetailKendaraan>();
             }
             catch (Exception ex)
@@ -190,10 +190,10 @@ namespace TiketLaut.Services
             {
                 var jadwal = await _context.Jadwals
                     .Include(j => j.GrupKendaraan)
-                        .ThenInclude(g => g.DetailKendaraans)
+                        .ThenInclude(g => g!.DetailKendaraans)
                     .FirstOrDefaultAsync(j => j.jadwal_id == jadwalId);
                 
-                return jadwal?.GrupKendaraan?.DetailKendaraans
+                return jadwal?.GrupKendaraan?.DetailKendaraans?
                     .FirstOrDefault(dk => dk.jenis_kendaraan == (int)jenis);
             }
             catch (Exception ex)
