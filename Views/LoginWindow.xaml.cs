@@ -17,58 +17,77 @@ using System.Collections.Specialized;
 using System.Linq;
 using Microsoft.Extensions.Configuration;
 using System.IO;
+using Newtonsoft.Json.Linq;
 
 namespace TiketLaut.Views
 {
+    public enum LoginSource
+    {
+        HomePage,
+        ScheduleWindow,
+        Other
+    }
+
     public partial class LoginWindow : Window
     {
         private readonly PenggunaService _penggunaService;
         private readonly AdminService _adminService;
         private readonly IConfiguration _configuration;
-        
+        private readonly LoginSource _loginSource; // ✅ FIXED: Added missing field
+
         // Google OAuth Config - Dibaca dari Environment Variables atau appsettings.json
         private readonly string GOOGLE_CLIENT_ID;
         private readonly string GOOGLE_CLIENT_SECRET;
         private readonly string REDIRECT_URI;
         private readonly int REDIRECT_PORT;
 
-        public LoginWindow()
+        // Constructor default (untuk backward compatibility)
+        public LoginWindow() : this(LoginSource.HomePage)
+        {
+        }
+
+        public LoginWindow(LoginSource source)
         {
             InitializeComponent();
+            _loginSource = source; // ✅ Now this will work
+
+            System.Diagnostics.Debug.WriteLine($"[LoginWindow] Constructor called with source: {source}");
+
             _penggunaService = new PenggunaService();
             _adminService = new AdminService();
-            
+
+            // ✅ FIXED: Changed 'configuration' to '_configuration'
             // Load configuration dari appsettings.json
             _configuration = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-                .AddEnvironmentVariables() // Environment variables akan override appsettings
+                .AddEnvironmentVariables()
                 .Build();
-            
+
             // Baca Google OAuth config dengan prioritas:
             // 1. Environment Variables (production)
             // 2. appsettings.json (development)
-            GOOGLE_CLIENT_ID = Environment.GetEnvironmentVariable("GOOGLE_CLIENT_ID") 
-                ?? _configuration["GoogleOAuth:ClientId"] 
+            GOOGLE_CLIENT_ID = Environment.GetEnvironmentVariable("GOOGLE_CLIENT_ID")
+                ?? _configuration["GoogleOAuth:ClientId"]
                 ?? "NOT_CONFIGURED";
-            
-            GOOGLE_CLIENT_SECRET = Environment.GetEnvironmentVariable("GOOGLE_CLIENT_SECRET") 
-                ?? _configuration["GoogleOAuth:ClientSecret"] 
+
+            GOOGLE_CLIENT_SECRET = Environment.GetEnvironmentVariable("GOOGLE_CLIENT_SECRET")
+                ?? _configuration["GoogleOAuth:ClientSecret"]
                 ?? "NOT_CONFIGURED";
-            
-            REDIRECT_URI = Environment.GetEnvironmentVariable("GOOGLE_REDIRECT_URI") 
-                ?? _configuration["GoogleOAuth:RedirectUri"] 
+
+            REDIRECT_URI = Environment.GetEnvironmentVariable("GOOGLE_REDIRECT_URI")
+                ?? _configuration["GoogleOAuth:RedirectUri"]
                 ?? "http://localhost:8080/";
-            
+
             REDIRECT_PORT = int.TryParse(
-                Environment.GetEnvironmentVariable("GOOGLE_REDIRECT_PORT") 
-                ?? _configuration["GoogleOAuth:RedirectPort"], 
+                Environment.GetEnvironmentVariable("GOOGLE_REDIRECT_PORT")
+                ?? _configuration["GoogleOAuth:RedirectPort"],
                 out int port) ? port : 8080;
-            
+
             // Debug log untuk verifikasi config
             Debug.WriteLine($"[Config] Google Client ID: {(GOOGLE_CLIENT_ID != "NOT_CONFIGURED" ? "Configured" : "Not Configured")}");
             Debug.WriteLine($"[Config] Redirect URI: {REDIRECT_URI}");
-            
+
             // Test database connection on load
             TestDatabaseConnection();
         }
@@ -102,6 +121,66 @@ namespace TiketLaut.Views
             }
         }
 
+        /// <summary>
+        /// Event handler untuk tombol kembali - redirect berdasarkan source
+        /// </summary>
+        private void BtnKembali_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                System.Diagnostics.Debug.WriteLine($"[LoginWindow] BtnKembali_Click - Source: {_loginSource}"); // ✅ Debug log
+
+                switch (_loginSource)
+                {
+                    case LoginSource.HomePage:
+                        System.Diagnostics.Debug.WriteLine("[LoginWindow] Navigating back to HomePage");
+                        // Kembali ke HomePage sebagai guest
+                        var homePage = new HomePage(isLoggedIn: false, username: "");
+                        CopyWindowProperties(homePage);
+                        homePage.Show();
+                        this.Close();
+                        break;
+
+                    case LoginSource.ScheduleWindow:
+                        System.Diagnostics.Debug.WriteLine("[LoginWindow] Navigating back to ScheduleWindow");
+                        // Kembali ke ScheduleWindow dengan data session yang tersimpan
+                        var scheduleWindow = new ScheduleWindow(); // Constructor akan auto-load dari session
+                        CopyWindowProperties(scheduleWindow);
+                        scheduleWindow.Show();
+                        this.Close();
+                        break;
+
+                    default:
+                        System.Diagnostics.Debug.WriteLine("[LoginWindow] Using default fallback to HomePage");
+                        // Fallback ke HomePage
+                        var defaultHomePage = new HomePage(isLoggedIn: false, username: "");
+                        CopyWindowProperties(defaultHomePage);
+                        defaultHomePage.Show();
+                        this.Close();
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Terjadi kesalahan saat kembali:\n{ex.Message}",
+                               "Error",
+                               MessageBoxButton.OK,
+                               MessageBoxImage.Error);
+            }
+        }
+
+        /// <summary>
+        /// Helper method untuk copy window properties
+        /// </summary>
+        private void CopyWindowProperties(Window targetWindow)
+        {
+            targetWindow.Left = this.Left;
+            targetWindow.Top = this.Top;
+            targetWindow.Width = this.Width;
+            targetWindow.Height = this.Height;
+            targetWindow.WindowState = this.WindowState;
+        }
+
         private async void BtnLogin_Click(object sender, RoutedEventArgs e)
         {
             string email = txtEmail.Text.Trim();
@@ -125,7 +204,7 @@ namespace TiketLaut.Views
             {
                 // Cek dulu apakah admin
                 var admin = await _adminService.ValidateAdminLoginAsync(email, password);
-                
+
                 if (admin != null)
                 {
                     // Login sebagai Admin - redirect ke Admin Dashboard
@@ -156,10 +235,8 @@ namespace TiketLaut.Views
                                    MessageBoxButton.OK,
                                    MessageBoxImage.Information);
 
-                    // Buka HomePage
-                    var homePage = new HomePage(isLoggedIn: true, username: pengguna.nama);
-                    homePage.Show();
-                    this.Close();
+                    // ✅ UPDATED: Navigate berdasarkan source
+                    NavigateAfterSuccessfulLogin(pengguna);
                 }
                 else
                 {
@@ -180,6 +257,45 @@ namespace TiketLaut.Views
             {
                 btnLogin.IsEnabled = true;
                 btnLogin.Content = "Masuk";
+            }
+        }
+
+        /// <summary>
+        /// Navigate setelah login berhasil berdasarkan source
+        /// </summary>
+        private void NavigateAfterSuccessfulLogin(Pengguna pengguna)
+        {
+            try
+            {
+                switch (_loginSource)
+                {
+                    case LoginSource.ScheduleWindow:
+                        // Kembali ke ScheduleWindow dengan data session dan user sudah login
+                        var scheduleWindow = new ScheduleWindow();
+                        CopyWindowProperties(scheduleWindow);
+                        scheduleWindow.Show();
+                        this.Close();
+                        break;
+
+                    case LoginSource.HomePage:
+                    default:
+                        // Default ke HomePage dengan login state
+                        var homePage = new HomePage(isLoggedIn: true, username: pengguna.nama);
+                        CopyWindowProperties(homePage);
+                        homePage.Show();
+                        this.Close();
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                // Fallback ke HomePage jika ada error
+                var homePage = new HomePage(isLoggedIn: true, username: pengguna.nama);
+                CopyWindowProperties(homePage);
+                homePage.Show();
+                this.Close();
+
+                Debug.WriteLine($"[LoginWindow] Error in NavigateAfterSuccessfulLogin: {ex.Message}");
             }
         }
 
@@ -258,20 +374,20 @@ namespace TiketLaut.Views
         private async Task PerformRealGoogleOAuthAsync()
         {
             HttpListener? listener = null;
-            
+
             try
             {
                 // 1. Setup local HTTP listener untuk menerima OAuth callback
                 listener = new HttpListener();
                 listener.Prefixes.Add(REDIRECT_URI);
                 listener.Start();
-                
+
                 Debug.WriteLine($"[OAuth] Listening on {REDIRECT_URI}");
 
                 // 2. Generate authorization URL
                 string state = GenerateRandomState();
                 string codeChallenge = GenerateCodeChallenge();
-                
+
                 string authUrl = $"https://accounts.google.com/o/oauth2/v2/auth?" +
                     $"client_id={GOOGLE_CLIENT_ID}" +
                     $"&redirect_uri={Uri.EscapeDataString(REDIRECT_URI)}" +
@@ -353,10 +469,10 @@ namespace TiketLaut.Views
 
                 // 8. Exchange authorization code untuk access token
                 var tokenResponse = await ExchangeCodeForTokenAsync(code);
-                
+
                 // 9. Gunakan access token untuk mendapatkan user info
                 var userInfo = await GetGoogleUserInfoAsync(tokenResponse.access_token);
-                
+
                 Debug.WriteLine($"[OAuth] User info: {userInfo.email}, {userInfo.name}");
 
                 // 10. Process login dengan data dari Google
@@ -381,7 +497,7 @@ namespace TiketLaut.Views
         private async Task<GoogleTokenResponse> ExchangeCodeForTokenAsync(string code)
         {
             using var httpClient = new HttpClient();
-            
+
             var parameters = new Dictionary<string, string>
             {
                 { "code", code },
@@ -419,7 +535,7 @@ namespace TiketLaut.Views
         private async Task<GoogleUserInfo> GetGoogleUserInfoAsync(string accessToken)
         {
             using var httpClient = new HttpClient();
-            httpClient.DefaultRequestHeaders.Authorization = 
+            httpClient.DefaultRequestHeaders.Authorization =
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
 
             var response = await httpClient.GetAsync("https://www.googleapis.com/oauth2/v2/userinfo");
@@ -482,7 +598,6 @@ namespace TiketLaut.Views
             public bool verified_email { get; set; }
         }
 
-
         private async Task ProcessGoogleLoginAsync(string googleEmail, string googleName)
         {
             try
@@ -500,10 +615,8 @@ namespace TiketLaut.Views
                                    MessageBoxButton.OK,
                                    MessageBoxImage.Information);
 
-                    // Buka HomePage
-                    var homePage = new HomePage(isLoggedIn: true, username: existingUser.nama);
-                    homePage.Show();
-                    this.Close();
+                    // ✅ UPDATED: Navigate berdasarkan source
+                    NavigateAfterSuccessfulLogin(existingUser);
                 }
                 else
                 {
@@ -530,10 +643,8 @@ namespace TiketLaut.Views
                                            MessageBoxButton.OK,
                                            MessageBoxImage.Information);
 
-                            // Buka HomePage
-                            var homePage = new HomePage(isLoggedIn: true, username: pengguna.nama);
-                            homePage.Show();
-                            this.Close();
+                            // ✅ UPDATED: Navigate berdasarkan source
+                            NavigateAfterSuccessfulLogin(pengguna);
                         }
                         else
                         {
@@ -571,5 +682,3 @@ namespace TiketLaut.Views
         }
     }
 }
-
-
