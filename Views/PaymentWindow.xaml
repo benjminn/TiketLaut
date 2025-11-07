@@ -651,11 +651,13 @@
                                             <StackPanel Grid.Column="0" 
                                                   Orientation="Horizontal" 
                                                   VerticalAlignment="Center">
-                                                <TextBlock Text="IDR  487."
+                                                <TextBlock x:Name="txtInstructionTotalPembayaran"
+                                                     Text="IDR  487."
                                                      FontSize="20"
                                                      FontWeight="Bold"
                                                      Foreground="#042769"/>
-                                                <TextBlock Text="123"
+                                                <TextBlock x:Name="txtInstructionTotalPembayaranDigit"
+                                                     Text="123"
                                                      FontSize="20"
                                                      FontWeight="Bold"
                                                      Foreground="#267DAE"/>
