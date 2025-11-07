@@ -369,8 +369,32 @@ namespace TiketLaut.Views
                 {
                     currentValue--;
                     txtPenumpang.Text = currentValue.ToString();
+                    
+                    // Sync ke popup textbox jika ada
+                    if (txtPopupPenumpangHome != null)
+                        txtPopupPenumpangHome.Text = currentValue.ToString();
+                    
                     UpdatePenumpangDisplay(currentValue);
+                    UpdatePopupButtonStatesHome(currentValue);
                 }
+            }
+        }
+
+        /// <summary>
+        /// Button untuk toggle popup penumpang
+        /// </summary>
+        private void BtnPenumpang_Click(object sender, RoutedEventArgs e)
+        {
+            if (popupPenumpangHome != null)
+            {
+                // Sync nilai dari hidden textbox ke popup textbox
+                if (int.TryParse(txtPenumpang.Text, out int current))
+                {
+                    txtPopupPenumpangHome.Text = current.ToString();
+                    UpdatePopupButtonStatesHome(current);
+                }
+                
+                popupPenumpangHome.IsOpen = !popupPenumpangHome.IsOpen;
             }
         }
 
@@ -388,7 +412,9 @@ namespace TiketLaut.Views
                 {
                     currentValue++;
                     txtPenumpang.Text = currentValue.ToString();
+                    txtPopupPenumpangHome.Text = currentValue.ToString();
                     UpdatePenumpangDisplay(currentValue);
+                    UpdatePopupButtonStatesHome(currentValue);
                 }
                 else
                 {
@@ -421,7 +447,146 @@ namespace TiketLaut.Views
         {
             if (txtPenumpangDisplay != null)
             {
-                txtPenumpangDisplay.Text = $"{count} Penumpang";
+                // Update menggunakan Inlines karena TextBlock menggunakan Run elements
+                txtPenumpangDisplay.Inlines.Clear();
+                txtPenumpangDisplay.Inlines.Add(new System.Windows.Documents.Run(count.ToString()));
+                txtPenumpangDisplay.Inlines.Add(new System.Windows.Documents.Run(" "));
+                txtPenumpangDisplay.Inlines.Add(new System.Windows.Documents.Run("Penumpang"));
+            }
+        }
+
+        /// <summary>
+        /// Validasi input hanya angka untuk TextBox penumpang popup
+        /// </summary>
+        private void TxtPopupPenumpangHome_PreviewTextInput(object sender, System.Windows.Input.TextCompositionEventArgs e)
+        {
+            // Hanya terima angka
+            e.Handled = !int.TryParse(e.Text, out _);
+        }
+
+        /// <summary>
+        /// Event handler ketika text penumpang popup berubah (manual input)
+        /// </summary>
+        private void TxtPopupPenumpangHome_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (txtPopupPenumpangHome == null || txtPenumpang == null)
+                return;
+
+            // Jika kosong, biarkan kosong (user sedang menghapus untuk ketik angka baru)
+            if (string.IsNullOrWhiteSpace(txtPopupPenumpangHome.Text))
+            {
+                return;
+            }
+
+            if (int.TryParse(txtPopupPenumpangHome.Text, out int value))
+            {
+                // Validasi tidak boleh 0
+                if (value == 0)
+                {
+                    txtPopupPenumpangHome.Text = "";
+                    txtPopupPenumpangHome.SelectionStart = 0;
+                    return;
+                }
+
+                // Validasi minimal 1
+                if (value < 1)
+                {
+                    value = 1;
+                    txtPopupPenumpangHome.Text = "1";
+                    txtPopupPenumpangHome.SelectionStart = 1;
+                }
+
+                // Validasi maksimal sesuai kendaraan
+                int maksimalPenumpang = GetMaksimalPenumpangFromKendaraan();
+                if (value > maksimalPenumpang)
+                {
+                    value = maksimalPenumpang;
+                    txtPopupPenumpangHome.Text = maksimalPenumpang.ToString();
+                    txtPopupPenumpangHome.SelectionStart = maksimalPenumpang.ToString().Length;
+                }
+
+                // Sync ke hidden textbox dan update display
+                txtPenumpang.Text = value.ToString();
+                UpdatePenumpangDisplay(value);
+                UpdatePopupButtonStatesHome(value);
+            }
+        }
+
+        /// <summary>
+        /// Update state enabled/disabled untuk button +/- di popup
+        /// </summary>
+        private void UpdatePopupButtonStatesHome(int current)
+        {
+            int maksimalPenumpang = GetMaksimalPenumpangFromKendaraan();
+            
+            if (btnPopupMinusPenumpangHome != null)
+                btnPopupMinusPenumpangHome.IsEnabled = current > 1;
+            
+            if (btnPopupPlusPenumpangHome != null)
+                btnPopupPlusPenumpangHome.IsEnabled = current < maksimalPenumpang;
+        }
+
+        /// <summary>
+        /// Event handler ketika popup penumpang ditutup
+        /// </summary>
+        private void PopupPenumpangHome_Closed(object sender, EventArgs e)
+        {
+            // Saat popup ditutup, jika TextBox kosong atau invalid, restore ke nilai terakhir yang valid
+            if (txtPopupPenumpangHome != null && txtPenumpang != null)
+            {
+                if (string.IsNullOrWhiteSpace(txtPopupPenumpangHome.Text))
+                {
+                    // Restore dari hidden textbox
+                    if (int.TryParse(txtPenumpang.Text, out int lastValue) && lastValue >= 1)
+                    {
+                        txtPopupPenumpangHome.Text = lastValue.ToString();
+                    }
+                    else
+                    {
+                        // Fallback ke 1
+                        txtPopupPenumpangHome.Text = "1";
+                        txtPenumpang.Text = "1";
+                        UpdatePenumpangDisplay(1);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Button minus di dalam popup untuk mengurangi jumlah penumpang
+        /// </summary>
+        private void BtnPopupMinusPenumpangHome_Click(object sender, RoutedEventArgs e)
+        {
+            if (int.TryParse(txtPopupPenumpangHome.Text, out int currentValue))
+            {
+                if (currentValue > 1)
+                {
+                    currentValue--;
+                    txtPopupPenumpangHome.Text = currentValue.ToString();
+                    txtPenumpang.Text = currentValue.ToString();
+                    UpdatePenumpangDisplay(currentValue);
+                    UpdatePopupButtonStatesHome(currentValue);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Button plus di dalam popup untuk menambah jumlah penumpang
+        /// </summary>
+        private void BtnPopupPlusPenumpangHome_Click(object sender, RoutedEventArgs e)
+        {
+            if (int.TryParse(txtPopupPenumpangHome.Text, out int currentValue))
+            {
+                int maksimalPenumpang = GetMaksimalPenumpangFromKendaraan();
+                
+                if (currentValue < maksimalPenumpang)
+                {
+                    currentValue++;
+                    txtPopupPenumpangHome.Text = currentValue.ToString();
+                    txtPenumpang.Text = currentValue.ToString();
+                    UpdatePenumpangDisplay(currentValue);
+                    UpdatePopupButtonStatesHome(currentValue);
+                }
             }
         }
 
@@ -440,7 +605,7 @@ namespace TiketLaut.Views
         private void TxtPenumpang_TextChanged(object sender, TextChangedEventArgs e)
         {
             // Null check untuk semua controls
-            if (txtPenumpang == null || btnMinusPenumpang == null || btnPlusPenumpang == null)
+            if (txtPenumpang == null)
                 return;
 
             // Prevent infinite loop during initialization
@@ -449,15 +614,11 @@ namespace TiketLaut.Views
 
             if (int.TryParse(txtPenumpang.Text, out int value))
             {
-                // Dapatkan maksimal penumpang berdasarkan kendaraan
-                int maksimalPenumpang = GetMaksimalPenumpangFromKendaraan();
-                
-                // Update button states
-                btnMinusPenumpang.IsEnabled = value > 1;
-                btnPlusPenumpang.IsEnabled = value < maksimalPenumpang;
-                
                 // Update display text
                 UpdatePenumpangDisplay(value);
+                
+                // Update popup button states jika popup sedang terbuka
+                UpdatePopupButtonStatesHome(value);
             }
             else
             {
@@ -563,13 +724,13 @@ namespace TiketLaut.Views
         /// </summary>
         private void UpdatePenumpangButtonStates(int maksimalPenumpang)
         {
-            if (btnMinusPenumpang == null || btnPlusPenumpang == null || txtPenumpang == null)
+            if (txtPenumpang == null)
                 return;
 
             if (int.TryParse(txtPenumpang.Text, out int value))
             {
-                btnMinusPenumpang.IsEnabled = value > 1;
-                btnPlusPenumpang.IsEnabled = value < maksimalPenumpang;
+                // Update popup button states jika tersedia
+                UpdatePopupButtonStatesHome(value);
             }
         }
 
