@@ -916,6 +916,7 @@ namespace TiketLaut.Views
                 string mainPart = totalString.Substring(0, totalString.Length - 3);
                 string lastThreeDigits = totalString.Substring(totalString.Length - 3);
 
+                // Update toggle section (existing)
                 if (txtTotalPembayaran != null)
                 {
                     txtTotalPembayaran.Text = $"IDR {mainPart}.";
@@ -926,6 +927,13 @@ namespace TiketLaut.Views
                 {
                     txtDetailTotalPembayaran.Text = $"IDR {mainPart}.";
                     txtDetailTotalPembayaranDigit.Text = lastThreeDigits;
+                }
+
+                // ✅ ADD: Update payment instructions section
+                if (txtInstructionTotalPembayaran != null)
+                {
+                    txtInstructionTotalPembayaran.Text = $"IDR {mainPart}.";
+                    txtInstructionTotalPembayaranDigit.Text = lastThreeDigits;
                 }
             }
             else
@@ -941,6 +949,13 @@ namespace TiketLaut.Views
                 {
                     txtDetailTotalPembayaran.Text = $"IDR {totalString}";
                     txtDetailTotalPembayaranDigit.Text = "";
+                }
+
+                // ✅ ADD: Update payment instructions section for small amounts
+                if (txtInstructionTotalPembayaran != null)
+                {
+                    txtInstructionTotalPembayaran.Text = $"IDR {totalString}";
+                    txtInstructionTotalPembayaranDigit.Text = "";
                 }
             }
 
