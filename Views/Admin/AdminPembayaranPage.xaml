@@ -91,14 +91,37 @@
 
     <Grid>
         <StackPanel>
+            <!-- Action Bar -->
+            <Grid Margin="0,0,0,20">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <Button Grid.Column="1"
+                       Style="{StaticResource PrimaryButton}"
+                       Click="BtnRefresh_Click"
+                       HorizontalAlignment="Right">
+                    <StackPanel Orientation="Horizontal">
+                        <Image Source="/Views/Assets/Icons/iconRefresh.png" 
+                               Width="13" 
+                               Height="13" 
+                               Margin="0,0,8,0"
+                               VerticalAlignment="Center"/>
+                        <TextBlock Text="Refresh" 
+                                  VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+            </Grid>
+
             <!-- Filter Section -->
             <Border Style="{StaticResource CardStyle}">
                     <StackPanel>
-                        <TextBlock Text="🔍 Filter Pencarian" 
-                                  FontSize="16" 
+                        <TextBlock Text="Filter Pencarian" 
+                                  FontSize="18" 
                                   FontWeight="Bold" 
                                   Foreground="#011C4B"
-                                  Margin="0,0,0,15"/>
+                                  Margin="0,0,0,20"/>
                         
                         <Grid>
                             <Grid.RowDefinitions>
@@ -107,26 +130,52 @@
                             </Grid.RowDefinitions>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="15"/>
                                 <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="15"/>
                                 <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="15"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
 
                             <!-- Row 1 -->
                             <!-- Search Box -->
-                            <StackPanel Grid.Row="0" Grid.Column="0" Margin="0,0,10,0">
-                                <TextBlock Text="Pencarian" FontSize="12" Foreground="#64748B" Margin="0,0,0,5"/>
+                            <StackPanel Grid.Row="0" Grid.Column="0">
+                                <TextBlock Text="Pencarian" 
+                                          FontSize="13" 
+                                          FontWeight="SemiBold"
+                                          Foreground="#495057" 
+                                          Margin="0,0,0,8"/>
                                 <TextBox x:Name="txtSearch" 
-                                        Padding="10"
-                                        FontSize="13"
+                                        Height="42"
+                                        Padding="12"
+                                        FontSize="14"
+                                        VerticalContentAlignment="Center"
                                         BorderBrush="#CED4DA"
                                         BorderThickness="1"
                                         TextChanged="TxtSearch_TextChanged">
                                     <TextBox.Style>
                                         <Style TargetType="TextBox">
                                             <Setter Property="Background" Value="White"/>
+                                            <Setter Property="Template">
+                                                <Setter.Value>
+                                                    <ControlTemplate TargetType="TextBox">
+                                                        <Border Background="{TemplateBinding Background}"
+                                                               BorderBrush="{TemplateBinding BorderBrush}"
+                                                               BorderThickness="{TemplateBinding BorderThickness}"
+                                                               CornerRadius="8">
+                                                            <ScrollViewer x:Name="PART_ContentHost" 
+                                                                         VerticalAlignment="Center"
+                                                                         Margin="10,0"/>
+                                                        </Border>
+                                                    </ControlTemplate>
+                                                </Setter.Value>
+                                            </Setter>
                                             <Style.Triggers>
                                                 <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter Property="BorderBrush" Value="#00658D"/>
+                                                </Trigger>
+                                                <Trigger Property="IsFocused" Value="True">
                                                     <Setter Property="BorderBrush" Value="#00658D"/>
                                                 </Trigger>
                                             </Style.Triggers>
@@ -136,93 +185,242 @@
                             </StackPanel>
 
                             <!-- Status Filter -->
-                            <StackPanel Grid.Row="0" Grid.Column="1" Margin="0,0,10,0">
-                                <TextBlock Text="Status Pembayaran" FontSize="12" Foreground="#64748B" Margin="0,0,0,5"/>
+                            <StackPanel Grid.Row="0" Grid.Column="2">
+                                <TextBlock Text="Status Pembayaran" 
+                                          FontSize="13" 
+                                          FontWeight="SemiBold"
+                                          Foreground="#495057" 
+                                          Margin="0,0,0,8"/>
                                 <ComboBox x:Name="cmbStatus"
-                                         Padding="10"
-                                         FontSize="13"
+                                         Height="42"
+                                         Padding="12"
+                                         FontSize="14"
                                          BorderBrush="#CED4DA"
                                          BorderThickness="1"
                                          SelectionChanged="CmbStatus_SelectionChanged">
+                                    <ComboBox.Style>
+                                        <Style TargetType="ComboBox">
+                                            <Setter Property="Background" Value="White"/>
+                                            <Style.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter Property="BorderBrush" Value="#00658D"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </ComboBox.Style>
                                     <ComboBoxItem Content="-- Semua Status --" Tag="" IsSelected="True"/>
                                     <ComboBoxItem Content="Menunggu Pembayaran" Tag="Menunggu Pembayaran"/>
+                                    <ComboBoxItem Content="Menunggu Konfirmasi" Tag="Menunggu Konfirmasi"/>
                                     <ComboBoxItem Content="Menunggu Validasi" Tag="Menunggu Validasi"/>
+                                    <ComboBoxItem Content="Aktif" Tag="Aktif"/>
                                     <ComboBoxItem Content="Sukses" Tag="Sukses"/>
                                     <ComboBoxItem Content="Gagal" Tag="Gagal"/>
                                 </ComboBox>
                             </StackPanel>
 
                             <!-- Metode Pembayaran Filter -->
-                            <StackPanel Grid.Row="0" Grid.Column="2" Margin="0,0,10,0">
-                                <TextBlock Text="Metode Pembayaran" FontSize="12" Foreground="#64748B" Margin="0,0,0,5"/>
+                            <StackPanel Grid.Row="0" Grid.Column="4">
+                                <TextBlock Text="Metode Pembayaran" 
+                                          FontSize="13" 
+                                          FontWeight="SemiBold"
+                                          Foreground="#495057" 
+                                          Margin="0,0,0,8"/>
                                 <ComboBox x:Name="cmbMetodePembayaran"
-                                         Padding="10"
-                                         FontSize="13"
+                                         Height="42"
+                                         Padding="12"
+                                         FontSize="14"
                                          BorderBrush="#CED4DA"
                                          BorderThickness="1"
                                          IsEditable="True"
                                          IsTextSearchEnabled="True"
                                          StaysOpenOnEdit="True"
-                                         SelectionChanged="CmbMetodePembayaran_SelectionChanged"/>
+                                         SelectionChanged="CmbMetodePembayaran_SelectionChanged">
+                                    <ComboBox.Style>
+                                        <Style TargetType="ComboBox">
+                                            <Setter Property="Background" Value="White"/>
+                                            <Style.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter Property="BorderBrush" Value="#00658D"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </ComboBox.Style>
+                                </ComboBox>
                             </StackPanel>
 
                             <!-- Pengguna Filter -->
-                            <StackPanel Grid.Row="0" Grid.Column="3">
-                                <TextBlock Text="Nama Pengguna" FontSize="12" Foreground="#64748B" Margin="0,0,0,5"/>
+                            <StackPanel Grid.Row="0" Grid.Column="6">
+                                <TextBlock Text="Nama Pengguna" 
+                                          FontSize="13" 
+                                          FontWeight="SemiBold"
+                                          Foreground="#495057" 
+                                          Margin="0,0,0,8"/>
                                 <ComboBox x:Name="cmbPengguna"
-                                         Padding="10"
-                                         FontSize="13"
+                                         Height="42"
+                                         Padding="12"
+                                         FontSize="14"
                                          BorderBrush="#CED4DA"
                                          BorderThickness="1"
                                          IsEditable="True"
                                          IsTextSearchEnabled="True"
                                          StaysOpenOnEdit="True"
-                                         SelectionChanged="CmbPengguna_SelectionChanged"/>
+                                         SelectionChanged="CmbPengguna_SelectionChanged">
+                                    <ComboBox.Style>
+                                        <Style TargetType="ComboBox">
+                                            <Setter Property="Background" Value="White"/>
+                                            <Style.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter Property="BorderBrush" Value="#00658D"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </ComboBox.Style>
+                                </ComboBox>
                             </StackPanel>
 
                             <!-- Row 2 -->
                             <!-- Tanggal Dari -->
-                            <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,15,10,0">
-                                <TextBlock Text="Tanggal Dari" FontSize="12" Foreground="#64748B" Margin="0,0,0,5"/>
+                            <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,20,0,0">
+                                <TextBlock Text="Tanggal Dari" 
+                                          FontSize="13" 
+                                          FontWeight="SemiBold"
+                                          Foreground="#495057" 
+                                          Margin="0,0,0,8"/>
                                 <DatePicker x:Name="dpTanggalDari"
-                                           Padding="10"
-                                           FontSize="13"
+                                           Height="42"
+                                           Padding="12"
+                                           FontSize="14"
                                            BorderBrush="#CED4DA"
                                            BorderThickness="1"
-                                           SelectedDateChanged="DateFilter_Changed"/>
+                                           SelectedDateChanged="DateFilter_Changed">
+                                    <DatePicker.Style>
+                                        <Style TargetType="DatePicker">
+                                            <Setter Property="Background" Value="White"/>
+                                            <Style.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter Property="BorderBrush" Value="#00658D"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </DatePicker.Style>
+                                </DatePicker>
                             </StackPanel>
 
                             <!-- Tanggal Sampai -->
-                            <StackPanel Grid.Row="1" Grid.Column="1" Margin="0,15,10,0">
-                                <TextBlock Text="Tanggal Sampai" FontSize="12" Foreground="#64748B" Margin="0,0,0,5"/>
+                            <StackPanel Grid.Row="1" Grid.Column="2" Margin="0,20,0,0">
+                                <TextBlock Text="Tanggal Sampai" 
+                                          FontSize="13" 
+                                          FontWeight="SemiBold"
+                                          Foreground="#495057" 
+                                          Margin="0,0,0,8"/>
                                 <DatePicker x:Name="dpTanggalSampai"
-                                           Padding="10"
-                                           FontSize="13"
+                                           Height="42"
+                                           Padding="12"
+                                           FontSize="14"
                                            BorderBrush="#CED4DA"
                                            BorderThickness="1"
-                                           SelectedDateChanged="DateFilter_Changed"/>
+                                           SelectedDateChanged="DateFilter_Changed">
+                                    <DatePicker.Style>
+                                        <Style TargetType="DatePicker">
+                                            <Setter Property="Background" Value="White"/>
+                                            <Style.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter Property="BorderBrush" Value="#00658D"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </DatePicker.Style>
+                                </DatePicker>
                             </StackPanel>
 
                             <!-- Jumlah Minimum -->
-                            <StackPanel Grid.Row="1" Grid.Column="2" Margin="0,15,10,0">
-                                <TextBlock Text="Jumlah Min (Rp)" FontSize="12" Foreground="#64748B" Margin="0,0,0,5"/>
+                            <StackPanel Grid.Row="1" Grid.Column="4" Margin="0,20,0,0">
+                                <TextBlock Text="Jumlah Min (Rp)" 
+                                          FontSize="13" 
+                                          FontWeight="SemiBold"
+                                          Foreground="#495057" 
+                                          Margin="0,0,0,8"/>
                                 <TextBox x:Name="txtJumlahMin"
-                                        Padding="10"
-                                        FontSize="13"
+                                        Height="42"
+                                        Padding="12"
+                                        FontSize="14"
+                                        VerticalContentAlignment="Center"
                                         BorderBrush="#CED4DA"
                                         BorderThickness="1"
-                                        TextChanged="TxtJumlah_TextChanged"/>
+                                        TextChanged="TxtJumlah_TextChanged">
+                                    <TextBox.Style>
+                                        <Style TargetType="TextBox">
+                                            <Setter Property="Background" Value="White"/>
+                                            <Setter Property="Template">
+                                                <Setter.Value>
+                                                    <ControlTemplate TargetType="TextBox">
+                                                        <Border Background="{TemplateBinding Background}"
+                                                               BorderBrush="{TemplateBinding BorderBrush}"
+                                                               BorderThickness="{TemplateBinding BorderThickness}"
+                                                               CornerRadius="8">
+                                                            <ScrollViewer x:Name="PART_ContentHost" 
+                                                                         VerticalAlignment="Center"
+                                                                         Margin="10,0"/>
+                                                        </Border>
+                                                    </ControlTemplate>
+                                                </Setter.Value>
+                                            </Setter>
+                                            <Style.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter Property="BorderBrush" Value="#00658D"/>
+                                                </Trigger>
+                                                <Trigger Property="IsFocused" Value="True">
+                                                    <Setter Property="BorderBrush" Value="#00658D"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBox.Style>
+                                </TextBox>
                             </StackPanel>
 
                             <!-- Jumlah Maximum -->
-                            <StackPanel Grid.Row="1" Grid.Column="3" Margin="0,15,0,0">
-                                <TextBlock Text="Jumlah Max (Rp)" FontSize="12" Foreground="#64748B" Margin="0,0,0,5"/>
+                            <StackPanel Grid.Row="1" Grid.Column="6" Margin="0,20,0,0">
+                                <TextBlock Text="Jumlah Max (Rp)" 
+                                          FontSize="13" 
+                                          FontWeight="SemiBold"
+                                          Foreground="#495057" 
+                                          Margin="0,0,0,8"/>
                                 <TextBox x:Name="txtJumlahMax"
-                                        Padding="10"
-                                        FontSize="13"
+                                        Height="42"
+                                        Padding="12"
+                                        FontSize="14"
+                                        VerticalContentAlignment="Center"
                                         BorderBrush="#CED4DA"
                                         BorderThickness="1"
-                                        TextChanged="TxtJumlah_TextChanged"/>
+                                        TextChanged="TxtJumlah_TextChanged">
+                                    <TextBox.Style>
+                                        <Style TargetType="TextBox">
+                                            <Setter Property="Background" Value="White"/>
+                                            <Setter Property="Template">
+                                                <Setter.Value>
+                                                    <ControlTemplate TargetType="TextBox">
+                                                        <Border Background="{TemplateBinding Background}"
+                                                               BorderBrush="{TemplateBinding BorderBrush}"
+                                                               BorderThickness="{TemplateBinding BorderThickness}"
+                                                               CornerRadius="8">
+                                                            <ScrollViewer x:Name="PART_ContentHost" 
+                                                                         VerticalAlignment="Center"
+                                                                         Margin="10,0"/>
+                                                        </Border>
+                                                    </ControlTemplate>
+                                                </Setter.Value>
+                                            </Setter>
+                                            <Style.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter Property="BorderBrush" Value="#00658D"/>
+                                                </Trigger>
+                                                <Trigger Property="IsFocused" Value="True">
+                                                    <Setter Property="BorderBrush" Value="#00658D"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBox.Style>
+                                </TextBox>
                             </StackPanel>
                         </Grid>
 
@@ -230,10 +428,14 @@
                         <Button Style="{StaticResource PrimaryButton}"
                                Click="BtnResetFilter_Click"
                                HorizontalAlignment="Right"
-                               Margin="0,15,0,0"
+                               Margin="0,20,0,0"
                                Background="#6C757D">
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="🔄" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                <Image Source="/Views/Assets/Icons/iconReset.png" 
+                                       Width="13" 
+                                       Height="13" 
+                                       Margin="0,0,8,0"
+                                       VerticalAlignment="Center"/>
                                 <TextBlock Text="Reset Filter" VerticalAlignment="Center"/>
                             </StackPanel>
                         </Button>
@@ -243,11 +445,11 @@
                 <!-- Data Grid -->
                 <Border Style="{StaticResource CardStyle}">
                     <StackPanel>
-                        <TextBlock Text="📋 Daftar Pembayaran" 
-                                  FontSize="16" 
+                        <TextBlock Text="Daftar Pembayaran" 
+                                  FontSize="18" 
                                   FontWeight="Bold" 
                                   Foreground="#011C4B"
-                                  Margin="0,0,0,15"/>
+                                  Margin="0,0,0,20"/>
 
                         <DataGrid x:Name="dgPembayaran"
                                  AutoGenerateColumns="False"
@@ -266,23 +468,48 @@
                                 <!-- ID -->
                                 <DataGridTextColumn Header="ID" 
                                                    Binding="{Binding pembayaran_id}" 
-                                                   Width="60"/>
+                                                   Width="70">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="TextAlignment" Value="Center"/>
+                                            <Setter Property="VerticalAlignment" Value="Center"/>
+                                            <Setter Property="FontWeight" Value="Bold"/>
+                                            <Setter Property="Foreground" Value="#00658D"/>
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
 
                                 <!-- Kode Tiket -->
                                 <DataGridTextColumn Header="Kode Tiket" 
                                                    Binding="{Binding tiket.kode_tiket}" 
-                                                   Width="120"/>
+                                                   Width="240">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="TextAlignment" Value="Center"/>
+                                            <Setter Property="VerticalAlignment" Value="Center"/>
+                                            <Setter Property="FontWeight" Value="SemiBold"/>
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
 
                                 <!-- Nama Pengguna -->
                                 <DataGridTextColumn Header="Nama Pengguna" 
                                                    Binding="{Binding tiket.Pengguna.nama}" 
-                                                   Width="150"/>
+                                                   Width="*">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="TextAlignment" Value="Center"/>
+                                            <Setter Property="VerticalAlignment" Value="Center"/>
+                                            <Setter Property="Margin" Value="10,0,0,0"/>
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
 
                                 <!-- Rute -->
-                                <DataGridTemplateColumn Header="Rute" Width="200">
+                                <DataGridTemplateColumn Header="Rute" Width="180">
                                     <DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>
-                                            <TextBlock TextAlignment="Center">
+                                            <TextBlock TextAlignment="Center" VerticalAlignment="Center" TextWrapping="Wrap">
                                                 <Run Text="{Binding tiket.Jadwal.pelabuhan_asal.nama_pelabuhan}"/>
                                                 <Run Text=" → "/>
                                                 <Run Text="{Binding tiket.Jadwal.pelabuhan_tujuan.nama_pelabuhan}"/>
@@ -294,47 +521,67 @@
                                 <!-- Metode Pembayaran -->
                                 <DataGridTextColumn Header="Metode" 
                                                    Binding="{Binding metode_pembayaran}" 
-                                                   Width="120"/>
+                                                   Width="140">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="TextAlignment" Value="Center"/>
+                                            <Setter Property="VerticalAlignment" Value="Center"/>
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
 
                                 <!-- Jumlah Bayar -->
-                                <DataGridTemplateColumn Header="Jumlah" Width="130">
+                                <DataGridTemplateColumn Header="Jumlah" Width="100">
                                     <DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>
                                             <TextBlock Text="{Binding jumlah_bayar, StringFormat='Rp {0:N0}'}" 
-                                                      TextAlignment="Center"
-                                                      FontWeight="SemiBold"/>
+                                                      TextAlignment="Left"
+                                                      VerticalAlignment="Center"
+                                                      Margin="0,0,10,0"
+                                                      FontWeight="SemiBold"
+                                                      Foreground="#011C4B"/>
                                         </DataTemplate>
                                     </DataGridTemplateColumn.CellTemplate>
                                 </DataGridTemplateColumn>
 
                                 <!-- Tanggal Bayar -->
-                                <DataGridTemplateColumn Header="Tanggal" Width="110">
+                                <DataGridTemplateColumn Header="Tanggal" Width="120">
                                     <DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>
                                             <TextBlock Text="{Binding tanggal_bayar, StringFormat='dd/MM/yyyy'}" 
-                                                      TextAlignment="Center"/>
+                                                      TextAlignment="Center"
+                                                      VerticalAlignment="Center"
+                                                      FontWeight="SemiBold"/>
                                         </DataTemplate>
                                     </DataGridTemplateColumn.CellTemplate>
                                 </DataGridTemplateColumn>
 
                                 <!-- Status -->
-                                <DataGridTemplateColumn Header="Status" Width="150">
+                                <DataGridTemplateColumn Header="Status" Width="220">
                                     <DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>
                                             <Border CornerRadius="12" 
-                                                   Padding="8,4"
-                                                   HorizontalAlignment="Center">
+                                                   Padding="10,6"
+                                                   HorizontalAlignment="Center"
+                                                   VerticalAlignment="Center">
                                                 <Border.Style>
                                                     <Style TargetType="Border">
+                                                        <Setter Property="Background" Value="#E0E0E0"/>
                                                         <Style.Triggers>
                                                             <DataTrigger Binding="{Binding status_bayar}" Value="Sukses">
+                                                                <Setter Property="Background" Value="#D4EDDA"/>
+                                                            </DataTrigger>
+                                                            <DataTrigger Binding="{Binding status_bayar}" Value="Aktif">
                                                                 <Setter Property="Background" Value="#D4EDDA"/>
                                                             </DataTrigger>
                                                             <DataTrigger Binding="{Binding status_bayar}" Value="Menunggu Validasi">
                                                                 <Setter Property="Background" Value="#FFF3CD"/>
                                                             </DataTrigger>
+                                                            <DataTrigger Binding="{Binding status_bayar}" Value="Menunggu Konfirmasi">
+                                                                <Setter Property="Background" Value="#D1ECF1"/>
+                                                            </DataTrigger>
                                                             <DataTrigger Binding="{Binding status_bayar}" Value="Menunggu Pembayaran">
-                                                                <Setter Property="Background" Value="#E7F3FF"/>
+                                                                <Setter Property="Background" Value="#D1ECF1"/>
                                                             </DataTrigger>
                                                             <DataTrigger Binding="{Binding status_bayar}" Value="Gagal">
                                                                 <Setter Property="Background" Value="#F8D7DA"/>
@@ -345,18 +592,23 @@
                                                 <TextBlock Text="{Binding status_bayar}" 
                                                           FontWeight="SemiBold"
                                                           FontSize="12"
+                                                          TextAlignment="Center"
                                                           HorizontalAlignment="Center">
                                                     <TextBlock.Style>
                                                         <Style TargetType="TextBlock">
+                                                            <Setter Property="Foreground" Value="#424242"/>
                                                             <Style.Triggers>
                                                                 <DataTrigger Binding="{Binding status_bayar}" Value="Sukses">
+                                                                    <Setter Property="Foreground" Value="#155724"/>
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding status_bayar}" Value="Aktif">
                                                                     <Setter Property="Foreground" Value="#155724"/>
                                                                 </DataTrigger>
                                                                 <DataTrigger Binding="{Binding status_bayar}" Value="Menunggu Validasi">
                                                                     <Setter Property="Foreground" Value="#856404"/>
                                                                 </DataTrigger>
                                                                 <DataTrigger Binding="{Binding status_bayar}" Value="Menunggu Pembayaran">
-                                                                    <Setter Property="Foreground" Value="#004085"/>
+                                                                    <Setter Property="Foreground" Value="#0C5460"/>
                                                                 </DataTrigger>
                                                                 <DataTrigger Binding="{Binding status_bayar}" Value="Gagal">
                                                                     <Setter Property="Foreground" Value="#721C24"/>
@@ -371,25 +623,28 @@
                                 </DataGridTemplateColumn>
 
                                 <!-- Actions -->
-                                <DataGridTemplateColumn Header="Aksi" Width="*">
+                                <DataGridTemplateColumn Header="Action" Width="290">
                                     <DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>
                                             <StackPanel Orientation="Horizontal" 
-                                                       HorizontalAlignment="Center">
-                                                <!-- Detail Button -->
-                                                <Button Style="{StaticResource PrimaryButton}"
-                                                       Padding="8,5"
-                                                       Margin="0,0,5,0"
+                                                       HorizontalAlignment="left"
+                                                       VerticalAlignment="Center">
+                                                <!-- Detail Button - Always visible -->
+                                                <Button Style="{StaticResource SuccessButton}"
+                                                       Background="#00B4B5"
                                                        Tag="{Binding pembayaran_id}"
-                                                       Click="BtnDetail_Click">
-                                                    <TextBlock Text="📄 Detail"/>
+                                                       Click="BtnDetail_Click"
+                                                       Width="80"
+                                                       Margin="0,0,5,0">
+                                                    <TextBlock Text="Detail" TextAlignment="Center"/>
                                                 </Button>
 
-                                                <!-- Validasi Button (only for Menunggu Validasi) -->
-                                                <Button Padding="8,5"
-                                                       Margin="0,0,5,0"
-                                                       Tag="{Binding pembayaran_id}"
-                                                       Click="BtnValidasi_Click">
+                                                <!-- Validasi Button - Only for Menunggu Validasi or Menunggu Konfirmasi -->
+                                                <Button Tag="{Binding pembayaran_id}"
+                                                       Background="#218838"
+                                                       Click="BtnValidasi_Click"
+                                                       Width="100"
+                                                       Margin="0,0,5,0">
                                                     <Button.Style>
                                                         <Style TargetType="Button" BasedOn="{StaticResource SuccessButton}">
                                                             <Setter Property="Visibility" Value="Collapsed"/>
@@ -397,16 +652,20 @@
                                                                 <DataTrigger Binding="{Binding status_bayar}" Value="Menunggu Validasi">
                                                                     <Setter Property="Visibility" Value="Visible"/>
                                                                 </DataTrigger>
+                                                                <DataTrigger Binding="{Binding status_bayar}" Value="Menunggu Konfirmasi">
+                                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                                </DataTrigger>
                                                             </Style.Triggers>
                                                         </Style>
                                                     </Button.Style>
-                                                    <TextBlock Text="✓ Validasi"/>
+                                                    <TextBlock Text="Validasi" TextAlignment="Center"/>
                                                 </Button>
 
-                                                <!-- Tolak Button (only for Menunggu Validasi) -->
-                                                <Button Padding="8,5"
-                                                       Tag="{Binding pembayaran_id}"
-                                                       Click="BtnTolak_Click">
+                                                <!-- Tolak Button - Only for Menunggu Validasi or Menunggu Konfirmasi -->
+                                                <Button Tag="{Binding pembayaran_id}"
+                                                       Background="#C82333"
+                                                       Click="BtnTolak_Click"
+                                                       Width="70">
                                                     <Button.Style>
                                                         <Style TargetType="Button" BasedOn="{StaticResource DangerButton}">
                                                             <Setter Property="Visibility" Value="Collapsed"/>
@@ -414,10 +673,13 @@
                                                                 <DataTrigger Binding="{Binding status_bayar}" Value="Menunggu Validasi">
                                                                     <Setter Property="Visibility" Value="Visible"/>
                                                                 </DataTrigger>
+                                                                <DataTrigger Binding="{Binding status_bayar}" Value="Menunggu Konfirmasi">
+                                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                                </DataTrigger>
                                                             </Style.Triggers>
                                                         </Style>
                                                     </Button.Style>
-                                                    <TextBlock Text="✗ Tolak"/>
+                                                    <TextBlock Text="Tolak" TextAlignment="Center"/>
                                                 </Button>
                                             </StackPanel>
                                         </DataTemplate>

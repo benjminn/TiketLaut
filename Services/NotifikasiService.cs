@@ -34,11 +34,11 @@ namespace TiketLaut.Services
                 .OrderByDescending(n => n.waktu_kirim)
                 .Include(n => n.Pengguna)
                 .Include(n => n.Admin)
-                .Include(n => n.Jadwal)
+                .Include(n => n.Jadwal!)
                     .ThenInclude(j => j.pelabuhan_asal)
-                .Include(n => n.Jadwal)
+                .Include(n => n.Jadwal!)
                     .ThenInclude(j => j.pelabuhan_tujuan)
-                .Include(n => n.Jadwal)
+                .Include(n => n.Jadwal!)
                     .ThenInclude(j => j.kapal)
                 .ToListAsync();
         }

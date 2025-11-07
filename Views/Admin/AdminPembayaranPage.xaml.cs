@@ -254,6 +254,12 @@ namespace TiketLaut.Views
             ApplyFilters();
         }
 
+        private async void BtnRefresh_Click(object sender, RoutedEventArgs e)
+        {
+            await LoadPembayaranDataAsync();
+            await LoadFilterOptionsAsync();
+        }
+
         // Action Button Handlers
         private async void BtnDetail_Click(object sender, RoutedEventArgs e)
         {

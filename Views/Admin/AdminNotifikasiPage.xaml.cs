@@ -16,13 +16,13 @@ namespace TiketLaut.Views
     public class NotifikasiJadwalItem : INotifyPropertyChanged
     {
         public int JadwalId { get; set; }
-        public string StatusIcon { get; set; }
-        public string Rute { get; set; }
-        public string NamaKapal { get; set; }
-        public string WaktuBerangkat { get; set; }
+        public string? StatusIcon { get; set; }
+        public string? Rute { get; set; }
+        public string? NamaKapal { get; set; }
+        public string? WaktuBerangkat { get; set; }
         
-        private string _jumlahPenumpang;
-        public string JumlahPenumpang
+        private string? _jumlahPenumpang;
+        public string? JumlahPenumpang
         {
             get => _jumlahPenumpang;
             set
@@ -32,9 +32,9 @@ namespace TiketLaut.Views
             }
         }
         
-        public Jadwal Jadwal { get; set; }
+        public Jadwal? Jadwal { get; set; }
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
         protected void OnPropertyChanged(string propertyName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
@@ -209,16 +209,22 @@ namespace TiketLaut.Views
             if (cmbFilterPelabuhanAsal?.SelectedIndex > 0)
             {
                 var selectedItem = cmbFilterPelabuhanAsal.SelectedItem as ComboBoxItem;
-                var pelabuhanId = (int)selectedItem.Tag;
-                _filteredJadwals = _filteredJadwals.Where(j => j.pelabuhan_asal_id == pelabuhanId).ToList();
+                if (selectedItem?.Tag != null)
+                {
+                    var pelabuhanId = (int)selectedItem.Tag;
+                    _filteredJadwals = _filteredJadwals.Where(j => j.pelabuhan_asal_id == pelabuhanId).ToList();
+                }
             }
 
             // Filter by Pelabuhan Tujuan
             if (cmbFilterPelabuhanTujuan?.SelectedIndex > 0)
             {
                 var selectedItem = cmbFilterPelabuhanTujuan.SelectedItem as ComboBoxItem;
-                var pelabuhanId = (int)selectedItem.Tag;
-                _filteredJadwals = _filteredJadwals.Where(j => j.pelabuhan_tujuan_id == pelabuhanId).ToList();
+                if (selectedItem?.Tag != null)
+                {
+                    var pelabuhanId = (int)selectedItem.Tag;
+                    _filteredJadwals = _filteredJadwals.Where(j => j.pelabuhan_tujuan_id == pelabuhanId).ToList();
+                }
             }
 
             // Filter by Tanggal
@@ -635,7 +641,7 @@ namespace TiketLaut.Views
                 var grouped = otomatis
                     .GroupBy(n => new
                     {
-                        JadwalId = n.jadwal_id.Value,
+                        JadwalId = n.jadwal_id.GetValueOrDefault(),
                         WaktuKirimDate = n.waktu_kirim.Date,
                         Kategori = n.judul_notifikasi.Contains("24 jam") ? "Pengingat H-1 (24 Jam)" :
                                    n.judul_notifikasi.Contains("2 jam") ? "Pengingat H-0 (2 Jam)" :
