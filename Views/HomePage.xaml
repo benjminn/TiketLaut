@@ -279,8 +279,8 @@
                                                                 <Popup x:Name="PART_Popup" 
                                                                       PlacementTarget="{Binding ElementName=gridTanggalContainer}"
                                                                       Placement="Bottom"
-                                                                      VerticalOffset="12"
-                                                                      HorizontalOffset="0"
+                                                                      VerticalOffset="15"
+                                                                      HorizontalOffset="12"
                                                                       AllowsTransparency="True"
                                                                       StaysOpen="False"/>
                                                             </Grid>
@@ -476,7 +476,7 @@
                                     </Border>
                                 </StackPanel>
 
-                                <!-- ✅ Jenis Kendaraan - FIXED WIDTH (Sudah Benar) -->
+                                <!-- ✅ Jenis Kendaraan - POPUP VERSION (Same as Schedule) -->
                                 <StackPanel Grid.Column="1" Margin="0,0,15,0">
                                     <TextBlock Text="Jenis Kendaraan" 
                                               FontSize="13" 
@@ -504,66 +504,581 @@
                                                    Height="18"
                                                    VerticalAlignment="Center"/>
 
-                                            <ComboBox x:Name="cmbJenisKendaraan"
-                                                     Grid.Column="2"
-                                                     Background="Transparent" 
-                                                     BorderThickness="0"
-                                                     FontSize="12"
-                                                     FontFamily="Plus Jakarta Sans"
-                                                     Foreground="#666666"
-                                                     SelectedIndex="0"
-                                                     MaxDropDownHeight="250"
-                                                     Width="209"
-                                                     SelectionChanged="CmbJenisKendaraan_SelectionChanged">
-                                                <ComboBox.Resources>
-                                                    <Style TargetType="TextBlock">
-                                                        <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
-                                                        <Setter Property="ToolTip" Value="{Binding Text, RelativeSource={RelativeSource Self}}"/>
-                                                    </Style>
-                                                </ComboBox.Resources>
-                                                <ComboBoxItem IsSelected="True">
-                                                    <TextBlock Text="Pilih Jenis Kendaraan"/>
-                                                </ComboBoxItem>
-                                                <ComboBoxItem>
-                                                    <TextBlock Text="Pejalan kaki tanpa kendaraan"/>
-                                                </ComboBoxItem>
-                                                <ComboBoxItem>
-                                                    <TextBlock Text="Sepeda"/>
-                                                </ComboBoxItem>
-                                                <ComboBoxItem>
-                                                    <TextBlock Text="Sepeda motor &lt;500cc dan gerobak dorong"/>
-                                                </ComboBoxItem>
-                                                <ComboBoxItem>
-                                                    <TextBlock Text="Sepeda motor besar &gt;500cc dan kendaraan roda tiga"/>
-                                                </ComboBoxItem>
-                                                <ComboBoxItem>
-                                                    <TextBlock Text="Mobil jeep, sedan, minibus"/>
-                                                </ComboBoxItem>
-                                                <ComboBoxItem>
-                                                    <TextBlock Text="Mobil barang bak muatan terbuka/tertutup, mobil kabin ganda"/>
-                                                </ComboBoxItem>
-                                                <ComboBoxItem>
-                                                    <TextBlock Text="Mobil bus penumpang (5-7 meter)"/>
-                                                </ComboBoxItem>
-                                                <ComboBoxItem>
-                                                    <TextBlock Text="Mobil barang (truk/tangki) ukuran sedang (5-7 meter)"/>
-                                                </ComboBoxItem>
-                                                <ComboBoxItem>
-                                                    <TextBlock Text="Mobil bus penumpang (7-10 meter)"/>
-                                                </ComboBoxItem>
-                                                <ComboBoxItem>
-                                                    <TextBlock Text="Mobil barang (truk/tangki) sedang (7-10 meter)"/>
-                                                </ComboBoxItem>
-                                                <ComboBoxItem>
-                                                    <TextBlock Text="Mobil tronton, tangki, penarik + gandengan (10-12 meter)"/>
-                                                </ComboBoxItem>
-                                                <ComboBoxItem>
-                                                    <TextBlock Text="Mobil tronton, tangki, alat berat (12-16 meter)"/>
-                                                </ComboBoxItem>
-                                                <ComboBoxItem>
-                                                    <TextBlock Text="Mobil tronton, tangki, alat berat (&gt;16 meter)"/>
-                                                </ComboBoxItem>
-                                            </ComboBox>
+                                            <!-- Button untuk toggle popup -->
+                                            <Button x:Name="btnVehicle"
+                                                   Grid.Column="2"
+                                                   Click="BtnVehicle_Click"
+                                                   Background="Transparent"
+                                                   BorderThickness="0"
+                                                   Cursor="Hand"
+                                                   HorizontalAlignment="Stretch"
+                                                   HorizontalContentAlignment="Left"
+                                                   Padding="0">
+                                                <TextBlock x:Name="txtVehicleDisplay"
+                                                          FontSize="12"
+                                                          FontFamily="Plus Jakarta Sans"
+                                                          Foreground="#666666"
+                                                          TextTrimming="CharacterEllipsis">
+                                                    <Run Text="Pilih Jenis Kendaraan" Foreground="#666666"/>
+                                                </TextBlock>
+                                            </Button>
+
+                                            <!-- Hidden TextBox untuk menyimpan ID -->
+                                            <TextBox x:Name="txtVehicle"
+                                                    Visibility="Collapsed"
+                                                    Text="0"/>
+
+                                            <!-- Popup untuk pilihan kendaraan -->
+                                            <Popup x:Name="popupVehicleHome"
+                                                  PlacementTarget="{Binding ElementName=btnVehicle}"
+                                                  Placement="Bottom"
+                                                  HorizontalOffset="100"
+                                                  VerticalOffset="-20"
+                                                  AllowsTransparency="True"
+                                                  StaysOpen="False"
+                                                  Opened="PopupVehicleHome_Opened">
+                                                <Border Background="White"
+                                                       BorderBrush="#00B4B5"
+                                                       BorderThickness="2"
+                                                       CornerRadius="8"
+                                                       Padding="10"
+                                                       Width="420"
+                                                       MaxHeight="400">
+                                                    <Border.Effect>
+                                                        <DropShadowEffect Color="Black" 
+                                                                         Direction="270" 
+                                                                         ShadowDepth="2" 
+                                                                         BlurRadius="8" 
+                                                                         Opacity="0.15"/>
+                                                    </Border.Effect>
+
+                                                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                                        <StackPanel>
+                                                            <TextBlock Text="Pilih Tipe Tiket"
+                                                                      FontSize="14"
+                                                                      FontWeight="SemiBold"
+                                                                      Foreground="#042769"
+                                                                      Margin="0,5,0,15"/>
+
+                                                            <!-- Pejalan Kaki -->
+                                                            <Button Click="BtnVehicleOptionHome_Click"
+                                                               Tag="0|Pejalan Kaki"
+                                                               BorderThickness="0"
+                                                               Cursor="Hand"
+                                                               Padding="10,8"
+                                                               Margin="0,2"
+                                                               HorizontalAlignment="Stretch"
+                                                               HorizontalContentAlignment="Left">
+                                                                <Button.Style>
+                                                                    <Style TargetType="Button">
+                                                                        <Setter Property="Background" Value="Transparent"/>
+                                                                        <Setter Property="Template">
+                                                                            <Setter.Value>
+                                                                                <ControlTemplate TargetType="Button">
+                                                                                    <Border Background="{TemplateBinding Background}"
+                                                                                           CornerRadius="6"
+                                                                                           Padding="{TemplateBinding Padding}">
+                                                                                        <ContentPresenter/>
+                                                                                    </Border>
+                                                                                </ControlTemplate>
+                                                                            </Setter.Value>
+                                                                        </Setter>
+                                                                        <Style.Triggers>
+                                                                            <Trigger Property="IsMouseOver" Value="True">
+                                                                                <Setter Property="Background" Value="#74c0f3ff"/>
+                                                                            </Trigger>
+                                                                        </Style.Triggers>
+                                                                    </Style>
+                                                                </Button.Style>
+                                                                <StackPanel>
+                                                                    <TextBlock Text="Pejalan Kaki" FontSize="13" FontWeight="SemiBold" Foreground="Black"/>
+                                                                    <TextBlock Text="Penumpang tanpa kendaraan." FontSize="11" Foreground="#64748B" TextWrapping="Wrap" Margin="0,2,0,0"/>
+                                                                </StackPanel>
+                                                            </Button>
+
+                                                            <!-- Sepeda -->
+                                                            <Button Click="BtnVehicleOptionHome_Click"
+                                                               Tag="1|Sepeda"
+                                                               BorderThickness="0"
+                                                               Cursor="Hand"
+                                                               Padding="10,8"
+                                                               Margin="0,2"
+                                                               HorizontalAlignment="Stretch"
+                                                               HorizontalContentAlignment="Left">
+                                                                <Button.Style>
+                                                                    <Style TargetType="Button">
+                                                                        <Setter Property="Background" Value="Transparent"/>
+                                                                        <Setter Property="Template">
+                                                                            <Setter.Value>
+                                                                                <ControlTemplate TargetType="Button">
+                                                                                    <Border Background="{TemplateBinding Background}"
+                                                                                           CornerRadius="6"
+                                                                                           Padding="{TemplateBinding Padding}">
+                                                                                        <ContentPresenter/>
+                                                                                    </Border>
+                                                                                </ControlTemplate>
+                                                                            </Setter.Value>
+                                                                        </Setter>
+                                                                        <Style.Triggers>
+                                                                            <Trigger Property="IsMouseOver" Value="True">
+                                                                                <Setter Property="Background" Value="#74c0f3ff"/>
+                                                                            </Trigger>
+                                                                        </Style.Triggers>
+                                                                    </Style>
+                                                                </Button.Style>
+                                                                <StackPanel>
+                                                                    <TextBlock FontSize="13" FontWeight="SemiBold" TextWrapping="Wrap">
+                                                                        <Run Text="Sepeda" Foreground="Black"/>
+                                                                        <Run Text=" (Golongan I)" Foreground="#00B4B5"/>
+                                                                        <Run Text=" - Maks. 3 penumpang" Foreground="Black"/>
+                                                                    </TextBlock>
+                                                                    <TextBlock Text="Sepeda biasa." FontSize="11" Foreground="#64748B" TextWrapping="Wrap" Margin="0,2,0,0"/>
+                                                                </StackPanel>
+                                                            </Button>
+
+                                                            <!-- Sepeda Motor <500cc -->
+                                                            <Button Click="BtnVehicleOptionHome_Click"
+                                                               Tag="2|Sepeda Motor (&lt;500cc)"
+                                                               BorderThickness="0"
+                                                               Cursor="Hand"
+                                                               Padding="10,8"
+                                                               Margin="0,2"
+                                                               HorizontalAlignment="Stretch"
+                                                               HorizontalContentAlignment="Left">
+                                                                <Button.Style>
+                                                                    <Style TargetType="Button">
+                                                                        <Setter Property="Background" Value="Transparent"/>
+                                                                        <Setter Property="Template">
+                                                                            <Setter.Value>
+                                                                                <ControlTemplate TargetType="Button">
+                                                                                    <Border Background="{TemplateBinding Background}"
+                                                                                           CornerRadius="6"
+                                                                                           Padding="{TemplateBinding Padding}">
+                                                                                        <ContentPresenter/>
+                                                                                    </Border>
+                                                                                </ControlTemplate>
+                                                                            </Setter.Value>
+                                                                        </Setter>
+                                                                        <Style.Triggers>
+                                                                            <Trigger Property="IsMouseOver" Value="True">
+                                                                                <Setter Property="Background" Value="#74c0f3ff"/>
+                                                                            </Trigger>
+                                                                        </Style.Triggers>
+                                                                    </Style>
+                                                                </Button.Style>
+                                                                <StackPanel>
+                                                                    <TextBlock FontSize="13" FontWeight="SemiBold" TextWrapping="Wrap">
+                                                                        <Run Text="Sepeda Motor (&lt;500cc)" Foreground="Black"/>
+                                                                        <Run Text=" (Golongan II)" Foreground="#00B4B5"/>
+                                                                        <Run Text=" - Maks. 3 penumpang" Foreground="Black"/>
+                                                                    </TextBlock>
+                                                                    <TextBlock Text="Sepeda motor di bawah 500cc dan gerobak dorong." FontSize="11" Foreground="#64748B" TextWrapping="Wrap" Margin="0,2,0,0"/>
+                                                                </StackPanel>
+                                                            </Button>
+
+                                                            <!-- Sepeda Motor >500cc -->
+                                                            <Button Click="BtnVehicleOptionHome_Click"
+                                                               Tag="3|Sepeda Motor (&gt;500cc)"
+                                                               BorderThickness="0"
+                                                               Cursor="Hand"
+                                                               Padding="10,8"
+                                                               Margin="0,2"
+                                                               HorizontalAlignment="Stretch"
+                                                               HorizontalContentAlignment="Left">
+                                                                <Button.Style>
+                                                                    <Style TargetType="Button">
+                                                                        <Setter Property="Background" Value="Transparent"/>
+                                                                        <Setter Property="Template">
+                                                                            <Setter.Value>
+                                                                                <ControlTemplate TargetType="Button">
+                                                                                    <Border Background="{TemplateBinding Background}"
+                                                                                           CornerRadius="6"
+                                                                                           Padding="{TemplateBinding Padding}">
+                                                                                        <ContentPresenter/>
+                                                                                    </Border>
+                                                                                </ControlTemplate>
+                                                                            </Setter.Value>
+                                                                        </Setter>
+                                                                        <Style.Triggers>
+                                                                            <Trigger Property="IsMouseOver" Value="True">
+                                                                                <Setter Property="Background" Value="#74c0f3ff"/>
+                                                                            </Trigger>
+                                                                        </Style.Triggers>
+                                                                    </Style>
+                                                                </Button.Style>
+                                                                <StackPanel>
+                                                                    <TextBlock FontSize="13" FontWeight="SemiBold" TextWrapping="Wrap">
+                                                                        <Run Text="Sepeda Motor (&gt;500cc)" Foreground="Black"/>
+                                                                        <Run Text=" (Golongan III)" Foreground="#00B4B5"/>
+                                                                        <Run Text=" - Maks. 3 penumpang" Foreground="Black"/>
+                                                                    </TextBlock>
+                                                                    <TextBlock Text="Sepeda motor di atas 500cc dan kendaraan roda tiga." FontSize="11" Foreground="#64748B" TextWrapping="Wrap" Margin="0,2,0,0"/>
+                                                                </StackPanel>
+                                                            </Button>
+
+                                                            <!-- Mobil Penumpang -->
+                                                            <Button Click="BtnVehicleOptionHome_Click"
+                                                               Tag="4|Mobil Penumpang"
+                                                               BorderThickness="0"
+                                                               Cursor="Hand"
+                                                               Padding="10,8"
+                                                               Margin="0,2"
+                                                               HorizontalAlignment="Stretch"
+                                                               HorizontalContentAlignment="Left">
+                                                                <Button.Style>
+                                                                    <Style TargetType="Button">
+                                                                        <Setter Property="Background" Value="Transparent"/>
+                                                                        <Setter Property="Template">
+                                                                            <Setter.Value>
+                                                                                <ControlTemplate TargetType="Button">
+                                                                                    <Border Background="{TemplateBinding Background}"
+                                                                                           CornerRadius="6"
+                                                                                           Padding="{TemplateBinding Padding}">
+                                                                                        <ContentPresenter/>
+                                                                                    </Border>
+                                                                                </ControlTemplate>
+                                                                            </Setter.Value>
+                                                                        </Setter>
+                                                                        <Style.Triggers>
+                                                                            <Trigger Property="IsMouseOver" Value="True">
+                                                                                <Setter Property="Background" Value="#74c0f3ff"/>
+                                                                            </Trigger>
+                                                                        </Style.Triggers>
+                                                                    </Style>
+                                                                </Button.Style>
+                                                                <StackPanel>
+                                                                    <TextBlock FontSize="13" FontWeight="SemiBold" TextWrapping="Wrap">
+                                                                        <Run Text="Mobil Penumpang" Foreground="Black"/>
+                                                                        <Run Text=" (Golongan IVA)" Foreground="#00B4B5"/>
+                                                                        <Run Text=" - Maks. 10 penumpang" Foreground="Black"/>
+                                                                    </TextBlock>
+                                                                    <TextBlock Text="Panjang kendaraan maksimum 5 meter (Mobil, jeep, sedan, minicab, minibus, mikrolet, station wagon, dan sejenisnya.)" FontSize="11" Foreground="#64748B" TextWrapping="Wrap" Margin="0,2,0,0"/>
+                                                                </StackPanel>
+                                                            </Button>
+
+                                                            <!-- Truk Pickup -->
+                                                            <Button Click="BtnVehicleOptionHome_Click"
+                                                               Tag="5|Truk Pickup"
+                                                               BorderThickness="0"
+                                                               Cursor="Hand"
+                                                               Padding="10,8"
+                                                               Margin="0,2"
+                                                               HorizontalAlignment="Stretch"
+                                                               HorizontalContentAlignment="Left">
+                                                                <Button.Style>
+                                                                    <Style TargetType="Button">
+                                                                        <Setter Property="Background" Value="Transparent"/>
+                                                                        <Setter Property="Template">
+                                                                            <Setter.Value>
+                                                                                <ControlTemplate TargetType="Button">
+                                                                                    <Border Background="{TemplateBinding Background}"
+                                                                                           CornerRadius="6"
+                                                                                           Padding="{TemplateBinding Padding}">
+                                                                                        <ContentPresenter/>
+                                                                                    </Border>
+                                                                                </ControlTemplate>
+                                                                            </Setter.Value>
+                                                                        </Setter>
+                                                                        <Style.Triggers>
+                                                                            <Trigger Property="IsMouseOver" Value="True">
+                                                                                <Setter Property="Background" Value="#74c0f3ff"/>
+                                                                            </Trigger>
+                                                                        </Style.Triggers>
+                                                                    </Style>
+                                                                </Button.Style>
+                                                                <StackPanel>
+                                                                    <TextBlock FontSize="13" FontWeight="SemiBold" TextWrapping="Wrap">
+                                                                        <Run Text="Truk Pickup" Foreground="Black"/>
+                                                                        <Run Text=" (Golongan IVB)" Foreground="#00B4B5"/>
+                                                                        <Run Text=" - Maks. 5 penumpang" Foreground="Black"/>
+                                                                    </TextBlock>
+                                                                    <TextBlock Text="Panjang kendaraan maksimum 5 meter." FontSize="11" Foreground="#64748B" TextWrapping="Wrap" Margin="0,2,0,0"/>
+                                                                </StackPanel>
+                                                            </Button>
+
+                                                            <!-- Bus Sedang -->
+                                                            <Button Click="BtnVehicleOptionHome_Click"
+                                                               Tag="6|Bus Sedang"
+                                                               BorderThickness="0"
+                                                               Cursor="Hand"
+                                                               Padding="10,8"
+                                                               Margin="0,2"
+                                                               HorizontalAlignment="Stretch"
+                                                               HorizontalContentAlignment="Left">
+                                                                <Button.Style>
+                                                                    <Style TargetType="Button">
+                                                                        <Setter Property="Background" Value="Transparent"/>
+                                                                        <Setter Property="Template">
+                                                                            <Setter.Value>
+                                                                                <ControlTemplate TargetType="Button">
+                                                                                    <Border Background="{TemplateBinding Background}"
+                                                                                           CornerRadius="6"
+                                                                                           Padding="{TemplateBinding Padding}">
+                                                                                        <ContentPresenter/>
+                                                                                    </Border>
+                                                                                </ControlTemplate>
+                                                                            </Setter.Value>
+                                                                        </Setter>
+                                                                        <Style.Triggers>
+                                                                            <Trigger Property="IsMouseOver" Value="True">
+                                                                                <Setter Property="Background" Value="#74c0f3ff"/>
+                                                                            </Trigger>
+                                                                        </Style.Triggers>
+                                                                    </Style>
+                                                                </Button.Style>
+                                                                <StackPanel>
+                                                                    <TextBlock FontSize="13" FontWeight="SemiBold" TextWrapping="Wrap">
+                                                                        <Run Text="Bus Sedang" Foreground="Black"/>
+                                                                        <Run Text=" (Golongan VA)" Foreground="#00B4B5"/>
+                                                                        <Run Text=" - Maks. 35 penumpang" Foreground="Black"/>
+                                                                    </TextBlock>
+                                                                    <TextBlock Text="Panjang kendaraan maksimum 7 meter." FontSize="11" Foreground="#64748B" TextWrapping="Wrap" Margin="0,2,0,0"/>
+                                                                </StackPanel>
+                                                            </Button>
+
+                                                            <!-- Truk Sedang -->
+                                                            <Button Click="BtnVehicleOptionHome_Click"
+                                                               Tag="7|Truk Sedang"
+                                                               BorderThickness="0"
+                                                               Cursor="Hand"
+                                                               Padding="10,8"
+                                                               Margin="0,2"
+                                                               HorizontalAlignment="Stretch"
+                                                               HorizontalContentAlignment="Left">
+                                                                <Button.Style>
+                                                                    <Style TargetType="Button">
+                                                                        <Setter Property="Background" Value="Transparent"/>
+                                                                        <Setter Property="Template">
+                                                                            <Setter.Value>
+                                                                                <ControlTemplate TargetType="Button">
+                                                                                    <Border Background="{TemplateBinding Background}"
+                                                                                           CornerRadius="6"
+                                                                                           Padding="{TemplateBinding Padding}">
+                                                                                        <ContentPresenter/>
+                                                                                    </Border>
+                                                                                </ControlTemplate>
+                                                                            </Setter.Value>
+                                                                        </Setter>
+                                                                        <Style.Triggers>
+                                                                            <Trigger Property="IsMouseOver" Value="True">
+                                                                                <Setter Property="Background" Value="#74c0f3ff"/>
+                                                                            </Trigger>
+                                                                        </Style.Triggers>
+                                                                    </Style>
+                                                                </Button.Style>
+                                                                <StackPanel>
+                                                                    <TextBlock FontSize="13" FontWeight="SemiBold" TextWrapping="Wrap">
+                                                                        <Run Text="Truk Sedang" Foreground="Black"/>
+                                                                        <Run Text=" (Golongan VB)" Foreground="#00B4B5"/>
+                                                                        <Run Text=" - Maks. 3 penumpang" Foreground="Black"/>
+                                                                    </TextBlock>
+                                                                    <TextBlock Text="Panjang kendaraan maksimum 7 meter (truk barang, tangki, dan sejenisnya)." FontSize="11" Foreground="#64748B" TextWrapping="Wrap" Margin="0,2,0,0"/>
+                                                                </StackPanel>
+                                                            </Button>
+
+                                                            <!-- Bus Besar -->
+                                                            <Button Click="BtnVehicleOptionHome_Click"
+                                                               Tag="8|Bus Besar"
+                                                               BorderThickness="0"
+                                                               Cursor="Hand"
+                                                               Padding="10,8"
+                                                               Margin="0,2"
+                                                               HorizontalAlignment="Stretch"
+                                                               HorizontalContentAlignment="Left">
+                                                                <Button.Style>
+                                                                    <Style TargetType="Button">
+                                                                        <Setter Property="Background" Value="Transparent"/>
+                                                                        <Setter Property="Template">
+                                                                            <Setter.Value>
+                                                                                <ControlTemplate TargetType="Button">
+                                                                                    <Border Background="{TemplateBinding Background}"
+                                                                                           CornerRadius="6"
+                                                                                           Padding="{TemplateBinding Padding}">
+                                                                                        <ContentPresenter/>
+                                                                                    </Border>
+                                                                                </ControlTemplate>
+                                                                            </Setter.Value>
+                                                                        </Setter>
+                                                                        <Style.Triggers>
+                                                                            <Trigger Property="IsMouseOver" Value="True">
+                                                                                <Setter Property="Background" Value="#74c0f3ff"/>
+                                                                            </Trigger>
+                                                                        </Style.Triggers>
+                                                                    </Style>
+                                                                </Button.Style>
+                                                                <StackPanel>
+                                                                    <TextBlock FontSize="13" FontWeight="SemiBold" TextWrapping="Wrap">
+                                                                        <Run Text="Bus Besar" Foreground="Black"/>
+                                                                        <Run Text=" (Golongan VIA)" Foreground="#00B4B5"/>
+                                                                        <Run Text=" - Maks. 65 penumpang" Foreground="Black"/>
+                                                                    </TextBlock>
+                                                                    <TextBlock Text="Panjang kendaraan maksimum 10 meter." FontSize="11" Foreground="#64748B" TextWrapping="Wrap" Margin="0,2,0,0"/>
+                                                                </StackPanel>
+                                                            </Button>
+
+                                                            <!-- Truk Besar -->
+                                                            <Button Click="BtnVehicleOptionHome_Click"
+                                                               Tag="9|Truk Besar"
+                                                               BorderThickness="0"
+                                                               Cursor="Hand"
+                                                               Padding="10,8"
+                                                               Margin="0,2"
+                                                               HorizontalAlignment="Stretch"
+                                                               HorizontalContentAlignment="Left">
+                                                                <Button.Style>
+                                                                    <Style TargetType="Button">
+                                                                        <Setter Property="Background" Value="Transparent"/>
+                                                                        <Setter Property="Template">
+                                                                            <Setter.Value>
+                                                                                <ControlTemplate TargetType="Button">
+                                                                                    <Border Background="{TemplateBinding Background}"
+                                                                                           CornerRadius="6"
+                                                                                           Padding="{TemplateBinding Padding}">
+                                                                                        <ContentPresenter/>
+                                                                                    </Border>
+                                                                                </ControlTemplate>
+                                                                            </Setter.Value>
+                                                                        </Setter>
+                                                                        <Style.Triggers>
+                                                                            <Trigger Property="IsMouseOver" Value="True">
+                                                                                <Setter Property="Background" Value="#74c0f3ff"/>
+                                                                            </Trigger>
+                                                                        </Style.Triggers>
+                                                                    </Style>
+                                                                </Button.Style>
+                                                                <StackPanel>
+                                                                    <TextBlock FontSize="13" FontWeight="SemiBold" TextWrapping="Wrap">
+                                                                        <Run Text="Truk Besar" Foreground="Black"/>
+                                                                        <Run Text=" (Golongan VIB)" Foreground="#00B4B5"/>
+                                                                        <Run Text=" - Maks. 3 penumpang" Foreground="Black"/>
+                                                                    </TextBlock>
+                                                                    <TextBlock Text="Panjang kendaraan maksimum 10 meter (truk barang, tangki, kereta penarik tanpa gandengan)." FontSize="11" Foreground="#64748B" TextWrapping="Wrap" Margin="0,2,0,0"/>
+                                                                </StackPanel>
+                                                            </Button>
+
+                                                            <!-- Truk Tronton -->
+                                                            <Button Click="BtnVehicleOptionHome_Click"
+                                                               Tag="10|Truk Tronton"
+                                                               BorderThickness="0"
+                                                               Cursor="Hand"
+                                                               Padding="10,8"
+                                                               Margin="0,2"
+                                                               HorizontalAlignment="Stretch"
+                                                               HorizontalContentAlignment="Left">
+                                                                <Button.Style>
+                                                                    <Style TargetType="Button">
+                                                                        <Setter Property="Background" Value="Transparent"/>
+                                                                        <Setter Property="Template">
+                                                                            <Setter.Value>
+                                                                                <ControlTemplate TargetType="Button">
+                                                                                    <Border Background="{TemplateBinding Background}"
+                                                                                           CornerRadius="6"
+                                                                                           Padding="{TemplateBinding Padding}">
+                                                                                        <ContentPresenter/>
+                                                                                    </Border>
+                                                                                </ControlTemplate>
+                                                                            </Setter.Value>
+                                                                        </Setter>
+                                                                        <Style.Triggers>
+                                                                            <Trigger Property="IsMouseOver" Value="True">
+                                                                                <Setter Property="Background" Value="#74c0f3ff"/>
+                                                                            </Trigger>
+                                                                        </Style.Triggers>
+                                                                    </Style>
+                                                                </Button.Style>
+                                                                <StackPanel>
+                                                                    <TextBlock FontSize="13" FontWeight="SemiBold" TextWrapping="Wrap">
+                                                                        <Run Text="Truk Tronton" Foreground="Black"/>
+                                                                        <Run Text=" (Golongan VII)" Foreground="#00B4B5"/>
+                                                                        <Run Text=" - Maks. 3 penumpang" Foreground="Black"/>
+                                                                    </TextBlock>
+                                                                    <TextBlock Text="Panjang kendaraan maksimum 12 meter (mobil barang, truk tronton, tangki, kereta penarik dengan gandengan, kendaraan alat berat)." FontSize="11" Foreground="#64748B" TextWrapping="Wrap" Margin="0,2,0,0"/>
+                                                                </StackPanel>
+                                                            </Button>
+
+                                                            <!-- Truk Tronton <16 meter -->
+                                                            <Button Click="BtnVehicleOptionHome_Click"
+                                                               Tag="11|Truk Tronton (&lt;16 meter)"
+                                                               BorderThickness="0"
+                                                               Cursor="Hand"
+                                                               Padding="10,8"
+                                                               Margin="0,2"
+                                                               HorizontalAlignment="Stretch"
+                                                               HorizontalContentAlignment="Left">
+                                                                <Button.Style>
+                                                                    <Style TargetType="Button">
+                                                                        <Setter Property="Background" Value="Transparent"/>
+                                                                        <Setter Property="Template">
+                                                                            <Setter.Value>
+                                                                                <ControlTemplate TargetType="Button">
+                                                                                    <Border Background="{TemplateBinding Background}"
+                                                                                           CornerRadius="6"
+                                                                                           Padding="{TemplateBinding Padding}">
+                                                                                        <ContentPresenter/>
+                                                                                    </Border>
+                                                                                </ControlTemplate>
+                                                                            </Setter.Value>
+                                                                        </Setter>
+                                                                        <Style.Triggers>
+                                                                            <Trigger Property="IsMouseOver" Value="True">
+                                                                                <Setter Property="Background" Value="#74c0f3ff"/>
+                                                                            </Trigger>
+                                                                        </Style.Triggers>
+                                                                    </Style>
+                                                                </Button.Style>
+                                                                <StackPanel>
+                                                                    <TextBlock FontSize="13" FontWeight="SemiBold" TextWrapping="Wrap">
+                                                                        <Run Text="Truk Tronton (&lt;16 meter)" Foreground="Black"/>
+                                                                        <Run Text=" (Golongan VIII)" Foreground="#00B4B5"/>
+                                                                        <Run Text=" - Maks. 3 penumpang" Foreground="Black"/>
+                                                                    </TextBlock>
+                                                                    <TextBlock Text="Panjang kendaraan maksimum 16 meter (mobil barang, truk tronton, tangki, kereta penarik dengan gandengan, kendaraan alat berat)." FontSize="11" Foreground="#64748B" TextWrapping="Wrap" Margin="0,2,0,0"/>
+                                                                </StackPanel>
+                                                            </Button>
+
+                                                            <!-- Truk Tronton >16 meter -->
+                                                            <Button Click="BtnVehicleOptionHome_Click"
+                                                               Tag="12|Truk Tronton (&gt;16 meter)"
+                                                               BorderThickness="0"
+                                                               Cursor="Hand"
+                                                               Padding="10,8"
+                                                               Margin="0,2"
+                                                               HorizontalAlignment="Stretch"
+                                                               HorizontalContentAlignment="Left">
+                                                                <Button.Style>
+                                                                    <Style TargetType="Button">
+                                                                        <Setter Property="Background" Value="Transparent"/>
+                                                                        <Setter Property="Template">
+                                                                            <Setter.Value>
+                                                                                <ControlTemplate TargetType="Button">
+                                                                                    <Border Background="{TemplateBinding Background}"
+                                                                                           CornerRadius="6"
+                                                                                           Padding="{TemplateBinding Padding}">
+                                                                                        <ContentPresenter/>
+                                                                                    </Border>
+                                                                                </ControlTemplate>
+                                                                            </Setter.Value>
+                                                                        </Setter>
+                                                                        <Style.Triggers>
+                                                                            <Trigger Property="IsMouseOver" Value="True">
+                                                                                <Setter Property="Background" Value="#74c0f3ff"/>
+                                                                            </Trigger>
+                                                                        </Style.Triggers>
+                                                                    </Style>
+                                                                </Button.Style>
+                                                                <StackPanel>
+                                                                    <TextBlock FontSize="13" FontWeight="SemiBold" TextWrapping="Wrap">
+                                                                        <Run Text="Truk Tronton (&gt;16 meter)" Foreground="Black"/>
+                                                                        <Run Text=" (Golongan IX)" Foreground="#00B4B5"/>
+                                                                        <Run Text=" - Maks. 3 penumpang" Foreground="Black"/>
+                                                                    </TextBlock>
+                                                                    <TextBlock Text="Panjang kendaraan lebih dari 16 meter (mobil barang, truk tronton, tangki, kereta penarik dengan gandengan, kendaraan alat berat)." FontSize="11" Foreground="#64748B" TextWrapping="Wrap" Margin="0,2,0,0"/>
+                                                                </StackPanel>
+                                                            </Button>
+                                                        </StackPanel>
+                                                    </ScrollViewer>
+                                                </Border>
+                                            </Popup>
                                         </Grid>
                                     </Border>
                                 </StackPanel>
@@ -627,7 +1142,7 @@
                                             <Popup x:Name="popupPenumpangHome"
                                                   PlacementTarget="{Binding ElementName=gridPenumpangContainer}"
                                                   Placement="Bottom"
-                                                  HorizontalOffset="-175"
+                                                  HorizontalOffset="-186"
                                                   VerticalOffset="20"
                                                   AllowsTransparency="True"
                                                   StaysOpen="False"

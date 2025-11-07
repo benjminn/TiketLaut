@@ -7,6 +7,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Input;
+using System.Windows.Media;
 using TiketLaut.Models;
 using TiketLaut.Services;
 
@@ -18,6 +19,7 @@ namespace TiketLaut.Views
         private List<Jadwal>? _jadwals;
         private SearchCriteria? _searchCriteria;
         private readonly JadwalService _jadwalService;
+        private Button? _selectedVehicleButton; // Track selected vehicle button for highlight
 
         // Constructor default (backward compatibility)
         // Constructor default (backward compatibility) - UPDATED
@@ -206,9 +208,10 @@ namespace TiketLaut.Views
         /// </summary>
         private void PopulateDateFilter()
         {
-            // Set DisplayDateStart ke hari ini (tidak bisa pilih tanggal lampau)
-            dpFilterDate.DisplayDateStart = DateTime.Today;
-
+            // Di ScheduleWindow, user bisa pilih tanggal apa saja (termasuk tanggal lampau)
+            // untuk filtering jadwal yang sudah ada di database
+            // Jadi TIDAK set DisplayDateStart (biarkan null = unlimited)
+            
             // Set selected berdasarkan search criteria
             if (_searchCriteria != null)
             {
@@ -249,56 +252,39 @@ namespace TiketLaut.Views
         }
 
         /// <summary>
-        /// Populate dropdown jenis kendaraan
+        /// Populate filter jenis kendaraan dengan data dari search criteria
         /// </summary>
         private void PopulateVehicleFilter()
         {
-            cmbFilterVehicle.Items.Clear();
-            cmbFilterVehicle.Items.Add(new ComboBoxItem { Content = "Pilih Jenis Kendaraan", Tag = -1 }); // Tag -1 untuk placeholder
-
-            // Add vehicle types sesuai dengan Enums
-            var vehicleTypes = new[]
-            {
-                "Pejalan kaki tanpa kendaraan",           // Index 0 = JenisKendaraan 0
-                "Sepeda",                                  // Index 1 = JenisKendaraan 1
-                "Sepeda Motor (<500cc)",                   // Index 2 = JenisKendaraan 2
-                "Sepeda Motor (>500cc) (Golongan III)",   // Index 3 = JenisKendaraan 3
-                "Mobil jeep, sedan, minibus",              // Index 4 = JenisKendaraan 4
-                "Mobil barang bak muatan",                 // Index 5 = JenisKendaraan 5
-                "Mobil bus penumpang (5-7 meter)",         // Index 6 = JenisKendaraan 6
-                "Mobil barang (truk/tangki) ukuran sedang", // Index 7 = JenisKendaraan 7
-                "Mobil bus penumpang (7-10 meter)",        // Index 8 = JenisKendaraan 8
-                "Mobil barang (truk/tangki) sedang",       // Index 9 = JenisKendaraan 9
-                "Mobil tronton, tangki, penarik + gandengan (10-12 meter)", // Index 10 = JenisKendaraan 10
-                "Mobil tronton, tangki, alat berat (12-16 meter)",          // Index 11 = JenisKendaraan 11
-                "Mobil tronton, tangki, alat berat (>16 meter)"             // Index 12 = JenisKendaraan 12
-            };
-
-            for (int i = 0; i < vehicleTypes.Length; i++)
-            {
-                cmbFilterVehicle.Items.Add(new ComboBoxItem
-                {
-                    Content = vehicleTypes[i],
-                    Tag = i  // Tag = JenisKendaraanId (0-12)
-                });
-            }
-
             // Set selected berdasarkan search criteria
             if (_searchCriteria != null)
             {
-                var selectedVehicleIndex = _searchCriteria.JenisKendaraanId + 1; // +1 karena index 0 adalah "Pilih"
-                if (selectedVehicleIndex > 0 && selectedVehicleIndex < cmbFilterVehicle.Items.Count)
+                int jenisId = _searchCriteria.JenisKendaraanId;
+                string vehicleText = jenisId switch
                 {
-                    cmbFilterVehicle.SelectedIndex = selectedVehicleIndex;
-                }
-                else
-                {
-                    cmbFilterVehicle.SelectedIndex = 0;
-                }
+                    0 => "Pejalan Kaki",
+                    1 => "Sepeda",
+                    2 => "Sepeda Motor (<500cc)",
+                    3 => "Sepeda Motor (>500cc)",
+                    4 => "Mobil Penumpang",
+                    5 => "Truk Pickup",
+                    6 => "Bus Sedang",
+                    7 => "Truk Sedang",
+                    8 => "Bus Besar",
+                    9 => "Truk Besar",
+                    10 => "Truk Tronton",
+                    11 => "Truk Tronton (<16 meter)",
+                    12 => "Truk Tronton (>16 meter)",
+                    _ => "Sepeda Motor (>500cc)"
+                };
+                
+                UpdateVehicleDisplay(jenisId, vehicleText);
+                txtFilterVehicle.Text = jenisId.ToString();
             }
             else
             {
-                cmbFilterVehicle.SelectedIndex = 0;
+                UpdateVehicleDisplay(3, "Sepeda Motor (>500cc)");
+                txtFilterVehicle.Text = "3";
             }
         }
 
@@ -340,58 +326,21 @@ namespace TiketLaut.Views
         /// </summary>
         private int GetMaksimalPenumpangFromFilterKendaraan()
         {
-            if (cmbFilterVehicle == null || cmbFilterVehicle.SelectedIndex <= 0)
-                return 100; // Default maksimal jika belum pilih kendaraan (seperti pejalan kaki)
+            if (txtFilterVehicle == null || string.IsNullOrEmpty(txtFilterVehicle.Text))
+                return 100; // Default maksimal jika belum pilih kendaraan
 
-            // cmbFilterVehicle memiliki "Pilih Jenis Kendaraan" di index 0
-            // Jadi jenisKendaraanIndex = SelectedIndex - 1
-            int jenisKendaraanIndex = cmbFilterVehicle.SelectedIndex - 1;
-            return DetailKendaraan.GetMaksimalPenumpangByIndex(jenisKendaraanIndex);
+            // txtFilterVehicle sekarang menyimpan ID (0-12)
+            if (int.TryParse(txtFilterVehicle.Text, out int jenisKendaraanId))
+            {
+                return DetailKendaraan.GetMaksimalPenumpangByIndex(jenisKendaraanId);
+            }
+            
+            return 100;
         }
 
         /// <summary>
-        /// Event handler saat jenis kendaraan di filter berubah
+        /// OBSOLETE: Method lama cmbFilterVehicle_SelectionChanged (removed, sekarang menggunakan popup)
         /// </summary>
-        private void cmbFilterVehicle_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (!IsLoaded || cmbFilterVehicle == null || txtFilterPenumpang == null)
-                return;
-
-            int selectedIndex = cmbFilterVehicle.SelectedIndex;
-            
-            if (selectedIndex <= 0)
-                return;
-
-            // Kurangi 1 karena index 0 adalah "Pilih Jenis Kendaraan"
-            int jenisKendaraanIndex = selectedIndex - 1;
-            
-            // Dapatkan maksimal penumpang untuk kendaraan ini
-            int maksimalPenumpang = DetailKendaraan.GetMaksimalPenumpangByIndex(jenisKendaraanIndex);
-            
-            System.Diagnostics.Debug.WriteLine($"[ScheduleWindow] Kendaraan filter dipilih, SelectedIndex: {selectedIndex}, JenisKendaraanIndex: {jenisKendaraanIndex}, Maks penumpang: {maksimalPenumpang}");
-            
-            // Ambil nilai penumpang saat ini
-            if (int.TryParse(txtFilterPenumpang.Text, out int currentPenumpang))
-            {
-                int newValue = currentPenumpang;
-                
-                // Jika jumlah penumpang saat ini melebihi maksimal, set ke maksimal
-                if (currentPenumpang > maksimalPenumpang)
-                {
-                    newValue = maksimalPenumpang;
-                    txtFilterPenumpang.Text = newValue.ToString();
-                }
-                
-                // PENTING: Selalu update display untuk refresh button states
-                UpdateFilterPenumpangDisplay(newValue);
-            }
-            else
-            {
-                // Jika tidak valid, set ke 1
-                txtFilterPenumpang.Text = "1";
-                UpdateFilterPenumpangDisplay(1);
-            }
-        }
 
         /// <summary>
         /// Event handler untuk tombol plus penumpang
@@ -626,6 +575,162 @@ namespace TiketLaut.Views
         }
 
         /// <summary>
+        /// Event handler untuk button toggle popup kendaraan
+        /// </summary>
+        private void BtnFilterVehicle_Click(object sender, RoutedEventArgs e)
+        {
+            if (popupVehicle != null)
+            {
+                popupVehicle.IsOpen = !popupVehicle.IsOpen;
+            }
+        }
+
+        /// <summary>
+        /// Event handler ketika popup kendaraan dibuka - maintain highlight state
+        /// </summary>
+        private void PopupVehicle_Opened(object sender, EventArgs e)
+        {
+            // Maintain selected button highlight when popup reopens
+            if (_selectedVehicleButton != null)
+            {
+                var blueBrush = new SolidColorBrush(
+                    (Color)ColorConverter.ConvertFromString("#b7def8ff")); // Soft blue
+                _selectedVehicleButton.SetValue(Button.BackgroundProperty, blueBrush);
+            }
+        }
+
+        /// <summary>
+        /// Event handler untuk memilih opsi kendaraan
+        /// </summary>
+        private void BtnVehicleOption_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button button && button.Tag is string tagValue)
+            {
+                // Parse tag format: "ID|Name"
+                var parts = tagValue.Split('|');
+                if (parts.Length == 2 && int.TryParse(parts[0], out int jenisKendaraanId))
+                {
+                    string vehicleName = parts[1];
+                    
+                    // Reset previous selected button - clear local value to allow style to work
+                    if (_selectedVehicleButton != null)
+                    {
+                        _selectedVehicleButton.ClearValue(Button.BackgroundProperty);
+                    }
+                    
+                    // Set local value on current button - use soft blue color
+                    var blueBrush = new SolidColorBrush(
+                        (Color)ColorConverter.ConvertFromString("#b7def8ff")); // Soft blue - same as hover
+                    button.SetValue(Button.BackgroundProperty, blueBrush);
+                    
+                    // Save current selected button
+                    _selectedVehicleButton = button;
+                    
+                    // Update display text with colored format
+                    UpdateVehicleDisplay(jenisKendaraanId, vehicleName);
+                    txtFilterVehicle.Text = jenisKendaraanId.ToString();
+
+                    // Get max passengers for this vehicle
+                    int maksimalPenumpang = DetailKendaraan.GetMaksimalPenumpangByIndex(jenisKendaraanId);
+                    
+                    System.Diagnostics.Debug.WriteLine($"[ScheduleWindow] Kendaraan filter dipilih: {vehicleName} (ID: {jenisKendaraanId}), Maks penumpang: {maksimalPenumpang}");
+                    
+                    // Check current passenger count
+                    if (int.TryParse(txtFilterPenumpang.Text, out int currentPenumpang))
+                    {
+                        // If current passengers exceed max, adjust to max
+                        if (currentPenumpang > maksimalPenumpang)
+                        {
+                            int newValue = maksimalPenumpang;
+                            txtFilterPenumpang.Text = newValue.ToString();
+                            UpdateFilterPenumpangDisplay(newValue);
+                            
+                            MessageBox.Show(
+                                $"Jumlah penumpang disesuaikan menjadi {newValue} (maksimal untuk kendaraan ini).",
+                                "Info",
+                                MessageBoxButton.OK,
+                                MessageBoxImage.Information);
+                        }
+                    }
+
+                    // Close popup
+                    if (popupVehicle != null)
+                    {
+                        popupVehicle.IsOpen = false;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Helper method to find Border element inside button template
+        /// </summary>
+        private Border? FindChildBorder(DependencyObject parent)
+        {
+            if (parent == null) return null;
+
+            int childCount = VisualTreeHelper.GetChildrenCount(parent);
+            for (int i = 0; i < childCount; i++)
+            {
+                var child = VisualTreeHelper.GetChild(parent, i);
+                
+                if (child is Border border)
+                {
+                    return border;
+                }
+                
+                // Recursively search in children
+                var result = FindChildBorder(child);
+                if (result != null)
+                {
+                    return result;
+                }
+            }
+            
+            return null;
+        }
+
+        /// <summary>
+        /// Update vehicle display dengan format warna (nama hitam, golongan cyan)
+        /// </summary>
+        private void UpdateVehicleDisplay(int jenisKendaraanId, string vehicleName)
+        {
+            txtFilterVehicleDisplay.Inlines.Clear();
+            
+            // Dictionary untuk mapping golongan
+            var golonganMap = new Dictionary<int, string>
+            {
+                { 0, "" }, // Pejalan Kaki - no golongan
+                { 1, " (Golongan I)" },
+                { 2, " (Golongan II)" },
+                { 3, " (Golongan III)" },
+                { 4, " (Golongan IVA)" },
+                { 5, " (Golongan IVB)" },
+                { 6, " (Golongan VA)" },
+                { 7, " (Golongan VB)" },
+                { 8, " (Golongan VIA)" },
+                { 9, " (Golongan VIB)" },
+                { 10, " (Golongan VII)" },
+                { 11, " (Golongan VIII)" },
+                { 12, " (Golongan IX)" }
+            };
+            
+            // Add vehicle name in black
+            var nameRun = new Run(vehicleName) { Foreground = Brushes.Black };
+            txtFilterVehicleDisplay.Inlines.Add(nameRun);
+            
+            // Add golongan in cyan if exists
+            if (golonganMap.ContainsKey(jenisKendaraanId) && !string.IsNullOrEmpty(golonganMap[jenisKendaraanId]))
+            {
+                var golonganRun = new Run(golonganMap[jenisKendaraanId])
+                {
+                    Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#00B4B5"))
+                };
+                txtFilterVehicleDisplay.Inlines.Add(golonganRun);
+            }
+        }
+
+        /// <summary>
         /// OBSOLETE: Method lama untuk dropdown penumpang (removed)
         /// </summary>
 
@@ -841,17 +946,13 @@ namespace TiketLaut.Views
                 }
 
                 // Validasi Jenis Kendaraan (harus sebelum validasi penumpang)
-                if (cmbFilterVehicle.SelectedIndex < 0 ||
-                    !(cmbFilterVehicle.SelectedItem is ComboBoxItem selectedVehicleItem) ||
-                    selectedVehicleItem.Tag == null)
+                if (txtFilterVehicle == null || string.IsNullOrEmpty(txtFilterVehicle.Text) ||
+                    !int.TryParse(txtFilterVehicle.Text, out int jenisKendaraanId))
                 {
                     MessageBox.Show("Silakan pilih Jenis Kendaraan!", "Peringatan",
                         MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
-
-                // Dapatkan index jenis kendaraan
-                int jenisKendaraanId = (int)selectedVehicleItem.Tag;
                 
                 // Dapatkan maksimal penumpang untuk jenis kendaraan yang dipilih
                 int maksimalPenumpang = DetailKendaraan.GetMaksimalPenumpangByIndex(jenisKendaraanId);
