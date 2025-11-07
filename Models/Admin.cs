@@ -29,6 +29,12 @@ namespace TiketLaut
         [Required]                                      // character varying NOT NULL
         public string role { get; set; } = string.Empty;
 
+        [NotMapped]                                     // Field ini tidak ada di database
+        public DateTime? created_at { get; set; }       // Timestamp created (hanya untuk UI)
+        
+        [NotMapped]                                     // Field ini tidak ada di database
+        public DateTime? updated_at { get; set; }       // Timestamp updated (hanya untuk UI)
+
         public bool login()
         {
             // Implementasi login admin
@@ -77,7 +83,7 @@ namespace TiketLaut
             var notifikasi = new Notifikasi
             {
                 pengguna_id = 0, // 0 untuk broadcast
-                jenis_enum_penumpang_update_status = jenisNotifikasi,
+                judul_notifikasi = jenisNotifikasi,
                 pesan = pesan,
                 waktu_kirim = DateTime.Now,
                 status_baca = false,

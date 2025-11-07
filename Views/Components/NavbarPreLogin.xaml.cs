@@ -22,7 +22,8 @@ namespace TiketLaut.Views.Components
 
         private void BtnNotifikasi_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("Navigasi ke Notifikasi", "Info");
+            MessageBox.Show("Silakan login terlebih dahulu untuk melihat notifikasi", "Info", 
+                MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
         private void BtnFAQ_Click(object sender, RoutedEventArgs e)

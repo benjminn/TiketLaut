@@ -18,10 +18,12 @@ namespace TiketLaut
         public int pengguna_id { get; set; }            // FK to Pengguna
         
         [Required]                                      // character varying NOT NULL
-        public string jenis_enum_penumpang_update_status { get; set; } = string.Empty;
+        public string jenis_notifikasi { get; set; } = string.Empty;  // pembayaran, pemberitahuan, pengingat, pembatalan, umum
+        
+        [Required]                                      // character varying NOT NULL
+        public string judul_notifikasi { get; set; } = string.Empty;
         
         [Required]                                      // text NOT NULL
-
         public string pesan { get; set; } = string.Empty;
         
         [Required]                                      // timestamp with time zone NOT NULL DEFAULT now()
@@ -30,20 +32,33 @@ namespace TiketLaut
         [Required]                                      // boolean NOT NULL DEFAULT false
         public bool status_baca { get; set; } = false;
         
-        [Required]                                      // integer NOT NULL
-        public int admin_id { get; set; }               // FK to Admin
+        public int? admin_id { get; set; }              // integer (nullable) - FK to Admin
         
         public int? jadwal_id { get; set; }             // integer (nullable)
+        
+        public int? pembayaran_id { get; set; }         // integer (nullable) - FK to Pembayaran
+        
+        public int? tiket_id { get; set; }              // integer (nullable) - FK to Tiket
+        
+        // Property untuk menandai notifikasi dari sistem atau dari admin
+        [Required]
+        public bool oleh_system { get; set; } = false;  // true = dari sistem (countdown), false = dari admin manual
         
         // Navigation properties
         [ForeignKey("pengguna_id")]
         public Pengguna Pengguna { get; set; } = null!;
         
         [ForeignKey("admin_id")]
-        public Admin Admin { get; set; } = null!;
+        public Admin? Admin { get; set; }
         
         [ForeignKey("jadwal_id")]
         public Jadwal? Jadwal { get; set; }
+        
+        [ForeignKey("pembayaran_id")]
+        public Pembayaran? Pembayaran { get; set; }
+        
+        [ForeignKey("tiket_id")]
+        public Tiket? Tiket { get; set; }
 
 
         public void kirimNotifikasi()

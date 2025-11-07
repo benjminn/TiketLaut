@@ -24,6 +24,12 @@
 	  <None Remove="Views\Assets\Icons\iconbooking.png" />
 	  <None Remove="Views\Assets\Icons\icondropdown.png" />
 	  <None Remove="Views\Assets\Icons\icondropdowngelap.png" />
+	  <None Remove="Views\Assets\Icons\iconDangerNotif.png" />
+	  <None Remove="Views\Assets\Icons\iconGagalNotif.png" />
+	  <None Remove="Views\Assets\Icons\iconNotifikasi.png" />
+	  <None Remove="Views\Assets\Icons\iconPaymentNotif.png" />
+	  <None Remove="Views\Assets\Icons\iconTaskNotif.png" />
+	  <None Remove="Views\Assets\Icons\iconTimerNotif.png" />
 	  <None Remove="Views\Assets\Icons\iconKurang.png" />
 	  <None Remove="Views\Assets\Icons\iconpullup.png" />
 	  <None Remove="Views\Assets\Icons\iconfacebook.png" />
@@ -72,6 +78,24 @@
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Resource>
 	  <Resource Include="Views\Assets\Icons\icondropdowngelap.png">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Resource>
+	  <Resource Include="Views\Assets\Icons\iconDangerNotif.png">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Resource>
+	  <Resource Include="Views\Assets\Icons\iconGagalNotif.png">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Resource>
+	  <Resource Include="Views\Assets\Icons\iconNotifikasi.png">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Resource>
+	  <Resource Include="Views\Assets\Icons\iconPaymentNotif.png">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Resource>
+	  <Resource Include="Views\Assets\Icons\iconTaskNotif.png">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Resource>
+	  <Resource Include="Views\Assets\Icons\iconTimerNotif.png">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Resource>
 	  <Resource Include="Views\Assets\Icons\iconKurang.png" />

@@ -52,9 +52,125 @@ namespace TiketLaut.Services
         }
 
         /// <summary>
-        /// Create new admin (hanya SuperAdmin yang bisa)
+        /// Create new admin - simplified version
         /// </summary>
-        public async Task<(bool success, string message)> CreateAdminAsync(Admin admin, Admin currentAdmin)
+        public async Task<Admin?> CreateAdminAsync(Admin admin)
+        {
+            try
+            {
+                // Cek apakah email sudah ada (case insensitive)
+                var existingEmail = await _context.Admins
+                    .AnyAsync(a => a.email.ToLower() == admin.email.ToLower());
+                if (existingEmail)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Email sudah terdaftar: {admin.email}");
+                    return null;
+                }
+
+                // Generate username dari email jika tidak ada
+                if (string.IsNullOrWhiteSpace(admin.username))
+                {
+                    admin.username = admin.email.Split('@')[0];
+                }
+
+                // Cek apakah username sudah ada (case insensitive)
+                var baseUsername = admin.username;
+                var counter = 1;
+                while (await _context.Admins.AnyAsync(a => a.username.ToLower() == admin.username.ToLower()))
+                {
+                    admin.username = $"{baseUsername}{counter}";
+                    counter++;
+                    System.Diagnostics.Debug.WriteLine($"Username conflict, trying: {admin.username}");
+                }
+
+                // Set default values
+                admin.created_at = DateTime.Now;
+                admin.updated_at = DateTime.Now;
+
+                _context.Admins.Add(admin);
+                await _context.SaveChangesAsync();
+
+                System.Diagnostics.Debug.WriteLine($"Admin created successfully: {admin.email}");
+                return admin;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Create admin error: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Stack trace: {ex.StackTrace}");
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Update admin - simplified version
+        /// </summary>
+        public async Task<bool> UpdateAdminAsync(Admin admin)
+        {
+            try
+            {
+                var existing = await _context.Admins.FindAsync(admin.admin_id);
+                if (existing == null)
+                {
+                    return false;
+                }
+
+                // Update fields
+                existing.nama = admin.nama;
+                existing.email = admin.email;
+                existing.role = admin.role;
+                existing.updated_at = DateTime.Now;
+
+                // Update password hanya jika diisi
+                if (!string.IsNullOrEmpty(admin.password))
+                {
+                    existing.password = admin.password;
+                }
+
+                // Update username jika ada
+                if (!string.IsNullOrWhiteSpace(admin.username))
+                {
+                    existing.username = admin.username;
+                }
+
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Update admin error: {ex.Message}");
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Delete admin - simplified version
+        /// </summary>
+        public async Task<bool> DeleteAdminAsync(int adminId)
+        {
+            try
+            {
+                var admin = await _context.Admins.FindAsync(adminId);
+                if (admin == null)
+                {
+                    return false;
+                }
+
+                _context.Admins.Remove(admin);
+                await _context.SaveChangesAsync();
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Delete admin error: {ex.Message}");
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Create new admin (hanya SuperAdmin yang bisa) - with validation
+        /// </summary>
+        public async Task<(bool success, string message)> CreateAdminWithValidationAsync(Admin admin, Admin currentAdmin)
         {
             try
             {
@@ -89,43 +205,9 @@ namespace TiketLaut.Services
         }
 
         /// <summary>
-        /// Update admin
+        /// Delete admin (hanya SuperAdmin yang bisa) - with validation
         /// </summary>
-        public async Task<(bool success, string message)> UpdateAdminAsync(Admin admin)
-        {
-            try
-            {
-                var existing = await _context.Admins.FindAsync(admin.admin_id);
-                if (existing == null)
-                {
-                    return (false, "Admin tidak ditemukan!");
-                }
-
-                // Update fields
-                existing.nama = admin.nama;
-                existing.username = admin.username;
-                existing.email = admin.email;
-                existing.role = admin.role;
-
-                // Update password hanya jika diisi
-                if (!string.IsNullOrEmpty(admin.password))
-                {
-                    existing.password = admin.password;
-                }
-
-                await _context.SaveChangesAsync();
-                return (true, "Admin berhasil diupdate!");
-            }
-            catch (Exception ex)
-            {
-                return (false, $"Error: {ex.Message}");
-            }
-        }
-
-        /// <summary>
-        /// Delete admin (hanya SuperAdmin yang bisa)
-        /// </summary>
-        public async Task<(bool success, string message)> DeleteAdminAsync(int adminId, Admin currentAdmin)
+        public async Task<(bool success, string message)> DeleteAdminWithValidationAsync(int adminId, Admin currentAdmin)
         {
             try
             {
