@@ -1,0 +1,252 @@
+<Window x:Class="TiketLaut.Views.Admin.NotifikasiDetailDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Detail Notifikasi"
+        Height="650"
+        Width="700"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="CanResize"
+        MinHeight="500"
+        MinWidth="650"
+        Background="#F8F9FA">
+    
+    <Window.Resources>
+        <!-- Success Button Style -->
+        <Style x:Key="SuccessButton" TargetType="Button">
+            <Setter Property="Background" Value="#28A745"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                               CornerRadius="6"
+                               Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#218838"/>
+                </Trigger>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Opacity" Value="0.6"/>
+                    <Setter Property="Cursor" Value="Arrow"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        
+        <!-- Secondary Button Style -->
+        <Style x:Key="SecondaryButton" TargetType="Button">
+            <Setter Property="Background" Value="#6C757D"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                               CornerRadius="6"
+                               Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#5A6268"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
+    
+    <Border Padding="25">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            
+            <!-- Header -->
+            <Border Grid.Row="0"
+                   Background="#042769"
+                   CornerRadius="8"
+                   Padding="20"
+                   Margin="0,0,0,20">
+                <StackPanel>
+                    <TextBlock Text="📋 Detail Notifikasi" 
+                              FontSize="22" 
+                              FontWeight="Bold" 
+                              Foreground="White"
+                              HorizontalAlignment="Center"/>
+                    <TextBlock x:Name="txtNotifId" 
+                              Text="ID: #000" 
+                              FontSize="13" 
+                              Foreground="#E0E0E0"
+                              HorizontalAlignment="Center"
+                              Margin="0,6,0,0"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Content -->
+            <ScrollViewer Grid.Row="1" 
+                         VerticalScrollBarVisibility="Auto"
+                         Margin="0,0,0,20">
+                <StackPanel>
+                    <!-- Informasi Penerima -->
+                    <Border Background="White"
+                           BorderBrush="#042769"
+                           BorderThickness="2"
+                           CornerRadius="8"
+                           Padding="18"
+                           Margin="0,0,0,15">
+                        <StackPanel>
+                            <TextBlock Text="👤 Informasi Penerima" 
+                                      FontSize="15" 
+                                      FontWeight="Bold" 
+                                      Foreground="#042769"
+                                      Margin="0,0,0,12"/>
+                            
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="140"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+
+                                <TextBlock Grid.Row="0" Grid.Column="0" Text="Nama Pengguna:" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                                <TextBlock x:Name="txtPengguna" Grid.Row="0" Grid.Column="1" Text="-" Margin="0,0,0,8"/>
+                                
+                                <TextBlock Grid.Row="1" Grid.Column="0" Text="ID Pengguna:" FontWeight="SemiBold"/>
+                                <TextBlock x:Name="txtPenggunaId" Grid.Row="1" Grid.Column="1" Text="-"/>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Informasi Notifikasi -->
+                    <Border Background="White"
+                           BorderBrush="#042769"
+                           BorderThickness="2"
+                           CornerRadius="8"
+                           Padding="18"
+                           Margin="0,0,0,15">
+                        <StackPanel>
+                            <TextBlock Text="📧 Informasi Notifikasi" 
+                                      FontSize="15" 
+                                      FontWeight="Bold" 
+                                      Foreground="#042769"
+                                      Margin="0,0,0,12"/>
+                            
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="140"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+
+                                <TextBlock Grid.Row="0" Grid.Column="0" Text="Jenis Notifikasi:" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                                <TextBlock x:Name="txtJenis" Grid.Row="0" Grid.Column="1" Text="-" Margin="0,0,0,8"/>
+                                
+                                <TextBlock Grid.Row="1" Grid.Column="0" Text="Judul:" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                                <TextBlock x:Name="txtJudul" Grid.Row="1" Grid.Column="1" Text="-" TextWrapping="Wrap" Margin="0,0,0,8"/>
+                                
+                                <TextBlock Grid.Row="2" Grid.Column="0" Text="Isi Pesan:" FontWeight="SemiBold" Margin="0,0,0,8" VerticalAlignment="Top"/>
+                                <Border Grid.Row="2" Grid.Column="1" 
+                                       Background="#F8F9FA" 
+                                       BorderBrush="#DDD"
+                                       BorderThickness="1"
+                                       CornerRadius="4"
+                                       Padding="10"
+                                       Margin="0,0,0,8">
+                                    <TextBlock x:Name="txtPesan" 
+                                              Text="-" 
+                                              TextWrapping="Wrap"
+                                              LineHeight="20"/>
+                                </Border>
+                                
+                                <TextBlock Grid.Row="3" Grid.Column="0" Text="Status Baca:" FontWeight="SemiBold"/>
+                                <TextBlock x:Name="txtStatusBaca" Grid.Row="3" Grid.Column="1" Text="-"/>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Informasi Pengirim -->
+                    <Border Background="White"
+                           BorderBrush="#042769"
+                           BorderThickness="2"
+                           CornerRadius="8"
+                           Padding="18"
+                           Margin="0,0,0,15">
+                        <StackPanel>
+                            <TextBlock Text="📤 Informasi Pengirim" 
+                                      FontSize="15" 
+                                      FontWeight="Bold" 
+                                      Foreground="#042769"
+                                      Margin="0,0,0,12"/>
+                            
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="140"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+
+                                <TextBlock Grid.Row="0" Grid.Column="0" Text="Sumber:" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                                <TextBlock x:Name="txtSumber" Grid.Row="0" Grid.Column="1" Text="-" Margin="0,0,0,8"/>
+                                
+                                <TextBlock x:Name="lblAdmin" Grid.Row="1" Grid.Column="0" Text="Dikirim oleh Admin:" FontWeight="SemiBold" Margin="0,0,0,8" Visibility="Collapsed"/>
+                                <TextBlock x:Name="txtAdmin" Grid.Row="1" Grid.Column="1" Text="-" Margin="0,0,0,8" Visibility="Collapsed"/>
+                                
+                                <TextBlock Grid.Row="2" Grid.Column="0" Text="Waktu Kirim:" FontWeight="SemiBold"/>
+                                <TextBlock x:Name="txtWaktu" Grid.Row="2" Grid.Column="1" Text="-" FontFamily="Consolas"/>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </ScrollViewer>
+
+            <!-- Action Buttons -->
+            <Grid Grid.Row="2">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                
+                <Button Grid.Column="0"
+                       Content="✓ Tandai Sudah Dibaca" 
+                       x:Name="btnTandaiBaca"
+                       Style="{StaticResource SuccessButton}"
+                       Click="BtnTandaiBaca_Click"
+                       Padding="12,10"
+                       FontSize="14"/>
+                
+                <Button Grid.Column="2"
+                       Content="✕ Tutup" 
+                       Style="{StaticResource SecondaryButton}"
+                       Click="BtnTutup_Click"
+                       Padding="12,10"
+                       FontSize="14"/>
+            </Grid>
+        </Grid>
+    </Border>
+</Window>

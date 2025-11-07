@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using TiketLaut.Data;
 
@@ -128,6 +130,24 @@ namespace TiketLaut.Services
             {
                 System.Diagnostics.Debug.WriteLine($"[PenggunaService] RegisterGoogleUserAsync error: {ex.Message}");
                 return (false, $"Terjadi kesalahan: {ex.Message}", null);
+            }
+        }
+
+        /// <summary>
+        /// Ambil semua pengguna
+        /// </summary>
+        public async Task<List<Pengguna>> GetAllAsync()
+        {
+            try
+            {
+                return await _context.Penggunas
+                    .OrderBy(p => p.nama)
+                    .ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"GetAllAsync error: {ex.Message}");
+                return new List<Pengguna>();
             }
         }
     }

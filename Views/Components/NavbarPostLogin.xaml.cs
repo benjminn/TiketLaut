@@ -74,7 +74,26 @@ namespace TiketLaut.Views.Components
 
         private void BtnNotifikasi_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("Navigasi ke Notifikasi", "Info");
+            // Cek apakah sudah di NotifikasiWindow
+            var currentWindow = Window.GetWindow(this);
+            if (currentWindow is NotifikasiWindow)
+            {
+                // Sudah di NotifikasiWindow, tidak perlu navigasi
+                return;
+            }
+
+            // Navigasi ke NotifikasiWindow (dengan database)
+            var notifikasiWindow = new NotifikasiWindow();
+            if (currentWindow != null)
+            {
+                notifikasiWindow.Left = currentWindow.Left;
+                notifikasiWindow.Top = currentWindow.Top;
+                notifikasiWindow.Width = currentWindow.Width;
+                notifikasiWindow.Height = currentWindow.Height;
+                notifikasiWindow.WindowState = currentWindow.WindowState;
+            }
+            notifikasiWindow.Show();
+            currentWindow?.Close();
         }
 
         private void BtnFAQ_Click(object sender, RoutedEventArgs e)

@@ -2,13 +2,14 @@ using System;
 using System.Windows;
 using System.Windows.Controls;
 using TiketLaut.Services;
+using AdminModel = TiketLaut.Admin;
 
 namespace TiketLaut.Views
 {
     public partial class AdminDashboard : Window
     {
         private readonly AdminService _adminService;
-        private Admin? _currentAdmin;
+        private AdminModel? _currentAdmin;
 
         public AdminDashboard()
         {
@@ -144,7 +145,7 @@ namespace TiketLaut.Views
             SetActiveMenu(btnMenuAdmin);
             txtPageTitle.Text = "Kelola Admin";
             
-            var adminManagement = new AdminManagementPage();
+            var adminManagement = new AdminKelolaAdminPage();
             contentArea.Content = adminManagement;
         }
 

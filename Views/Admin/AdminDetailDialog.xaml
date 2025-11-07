@@ -1,0 +1,186 @@
+<Window x:Class="TiketLaut.Views.Admin.AdminDetailDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Detail Admin" 
+        Height="500" 
+        Width="600"
+        ResizeMode="NoResize"
+        WindowStartupLocation="CenterOwner"
+        Background="#F8F9FA">
+    
+    <Window.Resources>
+        <Style x:Key="SecondaryButton" TargetType="Button">
+            <Setter Property="Background" Value="#6C757D"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="20,10"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                CornerRadius="5"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#5A6268"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
+
+    <Border CornerRadius="10" 
+            Background="White" 
+            Margin="20"
+            Padding="30">
+        <Border.Effect>
+            <DropShadowEffect BlurRadius="20" 
+                            ShadowDepth="0" 
+                            Opacity="0.1"/>
+        </Border.Effect>
+
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- Header -->
+            <StackPanel Grid.Row="0" Margin="0,0,0,30">
+                <TextBlock x:Name="txtTitle"
+                          Text="👤 Detail Informasi Admin"
+                          FontSize="24"
+                          FontWeight="Bold"
+                          Foreground="#042769"
+                          HorizontalAlignment="Center"/>
+                <Rectangle Height="3" 
+                          Fill="#00658D" 
+                          Margin="0,10,0,0"
+                          Width="100"
+                          HorizontalAlignment="Center"/>
+            </StackPanel>
+
+            <!-- Content -->
+            <ScrollViewer Grid.Row="1" 
+                         VerticalScrollBarVisibility="Auto">
+                <StackPanel>
+                    <!-- ID Admin -->
+                    <StackPanel Margin="0,0,0,20">
+                        <TextBlock Text="🔑 ID Admin"
+                                  FontSize="14"
+                                  FontWeight="SemiBold"
+                                  Foreground="#495057"
+                                  Margin="0,0,0,8"/>
+                        <Border Background="#E9ECEF" 
+                               CornerRadius="5" 
+                               Padding="15,12">
+                            <TextBlock x:Name="txtID"
+                                      FontSize="14"
+                                      Foreground="#042769"
+                                      FontWeight="Bold"/>
+                        </Border>
+                    </StackPanel>
+
+                    <!-- Nama Admin -->
+                    <StackPanel Margin="0,0,0,20">
+                        <TextBlock Text="👤 Nama Admin"
+                                  FontSize="14"
+                                  FontWeight="SemiBold"
+                                  Foreground="#495057"
+                                  Margin="0,0,0,8"/>
+                        <Border Background="#E9ECEF" 
+                               CornerRadius="5" 
+                               Padding="15,12">
+                            <TextBlock x:Name="txtNama"
+                                      FontSize="14"
+                                      Foreground="#212529"
+                                      FontWeight="SemiBold"/>
+                        </Border>
+                    </StackPanel>
+
+                    <!-- Email -->
+                    <StackPanel Margin="0,0,0,20">
+                        <TextBlock Text="📧 Email"
+                                  FontSize="14"
+                                  FontWeight="SemiBold"
+                                  Foreground="#495057"
+                                  Margin="0,0,0,8"/>
+                        <Border Background="#E9ECEF" 
+                               CornerRadius="5" 
+                               Padding="15,12">
+                            <TextBlock x:Name="txtEmail"
+                                      FontSize="14"
+                                      Foreground="#212529"/>
+                        </Border>
+                    </StackPanel>
+
+                    <!-- Role -->
+                    <StackPanel Margin="0,0,0,20">
+                        <TextBlock Text="🛡️ Role"
+                                  FontSize="14"
+                                  FontWeight="SemiBold"
+                                  Foreground="#495057"
+                                  Margin="0,0,0,8"/>
+                        <Border x:Name="borderRole"
+                               Background="#D1ECF1" 
+                               CornerRadius="5" 
+                               Padding="15,12">
+                            <TextBlock x:Name="txtRole"
+                                      FontSize="14"
+                                      Foreground="#0C5460"
+                                      FontWeight="Bold"/>
+                        </Border>
+                    </StackPanel>
+
+                    <!-- Created Date -->
+                    <StackPanel Margin="0,0,0,20">
+                        <TextBlock Text="📅 Tanggal Dibuat"
+                                  FontSize="14"
+                                  FontWeight="SemiBold"
+                                  Foreground="#495057"
+                                  Margin="0,0,0,8"/>
+                        <Border Background="#E9ECEF" 
+                               CornerRadius="5" 
+                               Padding="15,12">
+                            <TextBlock x:Name="txtCreatedAt"
+                                      FontSize="14"
+                                      Foreground="#212529"/>
+                        </Border>
+                    </StackPanel>
+
+                    <!-- Updated Date -->
+                    <StackPanel Margin="0,0,0,0">
+                        <TextBlock Text="🔄 Terakhir Diupdate"
+                                  FontSize="14"
+                                  FontWeight="SemiBold"
+                                  Foreground="#495057"
+                                  Margin="0,0,0,8"/>
+                        <Border Background="#E9ECEF" 
+                               CornerRadius="5" 
+                               Padding="15,12">
+                            <TextBlock x:Name="txtUpdatedAt"
+                                      FontSize="14"
+                                      Foreground="#212529"/>
+                        </Border>
+                    </StackPanel>
+                </StackPanel>
+            </ScrollViewer>
+
+            <!-- Action Buttons -->
+            <Grid Grid.Row="2" Margin="0,30,0,0">
+                <Button Style="{StaticResource SecondaryButton}"
+                       Content="✖️ Tutup"
+                       Click="BtnClose_Click"
+                       HorizontalAlignment="Center"/>
+            </Grid>
+        </Grid>
+    </Border>
+</Window>
