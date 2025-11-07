@@ -145,8 +145,10 @@
                                             <Button x:Name="PART_Button" 
                                                    Visibility="Collapsed"/>
                                             <Popup x:Name="PART_Popup" 
-                                                  PlacementTarget="{Binding ElementName=dpFilterDate}"
+                                                  PlacementTarget="{Binding ElementName=txtFilterDateDisplay}"
                                                   Placement="Bottom"
+                                                  HorizontalOffset="5"
+                                                  VerticalOffset="3"
                                                   AllowsTransparency="True"
                                                   StaysOpen="False"/>
                                         </Grid>
@@ -289,8 +291,8 @@
                             <Popup x:Name="popupPenumpang"
                                   PlacementTarget="{Binding ElementName=btnFilterPenumpang}"
                                   Placement="Bottom"
-                                  HorizontalOffset="0"
-                                  VerticalOffset="5"
+                                  HorizontalOffset="20"
+                                  VerticalOffset="7"
                                   AllowsTransparency="True"
                                   StaysOpen="False"
                                   Closed="PopupPenumpang_Closed">

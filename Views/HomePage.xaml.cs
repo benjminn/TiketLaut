@@ -639,12 +639,79 @@ namespace TiketLaut.Views
         // ========== EVENT HANDLERS UNTUK JAM INPUT ==========
 
         /// <summary>
+        /// Event handler untuk swap/tukar pelabuhan asal dan tujuan
+        /// </summary>
+        private void BtnSwapPelabuhan_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                // Simpan index yang dipilih saat ini
+                int tempAsalIndex = cmbPelabuhanAsal.SelectedIndex;
+                int tempTujuanIndex = cmbPelabuhanTujuan.SelectedIndex;
+
+                // Tukar selectedIndex
+                cmbPelabuhanAsal.SelectedIndex = tempTujuanIndex;
+                cmbPelabuhanTujuan.SelectedIndex = tempAsalIndex;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Terjadi kesalahan saat menukar pelabuhan: {ex.Message}", 
+                    "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        /// <summary>
+        /// Event handler ketika button tanggal diklik
+        /// </summary>
+        private void BtnTanggal_Click(object sender, RoutedEventArgs e)
+        {
+            if (dpTanggal != null)
+            {
+                // Pastikan DatePicker visible sebentar untuk bisa membuka calendar
+                dpTanggal.Visibility = Visibility.Visible;
+                dpTanggal.IsDropDownOpen = true;
+                // Akan di-collapsed lagi setelah calendar tertutup di event CalendarClosed
+            }
+        }
+
+        /// <summary>
         /// Event handler saat tanggal dipilih
         /// </summary>
         private void DpTanggal_SelectedDateChanged(object sender, SelectionChangedEventArgs e)
         {
+            if (dpTanggal.SelectedDate.HasValue && txtTanggalDisplay != null)
+            {
+                DateTime selectedDate = dpTanggal.SelectedDate.Value;
+                
+                // Format: "1/11/2025" (tanpa nama hari)
+                string formattedDate = $"{selectedDate.Day}/{selectedDate.Month}/{selectedDate.Year}";
+                txtTanggalDisplay.Text = formattedDate;
+            }
+
             if (IsLoaded) // Hanya jalankan jika window sudah fully loaded
                 LoadAvailableJamAsync();
+        }
+
+        /// <summary>
+        /// Event handler ketika calendar dibuka
+        /// </summary>
+        private void DpTanggal_CalendarOpened(object sender, RoutedEventArgs e)
+        {
+            System.Diagnostics.Debug.WriteLine("[HomePage] Calendar opened");
+        }
+
+        /// <summary>
+        /// Event handler ketika calendar ditutup
+        /// </summary>
+        private void DpTanggal_CalendarClosed(object sender, RoutedEventArgs e)
+        {
+            System.Diagnostics.Debug.WriteLine("[HomePage] Calendar closed");
+            
+            // Sembunyikan DatePicker lagi setelah calendar ditutup
+            if (dpTanggal != null)
+            {
+                dpTanggal.Visibility = Visibility.Collapsed;
+            }
         }
 
         /// <summary>
