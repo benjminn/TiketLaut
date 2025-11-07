@@ -21,6 +21,7 @@
 	  <None Remove="Views\Assets\Icons\back.png" />
 	  <None Remove="Views\Assets\Icons\iconarrowlong.png" />
 	  <None Remove="Views\Assets\Icons\iconarrowright.png" />
+	  <None Remove="Views\Assets\Icons\iconbolakbalik.png" />
 	  <None Remove="Views\Assets\Icons\iconbooking.png" />
 	  <None Remove="Views\Assets\Icons\icondropdown.png" />
 	  <None Remove="Views\Assets\Icons\icondropdowngelap.png" />
@@ -73,6 +74,7 @@
 	  <Resource Include="Views\Assets\Icons\iconarrowright.png">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Resource>
+	  <Resource Include="Views\Assets\Icons\iconbolakbalik.png" />
 	  <Resource Include="Views\Assets\Icons\iconbooking.png" />
 	  <Resource Include="Views\Assets\Icons\icondropdown.png">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>

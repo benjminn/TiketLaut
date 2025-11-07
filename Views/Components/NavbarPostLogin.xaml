@@ -169,9 +169,9 @@
                                   Foreground="#00658D"
                                   VerticalAlignment="Center"/>
 
-                        <!-- Username dengan warna #042769 -->
+                        <!-- Username dengan warna #042769 - HAPUS TEXT DEFAULT -->
                         <TextBlock x:Name="txtUserInfo"
-                                  Text="&lt;nama user&gt;"
+                                  Text=""
                                   FontSize="14"
                                   FontWeight="SemiBold"
                                   Foreground="#042769"

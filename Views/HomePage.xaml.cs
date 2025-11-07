@@ -1,7 +1,10 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Documents;
+using System.Windows.Media;
 using TiketLaut.Services;
 using TiketLaut.Models;
 
@@ -15,6 +18,7 @@ namespace TiketLaut.Views
         private bool _isLoggedIn = false;
         private string _currentUser = "";
         private readonly JadwalService _jadwalService;
+        private Button? _selectedVehicleButtonHome; // Track selected vehicle button for highlight
 
         // Constructor default (untuk pertama kali buka app)
         public HomePage()
@@ -204,7 +208,7 @@ namespace TiketLaut.Views
                 }
 
                 // Validasi Jenis Kendaraan (harus sebelum validasi penumpang)
-                if (cmbJenisKendaraan.SelectedIndex <= 0)
+                if (!int.TryParse(txtVehicle.Text, out int jenisKendaraanId) || jenisKendaraanId < 0)
                 {
                     MessageBox.Show("Silakan pilih Jenis Kendaraan!", "Peringatan",
                         MessageBoxButton.OK, MessageBoxImage.Warning);
@@ -212,7 +216,7 @@ namespace TiketLaut.Views
                 }
 
                 // Dapatkan index jenis kendaraan
-                int jenisKendaraanIndex = cmbJenisKendaraan.SelectedIndex - 1; // -1 karena index 0 adalah "Pilih"
+                int jenisKendaraanIndex = jenisKendaraanId;
                 
                 // Dapatkan maksimal penumpang untuk jenis kendaraan yang dipilih
                 int maksimalPenumpang = DetailKendaraan.GetMaksimalPenumpangByIndex(jenisKendaraanIndex);
@@ -346,9 +350,12 @@ namespace TiketLaut.Views
             }
         }
 
+        /// <summary>
+        /// OBSOLETE: Old ComboBox handler (not used anymore)
+        /// </summary>
         private void cmbJenisKendaraan_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            // Optional: bisa tambahkan logika untuk update harga preview
+            // No longer used - replaced by popup button system
         }
 
         private void navbarPreLogin_Loaded(object sender, RoutedEventArgs e)
@@ -369,8 +376,32 @@ namespace TiketLaut.Views
                 {
                     currentValue--;
                     txtPenumpang.Text = currentValue.ToString();
+                    
+                    // Sync ke popup textbox jika ada
+                    if (txtPopupPenumpangHome != null)
+                        txtPopupPenumpangHome.Text = currentValue.ToString();
+                    
                     UpdatePenumpangDisplay(currentValue);
+                    UpdatePopupButtonStatesHome(currentValue);
                 }
+            }
+        }
+
+        /// <summary>
+        /// Button untuk toggle popup penumpang
+        /// </summary>
+        private void BtnPenumpang_Click(object sender, RoutedEventArgs e)
+        {
+            if (popupPenumpangHome != null)
+            {
+                // Sync nilai dari hidden textbox ke popup textbox
+                if (int.TryParse(txtPenumpang.Text, out int current))
+                {
+                    txtPopupPenumpangHome.Text = current.ToString();
+                    UpdatePopupButtonStatesHome(current);
+                }
+                
+                popupPenumpangHome.IsOpen = !popupPenumpangHome.IsOpen;
             }
         }
 
@@ -388,7 +419,9 @@ namespace TiketLaut.Views
                 {
                     currentValue++;
                     txtPenumpang.Text = currentValue.ToString();
+                    txtPopupPenumpangHome.Text = currentValue.ToString();
                     UpdatePenumpangDisplay(currentValue);
+                    UpdatePopupButtonStatesHome(currentValue);
                 }
                 else
                 {
@@ -407,10 +440,10 @@ namespace TiketLaut.Views
         /// </summary>
         private int GetMaksimalPenumpangFromKendaraan()
         {
-            if (cmbJenisKendaraan == null || cmbJenisKendaraan.SelectedIndex <= 0)
+            if (txtVehicle == null || !int.TryParse(txtVehicle.Text, out int jenisKendaraanId) || jenisKendaraanId < 0)
                 return 10; // Default maksimal jika belum pilih kendaraan
 
-            int jenisKendaraanIndex = cmbJenisKendaraan.SelectedIndex - 1;
+            int jenisKendaraanIndex = jenisKendaraanId;
             return DetailKendaraan.GetMaksimalPenumpangByIndex(jenisKendaraanIndex);
         }
 
@@ -421,7 +454,146 @@ namespace TiketLaut.Views
         {
             if (txtPenumpangDisplay != null)
             {
-                txtPenumpangDisplay.Text = $"{count} Penumpang";
+                // Update menggunakan Inlines karena TextBlock menggunakan Run elements
+                txtPenumpangDisplay.Inlines.Clear();
+                txtPenumpangDisplay.Inlines.Add(new System.Windows.Documents.Run(count.ToString()));
+                txtPenumpangDisplay.Inlines.Add(new System.Windows.Documents.Run(" "));
+                txtPenumpangDisplay.Inlines.Add(new System.Windows.Documents.Run("Penumpang"));
+            }
+        }
+
+        /// <summary>
+        /// Validasi input hanya angka untuk TextBox penumpang popup
+        /// </summary>
+        private void TxtPopupPenumpangHome_PreviewTextInput(object sender, System.Windows.Input.TextCompositionEventArgs e)
+        {
+            // Hanya terima angka
+            e.Handled = !int.TryParse(e.Text, out _);
+        }
+
+        /// <summary>
+        /// Event handler ketika text penumpang popup berubah (manual input)
+        /// </summary>
+        private void TxtPopupPenumpangHome_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (txtPopupPenumpangHome == null || txtPenumpang == null)
+                return;
+
+            // Jika kosong, biarkan kosong (user sedang menghapus untuk ketik angka baru)
+            if (string.IsNullOrWhiteSpace(txtPopupPenumpangHome.Text))
+            {
+                return;
+            }
+
+            if (int.TryParse(txtPopupPenumpangHome.Text, out int value))
+            {
+                // Validasi tidak boleh 0
+                if (value == 0)
+                {
+                    txtPopupPenumpangHome.Text = "";
+                    txtPopupPenumpangHome.SelectionStart = 0;
+                    return;
+                }
+
+                // Validasi minimal 1
+                if (value < 1)
+                {
+                    value = 1;
+                    txtPopupPenumpangHome.Text = "1";
+                    txtPopupPenumpangHome.SelectionStart = 1;
+                }
+
+                // Validasi maksimal sesuai kendaraan
+                int maksimalPenumpang = GetMaksimalPenumpangFromKendaraan();
+                if (value > maksimalPenumpang)
+                {
+                    value = maksimalPenumpang;
+                    txtPopupPenumpangHome.Text = maksimalPenumpang.ToString();
+                    txtPopupPenumpangHome.SelectionStart = maksimalPenumpang.ToString().Length;
+                }
+
+                // Sync ke hidden textbox dan update display
+                txtPenumpang.Text = value.ToString();
+                UpdatePenumpangDisplay(value);
+                UpdatePopupButtonStatesHome(value);
+            }
+        }
+
+        /// <summary>
+        /// Update state enabled/disabled untuk button +/- di popup
+        /// </summary>
+        private void UpdatePopupButtonStatesHome(int current)
+        {
+            int maksimalPenumpang = GetMaksimalPenumpangFromKendaraan();
+            
+            if (btnPopupMinusPenumpangHome != null)
+                btnPopupMinusPenumpangHome.IsEnabled = current > 1;
+            
+            if (btnPopupPlusPenumpangHome != null)
+                btnPopupPlusPenumpangHome.IsEnabled = current < maksimalPenumpang;
+        }
+
+        /// <summary>
+        /// Event handler ketika popup penumpang ditutup
+        /// </summary>
+        private void PopupPenumpangHome_Closed(object sender, EventArgs e)
+        {
+            // Saat popup ditutup, jika TextBox kosong atau invalid, restore ke nilai terakhir yang valid
+            if (txtPopupPenumpangHome != null && txtPenumpang != null)
+            {
+                if (string.IsNullOrWhiteSpace(txtPopupPenumpangHome.Text))
+                {
+                    // Restore dari hidden textbox
+                    if (int.TryParse(txtPenumpang.Text, out int lastValue) && lastValue >= 1)
+                    {
+                        txtPopupPenumpangHome.Text = lastValue.ToString();
+                    }
+                    else
+                    {
+                        // Fallback ke 1
+                        txtPopupPenumpangHome.Text = "1";
+                        txtPenumpang.Text = "1";
+                        UpdatePenumpangDisplay(1);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Button minus di dalam popup untuk mengurangi jumlah penumpang
+        /// </summary>
+        private void BtnPopupMinusPenumpangHome_Click(object sender, RoutedEventArgs e)
+        {
+            if (int.TryParse(txtPopupPenumpangHome.Text, out int currentValue))
+            {
+                if (currentValue > 1)
+                {
+                    currentValue--;
+                    txtPopupPenumpangHome.Text = currentValue.ToString();
+                    txtPenumpang.Text = currentValue.ToString();
+                    UpdatePenumpangDisplay(currentValue);
+                    UpdatePopupButtonStatesHome(currentValue);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Button plus di dalam popup untuk menambah jumlah penumpang
+        /// </summary>
+        private void BtnPopupPlusPenumpangHome_Click(object sender, RoutedEventArgs e)
+        {
+            if (int.TryParse(txtPopupPenumpangHome.Text, out int currentValue))
+            {
+                int maksimalPenumpang = GetMaksimalPenumpangFromKendaraan();
+                
+                if (currentValue < maksimalPenumpang)
+                {
+                    currentValue++;
+                    txtPopupPenumpangHome.Text = currentValue.ToString();
+                    txtPenumpang.Text = currentValue.ToString();
+                    UpdatePenumpangDisplay(currentValue);
+                    UpdatePopupButtonStatesHome(currentValue);
+                }
             }
         }
 
@@ -440,7 +612,7 @@ namespace TiketLaut.Views
         private void TxtPenumpang_TextChanged(object sender, TextChangedEventArgs e)
         {
             // Null check untuk semua controls
-            if (txtPenumpang == null || btnMinusPenumpang == null || btnPlusPenumpang == null)
+            if (txtPenumpang == null)
                 return;
 
             // Prevent infinite loop during initialization
@@ -449,15 +621,11 @@ namespace TiketLaut.Views
 
             if (int.TryParse(txtPenumpang.Text, out int value))
             {
-                // Dapatkan maksimal penumpang berdasarkan kendaraan
-                int maksimalPenumpang = GetMaksimalPenumpangFromKendaraan();
-                
-                // Update button states
-                btnMinusPenumpang.IsEnabled = value > 1;
-                btnPlusPenumpang.IsEnabled = value < maksimalPenumpang;
-                
                 // Update display text
                 UpdatePenumpangDisplay(value);
+                
+                // Update popup button states jika popup sedang terbuka
+                UpdatePopupButtonStatesHome(value);
             }
             else
             {
@@ -478,12 +646,79 @@ namespace TiketLaut.Views
         // ========== EVENT HANDLERS UNTUK JAM INPUT ==========
 
         /// <summary>
+        /// Event handler untuk swap/tukar pelabuhan asal dan tujuan
+        /// </summary>
+        private void BtnSwapPelabuhan_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                // Simpan index yang dipilih saat ini
+                int tempAsalIndex = cmbPelabuhanAsal.SelectedIndex;
+                int tempTujuanIndex = cmbPelabuhanTujuan.SelectedIndex;
+
+                // Tukar selectedIndex
+                cmbPelabuhanAsal.SelectedIndex = tempTujuanIndex;
+                cmbPelabuhanTujuan.SelectedIndex = tempAsalIndex;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Terjadi kesalahan saat menukar pelabuhan: {ex.Message}", 
+                    "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        /// <summary>
+        /// Event handler ketika button tanggal diklik
+        /// </summary>
+        private void BtnTanggal_Click(object sender, RoutedEventArgs e)
+        {
+            if (dpTanggal != null)
+            {
+                // Pastikan DatePicker visible sebentar untuk bisa membuka calendar
+                dpTanggal.Visibility = Visibility.Visible;
+                dpTanggal.IsDropDownOpen = true;
+                // Akan di-collapsed lagi setelah calendar tertutup di event CalendarClosed
+            }
+        }
+
+        /// <summary>
         /// Event handler saat tanggal dipilih
         /// </summary>
         private void DpTanggal_SelectedDateChanged(object sender, SelectionChangedEventArgs e)
         {
+            if (dpTanggal.SelectedDate.HasValue && txtTanggalDisplay != null)
+            {
+                DateTime selectedDate = dpTanggal.SelectedDate.Value;
+                
+                // Format: "1/11/2025" (tanpa nama hari)
+                string formattedDate = $"{selectedDate.Day}/{selectedDate.Month}/{selectedDate.Year}";
+                txtTanggalDisplay.Text = formattedDate;
+            }
+
             if (IsLoaded) // Hanya jalankan jika window sudah fully loaded
                 LoadAvailableJamAsync();
+        }
+
+        /// <summary>
+        /// Event handler ketika calendar dibuka
+        /// </summary>
+        private void DpTanggal_CalendarOpened(object sender, RoutedEventArgs e)
+        {
+            System.Diagnostics.Debug.WriteLine("[HomePage] Calendar opened");
+        }
+
+        /// <summary>
+        /// Event handler ketika calendar ditutup
+        /// </summary>
+        private void DpTanggal_CalendarClosed(object sender, RoutedEventArgs e)
+        {
+            System.Diagnostics.Debug.WriteLine("[HomePage] Calendar closed");
+            
+            // Sembunyikan DatePicker lagi setelah calendar ditutup
+            if (dpTanggal != null)
+            {
+                dpTanggal.Visibility = Visibility.Collapsed;
+            }
         }
 
         /// <summary>
@@ -514,48 +749,11 @@ namespace TiketLaut.Views
         }
 
         /// <summary>
-        /// Event handler saat jenis kendaraan dipilih - mengatur maksimal penumpang
+        /// OBSOLETE: Event handler untuk ComboBox (diganti dengan Popup)
         /// </summary>
         private void CmbJenisKendaraan_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (!IsLoaded || cmbJenisKendaraan == null || txtPenumpang == null)
-                return;
-
-            int selectedIndex = cmbJenisKendaraan.SelectedIndex;
-            
-            // Index 0 adalah "Pilih Jenis Kendaraan", skip
-            if (selectedIndex <= 0)
-                return;
-
-            // Get jenis kendaraan (index - 1 karena index 0 adalah placeholder)
-            int jenisKendaraanIndex = selectedIndex - 1;
-            
-            // Dapatkan maksimal penumpang untuk kendaraan ini
-            int maksimalPenumpang = DetailKendaraan.GetMaksimalPenumpangByIndex(jenisKendaraanIndex);
-            
-            // Ambil nilai penumpang saat ini
-            if (int.TryParse(txtPenumpang.Text, out int currentPenumpang))
-            {
-                // Jika jumlah penumpang saat ini melebihi maksimal, set ke maksimal
-                if (currentPenumpang > maksimalPenumpang)
-                {
-                    txtPenumpang.Text = maksimalPenumpang.ToString();
-                    UpdatePenumpangDisplay(maksimalPenumpang);
-                }
-            }
-            else
-            {
-                // Jika tidak valid, set ke 1
-                txtPenumpang.Text = "1";
-                UpdatePenumpangDisplay(1);
-            }
-
-            // Update button states dengan maksimal baru
-            UpdatePenumpangButtonStates(maksimalPenumpang);
-            
-            // Tampilkan notifikasi kepada user
-            string jenisKendaraanText = GetJenisKendaraanText(jenisKendaraanIndex);
-            System.Diagnostics.Debug.WriteLine($"[HomePage] Jenis kendaraan dipilih: {jenisKendaraanText}, Maks penumpang: {maksimalPenumpang}");
+            // No longer used - replaced by popup button system
         }
 
         /// <summary>
@@ -563,13 +761,13 @@ namespace TiketLaut.Views
         /// </summary>
         private void UpdatePenumpangButtonStates(int maksimalPenumpang)
         {
-            if (btnMinusPenumpang == null || btnPlusPenumpang == null || txtPenumpang == null)
+            if (txtPenumpang == null)
                 return;
 
             if (int.TryParse(txtPenumpang.Text, out int value))
             {
-                btnMinusPenumpang.IsEnabled = value > 1;
-                btnPlusPenumpang.IsEnabled = value < maksimalPenumpang;
+                // Update popup button states jika tersedia
+                UpdatePopupButtonStatesHome(value);
             }
         }
 
@@ -622,6 +820,167 @@ namespace TiketLaut.Views
                     cmbJam.Items.Add(new ComboBoxItem { Content = $"{i:D2}:00", Tag = i });
                 }
                 cmbJam.SelectedIndex = 0;
+            }
+        }
+
+        /// <summary>
+        /// Event handler untuk button toggle popup kendaraan
+        /// </summary>
+        private void BtnVehicle_Click(object sender, RoutedEventArgs e)
+        {
+            if (popupVehicleHome != null)
+            {
+                popupVehicleHome.IsOpen = !popupVehicleHome.IsOpen;
+            }
+        }
+
+        /// <summary>
+        /// Event handler ketika popup kendaraan dibuka - maintain highlight state
+        /// </summary>
+        private void PopupVehicleHome_Opened(object sender, EventArgs e)
+        {
+            // Maintain selected button highlight when popup reopens
+            if (_selectedVehicleButtonHome != null)
+            {
+                var blueBrush = new SolidColorBrush(
+                    (Color)ColorConverter.ConvertFromString("#b7def8ff")); // Soft blue
+                _selectedVehicleButtonHome.SetValue(Button.BackgroundProperty, blueBrush);
+            }
+        }
+
+        /// <summary>
+        /// Event handler untuk memilih opsi kendaraan
+        /// </summary>
+        private void BtnVehicleOptionHome_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button button && button.Tag is string tagValue)
+            {
+                // Parse tag format: "ID|Name"
+                var parts = tagValue.Split('|');
+                if (parts.Length == 2 && int.TryParse(parts[0], out int jenisKendaraanId))
+                {
+                    string vehicleName = parts[1];
+                    
+                    // Reset previous selected button - clear local value to allow style to work
+                    if (_selectedVehicleButtonHome != null)
+                    {
+                        _selectedVehicleButtonHome.ClearValue(Button.BackgroundProperty);
+                    }
+                    
+                    // Set local value on current button - use soft blue color
+                    var blueBrush = new SolidColorBrush(
+                        (Color)ColorConverter.ConvertFromString("#b7def8ff")); // Soft blue - same as hover
+                    button.SetValue(Button.BackgroundProperty, blueBrush);
+                    
+                    // Save current selected button
+                    _selectedVehicleButtonHome = button;
+                    
+                    // Update display text and hidden value
+                    UpdateVehicleDisplay(jenisKendaraanId, vehicleName);
+                    txtVehicle.Text = jenisKendaraanId.ToString();
+
+                    // Get max passengers for this vehicle
+                    int maksimalPenumpang = DetailKendaraan.GetMaksimalPenumpangByIndex(jenisKendaraanId);
+                    
+                    System.Diagnostics.Debug.WriteLine($"[HomePage] Kendaraan dipilih: {vehicleName} (ID: {jenisKendaraanId}), Maks penumpang: {maksimalPenumpang}");
+                    
+                    // Check current passenger count
+                    if (int.TryParse(txtPenumpang.Text, out int currentPenumpang))
+                    {
+                        // If current passengers exceed max, adjust to max
+                        if (currentPenumpang > maksimalPenumpang)
+                        {
+                            int newValue = maksimalPenumpang;
+                            txtPenumpang.Text = newValue.ToString();
+                            
+                            MessageBox.Show(
+                                $"Jumlah penumpang disesuaikan menjadi {newValue} (maksimal untuk kendaraan ini).",
+                                "Info",
+                                MessageBoxButton.OK,
+                                MessageBoxImage.Information);
+                        }
+                    }
+
+                    // Close popup
+                    if (popupVehicleHome != null)
+                    {
+                        popupVehicleHome.IsOpen = false;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Helper method to find Border element inside button template
+        /// </summary>
+        private Border? FindChildBorder(DependencyObject parent)
+        {
+            if (parent == null) return null;
+
+            int childCount = VisualTreeHelper.GetChildrenCount(parent);
+            for (int i = 0; i < childCount; i++)
+            {
+                var child = VisualTreeHelper.GetChild(parent, i);
+                
+                if (child is Border border)
+                {
+                    return border;
+                }
+                
+                // Recursively search in children
+                var result = FindChildBorder(child);
+                if (result != null)
+                {
+                    return result;
+                }
+            }
+            
+            return null;
+        }
+
+        private void UpdateVehicleDisplay(int id, string vehicleName)
+        {
+            // Clear existing text
+            txtVehicleDisplay.Inlines.Clear();
+
+            // Create color for golongan
+            var golonganBrush = new SolidColorBrush(
+                (Color)ColorConverter.ConvertFromString("#00B4B5"));
+
+            // Map ID to golongan
+            Dictionary<int, string> golonganMap = new Dictionary<int, string>
+            {
+                { 0, "" },  // Pejalan Kaki - no golongan
+                { 1, " (Golongan I)" },
+                { 2, " (Golongan II)" },
+                { 3, " (Golongan III)" },
+                { 4, " (Golongan IVA)" },
+                { 5, " (Golongan IVB)" },
+                { 6, " (Golongan VA)" },
+                { 7, " (Golongan VB)" },
+                { 8, " (Golongan VIA)" },
+                { 9, " (Golongan VIB)" },
+                { 10, " (Golongan VII)" },
+                { 11, " (Golongan VIII)" },
+                { 12, " (Golongan IX)" }
+            };
+
+            // Create runs with different colors
+            var nameRun = new Run(vehicleName)
+            {
+                Foreground = Brushes.Black
+            };
+
+            txtVehicleDisplay.Inlines.Add(nameRun);
+
+            // Add golongan if exists
+            if (golonganMap.ContainsKey(id) && !string.IsNullOrEmpty(golonganMap[id]))
+            {
+                var golonganRun = new Run(golonganMap[id])
+                {
+                    Foreground = golonganBrush
+                };
+                txtVehicleDisplay.Inlines.Add(golonganRun);
             }
         }
     }

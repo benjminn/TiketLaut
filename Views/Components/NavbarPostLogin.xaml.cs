@@ -1,5 +1,6 @@
 using System.Windows;
 using System.Windows.Controls;
+using TiketLaut.Services;
 
 namespace TiketLaut.Views.Components
 {
@@ -29,8 +30,11 @@ namespace TiketLaut.Views.Components
                 return;
             }
 
-            // Navigasi ke HomePage dengan mempertahankan ukuran window
-            var homePage = new HomePage(isLoggedIn: true);
+            // Navigasi ke HomePage dengan mempertahankan session yang sebenarnya
+            bool isLoggedIn = SessionManager.IsLoggedIn;
+            string username = SessionManager.CurrentUser?.nama ?? "";
+
+            var homePage = new HomePage(isLoggedIn: isLoggedIn, username: username);
             if (currentWindow != null)
             {
                 homePage.Left = currentWindow.Left;
@@ -42,6 +46,7 @@ namespace TiketLaut.Views.Components
             homePage.Show();
             currentWindow?.Close();
         }
+
 
         private void BtnCekBooking_Click(object sender, RoutedEventArgs e)
         {
@@ -112,6 +117,9 @@ namespace TiketLaut.Views.Components
 
             if (result == MessageBoxResult.Yes)
             {
+                // Clear session terlebih dahulu
+                SessionManager.Logout();
+
                 var homePage = new HomePage(isLoggedIn: false);
                 Window.GetWindow(this)?.Close();
                 homePage.Show();

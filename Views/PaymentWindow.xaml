@@ -229,7 +229,7 @@
 
                                 <TextBlock Grid.Column="2"
                                      x:Name="txtDeadlineTime"
-                                     Text="24 Oktober 2025, 18:30 WIB (23:59:59)"
+                                     Text=" "
                                      FontSize="16"
                                      FontWeight="Bold"
                                      Foreground="#042769"
@@ -588,7 +588,7 @@
                                         </Border>
                                         <StackPanel VerticalAlignment="Center">
                                             <TextBlock x:Name="txtBankName"
-                                                 Text="Bank BCA"
+                                                 Text=" "
                                                  FontSize="16"
                                                  FontWeight="Bold"
                                                  Foreground="#042769"
@@ -614,7 +614,7 @@
                                             </Grid.ColumnDefinitions>
                                             <TextBlock x:Name="txtAccountNumber"
                                                  Grid.Column="0"
-                                                 Text="385 0833 817"
+                                                 Text=" "
                                                  FontSize="20"
                                                  FontWeight="Bold"
                                                  Foreground="#042769"
@@ -651,11 +651,13 @@
                                             <StackPanel Grid.Column="0" 
                                                   Orientation="Horizontal" 
                                                   VerticalAlignment="Center">
-                                                <TextBlock Text="IDR  487."
+                                                <TextBlock x:Name="txtInstructionTotalPembayaran"
+                                                     Text=" "
                                                      FontSize="20"
                                                      FontWeight="Bold"
                                                      Foreground="#042769"/>
-                                                <TextBlock Text="123"
+                                                <TextBlock x:Name="txtInstructionTotalPembayaranDigit"
+                                                     Text=" "
                                                      FontSize="20"
                                                      FontWeight="Bold"
                                                      Foreground="#267DAE"/>
@@ -744,7 +746,7 @@
                             <!-- Order Details -->
                             <StackPanel Margin="0,0,0,16">
                                 <TextBlock x:Name="txtOrderId"
-                                    Text="Order ID: 1234567890"
+                                    Text=" "
                                      FontSize="16"
                                      FontWeight="SemiBold"
                                      Foreground="#267DAE"
@@ -753,7 +755,7 @@
 
                                 <StackPanel>
                                     <TextBlock x:Name="txtFerryType"
-                                         Text="Reguler"
+                                         Text=" "
                                          FontSize="20"
                                          FontWeight="Bold"
                                          Foreground="#042769"
@@ -764,7 +766,7 @@
                                           HorizontalAlignment="Left"
                                           Margin="0,0,0,8">
                                         <TextBlock x:Name="txtDeparturePort"
-                                            Text="Bakauheni"
+                                            Text=" "
                                              FontSize="16"
                                              FontWeight="SemiBold"
                                              Foreground="#267DAE"
@@ -782,7 +784,7 @@
                                           Margin="0,0,8,0"/>
 
                                         <TextBlock x:Name="txtArrivalPort"
-                                            Text="Merak"
+                                            Text=" "
                                              FontSize="16"
                                              FontWeight="SemiBold"
                                              Foreground="#267DAE"
@@ -791,7 +793,7 @@
                                     </StackPanel>
 
                                     <TextBlock x:Name="txtDateTime" 
-                                        Text="Kam, 23 Okt 2025 - 20:30"
+                                        Text=" "
                                          FontSize="16"
                                          FontWeight="Medium"
                                          Foreground="#042769"
@@ -823,13 +825,13 @@
                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                                         <StackPanel Orientation="Horizontal" Margin="0,0,8,0">
                                             <TextBlock x:Name="txtTotalPembayaran"
-                                                 Text="IDR 487."
+                                                 Text=" "
                                                  FontSize="16"
                                                  FontWeight="Bold"
                                                  Foreground="#042769"
                                                  VerticalAlignment="Center"/>
                                             <TextBlock x:Name="txtTotalPembayaranDigit"
-                                                 Text="123"
+                                                 Text=" "
                                                  FontSize="16"
                                                  FontWeight="Bold"
                                                  Foreground="#267DAE"
@@ -863,7 +865,7 @@
 
                                     <TextBlock x:Name="txtDetailKendaraan"
                                          Grid.Column="0"
-                                         Text="Sepeda Motor (&lt;500cc)"
+                                         Text=" "
                                          FontSize="14"
                                          FontWeight="Medium"
                                          Foreground="#042769"
@@ -871,7 +873,7 @@
 
                                     <TextBlock x:Name="txtHargaKendaraan"
                                          Grid.Column="1"
-                                         Text="IDR 50.000"
+                                         Text=" "
                                          FontSize="14"
                                          FontWeight="SemiBold"
                                          Foreground="#042769"
@@ -888,7 +890,7 @@
 
                                     <TextBlock x:Name="txtDetailPenumpang"
                                          Grid.Column="0"
-                                         Text="Dewasa (3x)"
+                                         Text=" "
                                          FontSize="14"
                                          FontWeight="Medium"
                                          Foreground="#042769"
@@ -913,7 +915,7 @@
                                          Margin="0,0,0,4"/>
                                     <!-- Keterangan Kode Unik (hanya muncul untuk Transfer Bank) -->
                                     <TextBlock x:Name="txtKodeUnik"
-                                         Text="Kode unik (+123) pada 3 digit terakhir"
+                                         Text=" "
                                          FontSize="12"
                                          FontWeight="Medium"
                                          Foreground="#DC2626"
@@ -930,12 +932,12 @@
                                          HorizontalAlignment="Left"/>
                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                                         <TextBlock x:Name="txtDetailTotalPembayaran"
-                                             Text="IDR 487."
+                                             Text=" "
                                              FontSize="16"
                                              FontWeight="Bold"
                                              Foreground="#042769"/>
                                         <TextBlock x:Name="txtDetailTotalPembayaranDigit"
-                                             Text="123"
+                                             Text=" "
                                              FontSize="16"
                                              FontWeight="Bold"
                                              Foreground="#267DAE"/>
