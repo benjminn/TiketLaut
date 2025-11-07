@@ -10,6 +10,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using TiketLaut.Models;
 using TiketLaut.Services;
+using TiketLaut.Views;
 
 namespace TiketLaut.Views
 {
@@ -28,15 +29,7 @@ namespace TiketLaut.Views
             InitializeComponent();
             _jadwalService = new JadwalService();
 
-            // Set user info di navbar - FIXED to use SessionManager
-            if (SessionManager.IsLoggedIn && SessionManager.CurrentUser != null)
-            {
-                navbarPostLogin.SetUserInfo(SessionManager.CurrentUser.nama);
-            }
-            else
-            {
-                navbarPostLogin.SetUserInfo("Guest User");
-            }
+            SetNavbarVisibility();
 
             // CHECK: Apakah ada data pencarian tersimpan di session?
             if (SessionManager.LastSearchCriteria != null && SessionManager.LastSearchResults != null)
@@ -78,20 +71,36 @@ namespace TiketLaut.Views
             _jadwals = jadwals;
             _searchCriteria = searchCriteria;
 
+            SetNavbarVisibility();
+
             // Populate filter dropdown dengan data user
             LoadFilterDropdownsAsync();
 
             LoadScheduleFromDatabase();
+        }
 
-            // Set user info di navbar
-            if (TiketLaut.Services.SessionManager.IsLoggedIn &&
-                TiketLaut.Services.SessionManager.CurrentUser != null)
+
+        /// <summary>
+        /// Set navbar visibility based on user login status
+        /// </summary>
+        private void SetNavbarVisibility()
+        {
+            if (SessionManager.IsLoggedIn && SessionManager.CurrentUser != null)
             {
-                navbarPostLogin.SetUserInfo(TiketLaut.Services.SessionManager.CurrentUser.nama);
+                // User sudah login - tampilkan NavbarPostLogin
+                navbarPreLogin.Visibility = Visibility.Collapsed;
+                navbarPostLogin.Visibility = Visibility.Visible;
+                navbarPostLogin.SetUserInfo(SessionManager.CurrentUser.nama);
+
+                System.Diagnostics.Debug.WriteLine($"[ScheduleWindow] Logged in user: {SessionManager.CurrentUser.nama}");
             }
             else
             {
-                navbarPostLogin.SetUserInfo("Guest User");
+                // User belum login - tampilkan NavbarPreLogin
+                navbarPreLogin.Visibility = Visibility.Visible;
+                navbarPostLogin.Visibility = Visibility.Collapsed;
+
+                System.Diagnostics.Debug.WriteLine("[ScheduleWindow] Guest user - showing NavbarPreLogin");
             }
         }
 
@@ -1091,10 +1100,12 @@ namespace TiketLaut.Views
 
                     if (result == MessageBoxResult.Yes)
                     {
-                        // ? BENAR - User ingin login, buka LoginWindow
+                        // ? FIX: Pastikan menggunakan LoginSource.ScheduleWindow
                         try
                         {
-                            var loginWindow = new LoginWindow();
+                            System.Diagnostics.Debug.WriteLine("[ScheduleWindow] Navigating to LoginWindow with ScheduleWindow source");
+
+                            var loginWindow = new LoginWindow(LoginSource.ScheduleWindow); // ? PENTING: Gunakan ScheduleWindow bukan HomePage!
 
                             // Preserve window size and position for login window
                             loginWindow.Left = this.Left;

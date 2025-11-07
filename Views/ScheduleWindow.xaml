@@ -19,6 +19,11 @@
         </Grid.RowDefinitions>
 
         <!-- Navbar Component -->
+        <components:NavbarPreLogin Grid.Row="0"
+                            x:Name="navbarPreLogin"
+                            VerticalAlignment="Top"
+                            Panel.ZIndex="999"
+                            Visibility="Collapsed"/>
         <components:NavbarPostLogin Grid.Row="0"
                                     x:Name="navbarPostLogin"
                                     VerticalAlignment="Top"

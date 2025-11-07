@@ -26,49 +26,77 @@
 
             <!-- Background putih dengan rounded corner -->
             <Border Background="White"
-                    CornerRadius="0,90,90,0"
-                    MaxWidth="1000"
-                    Margin="0,0,0,0">
+            CornerRadius="0,90,90,0"
+            MaxWidth="1000"
+            Margin="0,0,0,0">
                 <Border.Effect>
                     <DropShadowEffect 
-                        Direction="0" 
-                        ShadowDepth="0"
-                        BlurRadius="68.5"
-                        Color="#000000" 
-                        Opacity="0.36"/>
+                Direction="0" 
+                ShadowDepth="0"
+                BlurRadius="68.5"
+                Color="#000000" 
+                Opacity="0.36"/>
                 </Border.Effect>
 
-                <StackPanel HorizontalAlignment="Center" 
-                           VerticalAlignment="Center"
-                           Margin="40">
-                    <!-- Logo -->
-                    <Viewbox MaxWidth="300" 
-                             MaxHeight="250" 
-                             MinWidth="200"
-                             MinHeight="150"
-                             Margin="0,0,0,30">
-                        <Image Source="pack://application:,,,/Views/Assets/Images/logo.png"
-                               Stretch="Uniform"
-                               HorizontalAlignment="Center"
-                               VerticalAlignment="Center"/>
-                    </Viewbox>
+                <Grid>
+                    <!-- Back Button di kiri atas -->
+                    <Button Click="BtnKembali_Click"
+                   Background="Transparent" 
+                   BorderThickness="0" 
+                   Cursor="Hand"
+                   HorizontalAlignment="Left"
+                   VerticalAlignment="Top"
+                   Margin="30,30,0,0"
+                   Padding="8"
+                   Width="Auto"
+                   Height="Auto">
+                        <StackPanel Orientation="Horizontal">
+                            <Image Source="/Views/Assets/Icons/back.png" 
+                           Width="24" 
+                           Height="24" 
+                           Margin="0,0,10,0"/>
+                            <TextBlock Text="Kembali" 
+                              FontSize="20" 
+                              FontWeight="SemiBold" 
+                              Foreground="#042769"
+                              VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
 
-                    <!-- Deskripsi -->
-                    <TextBlock FontSize="20"
-                               FontFamily="Plus Jakarta Sans"
-                               FontWeight="Bold"
-                               Foreground="#042769"
-                               HorizontalAlignment="Center"
-                               TextAlignment="Center"
-                               Margin="20,0,20,5"
-                               TextWrapping="Wrap">
-                        <Run Text="Pesan tiket kapal ferry ke berbagai pelabuhan"/>
-                        <LineBreak/>
-                        <Run Text="tujuan hanya dengan sekali klik!"/>
-                    </TextBlock>
-                </StackPanel>
+                    <!-- Logo dan Deskripsi (tetap di center) -->
+                    <StackPanel HorizontalAlignment="Center" 
+                       VerticalAlignment="Center"
+                       Margin="40">
+                        <!-- Logo -->
+                        <Viewbox MaxWidth="300" 
+                         MaxHeight="250" 
+                         MinWidth="200"
+                         MinHeight="150"
+                         Margin="0,0,0,30">
+                            <Image Source="pack://application:,,,/Views/Assets/Images/logo.png"
+                           Stretch="Uniform"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Center"/>
+                        </Viewbox>
+
+                        <!-- Deskripsi -->
+                        <TextBlock FontSize="20"
+                           FontFamily="Plus Jakarta Sans"
+                           FontWeight="Bold"
+                           Foreground="#042769"
+                           HorizontalAlignment="Center"
+                           TextAlignment="Center"
+                           Margin="20,0,20,5"
+                           TextWrapping="Wrap">
+                    <Run Text="Pesan tiket kapal ferry ke berbagai pelabuhan"/>
+                    <LineBreak/>
+                    <Run Text="tujuan hanya dengan sekali klik!"/>
+                        </TextBlock>
+                    </StackPanel>
+                </Grid>
             </Border>
         </Grid>
+
 
         <!-- Panel Kanan - Form Login -->
         <Grid Grid.Column="1" 
