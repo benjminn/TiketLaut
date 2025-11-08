@@ -8,13 +8,15 @@ namespace TiketLaut.Views
 {
     public partial class AdminTiketDetailWindow : Window
     {
-        private Tiket? _tiket;
         private readonly int _tiketId;
+        private Tiket? _tiket;
+        private readonly TiketService _tiketService;
 
         public AdminTiketDetailWindow(int tiketId)
         {
             InitializeComponent();
             _tiketId = tiketId;
+            _tiketService = new TiketService();
             LoadTiketDetail();
         }
 
@@ -33,7 +35,7 @@ namespace TiketLaut.Views
                     SetStatusColor(_tiket.status_tiket ?? "Unknown");
                     txtTanggalPemesanan.Text = _tiket.tanggal_pemesanan.ToString("dd MMMM yyyy HH:mm");
                     txtTotalHarga.Text = $"Rp {_tiket.total_harga:N0}";
-                    
+
                     // Get metode pembayaran from Pembayaran table (latest payment)
                     var pembayaran = _tiket.Pembayarans?.OrderByDescending(p => p.tanggal_bayar).FirstOrDefault();
                     txtMetodePembayaran.Text = pembayaran?.metode_pembayaran ?? "Belum dibayar";
@@ -56,7 +58,7 @@ namespace TiketLaut.Views
 
                     // Detail Perjalanan
                     txtJumlahPenumpang.Text = $"{_tiket.jumlah_penumpang} orang";
-                    
+
                     // Golongan Kendaraan dengan keterangan
                     // Parse enum dari string
                     if (Enum.TryParse<JenisKendaraan>(_tiket.jenis_kendaraan_enum, out var jenisKendaraanEnum))
@@ -70,7 +72,7 @@ namespace TiketLaut.Views
                         txtGolonganKendaraan.Text = _tiket.jenis_kendaraan_enum;
                         txtKeteranganGolongan.Text = "";
                     }
-                    
+
                     txtPlatNomor.Text = _tiket.plat_nomor ?? "-";
 
                     // Rute (load from jadwal)
@@ -84,7 +86,7 @@ namespace TiketLaut.Views
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error loading tiket detail: {ex.Message}", "Error", 
+                MessageBox.Show($"Error loading tiket detail: {ex.Message}", "Error",
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
@@ -135,22 +137,62 @@ namespace TiketLaut.Views
         private void BtnVerifikasiPembayaran_Click(object sender, RoutedEventArgs e)
         {
             if (_tiket == null) return;
-            
-            // Show message untuk navigasi manual
-            var result = MessageBox.Show(
-                $"Tiket: {_tiket.kode_tiket}\n" +
-                $"Status: {_tiket.status_tiket}\n\n" +
-                "Silakan buka menu 'Kelola Pembayaran' di Admin Panel untuk verifikasi pembayaran tiket ini.\n\n" +
-                "Apakah Anda ingin menutup window ini?",
-                "Info Verifikasi Pembayaran",
-                MessageBoxButton.YesNo,
-                MessageBoxImage.Information
-            );
 
-            if (result == MessageBoxResult.Yes)
+            try
             {
-                Close();
+                // Check if payment exists
+                var pembayaran = _tiket.Pembayarans?.OrderByDescending(p => p.tanggal_bayar).FirstOrDefault();
+
+                if (pembayaran == null)
+                {
+                    MessageBox.Show(
+                        $"Tiket: {_tiket.kode_tiket}\n\n" +
+                        "Tidak ada data pembayaran untuk tiket ini.\n\n" +
+                        "Silakan tambahkan pembayaran terlebih dahulu di menu 'Kelola Pembayaran'.",
+                        "Pembayaran Tidak Ditemukan",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Information
+                    );
+                }
+                else
+                {
+                    // Show payment detail
+                    var result = MessageBox.Show(
+                        $"Tiket: {_tiket.kode_tiket}\n" +
+                        $"Metode Pembayaran: {pembayaran.metode_pembayaran}\n" +
+                        $"Jumlah: Rp {pembayaran.jumlah_bayar:N0}\n" +
+                        $"Status: {pembayaran.status_bayar}\n" +
+                        $"Tanggal: {pembayaran.tanggal_bayar:dd MMMM yyyy HH:mm}\n\n" +
+                        "Buka detail pembayaran di 'Kelola Pembayaran'?",
+                        "Detail Pembayaran",
+                        MessageBoxButton.YesNo,
+                        MessageBoxImage.Information
+                    );
+
+                    if (result == MessageBoxResult.Yes)
+                    {
+                        Close();
+                    }
+                }
             }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error: {ex.Message}", "Error",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void BtnDetailJadwal_Click(object sender, RoutedEventArgs e)
+        {
+            if (_tiket == null || _tiket.jadwal_id == 0)
+            {
+                MessageBox.Show("Data jadwal tidak ditemukan untuk tiket ini.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            var jadwalWindow = new AdminJadwalDetailWindow(_tiket.jadwal_id);
+            jadwalWindow.Owner = this;
+            jadwalWindow.ShowDialog();
         }
 
         private void BtnClose_Click(object sender, RoutedEventArgs e)
