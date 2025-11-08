@@ -322,7 +322,7 @@
                             <Border Grid.Column="1" Style="{StaticResource CardStyle}" Margin="0,0,15,0">
                                 <StackPanel>
                                     <TextBlock Text="Pendapatan Hari Ini" FontSize="12" Foreground="#6C757D"/>
-                                    <TextBlock x:Name="txtPendapatanHariIni" Text="IDR 0" FontSize="24" FontWeight="Bold" Foreground="#20C997" Margin="0,5"/>
+                                    <TextBlock x:Name="txtPendapatanHariIni" Text="Rp 0" FontSize="24" FontWeight="Bold" Foreground="#20C997" Margin="0,5"/>
                                 </StackPanel>
                             </Border>
 
@@ -330,16 +330,284 @@
                             <Border Grid.Column="2" Style="{StaticResource CardStyle}">
                                 <StackPanel>
                                     <TextBlock Text="Pendapatan Bulan Ini" FontSize="12" Foreground="#6C757D"/>
-                                    <TextBlock x:Name="txtPendapatanBulanIni" Text="IDR 0" FontSize="24" FontWeight="Bold" Foreground="#17A2B8" Margin="0,5"/>
+                                    <TextBlock x:Name="txtPendapatanBulanIni" Text="Rp 0" FontSize="24" FontWeight="Bold" Foreground="#17A2B8" Margin="0,5"/>
                                 </StackPanel>
                             </Border>
                         </Grid>
+
+                        <!-- Insights Row (NEW) -->
+                        <Grid Margin="0,0,0,20">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Pengguna Baru 7 Hari -->
+                            <Border Grid.Column="0" Style="{StaticResource CardStyle}" Margin="0,0,15,0">
+                                <StackPanel>
+                                    <TextBlock Text="Pengguna Baru (7 Hari)" FontSize="12" Foreground="#6C757D"/>
+                                    <TextBlock x:Name="txtPenggunaBaru" Text="0" FontSize="32" FontWeight="Bold" Foreground="#6F42C1" Margin="0,5"/>
+                                    <TextBlock Text="📈 Minggu ini" FontSize="10" Foreground="#6C757D"/>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Tiket Hari Ini -->
+                            <Border Grid.Column="1" Style="{StaticResource CardStyle}" Margin="0,0,15,0">
+                                <StackPanel>
+                                    <TextBlock Text="Tiket Hari Ini" FontSize="12" Foreground="#6C757D"/>
+                                    <TextBlock x:Name="txtTiketHariIni" Text="0" FontSize="32" FontWeight="Bold" Foreground="#FF6B6B" Margin="0,5"/>
+                                    <TextBlock Text="🎫 Hari ini" FontSize="10" Foreground="#6C757D"/>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Jadwal Minggu Depan -->
+                            <Border Grid.Column="2" Style="{StaticResource CardStyle}" Margin="0,0,15,0">
+                                <StackPanel>
+                                    <TextBlock Text="Jadwal Minggu Depan" FontSize="12" Foreground="#6C757D"/>
+                                    <TextBlock x:Name="txtJadwalMingguDepan" Text="0" FontSize="32" FontWeight="Bold" Foreground="#4ECDC4" Margin="0,5"/>
+                                    <TextBlock Text="📅 7 hari ke depan" FontSize="10" Foreground="#6C757D"/>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Rata-rata Pendapatan Per Hari -->
+                            <Border Grid.Column="3" Style="{StaticResource CardStyle}">
+                                <StackPanel>
+                                    <TextBlock Text="Rata-rata Pendapatan/Hari" FontSize="12" Foreground="#6C757D"/>
+                                    <TextBlock x:Name="txtRataPendapatan" Text="Rp 0" FontSize="24" FontWeight="Bold" Foreground="#F39C12" Margin="0,5"/>
+                                    <TextBlock Text="💰 Bulan ini" FontSize="10" Foreground="#6C757D"/>
+                                </StackPanel>
+                            </Border>
+                        </Grid>
+
+                        <!-- Tabel Detail Pendapatan Per Rute & Kapal -->
+                        <Border Style="{StaticResource CardStyle}" Margin="0,30,0,0">
+                            <StackPanel>
+                                <!-- Header Tabel dengan Filter Bulan -->
+                                <Grid Margin="0,0,0,15">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                                        <TextBlock Text="Detail Pendapatan per Rute &amp; Kapal" 
+                                                  FontSize="18" 
+                                                  FontWeight="Bold" 
+                                                  Foreground="#011C4B"
+                                                  VerticalAlignment="Center"
+                                                  Margin="0,0,20,0"/>
+                                        
+                                        <!-- Filter Bulan -->
+                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                            <TextBlock Text="Bulan:" 
+                                                      FontSize="13" 
+                                                      Foreground="#6C757D"
+                                                      VerticalAlignment="Center"
+                                                      Margin="0,0,8,0"/>
+                                            <ComboBox x:Name="cmbBulanFilter"
+                                                     Width="150"
+                                                     SelectionChanged="CmbBulanFilter_SelectionChanged"
+                                                     FontSize="13"
+                                                     Padding="8,6">
+                                                <!-- Items akan di-generate otomatis dari code-behind -->
+                                            </ComboBox>
+                                        </StackPanel>
+                                    </StackPanel>
+                                    
+                                    <Button Grid.Column="2"
+                                           Content="📥  Export ke Excel" 
+                                           Click="BtnExportExcel_Click"
+                                           Background="#28A745"
+                                           Foreground="White"
+                                           Padding="15,8"
+                                           FontSize="13"
+                                           FontWeight="SemiBold"
+                                           BorderThickness="0"
+                                           Cursor="Hand">
+                                        <Button.Style>
+                                            <Style TargetType="Button">
+                                                <Setter Property="Template">
+                                                    <Setter.Value>
+                                                        <ControlTemplate TargetType="Button">
+                                                            <Border Background="{TemplateBinding Background}"
+                                                                   CornerRadius="8"
+                                                                   Padding="{TemplateBinding Padding}">
+                                                                <ContentPresenter HorizontalAlignment="Center" 
+                                                                                VerticalAlignment="Center"/>
+                                                            </Border>
+                                                        </ControlTemplate>
+                                                    </Setter.Value>
+                                                </Setter>
+                                                <Style.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter Property="Background" Value="#218838"/>
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Button.Style>
+                                    </Button>
+                                </Grid>
+
+                                <!-- Pesan ketika tidak ada data -->
+                                <TextBlock x:Name="txtNoPendapatan"
+                                          Text="Belum ada pendapatan pada bulan ini"
+                                          FontSize="14"
+                                          Foreground="#6C757D"
+                                          HorizontalAlignment="Center"
+                                          VerticalAlignment="Center"
+                                          Padding="0,40"
+                                          Visibility="Collapsed"/>
+
+                                <!-- DataGrid -->
+                                <DataGrid x:Name="dgPendapatanDetail"
+                                         AutoGenerateColumns="False"
+                                         IsReadOnly="True"
+                                         CanUserAddRows="False"
+                                         CanUserDeleteRows="False"
+                                         CanUserReorderColumns="False"
+                                         CanUserResizeRows="False"
+                                         SelectionMode="Single"
+                                         GridLinesVisibility="None"
+                                         HeadersVisibility="Column"
+                                         Background="Transparent"
+                                         BorderThickness="0"
+                                         FontSize="13"
+                                         RowHeight="50">
+                                    
+                                    <DataGrid.ColumnHeaderStyle>
+                                        <Style TargetType="DataGridColumnHeader">
+                                            <Setter Property="FontWeight" Value="Bold"/>
+                                            <Setter Property="FontSize" Value="14"/>
+                                            <Setter Property="Foreground" Value="#011C4B"/>
+                                            <Setter Property="Background" Value="#F8F9FA"/>
+                                            <Setter Property="Padding" Value="12,10"/>
+                                            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                                            <Setter Property="BorderThickness" Value="0,0,0,1"/>
+                                            <Setter Property="BorderBrush" Value="#DEE2E6"/>
+                                        </Style>
+                                    </DataGrid.ColumnHeaderStyle>
+
+                                    <DataGrid.CellStyle>
+                                        <Style TargetType="DataGridCell">
+                                            <Setter Property="TextBlock.TextAlignment" Value="Center"/>
+                                            <Setter Property="Padding" Value="8"/>
+                                            <Setter Property="BorderThickness" Value="0"/>
+                                            <Style.Triggers>
+                                                <Trigger Property="IsSelected" Value="True">
+                                                    <Setter Property="Background" Value="#F3F3F3"/>
+                                                    <Setter Property="Foreground" Value="#011C4B"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </DataGrid.CellStyle>
+
+                                    <DataGrid.RowStyle>
+                                        <Style TargetType="DataGridRow">
+                                            <Setter Property="Background" Value="White"/>
+                                            <Style.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter Property="Background" Value="#F8F9FA"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </DataGrid.RowStyle>
+
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="No" Width="60" Binding="{Binding No}">
+                                            <DataGridTextColumn.ElementStyle>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="HorizontalAlignment" Value="Center"/>
+                                                    <Setter Property="VerticalAlignment" Value="Center"/>
+                                                </Style>
+                                            </DataGridTextColumn.ElementStyle>
+                                        </DataGridTextColumn>
+                                        
+                                        <DataGridTextColumn Header="Pelabuhan Asal" Width="*" MinWidth="150" Binding="{Binding PelabuhanAsal}">
+                                            <DataGridTextColumn.ElementStyle>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="HorizontalAlignment" Value="Left"/>
+                                                    <Setter Property="VerticalAlignment" Value="Center"/>
+                                                    <Setter Property="Padding" Value="12,0,0,0"/>
+                                                </Style>
+                                            </DataGridTextColumn.ElementStyle>
+                                        </DataGridTextColumn>
+                                        
+                                        <DataGridTextColumn Header="Pelabuhan Tujuan" Width="*" MinWidth="150" Binding="{Binding PelabuhanTujuan}">
+                                            <DataGridTextColumn.ElementStyle>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="HorizontalAlignment" Value="Left"/>
+                                                    <Setter Property="VerticalAlignment" Value="Center"/>
+                                                    <Setter Property="Padding" Value="12,0,0,0"/>
+                                                </Style>
+                                            </DataGridTextColumn.ElementStyle>
+                                        </DataGridTextColumn>
+                                        
+                                        <DataGridTextColumn Header="Nama Kapal" Width="*" MinWidth="150" Binding="{Binding NamaKapal}">
+                                            <DataGridTextColumn.ElementStyle>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="HorizontalAlignment" Value="Left"/>
+                                                    <Setter Property="VerticalAlignment" Value="Center"/>
+                                                    <Setter Property="Padding" Value="12,0,0,0"/>
+                                                </Style>
+                                            </DataGridTextColumn.ElementStyle>
+                                        </DataGridTextColumn>
+                                        
+                                        <DataGridTextColumn Header="Jumlah Tiket" Width="120" Binding="{Binding JumlahTiket}">
+                                            <DataGridTextColumn.ElementStyle>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="HorizontalAlignment" Value="Center"/>
+                                                    <Setter Property="VerticalAlignment" Value="Center"/>
+                                                </Style>
+                                            </DataGridTextColumn.ElementStyle>
+                                        </DataGridTextColumn>
+                                        
+                                        <DataGridTextColumn Header="Total Pendapatan" Width="180" Binding="{Binding TotalPendapatanFormatted}">
+                                            <DataGridTextColumn.ElementStyle>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="HorizontalAlignment" Value="Right"/>
+                                                    <Setter Property="VerticalAlignment" Value="Center"/>
+                                                    <Setter Property="FontWeight" Value="Bold"/>
+                                                    <Setter Property="Foreground" Value="#28A745"/>
+                                                    <Setter Property="Padding" Value="0,0,12,0"/>
+                                                </Style>
+                                            </DataGridTextColumn.ElementStyle>
+                                        </DataGridTextColumn>
+                                    </DataGrid.Columns>
+                                </DataGrid>
+
+                                <!-- Total Pendapatan Footer -->
+                                <Border Background="#F3F3F3" 
+                                       Padding="15,12" 
+                                       Margin="0,1,0,0"
+                                       CornerRadius="0,0,8,8">
+                                    <Grid>
+                                        <TextBlock x:Name="txtPeriodePendapatan"
+                                                  Text="Total Pendapatan NOVEMBER 2025" 
+                                                  FontWeight="Bold" 
+                                                  FontSize="14"
+                                                  Foreground="Black"
+                                                  VerticalAlignment="Center"/>
+                                        <TextBlock x:Name="txtTotalPendapatanTable" 
+                                                  Text="Rp 0"
+                                                  FontWeight="Bold" 
+                                                  FontSize="18"
+                                                  Foreground="#00658D"
+                                                  HorizontalAlignment="Right"
+                                                  VerticalAlignment="Center"/>
+                                    </Grid>
+                                </Border>
+                            </StackPanel>
+                        </Border>
 
                         <!-- Refresh Button -->
                         <Button Content="🔄 Refresh Data" 
                                Style="{StaticResource SecondaryButton}"
                                Click="BtnRefreshDashboard_Click"
-                               HorizontalAlignment="Left"/>
+                               HorizontalAlignment="Left"
+                               Margin="0,20,0,0"/>
                     </StackPanel>
                 </ContentControl>
             </StackPanel>

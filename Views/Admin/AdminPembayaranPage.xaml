@@ -210,7 +210,6 @@
                                     </ComboBox.Style>
                                     <ComboBoxItem Content="-- Semua Status --" Tag="" IsSelected="True"/>
                                     <ComboBoxItem Content="Menunggu Pembayaran" Tag="Menunggu Pembayaran"/>
-                                    <ComboBoxItem Content="Menunggu Konfirmasi" Tag="Menunggu Konfirmasi"/>
                                     <ComboBoxItem Content="Menunggu Validasi" Tag="Menunggu Validasi"/>
                                     <ComboBoxItem Content="Aktif" Tag="Aktif"/>
                                     <ComboBoxItem Content="Sukses" Tag="Sukses"/>
@@ -577,9 +576,6 @@
                                                             <DataTrigger Binding="{Binding status_bayar}" Value="Menunggu Validasi">
                                                                 <Setter Property="Background" Value="#FFF3CD"/>
                                                             </DataTrigger>
-                                                            <DataTrigger Binding="{Binding status_bayar}" Value="Menunggu Konfirmasi">
-                                                                <Setter Property="Background" Value="#D1ECF1"/>
-                                                            </DataTrigger>
                                                             <DataTrigger Binding="{Binding status_bayar}" Value="Menunggu Pembayaran">
                                                                 <Setter Property="Background" Value="#D1ECF1"/>
                                                             </DataTrigger>
@@ -639,7 +635,7 @@
                                                     <TextBlock Text="Detail" TextAlignment="Center"/>
                                                 </Button>
 
-                                                <!-- Validasi Button - Only for Menunggu Validasi or Menunggu Konfirmasi -->
+                                                <!-- Validasi Button - Only for Menunggu Validasi -->
                                                 <Button Tag="{Binding pembayaran_id}"
                                                        Background="#218838"
                                                        Click="BtnValidasi_Click"
@@ -652,16 +648,13 @@
                                                                 <DataTrigger Binding="{Binding status_bayar}" Value="Menunggu Validasi">
                                                                     <Setter Property="Visibility" Value="Visible"/>
                                                                 </DataTrigger>
-                                                                <DataTrigger Binding="{Binding status_bayar}" Value="Menunggu Konfirmasi">
-                                                                    <Setter Property="Visibility" Value="Visible"/>
-                                                                </DataTrigger>
                                                             </Style.Triggers>
                                                         </Style>
                                                     </Button.Style>
                                                     <TextBlock Text="Validasi" TextAlignment="Center"/>
                                                 </Button>
 
-                                                <!-- Tolak Button - Only for Menunggu Validasi or Menunggu Konfirmasi -->
+                                                <!-- Tolak Button - Only for Menunggu Validasi -->
                                                 <Button Tag="{Binding pembayaran_id}"
                                                        Background="#C82333"
                                                        Click="BtnTolak_Click"
@@ -671,9 +664,6 @@
                                                             <Setter Property="Visibility" Value="Collapsed"/>
                                                             <Style.Triggers>
                                                                 <DataTrigger Binding="{Binding status_bayar}" Value="Menunggu Validasi">
-                                                                    <Setter Property="Visibility" Value="Visible"/>
-                                                                </DataTrigger>
-                                                                <DataTrigger Binding="{Binding status_bayar}" Value="Menunggu Konfirmasi">
                                                                     <Setter Property="Visibility" Value="Visible"/>
                                                                 </DataTrigger>
                                                             </Style.Triggers>

@@ -80,11 +80,11 @@ namespace TiketLaut.Views
             switch (status)
             {
                 case "Approved":
-                case "Confirmed":
+                case "Sukses":
                     borderStatus.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#D4EDDA"));
                     txtStatus.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#155724"));
                     break;
-                case "Menunggu Konfirmasi":
+                case "Menunggu Validasi":
                     borderStatus.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFF3CD"));
                     txtStatus.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#856404"));
                     break;
