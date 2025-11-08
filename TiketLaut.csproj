@@ -21,14 +21,17 @@
 	  <None Remove="Views\Assets\Icons\back.png" />
 	  <None Remove="Views\Assets\Icons\iconarrowlong.png" />
 	  <None Remove="Views\Assets\Icons\iconarrowright.png" />
+	  <None Remove="Views\Assets\Icons\iconBin.png" />
 	  <None Remove="Views\Assets\Icons\iconbolakbalik.png" />
 	  <None Remove="Views\Assets\Icons\iconbooking.png" />
 	  <None Remove="Views\Assets\Icons\icondropdown.png" />
 	  <None Remove="Views\Assets\Icons\icondropdowngelap.png" />
 	  <None Remove="Views\Assets\Icons\iconDangerNotif.png" />
+	  <None Remove="Views\Assets\Icons\iconExport.png" />
 	  <None Remove="Views\Assets\Icons\iconGagalNotif.png" />
 	  <None Remove="Views\Assets\Icons\iconNotifikasi.png" />
 	  <None Remove="Views\Assets\Icons\iconPaymentNotif.png" />
+	  <None Remove="Views\Assets\Icons\iconRefresh.png" />
 	  <None Remove="Views\Assets\Icons\iconTaskNotif.png" />
 	  <None Remove="Views\Assets\Icons\iconTimerNotif.png" />
 	  <None Remove="Views\Assets\Icons\iconKurang.png" />
@@ -74,6 +77,9 @@
 	  <Resource Include="Views\Assets\Icons\iconarrowright.png">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Resource>
+	  <Resource Include="Views\Assets\Icons\iconBin.png">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Resource>
 	  <Resource Include="Views\Assets\Icons\iconbolakbalik.png" />
 	  <Resource Include="Views\Assets\Icons\iconbooking.png" />
 	  <Resource Include="Views\Assets\Icons\icondropdown.png">
@@ -85,6 +91,9 @@
 	  <Resource Include="Views\Assets\Icons\iconDangerNotif.png">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Resource>
+	  <Resource Include="Views\Assets\Icons\iconExport.png">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Resource>
 	  <Resource Include="Views\Assets\Icons\iconGagalNotif.png">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Resource>
@@ -92,6 +101,9 @@
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Resource>
 	  <Resource Include="Views\Assets\Icons\iconPaymentNotif.png">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Resource>
+	  <Resource Include="Views\Assets\Icons\iconRefresh.png">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Resource>
 	  <Resource Include="Views\Assets\Icons\iconTaskNotif.png">

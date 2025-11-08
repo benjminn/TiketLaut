@@ -6,6 +6,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using TiketLaut.Services;
+using TiketLaut.Helpers;
 
 namespace TiketLaut.Views
 {
@@ -23,6 +24,12 @@ namespace TiketLaut.Views
             _jadwalService = new JadwalService();
             _jadwalId = jadwalId;
             LoadData();
+        }
+
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            // Gunakan helper untuk window besar (jadwal detail menampilkan banyak data)
+            WindowSizeHelper.SetLargeWindowSize(this);
         }
 
         private async void LoadData()

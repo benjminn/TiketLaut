@@ -357,7 +357,7 @@ namespace TiketLaut.Views
         private void BtnMenuNotifikasi_Click(object sender, RoutedEventArgs e)
         {
             SetActiveMenu(btnMenuNotifikasi);
-            txtPageTitle.Text = "Kirim Notifikasi";
+            txtPageTitle.Text = "";
             
             var notifikasiManagement = new AdminNotifikasiPage();
             contentArea.Content = notifikasiManagement;

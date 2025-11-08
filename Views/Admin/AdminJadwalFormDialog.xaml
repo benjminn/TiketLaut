@@ -514,7 +514,6 @@
                             
                             <Button x:Name="btnClearDates"
                                    Grid.Column="1"
-                                   Content="🗑️ Hapus Semua"
                                    Background="#DC3545"
                                    Foreground="White"
                                    BorderThickness="0"
@@ -523,6 +522,15 @@
                                    FontWeight="SemiBold"
                                    Cursor="Hand"
                                    Click="BtnClearDates_Click">
+                                <StackPanel Orientation="Horizontal">
+                                    <Image Source="/Views/Assets/Icons/iconBin.png" 
+                                           Width="14" 
+                                           Height="14" 
+                                           Margin="0,0,6,0"
+                                           VerticalAlignment="Center"/>
+                                    <TextBlock Text="Hapus Semua" 
+                                              VerticalAlignment="Center"/>
+                                </StackPanel>
                                 <Button.Template>
                                     <ControlTemplate TargetType="Button">
                                         <Border Background="{TemplateBinding Background}" 
@@ -684,13 +692,21 @@
                                 </Button.Style>
                             </Button>
                             <Button x:Name="btnClearRows" 
-                                   Content="🗑️ Hapus Semua" 
                                    Background="#DC3545" 
                                    Foreground="White"
                                    BorderThickness="0"
                                    Padding="12,6"
                                    Cursor="Hand"
                                    Click="BtnClearRows_Click">
+                                <StackPanel Orientation="Horizontal">
+                                    <Image Source="/Views/Assets/Icons/iconBin.png" 
+                                           Width="14" 
+                                           Height="14" 
+                                           Margin="0,0,6,0"
+                                           VerticalAlignment="Center"/>
+                                    <TextBlock Text="Hapus Semua" 
+                                              VerticalAlignment="Center"/>
+                                </StackPanel>
                                 <Button.Template>
                                     <ControlTemplate TargetType="Button">
                                         <Border Background="{TemplateBinding Background}" 
@@ -763,14 +779,16 @@
                             <DataGridTemplateColumn Header="Aksi" Width="80">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
-                                        <Button Content="🗑️" 
-                                               Background="#DC3545" 
+                                        <Button Background="#DC3545" 
                                                Foreground="White"
                                                BorderThickness="0"
                                                Padding="8,4"
                                                Cursor="Hand"
                                                Click="BtnDeleteRow_Click"
                                                ToolTip="Hapus baris ini">
+                                            <Image Source="/Views/Assets/Icons/iconBin.png" 
+                                                   Width="14" 
+                                                   Height="14"/>
                                             <Button.Template>
                                                 <ControlTemplate TargetType="Button">
                                                     <Border Background="{TemplateBinding Background}" 
