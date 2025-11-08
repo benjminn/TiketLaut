@@ -270,6 +270,7 @@ namespace TiketLaut.Services
                             .ThenInclude(j => j.kapal)
                     .Include(p => p.tiket)
                         .ThenInclude(t => t.RincianPenumpangs)
+                            .ThenInclude(rp => rp.penumpang)
                     .FirstOrDefaultAsync(p => p.pembayaran_id == pembayaranId);
             }
             catch (Exception ex)
@@ -602,6 +603,46 @@ namespace TiketLaut.Services
             {
                 System.Diagnostics.Debug.WriteLine($"[PembayaranService] Error GetUniquePenggunaAsync: {ex.Message}");
                 return new List<string>();
+            }
+        }
+
+        /// <summary>
+        /// Update pembayaran (status, metode, keterangan)
+        /// </summary>
+        public async Task<(bool success, string message)> UpdatePembayaranAsync(Pembayaran pembayaran)
+        {
+            try
+            {
+                // Validasi input
+                if (pembayaran == null)
+                {
+                    return (false, "Data pembayaran tidak valid");
+                }
+
+                // Get existing pembayaran from database
+                var existingPembayaran = await _context.Pembayarans
+                    .Include(p => p.tiket)
+                    .FirstOrDefaultAsync(p => p.pembayaran_id == pembayaran.pembayaran_id);
+
+                if (existingPembayaran == null)
+                {
+                    return (false, "Pembayaran tidak ditemukan");
+                }
+
+                // Update fields
+                existingPembayaran.status_bayar = pembayaran.status_bayar;
+                existingPembayaran.metode_pembayaran = pembayaran.metode_pembayaran;
+
+                _context.Pembayarans.Update(existingPembayaran);
+                await _context.SaveChangesAsync();
+
+                System.Diagnostics.Debug.WriteLine($"[PembayaranService] Pembayaran {pembayaran.pembayaran_id} updated successfully");
+                return (true, "Pembayaran berhasil diperbarui");
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[PembayaranService] Error UpdatePembayaranAsync: {ex.Message}");
+                return (false, $"Error: {ex.Message}");
             }
         }
     }

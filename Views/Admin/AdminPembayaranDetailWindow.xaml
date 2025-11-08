@@ -5,9 +5,13 @@
         Title="Detail Pembayaran"
         Height="700"
         Width="900"
+        MinHeight="500"
+        MinWidth="700"
         WindowStartupLocation="CenterScreen"
+        ResizeMode="CanResize"
         FontFamily="Plus Jakarta Sans"
-        Background="#F8F9FA">
+        Background="#F8F9FA"
+        Loaded="Window_Loaded">
 
     <Window.Resources>
         <local:RowNumberConverter x:Key="RowNumberConverter"/>
@@ -246,35 +250,124 @@
                                  AutoGenerateColumns="False"
                                  IsReadOnly="True"
                                  CanUserAddRows="False"
+                                 CanUserDeleteRows="False"
+                                 CanUserReorderColumns="False"
+                                 CanUserResizeRows="False"
+                                 SelectionMode="Single"
                                  HeadersVisibility="Column"
-                                 GridLinesVisibility="Horizontal"
+                                 GridLinesVisibility="None"
                                  Background="White"
                                  BorderBrush="#DEE2E6"
-                                 BorderThickness="1">
+                                 BorderThickness="1"
+                                 RowHeight="40"
+                                 ColumnHeaderHeight="45"
+                                 AlternatingRowBackground="#F8F9FA"
+                                 FontSize="13">
+                            
+                            <DataGrid.ColumnHeaderStyle>
+                                <Style TargetType="DataGridColumnHeader">
+                                    <Setter Property="Background" Value="#00658D"/>
+                                    <Setter Property="Foreground" Value="White"/>
+                                    <Setter Property="FontWeight" Value="SemiBold"/>
+                                    <Setter Property="Padding" Value="12,10"/>
+                                    <Setter Property="BorderThickness" Value="0,0,1,0"/>
+                                    <Setter Property="BorderBrush" Value="#267DAE"/>
+                                    <Setter Property="HorizontalContentAlignment" Value="Left"/>
+                                </Style>
+                            </DataGrid.ColumnHeaderStyle>
+
+                            <DataGrid.CellStyle>
+                                <Style TargetType="DataGridCell">
+                                    <Setter Property="BorderThickness" Value="0"/>
+                                    <Setter Property="Padding" Value="12,8"/>
+                                    <Setter Property="VerticalAlignment" Value="Center"/>
+                                    <Style.Triggers>
+                                        <Trigger Property="IsSelected" Value="True">
+                                            <Setter Property="Background" Value="#E8F4F8"/>
+                                            <Setter Property="Foreground" Value="#011C4B"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </DataGrid.CellStyle>
+
                             <DataGrid.Columns>
-                                <DataGridTextColumn Header="No" Width="50">
+                                <DataGridTextColumn Header="No" Width="60">
                                     <DataGridTextColumn.Binding>
                                         <Binding RelativeSource="{RelativeSource AncestorType=DataGridRow}"
                                                 Converter="{StaticResource RowNumberConverter}"/>
                                     </DataGridTextColumn.Binding>
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="HorizontalAlignment" Value="Center"/>
+                                            <Setter Property="FontWeight" Value="SemiBold"/>
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
                                 </DataGridTextColumn>
+                                
                                 <DataGridTextColumn Header="Nama Lengkap" 
-                                                   Binding="{Binding nama_lengkap}" 
-                                                   Width="200"/>
-                                <DataGridTextColumn Header="NIK" 
-                                                   Binding="{Binding nik}" 
-                                                   Width="150"/>
+                                                   Binding="{Binding penumpang.nama}" 
+                                                   Width="2*">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="FontWeight" Value="SemiBold"/>
+                                            <Setter Property="Foreground" Value="#011C4B"/>
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
+                                
+                                <DataGridTextColumn Header="Jenis Identitas" 
+                                                   Binding="{Binding penumpang.jenis_identitas}" 
+                                                   Width="140">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="HorizontalAlignment" Value="Center"/>
+                                            <Setter Property="Foreground" Value="#00658D"/>
+                                            <Setter Property="FontWeight" Value="SemiBold"/>
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
+                                
+                                <DataGridTextColumn Header="Nomor Identitas" 
+                                                   Binding="{Binding penumpang.nomor_identitas}" 
+                                                   Width="1.5*">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Foreground" Value="#64748B"/>
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
+                                
                                 <DataGridTextColumn Header="Jenis Kelamin" 
-                                                   Binding="{Binding jenis_kelamin}" 
-                                                   Width="120"/>
-                                <DataGridTextColumn Header="Umur" 
-                                                   Binding="{Binding umur}" 
-                                                   Width="80"/>
-                                <DataGridTextColumn Header="Kategori" 
-                                                   Binding="{Binding kategori_penumpang}" 
-                                                   Width="*"/>
+                                                   Binding="{Binding penumpang.jenis_kelamin}" 
+                                                   Width="120">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="HorizontalAlignment" Value="Center"/>
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
                             </DataGrid.Columns>
                         </DataGrid>
+
+                        <!-- Empty State jika tidak ada penumpang -->
+                        <Border x:Name="borderEmptyState" 
+                               Visibility="Collapsed"
+                               Background="#F8F9FA" 
+                               CornerRadius="8" 
+                               Padding="30"
+                               Margin="0,10,0,0">
+                            <StackPanel HorizontalAlignment="Center">
+                                <TextBlock Text="📋" 
+                                         FontSize="48" 
+                                         HorizontalAlignment="Center" 
+                                         Opacity="0.3"
+                                         Margin="0,0,0,10"/>
+                                <TextBlock Text="Tidak ada data penumpang" 
+                                         FontSize="14" 
+                                         Foreground="#64748B"
+                                         HorizontalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
                     </StackPanel>
                 </Border>
 
@@ -283,6 +376,7 @@
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
 
@@ -298,6 +392,18 @@
                     </Button>
 
                     <Button Grid.Column="2"
+                           x:Name="btnEdit"
+                           Style="{StaticResource PrimaryButton}"
+                           Background="#FFC107"
+                           Click="BtnEdit_Click"
+                           Margin="0,0,10,0">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="✏️" Margin="0,0,8,0"/>
+                            <TextBlock Text="Edit Pembayaran"/>
+                        </StackPanel>
+                    </Button>
+
+                    <Button Grid.Column="3"
                            Content="Tutup"
                            Style="{StaticResource PrimaryButton}"
                            Background="#6C757D"

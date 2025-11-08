@@ -4,10 +4,13 @@
         Title="Detail Tiket" 
         Height="700"
         Width="900"
+        MinHeight="500"
+        MinWidth="700"
         WindowStartupLocation="CenterOwner"
         ResizeMode="CanResize"
         FontFamily="Plus Jakarta Sans"
-        Background="#F2F5FC">
+        Background="#F2F5FC"
+        Loaded="Window_Loaded">
 
     <Window.Resources>
         <!-- Card Style -->

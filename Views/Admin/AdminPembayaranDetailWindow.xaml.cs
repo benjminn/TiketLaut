@@ -3,18 +3,26 @@ using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Media;
+using TiketLaut.Services;
+using TiketLaut.Helpers;
 
 namespace TiketLaut.Views
 {
     public partial class AdminPembayaranDetailWindow : Window
     {
-        private readonly Pembayaran _pembayaran;
+        private Pembayaran _pembayaran;
 
         public AdminPembayaranDetailWindow(Pembayaran pembayaran)
         {
             InitializeComponent();
             _pembayaran = pembayaran;
             LoadData();
+        }
+
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            // Gunakan helper untuk mengatur ukuran responsif
+            WindowSizeHelper.SetDetailWindowSize(this);
         }
 
         private void LoadData()
@@ -64,7 +72,22 @@ namespace TiketLaut.Views
                     if (_pembayaran.tiket.RincianPenumpangs != null && _pembayaran.tiket.RincianPenumpangs.Count > 0)
                     {
                         dgPenumpang.ItemsSource = _pembayaran.tiket.RincianPenumpangs;
+                        dgPenumpang.Visibility = Visibility.Visible;
+                        borderEmptyState.Visibility = Visibility.Collapsed;
+                        
+                        System.Diagnostics.Debug.WriteLine($"[AdminPembayaranDetailWindow] Loaded {_pembayaran.tiket.RincianPenumpangs.Count} penumpang");
                     }
+                    else
+                    {
+                        dgPenumpang.Visibility = Visibility.Collapsed;
+                        borderEmptyState.Visibility = Visibility.Visible;
+                        
+                        System.Diagnostics.Debug.WriteLine("[AdminPembayaranDetailWindow] No penumpang data found");
+                    }
+                }
+                else
+                {
+                    System.Diagnostics.Debug.WriteLine("[AdminPembayaranDetailWindow] Tiket is null");
                 }
             }
             catch (Exception ex)
@@ -113,6 +136,45 @@ namespace TiketLaut.Views
             catch (Exception ex)
             {
                 MessageBox.Show($"Error opening tiket detail: {ex.Message}", "Error", 
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private async void BtnEdit_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                if (_pembayaran == null)
+                {
+                    MessageBox.Show("Data pembayaran tidak tersedia.", "Error",
+                        MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
+                // Tampilkan dialog untuk edit status pembayaran
+                var editDialog = new AdminPembayaranEditDialog(_pembayaran);
+                if (editDialog.ShowDialog() == true)
+                {
+                    // Refresh data setelah edit
+                    var pembayaranService = new PembayaranService();
+                    var updatedPembayaran = await pembayaranService.GetPembayaranByIdAsync(_pembayaran.pembayaran_id);
+                    
+                    if (updatedPembayaran != null)
+                    {
+                        _pembayaran = updatedPembayaran;
+                        LoadData(); // Reload UI
+                        
+                        MessageBox.Show("Data pembayaran berhasil diperbarui!", "Success",
+                            MessageBoxButton.OK, MessageBoxImage.Information);
+                        
+                        DialogResult = true; // Notify parent to refresh
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[AdminPembayaranDetailWindow] Error editing pembayaran: {ex.Message}");
+                MessageBox.Show($"Error editing pembayaran: {ex.Message}", "Error",
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }

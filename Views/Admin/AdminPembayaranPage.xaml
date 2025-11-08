@@ -456,13 +456,43 @@
                                  CanUserAddRows="False"
                                  CanUserDeleteRows="False"
                                  CanUserResizeRows="False"
+                                 CanUserReorderColumns="False"
                                  SelectionMode="Single"
                                  GridLinesVisibility="Horizontal"
                                  HeadersVisibility="Column"
                                  RowHeight="50"
+                                 ColumnHeaderHeight="45"
+                                 AlternatingRowBackground="#F8F9FA"
                                  Background="White"
                                  BorderBrush="#DEE2E6"
-                                 BorderThickness="1">
+                                 BorderThickness="1"
+                                 FontSize="13">
+                            
+                            <DataGrid.ColumnHeaderStyle>
+                                <Style TargetType="DataGridColumnHeader">
+                                    <Setter Property="Background" Value="#00658D"/>
+                                    <Setter Property="Foreground" Value="White"/>
+                                    <Setter Property="FontWeight" Value="SemiBold"/>
+                                    <Setter Property="Padding" Value="12,10"/>
+                                    <Setter Property="BorderThickness" Value="0,0,1,0"/>
+                                    <Setter Property="BorderBrush" Value="#267DAE"/>
+                                    <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                                </Style>
+                            </DataGrid.ColumnHeaderStyle>
+
+                            <DataGrid.CellStyle>
+                                <Style TargetType="DataGridCell">
+                                    <Setter Property="BorderThickness" Value="0"/>
+                                    <Setter Property="Padding" Value="12,8"/>
+                                    <Style.Triggers>
+                                        <Trigger Property="IsSelected" Value="True">
+                                            <Setter Property="Background" Value="#E8F4F8"/>
+                                            <Setter Property="Foreground" Value="#011C4B"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </DataGrid.CellStyle>
+
                             <DataGrid.Columns>
                                 <!-- ID -->
                                 <DataGridTextColumn Header="ID" 

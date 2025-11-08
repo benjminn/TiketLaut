@@ -135,9 +135,11 @@
                        Click="BtnRefresh_Click"
                        HorizontalAlignment="Right">
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="🔄" 
-                                  Margin="0,0,8,0"
-                                  VerticalAlignment="Center"/>
+                        <Image Source="/Views/Assets/Icons/iconRefresh.png" 
+                               Width="13" 
+                               Height="13" 
+                               Margin="0,0,8,0"
+                               VerticalAlignment="Center"/>
                         <TextBlock Text="Refresh" 
                                   VerticalAlignment="Center"/>
                     </StackPanel>
@@ -148,7 +150,7 @@
             <Border Style="{StaticResource CardStyle}" 
                    Margin="0,0,0,20">
                 <StackPanel>
-                    <TextBlock Text="🔍 Filter Pencarian" 
+                    <TextBlock Text="Filter Pencarian" 
                               FontSize="16" 
                               FontWeight="Bold" 
                               Foreground="#011C4B"
@@ -203,7 +205,7 @@
             <!-- Data Table -->
             <Border Style="{StaticResource CardStyle}">
                 <StackPanel>
-                    <TextBlock Text="📊 Daftar Admin" 
+                    <TextBlock Text="Daftar Admin" 
                               FontSize="16" 
                               FontWeight="Bold" 
                               Foreground="#011C4B"

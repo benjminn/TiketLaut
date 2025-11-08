@@ -121,9 +121,11 @@
                        HorizontalAlignment="Right"
                        IsEnabled="{Binding ElementName=dgJadwal, Path=SelectedItems.Count}">
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="🗑️" 
-                                  Margin="0,0,8,0"
-                                  VerticalAlignment="Center"/>
+                        <Image Source="/Views/Assets/Icons/iconBin.png" 
+                               Width="16" 
+                               Height="16" 
+                               Margin="0,0,8,0"
+                               VerticalAlignment="Center"/>
                         <TextBlock Text="Hapus Terpilih" 
                                   VerticalAlignment="Center"/>
                     </StackPanel>
@@ -134,7 +136,7 @@
             <Border Style="{StaticResource CardStyle}" 
                    Margin="0,0,0,20">
                 <StackPanel>
-                    <TextBlock Text="🔍 Filter Pencarian" 
+                    <TextBlock Text="Filter Pencarian" 
                               FontSize="16" 
                               FontWeight="Bold" 
                               Foreground="#011C4B"
@@ -277,14 +279,22 @@
                                    HorizontalAlignment="Right"
                                    VerticalAlignment="Bottom"
                                    Margin="0,15,0,0">
-                            <Button Content="🔄 Reset Filter"
-                                   Click="BtnResetFilter_Click"
+                            <Button Click="BtnResetFilter_Click"
                                    Background="#6C757D"
                                    Foreground="White"
                                    BorderThickness="0"
                                    Padding="15,8"
                                    FontSize="13"
                                    Cursor="Hand">
+                                <StackPanel Orientation="Horizontal">
+                                    <Image Source="/Views/Assets/Icons/iconRefresh.png" 
+                                           Width="16" 
+                                           Height="16" 
+                                           Margin="0,0,8,0"
+                                           VerticalAlignment="Center"/>
+                                    <TextBlock Text="Reset Filter" 
+                                              VerticalAlignment="Center"/>
+                                </StackPanel>
                                 <Button.Style>
                                     <Style TargetType="Button">
                                         <Setter Property="Template">

@@ -3,11 +3,14 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Detail Jadwal - Admin Panel" 
         Height="900"
-        Width="1600"
+        Width="1400"
+        MinHeight="600"
+        MinWidth="900"
         WindowStartupLocation="CenterScreen"
         ResizeMode="CanResize"
         FontFamily="Plus Jakarta Sans"
-        Background="#F2F5FC">
+        Background="#F2F5FC"
+        Loaded="Window_Loaded">
 
     <Window.Resources>
         <!-- Card Style -->

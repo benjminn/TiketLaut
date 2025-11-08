@@ -3,6 +3,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Media;
 using TiketLaut.Services;
+using TiketLaut.Helpers;
 
 namespace TiketLaut.Views
 {
@@ -18,6 +19,12 @@ namespace TiketLaut.Views
             _tiketId = tiketId;
             _tiketService = new TiketService();
             LoadTiketDetail();
+        }
+
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            // Gunakan helper untuk mengatur ukuran responsif
+            WindowSizeHelper.SetDetailWindowSize(this);
         }
 
         private async void LoadTiketDetail()
