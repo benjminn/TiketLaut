@@ -280,7 +280,7 @@
                                     <!-- BCA Transfer (Sub-option) -->
                                     <RadioButton x:Name="rbBCA" 
                                            GroupName="PaymentMethod"
-                                           Tag="BCA"
+                                           Tag="Transfer BCA"
                                            Checked="PaymentMethod_Checked"
                                            Unchecked="PaymentMethod_Unchecked"
                                            Cursor="Hand"
@@ -331,7 +331,7 @@
                                     <!-- Mandiri Transfer (Sub-option) -->
                                     <RadioButton x:Name="rbMandiri" 
                                            GroupName="PaymentMethod"
-                                           Tag="Mandiri"
+                                           Tag="Transfer Mandiri"
                                            Checked="PaymentMethod_Checked"
                                            Unchecked="PaymentMethod_Unchecked"
                                            Cursor="Hand"
@@ -439,7 +439,7 @@
                                     <!-- Indomaret (Sub-option) -->
                                     <RadioButton x:Name="rbIndomaret" 
                                            GroupName="PaymentMethod"
-                                           Tag="Indomaret"
+                                           Tag="Retail Indomaret"
                                            Checked="PaymentMethod_Checked"
                                            Unchecked="PaymentMethod_Unchecked"
                                            Cursor="Hand"
@@ -490,7 +490,7 @@
                                     <!-- Alfamart (Sub-option) -->
                                     <RadioButton x:Name="rbAlfamart" 
                                            GroupName="PaymentMethod"
-                                           Tag="Alfamart"
+                                           Tag="Retail Alfamart"
                                            Checked="PaymentMethod_Checked"
                                            Unchecked="PaymentMethod_Unchecked"
                                            Cursor="Hand"

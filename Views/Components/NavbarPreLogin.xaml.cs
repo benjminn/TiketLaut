@@ -151,10 +151,6 @@ namespace TiketLaut.Views.Components
             // Jika user pilih "No", tidak ada aksi (tetap di tempat)
         }
 
-        private void BtnFAQ_Click(object sender, RoutedEventArgs e)
-        {
-            MessageBox.Show("Navigasi ke FAQ", "Info");
-        }
 
         private void BtnMasuk_Click(object sender, RoutedEventArgs e)
         {
