@@ -377,7 +377,7 @@ namespace TiketLaut.Services
         }
 
         /// <summary>
-        /// Admin validasi pembayaran - ubah status dari Menunggu Validasi ke Aktif
+        /// Admin validasi pembayaran - ubah status dari Menunggu Validasi ke Sukses
         /// </summary>
         public async Task<(bool success, string message)> ValidasiPembayaranAsync(int pembayaranId)
         {
@@ -392,7 +392,7 @@ namespace TiketLaut.Services
                     return (false, "Pembayaran tidak ditemukan");
                 }
 
-                if (pembayaran.status_bayar == "Aktif")
+                if (pembayaran.status_bayar == "Sukses")
                 {
                     return (false, "Pembayaran sudah divalidasi sebelumnya");
                 }
@@ -402,8 +402,8 @@ namespace TiketLaut.Services
                     return (false, $"Hanya pembayaran dengan status 'Menunggu Validasi' yang bisa divalidasi. Status saat ini: {pembayaran.status_bayar}");
                 }
 
-                // Update status pembayaran
-                pembayaran.status_bayar = "Aktif";
+                // Update status pembayaran menjadi Sukses
+                pembayaran.status_bayar = "Sukses";
                 
                 // Update status tiket menjadi aktif
                 if (pembayaran.tiket != null)

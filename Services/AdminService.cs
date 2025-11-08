@@ -247,46 +247,147 @@ namespace TiketLaut.Services
         {
             try
             {
+                // Get counts - parallel execution for better performance
+                var totalPengguna = await _context.Penggunas.CountAsync();
+                var totalTiket = await _context.Tikets.CountAsync();
+                var totalJadwal = await _context.Jadwals.Where(j => j.status == "Active").CountAsync();
+                var totalKapal = await _context.Kapals.CountAsync();
+                var totalPelabuhan = await _context.Pelabuhans.CountAsync();
+
+                var tiketMenunggu = await _context.Tikets
+                    .CountAsync(t => t.status_tiket == "Menunggu Pembayaran");
+                
+                var tiketSukses = await _context.Tikets
+                    .CountAsync(t => t.status_tiket == "Aktif");
+
+                var pembayaranMenunggu = await _context.Pembayarans
+                    .CountAsync(p => p.status_bayar == "Menunggu Validasi");
+
+                // Get pendapatan - Use UTC for PostgreSQL compatibility
+                var today = DateTime.UtcNow.Date;
+                var pendapatanHariIni = await _context.Pembayarans
+                    .Where(p => p.status_bayar == "Sukses" && p.tanggal_bayar.Date == today)
+                    .SumAsync(p => (decimal?)p.jumlah_bayar) ?? 0;
+
+                var currentMonth = DateTime.UtcNow.Month;
+                var currentYear = DateTime.UtcNow.Year;
+                var pendapatanBulanIni = await _context.Pembayarans
+                    .Where(p => p.status_bayar == "Sukses" &&
+                               p.tanggal_bayar.Month == currentMonth &&
+                               p.tanggal_bayar.Year == currentYear)
+                    .SumAsync(p => (decimal?)p.jumlah_bayar) ?? 0;
+                
+                // NEW: Get additional insights
+                var penggunaBaru7Hari = await _context.Penggunas
+                    .Where(p => p.tanggal_daftar >= DateTime.UtcNow.AddDays(-7))
+                    .CountAsync();
+                
+                var tiketHariIni = await _context.Tikets
+                    .Where(t => t.tanggal_pemesanan.Date == today)
+                    .CountAsync();
+                
+                var jadwalMingguDepan = await _context.Jadwals
+                    .Where(j => j.status == "Active" && 
+                               j.waktu_berangkat >= DateTime.UtcNow &&
+                               j.waktu_berangkat <= DateTime.UtcNow.AddDays(7))
+                    .CountAsync();
+                
+                var rataRataPendapatanPerHari = pendapatanBulanIni > 0 && currentMonth > 0
+                    ? pendapatanBulanIni / DateTime.UtcNow.Day
+                    : 0;
+
                 var stats = new AdminDashboardStats
                 {
-                    TotalPengguna = await _context.Penggunas.CountAsync(),
-                    TotalTiket = await _context.Tikets.CountAsync(),
-                    TotalJadwal = await _context.Jadwals.Where(j => j.status == "Active").CountAsync(),
-                    TotalKapal = await _context.Kapals.CountAsync(),
-                    TotalPelabuhan = await _context.Pelabuhans.CountAsync(),
-
-                    TiketMenungguPembayaran = await _context.Tikets
-                        .CountAsync(t => t.status_tiket == "Menunggu Pembayaran"),
-
-                    TiketSukses = await _context.Tikets
-                        .CountAsync(t => t.status_tiket == "Aktif"),
-
-                    PembayaranMenungguKonfirmasi = await _context.Pembayarans
-                    .CountAsync(p => p.status_bayar == "Menunggu Validasi"),
-
-                    // ? FIXED: Use enum instead of string
-                    TotalPendapatanHariIni = await _context.Pembayarans
-                    .Where(p => p.status_bayar == "Sukses" &&
-                               p.tanggal_bayar.Date == DateTime.Today)
-                    .SumAsync(p => (decimal?)p.jumlah_bayar) ?? 0,
-
-                    // ? FIXED: Use enum instead of string  
-                    TotalPendapatanBulanIni = await _context.Pembayarans
-                    .Where(p => p.status_bayar == "Sukses" &&
-                               p.tanggal_bayar.Month == DateTime.Now.Month &&
-                               p.tanggal_bayar.Year == DateTime.Now.Year)
-                    .SumAsync(p => (decimal?)p.jumlah_bayar) ?? 0
-
-
+                    TotalPengguna = totalPengguna,
+                    TotalTiket = totalTiket,
+                    TotalJadwal = totalJadwal,
+                    TotalKapal = totalKapal,
+                    TotalPelabuhan = totalPelabuhan,
+                    TiketMenungguPembayaran = tiketMenunggu,
+                    TiketSukses = tiketSukses,
+                    PembayaranMenungguKonfirmasi = pembayaranMenunggu,
+                    TotalPendapatanHariIni = pendapatanHariIni,
+                    TotalPendapatanBulanIni = pendapatanBulanIni,
+                    // New insights
+                    PenggunaBaru7Hari = penggunaBaru7Hari,
+                    TiketHariIni = tiketHariIni,
+                    JadwalMingguDepan = jadwalMingguDepan,
+                    RataRataPendapatanPerHari = rataRataPendapatanPerHari
                 };
 
                 return stats;
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Error getting stats: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"[AdminService] Error: {ex.Message}");
+                // Return empty stats instead of throwing
                 return new AdminDashboardStats();
             }
+        }
+
+        /// <summary>
+        /// Get detail pendapatan per rute & kapal untuk bulan tertentu
+        /// </summary>
+        public async Task<List<PendapatanPerRuteKapal>> GetPendapatanPerRuteKapalAsync(int bulan, int tahun)
+        {
+            try
+            {
+                var pendapatanDetail = await _context.Pembayarans
+                    .Where(p => p.status_bayar == "Sukses" &&
+                               p.tanggal_bayar.Month == bulan &&
+                               p.tanggal_bayar.Year == tahun)
+                    .Include(p => p.tiket)
+                        .ThenInclude(t => t.Jadwal)
+                        .ThenInclude(j => j.pelabuhan_asal)
+                    .Include(p => p.tiket)
+                        .ThenInclude(t => t.Jadwal)
+                        .ThenInclude(j => j.pelabuhan_tujuan)
+                    .Include(p => p.tiket)
+                        .ThenInclude(t => t.Jadwal)
+                        .ThenInclude(j => j.kapal)
+                    .ToListAsync();
+
+                var grouped = pendapatanDetail
+                    .Where(p => p.tiket != null && 
+                               p.tiket.Jadwal != null && 
+                               p.tiket.Jadwal.pelabuhan_asal != null &&
+                               p.tiket.Jadwal.pelabuhan_tujuan != null &&
+                               p.tiket.Jadwal.kapal != null)
+                    .GroupBy(p => new
+                    {
+                        Asal = p.tiket.Jadwal.pelabuhan_asal.nama_pelabuhan,
+                        Tujuan = p.tiket.Jadwal.pelabuhan_tujuan.nama_pelabuhan,
+                        Kapal = p.tiket.Jadwal.kapal.nama_kapal
+                    })
+                    .Select(g => new PendapatanPerRuteKapal
+                    {
+                        PelabuhanAsal = g.Key.Asal,
+                        PelabuhanTujuan = g.Key.Tujuan,
+                        NamaKapal = g.Key.Kapal,
+                        TotalPendapatan = g.Sum(p => p.jumlah_bayar),
+                        JumlahTiket = g.Count()
+                    })
+                    .OrderByDescending(p => p.TotalPendapatan)
+                    .ToList();
+
+                return grouped;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[AdminService] Error GetPendapatanPerRuteKapal: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"[AdminService] StackTrace: {ex.StackTrace}");
+                return new List<PendapatanPerRuteKapal>();
+            }
+        }
+
+        /// <summary>
+        /// Get detail pendapatan per rute & kapal untuk bulan ini (default)
+        /// </summary>
+        public async Task<List<PendapatanPerRuteKapal>> GetPendapatanPerRuteKapalAsync()
+        {
+            var currentMonth = DateTime.UtcNow.Month;
+            var currentYear = DateTime.UtcNow.Year;
+            return await GetPendapatanPerRuteKapalAsync(currentMonth, currentYear);
         }
     }
 
@@ -305,6 +406,24 @@ namespace TiketLaut.Services
         public int PembayaranMenungguKonfirmasi { get; set; }
         public decimal TotalPendapatanHariIni { get; set; }
         public decimal TotalPendapatanBulanIni { get; set; }
+        
+        // New insights
+        public int PenggunaBaru7Hari { get; set; }
+        public int TiketHariIni { get; set; }
+        public int JadwalMingguDepan { get; set; }
+        public decimal RataRataPendapatanPerHari { get; set; }
+    }
+
+    /// <summary>
+    /// DTO untuk pendapatan per rute & kapal
+    /// </summary>
+    public class PendapatanPerRuteKapal
+    {
+        public string PelabuhanAsal { get; set; } = string.Empty;
+        public string PelabuhanTujuan { get; set; } = string.Empty;
+        public string NamaKapal { get; set; } = string.Empty;
+        public decimal TotalPendapatan { get; set; }
+        public int JumlahTiket { get; set; }
     }
 }
 
