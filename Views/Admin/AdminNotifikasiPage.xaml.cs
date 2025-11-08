@@ -272,10 +272,17 @@ namespace TiketLaut.Views
 
                 System.Diagnostics.Debug.WriteLine($"[AdminNotifikasiPage] Added {jadwalList.Count} items to dgJadwal after filter");
 
-                if (jadwalList.Count == 0 && _allJadwals.Count == 0)
+                // Hanya tampilkan pesan jika memang tidak ada jadwal sama sekali di database
+                // (bukan karena filter)
+                if (_allJadwals.Count == 0)
                 {
                     MessageBox.Show("Tidak ada jadwal yang tersedia di database.\n\nSilakan tambahkan jadwal terlebih dahulu.",
                         "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+                else if (jadwalList.Count == 0 && _filteredJadwals.Count == 0)
+                {
+                    // Ada jadwal di database tapi semua tersaring
+                    System.Diagnostics.Debug.WriteLine("[AdminNotifikasiPage] Semua jadwal tersaring oleh filter");
                 }
             }
         }
