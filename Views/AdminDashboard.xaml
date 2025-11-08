@@ -158,6 +158,16 @@
                     </StackPanel>
                 </Button>
 
+                <Button x:Name="btnMenuTiket"
+                        Style="{StaticResource SidebarButtonStyle}" 
+                        Click="BtnMenuTiket_Click"
+                        Margin="10,5">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="🎫" FontSize="20" Margin="0,0,10,0"/>
+                        <TextBlock Text="Kelola Tiket" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+
                 <Button x:Name="btnMenuKapal" 
                        Style="{StaticResource SidebarButtonStyle}"
                        Click="BtnMenuKapal_Click"

@@ -1,0 +1,340 @@
+<Window x:Class="TiketLaut.Views.AdminTiketFormDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Edit Tiket"
+        Height="600"
+        Width="700"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="CanResize"
+        FontFamily="Plus Jakarta Sans"
+        Background="#F2F5FC">
+
+    <Window.Resources>
+        <!-- Card Style -->
+        <Style x:Key="CardStyle"
+               TargetType="Border">
+            <Setter Property="Background"
+                    Value="White"/>
+            <Setter Property="CornerRadius"
+                    Value="12"/>
+            <Setter Property="Padding"
+                    Value="25"/>
+            <Setter Property="Margin"
+                    Value="0,0,0,15"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect Color="#000000"
+                                      Opacity="0.05"
+                                      BlurRadius="10"
+                                      ShadowDepth="0"/>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Primary Button -->
+        <Style x:Key="PrimaryButton"
+               TargetType="Button">
+            <Setter Property="Background"
+                    Value="#00658D"/>
+            <Setter Property="Foreground"
+                    Value="White"/>
+            <Setter Property="BorderThickness"
+                    Value="0"/>
+            <Setter Property="Padding"
+                    Value="20,12"/>
+            <Setter Property="FontSize"
+                    Value="14"/>
+            <Setter Property="FontWeight"
+                    Value="SemiBold"/>
+            <Setter Property="Cursor"
+                    Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                CornerRadius="8"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver"
+                         Value="True">
+                    <Setter Property="Background"
+                            Value="#267DAE"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Secondary Button -->
+        <Style x:Key="SecondaryButton"
+               TargetType="Button"
+               BasedOn="{StaticResource PrimaryButton}">
+            <Setter Property="Background"
+                    Value="#6C757D"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver"
+                         Value="True">
+                    <Setter Property="Background"
+                            Value="#5A6268"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- TextBox Style -->
+        <Style x:Key="TextBoxStyle"
+               TargetType="TextBox">
+            <Setter Property="Background"
+                    Value="White"/>
+            <Setter Property="Foreground"
+                    Value="#011C4B"/>
+            <Setter Property="BorderBrush"
+                    Value="#E2E8F0"/>
+            <Setter Property="BorderThickness"
+                    Value="1"/>
+            <Setter Property="Padding"
+                    Value="12,10"/>
+            <Setter Property="FontSize"
+                    Value="13"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="6"
+                                Padding="{TemplateBinding Padding}">
+                            <ScrollViewer x:Name="PART_ContentHost"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver"
+                         Value="True">
+                    <Setter Property="BorderBrush"
+                            Value="#CBD5E1"/>
+                </Trigger>
+                <Trigger Property="IsFocused"
+                         Value="True">
+                    <Setter Property="BorderBrush"
+                            Value="#00658D"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- ComboBox Style -->
+        <Style x:Key="ComboBoxStyle"
+               TargetType="ComboBox">
+            <Setter Property="Background"
+                    Value="White"/>
+            <Setter Property="Foreground"
+                    Value="#011C4B"/>
+            <Setter Property="BorderBrush"
+                    Value="#E2E8F0"/>
+            <Setter Property="BorderThickness"
+                    Value="1"/>
+            <Setter Property="Padding"
+                    Value="12,10"/>
+            <Setter Property="FontSize"
+                    Value="13"/>
+        </Style>
+    </Window.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <Grid Margin="30">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- Header -->
+            <TextBlock Grid.Row="0"
+                       Text="Edit Tiket"
+                       FontSize="24"
+                       FontWeight="Bold"
+                       Foreground="#011C4B"
+                       Margin="0,0,0,20"/>
+
+            <!-- Form Content -->
+            <StackPanel Grid.Row="1">
+                <!-- Status Section -->
+                <Border Style="{StaticResource CardStyle}">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Grid.Row="0"
+                                   Text="Status Tiket"
+                                   FontSize="16"
+                                   FontWeight="Bold"
+                                   Foreground="#011C4B"
+                                   Margin="0,0,0,15"/>
+
+                        <Grid Grid.Row="1">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="200"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Grid.Column="0"
+                                       Text="Status"
+                                       FontWeight="SemiBold"
+                                       Foreground="#64748B"/>
+                            <ComboBox Grid.Column="1"
+                                      x:Name="cmbStatus"
+                                      Style="{StaticResource ComboBoxStyle}">
+                                <ComboBoxItem>Menunggu Pembayaran</ComboBoxItem>
+                                <ComboBoxItem>Aktif</ComboBoxItem>
+                                <ComboBoxItem>Gagal</ComboBoxItem>
+                            </ComboBox>
+                        </Grid>
+                    </Grid>
+                </Border>
+
+                <!-- Kendaraan Section -->
+                <Border Style="{StaticResource CardStyle}">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Grid.Row="0"
+                           Text="Informasi Kendaraan"
+                           FontSize="16"
+                           FontWeight="Bold"
+                           Foreground="#011C4B"
+                           Margin="0,0,0,15"/>
+
+                        <Grid Grid.Row="1">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="200"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Grid.Column="0"
+                               Text="Jenis Kendaraan"
+                               FontWeight="SemiBold"
+                               VerticalAlignment="Center"
+                               Foreground="#64748B"/>
+
+                            <ComboBox Grid.Column="1"
+                              x:Name="cmbJenisKendaraan"
+                              Style="{StaticResource ComboBoxStyle}"
+                              SelectionChanged="CmbJenisKendaraan_SelectionChanged">
+                            </ComboBox>
+                        </Grid>
+                    </Grid>
+                </Border>
+
+                <!-- Read-Only Info Section -->
+                <Border Style="{StaticResource CardStyle}">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Grid.Row="0"
+                                   Text="Informasi Tiket"
+                                   FontSize="16"
+                                   FontWeight="Bold"
+                                   Foreground="#011C4B"
+                                   Margin="0,0,0,15"/>
+
+                        <StackPanel Grid.Row="1">
+                            <!-- Kode Tiket -->
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="200"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="Kode Tiket"
+                                           FontWeight="SemiBold"
+                                           Foreground="#64748B"/>
+                                <TextBox x:Name="txtKodeTiket"
+                                         Grid.Column="1"
+                                         Style="{StaticResource TextBoxStyle}"
+                                         IsReadOnly="True"/>
+                            </Grid>
+
+                            <!-- Total Harga -->
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="200"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="Total Harga"
+                                           FontWeight="SemiBold"
+                                           Foreground="#64748B"/>
+                                <TextBox x:Name="txtTotalHarga"
+                                         Grid.Column="1"
+                                         Style="{StaticResource TextBoxStyle}"
+                                         IsReadOnly="True"/>
+                            </Grid>
+
+                            <!-- Tanggal Pemesanan -->
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="200"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="Tanggal Pemesanan"
+                                           FontWeight="SemiBold"
+                                           Foreground="#64748B"/>
+                                <TextBox x:Name="txtTanggalPemesanan"
+                                         Grid.Column="1"
+                                         Style="{StaticResource TextBoxStyle}"
+                                         IsReadOnly="True"/>
+                            </Grid>
+
+                            <!-- Plat Nomor -->
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="200"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="Plat Nomor (Optional)"
+                                           FontWeight="SemiBold"
+                                           Foreground="#64748B"/>
+                                <TextBox x:Name="txtPlatNomor"
+                                         Grid.Column="1"
+                                         Style="{StaticResource TextBoxStyle}"/>
+                            </Grid>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+            </StackPanel>
+
+            <!-- Footer Buttons -->
+            <Grid Grid.Row="2"
+                  Margin="0,20,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <Button Grid.Column="1"
+                        Content="Simpan"
+                        Style="{StaticResource PrimaryButton}"
+                        Click="BtnSave_Click"
+                        MinWidth="120"
+                        Margin="0,0,10,0"/>
+
+                <Button Grid.Column="2"
+                        Content="Batal"
+                        Style="{StaticResource SecondaryButton}"
+                        Click="BtnCancel_Click"
+                        MinWidth="120"/>
+            </Grid>
+        </Grid>
+    </ScrollViewer>
+</Window>

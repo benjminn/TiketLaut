@@ -182,6 +182,14 @@ namespace TiketLaut.Services
             }
         }
 
+        public async Task<List<Jadwal>> GetAllAsync()
+        {
+            return await _context.Jadwals.Include(j => j.pelabuhan_asal)
+                                        .Include(j => j.pelabuhan_tujuan)
+                                        .ToListAsync();
+        }
+
+
         /// <summary>
         /// Get all detail kendaraan untuk jadwal tertentu (returns all 13 DetailKendaraan in grup)
         /// </summary>

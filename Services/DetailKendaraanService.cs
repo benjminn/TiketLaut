@@ -169,6 +169,27 @@ namespace TiketLaut.Services
         }
 
         /// <summary>
+        /// Get all detail kendaraan by Grup ID
+        /// </summary>
+        public async Task<List<DetailKendaraan>> GetByGrupAsync(int grupId)
+        {
+            try
+            {
+                // Saya menggunakan "DetailKendaraans" (plural) karena itu yang Anda gunakan di method lain
+                return await _context.DetailKendaraans
+                    .Where(dk => dk.grup_kendaraan_id == grupId)
+                    .OrderBy(dk => dk.jenis_kendaraan) // Menambahkan OrderBy agar konsisten
+                    .ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                // Menggunakan style logging yang sudah Anda pakai
+                System.Diagnostics.Debug.WriteLine($"Error getting detail kendaraan by grup: {ex.Message}");
+                return new List<DetailKendaraan>(); // Kembalikan list kosong
+            }
+        }
+
+        /// <summary>
         /// Assign detail kendaraan to jadwal (DEPRECATED - use GrupKendaraan instead)
         /// </summary>
         [Obsolete("Use GrupKendaraanService instead. Jadwal now uses grup_kendaraan_id.")]
