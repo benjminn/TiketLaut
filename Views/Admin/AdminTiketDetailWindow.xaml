@@ -81,7 +81,7 @@
 
             <!-- Header -->
             <TextBlock Grid.Row="0" 
-                      Text="DETAIL TIKET" 
+                      Text="Detail Tiket" 
                       FontSize="24" 
                       FontWeight="Bold" 
                       Foreground="#011C4B"
@@ -255,6 +255,14 @@
                        HorizontalAlignment="Left"
                        Visibility="Collapsed"
                        Padding="25,12"/>
+
+                <Button Grid.Column="1"
+                    x:Name="btnDetailJadwal"
+                    Content="Lihat Detail Jadwal"
+                    Style="{StaticResource PrimaryButton}"
+                    Click="BtnDetailJadwal_Click"
+                    MinWidth="120"
+                    Margin="0,0,10,0"/>
 
                 <!-- Close Button -->
                 <Button Grid.Column="2"

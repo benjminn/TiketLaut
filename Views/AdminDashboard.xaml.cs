@@ -289,6 +289,7 @@ namespace TiketLaut.Views
         {
             // Reset all buttons
             btnMenuDashboard.Style = (Style)FindResource("SidebarButtonStyle");
+            btnMenuTiket.Style = (Style)FindResource("SidebarButtonStyle");
             btnMenuKapal.Style = (Style)FindResource("SidebarButtonStyle");
             btnMenuPelabuhan.Style = (Style)FindResource("SidebarButtonStyle");
             btnMenuJadwal.Style = (Style)FindResource("SidebarButtonStyle");
@@ -306,6 +307,15 @@ namespace TiketLaut.Views
             txtPageTitle.Text = "Dashboard";
             contentArea.Content = pnlDashboard;
             await LoadDashboardStats();
+        }
+
+        private void BtnMenuTiket_Click(object sender, RoutedEventArgs e)
+        {
+            SetActiveMenu(btnMenuTiket);
+            txtPageTitle.Text = "Kelola Tiket";
+
+            var tiketPage = new AdminTiketPage();
+            contentArea.Content = tiketPage;
         }
 
         private void BtnMenuKapal_Click(object sender, RoutedEventArgs e)
