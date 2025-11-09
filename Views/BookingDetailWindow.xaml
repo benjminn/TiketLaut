@@ -243,7 +243,8 @@
             </Grid.ColumnDefinitions>
 
             <!-- Left Section - Scrollable Content -->
-            <ScrollViewer Grid.Column="0" 
+            <ScrollViewer x:Name="scrollViewerMain"
+                         Grid.Column="0" 
                          VerticalScrollBarVisibility="Auto"
                          HorizontalScrollBarVisibility="Disabled"
                          Padding="0,0,10,0">

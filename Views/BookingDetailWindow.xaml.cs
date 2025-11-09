@@ -1482,6 +1482,29 @@ namespace TiketLaut.Views
                 return;
             }
 
+            // ============ VALIDASI DETAIL PEMESAN ============
+            if (string.IsNullOrWhiteSpace(txtNamaPemesan?.Text) || IsPlaceholderText(txtNamaPemesan))
+            {
+                CustomDialog.ShowWarning("Data Tidak Lengkap", "Silakan lengkapi Nama Pemesan!");
+                txtNamaPemesan?.Focus();
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(txtNomorPonsel?.Text) || IsPlaceholderText(txtNomorPonsel))
+            {
+                CustomDialog.ShowWarning("Data Tidak Lengkap", "Silakan isi Nomor HP Pemesan!");
+                txtNomorPonsel?.Focus();
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(txtEmail?.Text) || IsPlaceholderText(txtEmail))
+            {
+                CustomDialog.ShowWarning("Data Tidak Lengkap", "Silakan isi Email Pemesan!");
+                txtEmail?.Focus();
+                return;
+            }
+            // =================================================
+
             // ============ KODE BARU: SIMPAN KE DATABASE ============
             try
             {
@@ -1511,10 +1534,15 @@ namespace TiketLaut.Views
                     JenisKendaraanId = _searchCriteria.JenisKendaraanId,
                     JumlahPenumpang = _searchCriteria.JumlahPenumpang,
                     PlatNomor = vehicleSection?.Visibility == Visibility.Visible ? txtPlatNomor?.Text : null,
+                    // Data Pemesan (kontak saja, NIK tersimpan di Penumpang)
+                    NamaPemesan = txtNamaPemesan.Text.Trim(),
+                    NomorHpPemesan = txtNomorPonsel.Text.Trim(),
+                    EmailPemesan = txtEmail.Text.Trim(),
                     DataPenumpang = new List<TiketLaut.Services.PenumpangData>()
                 };
 
                 // Ambil data penumpang dari form (maksimal 3 penumpang sesuai UI)
+                // PENTING: Field yang disabled (dari checkbox "Sama dengan Pemesan") tetap bisa dibaca valuenya
                 for (int i = 1; i <= Math.Min(_searchCriteria.JumlahPenumpang, 3); i++)
                 {
                     var txtNama = FindName($"txtNamaPassenger{i}") as TextBox;
@@ -1526,6 +1554,7 @@ namespace TiketLaut.Views
                     var rbNyonya = FindName($"rbNyonya{i}") as RadioButton;
                     var rbNona = FindName($"rbNona{i}") as RadioButton;
 
+                    // Validasi: Nama dan NIK harus diisi (baik manual maupun auto-filled)
                     if (txtNama != null && txtId != null && 
                         !string.IsNullOrWhiteSpace(txtNama.Text) && 
                         !IsPlaceholderText(txtNama) &&
@@ -1728,23 +1757,36 @@ namespace TiketLaut.Views
         /// </summary>
         private void ChkSamaDenganPemesan_Checked(object sender, RoutedEventArgs e)
         {
+            System.Diagnostics.Debug.WriteLine($"[CHECKED] IsTogglingProgrammatically: {_isTogglingProgrammatically}");
+            
+            // Skip jika sedang programmatically toggle
+            if (_isTogglingProgrammatically) 
+            {
+                System.Diagnostics.Debug.WriteLine("[CHECKED] SKIP - Programmatic");
+                return;
+            }
+
             // Validasi: Pastikan detail pemesan sudah diisi
             if (string.IsNullOrWhiteSpace(txtNamaPemesan?.Text) || IsPlaceholderText(txtNamaPemesan))
             {
-                // Set flag untuk prevent event Unchecked
-                _isTogglingProgrammatically = true;
+                System.Diagnostics.Debug.WriteLine("[CHECKED] Validation FAILED - Nama kosong");
                 
-                // Uncheck toggle switch menggunakan Dispatcher untuk menghindari re-entrancy
-                if (chkSamaDenganPemesan != null)
+                // Show dialog DULU
+                CustomDialog.ShowWarning("Perhatian", "Silakan isi Detail Pemesan terlebih dahulu!");
+                
+                // SETELAH user klik OK, baru unchecked checkbox dengan Dispatcher
+                Dispatcher.BeginInvoke(new Action(() =>
                 {
-                    Dispatcher.BeginInvoke(new Action(() =>
+                    _isTogglingProgrammatically = true;
+                    if (chkSamaDenganPemesan != null)
                     {
                         chkSamaDenganPemesan.IsChecked = false;
-                        _isTogglingProgrammatically = false;
-                    }), System.Windows.Threading.DispatcherPriority.Background);
-                }
-
-                CustomDialog.ShowWarning("Perhatian", "Silakan isi Detail Pemesan terlebih dahulu sebelum menggunakan fitur 'Sama dengan Pemesan'.");
+                        System.Diagnostics.Debug.WriteLine("[CHECKED] Force unchecked AFTER dialog");
+                    }
+                    _isTogglingProgrammatically = false;
+                    txtNamaPemesan?.Focus();
+                }), System.Windows.Threading.DispatcherPriority.Background);
+                
                 return;
             }
 
@@ -1755,51 +1797,39 @@ namespace TiketLaut.Views
             
             if (rbTuan?.IsChecked != true && rbNyonya?.IsChecked != true && rbNona?.IsChecked != true)
             {
-                // Set flag untuk prevent event Unchecked
-                _isTogglingProgrammatically = true;
+                System.Diagnostics.Debug.WriteLine("[CHECKED] Validation FAILED - Gender not selected");
                 
-                // Uncheck toggle switch menggunakan Dispatcher untuk menghindari re-entrancy
-                if (chkSamaDenganPemesan != null)
+                // Show dialog DULU
+                CustomDialog.ShowWarning("Perhatian", "Silakan pilih jenis kelamin (Tuan/Nyonya/Nona) pada Detail Pemesan terlebih dahulu!");
+                
+                // SETELAH user klik OK, baru unchecked checkbox dengan Dispatcher
+                Dispatcher.BeginInvoke(new Action(() =>
                 {
-                    Dispatcher.BeginInvoke(new Action(() =>
+                    _isTogglingProgrammatically = true;
+                    if (chkSamaDenganPemesan != null)
                     {
                         chkSamaDenganPemesan.IsChecked = false;
-                        _isTogglingProgrammatically = false;
-                    }), System.Windows.Threading.DispatcherPriority.Background);
-                }
-
-                CustomDialog.ShowWarning("Perhatian", "Silakan pilih jenis kelamin (Tuan/Nyonya/Nona) pada Detail Pemesan terlebih dahulu.");
+                        System.Diagnostics.Debug.WriteLine("[CHECKED] Force unchecked AFTER dialog");
+                    }
+                    _isTogglingProgrammatically = false;
+                }), System.Windows.Threading.DispatcherPriority.Background);
+                
                 return;
             }
 
-            // Copy title (Tuan/Nyonya/Nona) dari detail pemesan ke penumpang 1
-            var rbTuan1 = this.FindName("rbTuan1") as RadioButton;
-            var rbNyonya1 = this.FindName("rbNyonya1") as RadioButton;
-            var rbNona1 = this.FindName("rbNona1") as RadioButton;
+            System.Diagnostics.Debug.WriteLine("[CHECKED] Validation PASSED - will auto-fill");
 
-            if (rbTuan?.IsChecked == true && rbTuan1 != null)
-            {
-                rbTuan1.IsChecked = true;
-            }
-            else if (rbNyonya?.IsChecked == true && rbNyonya1 != null)
-            {
-                rbNyonya1.IsChecked = true;
-            }
-            else if (rbNona?.IsChecked == true && rbNona1 != null)
-            {
-                rbNona1.IsChecked = true;
-            }
-
-            // Copy nama dari detail pemesan ke penumpang 1
+            // Copy NAMA dari pemesan ke penumpang 1
+            // PENTING: Field disabled tapi value tetap ada dan akan tersimpan ke database
             if (txtNamaPassenger1 != null && !string.IsNullOrWhiteSpace(txtNamaPemesan?.Text))
             {
                 txtNamaPassenger1.Text = txtNamaPemesan.Text;
-                txtNamaPassenger1.IsEnabled = false;
-                txtNamaPassenger1.Background = new System.Windows.Media.SolidColorBrush(
-                    (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#F3F4F6"));
+                txtNamaPassenger1.IsEnabled = false; // Disabled tapi Text tetap bisa dibaca saat save
+                txtNamaPassenger1.Background = new SolidColorBrush(
+                    (Color)ColorConverter.ConvertFromString("#F3F4F6"));
                 txtNamaPassenger1.Padding = new Thickness(16, 16, 16, 8);
                 
-                // Update floating label - adjust border parent position
+                // Update floating label
                 if (lblNamaPassenger1 != null)
                 {
                     var labelBorder = lblNamaPassenger1.Parent as Border;
@@ -1813,55 +1843,69 @@ namespace TiketLaut.Views
                 }
             }
 
-            // Auto-fill NIK dari CurrentUser jika tersedia
-            if (SessionManager.CurrentUser != null && !string.IsNullOrWhiteSpace(SessionManager.CurrentUser.nomor_induk_kependudukan))
-            {
-                if (txtIdPassenger1 != null)
-                {
-                    txtIdPassenger1.Text = SessionManager.CurrentUser.nomor_induk_kependudukan;
-                    txtIdPassenger1.IsEnabled = false;
-                    txtIdPassenger1.Background = new System.Windows.Media.SolidColorBrush(
-                        (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#F3F4F6"));
-                    txtIdPassenger1.Padding = new Thickness(16, 16, 16, 8);
-                    
-                    // Update floating label untuk NIK - adjust border parent position
-                    if (lblIdPassenger1 != null)
-                    {
-                        var labelBorder = lblIdPassenger1.Parent as Border;
-                        if (labelBorder != null)
-                        {
-                            labelBorder.VerticalAlignment = VerticalAlignment.Top;
-                            labelBorder.Margin = new Thickness(12, 8, 0, 0);
-                        }
-                        lblIdPassenger1.FontSize = 11;
-                        lblIdPassenger1.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#00658D"));
-                    }
-                }
+            // Copy GENDER dari pemesan ke penumpang 1
+            var rbTuan1 = this.FindName("rbTuan1") as RadioButton;
+            var rbNyonya1 = this.FindName("rbNyonya1") as RadioButton;
+            var rbNona1 = this.FindName("rbNona1") as RadioButton;
 
-                // Set identitas ke KTP
-                if (cmbIdentitas1 != null)
-                {
-                    cmbIdentitas1.SelectedIndex = 0; // KTP adalah index 0
-                    cmbIdentitas1.IsEnabled = false;
-                }
+            if (rbTuan?.IsChecked == true && rbTuan1 != null)
+            {
+                rbTuan1.IsChecked = true;
+                rbTuan1.IsEnabled = false;
+            }
+            else if (rbNyonya?.IsChecked == true && rbNyonya1 != null)
+            {
+                rbNyonya1.IsChecked = true;
+                rbNyonya1.IsEnabled = false;
+            }
+            else if (rbNona?.IsChecked == true && rbNona1 != null)
+            {
+                rbNona1.IsChecked = true;
+                rbNona1.IsEnabled = false;
             }
 
-            // Update label header penumpang 1 dengan title dan nama
-            UpdatePassengerLabel();
+            // Disable radio buttons lainnya
+            if (rbTuan1 != null && rbTuan1.IsChecked != true) rbTuan1.IsEnabled = false;
+            if (rbNyonya1 != null && rbNyonya1.IsChecked != true) rbNyonya1.IsEnabled = false;
+            if (rbNona1 != null && rbNona1.IsChecked != true) rbNona1.IsEnabled = false;
 
-            // Auto-expand dropdown penumpang 1 jika masih collapsed
+            // INSTRUKSI: Tampilkan pesan bahwa user harus isi NIK dan Jenis Identitas manual
+            CustomDialog.ShowInfo("Petunjuk", 
+                "Nama dan Jenis Kelamin telah diisi otomatis.\n\n" +
+                "Silakan lengkapi:\n" +
+                "• Jenis Identitas (KTP/Passport/SIM)\n" +
+                "• Nomor Identitas\n\n" +
+                "pada form Penumpang 1 di bawah.");
+
+            // Expand panel penumpang 1 jika collapsed
             var panel = this.FindName("pnlPassenger1") as StackPanel;
             var image = this.FindName("pathTogglePassenger1") as Image;
 
             if (panel != null && panel.Visibility == Visibility.Collapsed)
             {
                 panel.Visibility = Visibility.Visible;
-                // Rotate arrow down (180 degrees)
                 if (image != null && image.RenderTransform is RotateTransform rotate)
                 {
                     rotate.Angle = 180;
                 }
             }
+
+            // SETELAH dialog dismiss, scroll ke Penumpang 1 dan focus ke NIK field
+            Dispatcher.BeginInvoke(new Action(() =>
+            {
+                // Scroll ke txtIdPassenger1 (NIK field)
+                if (txtIdPassenger1 != null)
+                {
+                    txtIdPassenger1.BringIntoView();
+                    
+                    // Delay sedikit untuk memastikan scroll selesai, baru focus
+                    Dispatcher.BeginInvoke(new Action(() =>
+                    {
+                        txtIdPassenger1.Focus();
+                        System.Diagnostics.Debug.WriteLine("[CHECKED] Scrolled and focused to NIK field");
+                    }), System.Windows.Threading.DispatcherPriority.Input);
+                }
+            }), System.Windows.Threading.DispatcherPriority.Background);
         }
 
         /// <summary>
@@ -1869,11 +1913,17 @@ namespace TiketLaut.Views
         /// </summary>
         private void ChkSamaDenganPemesan_Unchecked(object sender, RoutedEventArgs e)
         {
-            // Skip jika ini adalah programmatic toggle (dari validasi gagal)
+            System.Diagnostics.Debug.WriteLine($"[UNCHECKED] IsTogglingProgrammatically: {_isTogglingProgrammatically}, IsChecked: {chkSamaDenganPemesan?.IsChecked}");
+            
+            // Skip HANYA jika ini adalah programmatic toggle dari validasi gagal
             if (_isTogglingProgrammatically)
             {
+                System.Diagnostics.Debug.WriteLine("[UNCHECKED] SKIP - Programmatic");
                 return;
             }
+
+            // User manually unchecked - clear semua auto-filled data
+            System.Diagnostics.Debug.WriteLine("[UNCHECKED] User manual uncheck - CLEARING DATA");
 
             // Clear dan enable kembali field nama penumpang 1
             if (txtNamaPassenger1 != null)
@@ -1926,14 +1976,26 @@ namespace TiketLaut.Views
                 cmbIdentitas1.IsEnabled = true;
             }
 
-            // Reset title selection (uncheck semua)
+            // Reset title selection (uncheck semua) dan enable kembali
             var rbTuan1 = this.FindName("rbTuan1") as RadioButton;
             var rbNyonya1 = this.FindName("rbNyonya1") as RadioButton;
             var rbNona1 = this.FindName("rbNona1") as RadioButton;
 
-            if (rbTuan1 != null) rbTuan1.IsChecked = false;
-            if (rbNyonya1 != null) rbNyonya1.IsChecked = false;
-            if (rbNona1 != null) rbNona1.IsChecked = false;
+            if (rbTuan1 != null) 
+            {
+                rbTuan1.IsChecked = false;
+                rbTuan1.IsEnabled = true;
+            }
+            if (rbNyonya1 != null) 
+            {
+                rbNyonya1.IsChecked = false;
+                rbNyonya1.IsEnabled = true;
+            }
+            if (rbNona1 != null) 
+            {
+                rbNona1.IsChecked = false;
+                rbNona1.IsEnabled = true;
+            }
 
             // Update label kembali ke default "Penumpang 1"
             UpdatePassengerLabel();

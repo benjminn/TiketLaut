@@ -45,7 +45,11 @@ namespace TiketLaut.Services
                     tanggal_pemesanan = DateTime.UtcNow,
                     status_tiket = "Menunggu Pembayaran",
                     jenis_kendaraan_enum = GetJenisKendaraanText(bookingData.JenisKendaraanId),
-                    plat_nomor = bookingData.PlatNomor
+                    plat_nomor = bookingData.PlatNomor,
+                    // Data Pemesan (kontak saja, NIK tersimpan di Penumpang)
+                    nama_pemesan = bookingData.NamaPemesan,
+                    nomor_hp_pemesan = bookingData.NomorHpPemesan,
+                    email_pemesan = bookingData.EmailPemesan
                 };
 
                 _context.Tikets.Add(tiket);
@@ -193,24 +197,25 @@ namespace TiketLaut.Services
 
         /// <summary>
         /// Helper: Convert jenis kendaraan ID ke text
+        /// HARUS SAMA PERSIS dengan Tag di ScheduleWindow & HomePage popup!
         /// </summary>
         private string GetJenisKendaraanText(int jenisKendaraanId)
         {
             return jenisKendaraanId switch
             {
-                0 => "Pejalan kaki",
+                0 => "Pejalan Kaki",
                 1 => "Sepeda",
                 2 => "Sepeda Motor (<500cc)",
                 3 => "Sepeda Motor (>500cc)",
-                4 => "Mobil Sedan/Jeep/Minibus",
-                5 => "Mobil Barang Bak Muatan",
-                6 => "Bus Penumpang (5-7m)",
-                7 => "Truk/Tangki (5-7m)",
-                8 => "Bus Penumpang (7-10m)",
-                9 => "Truk/Tangki (7-10m)",
-                10 => "Tronton/Gandengan (10-12m)",
-                11 => "Alat Berat (12-16m)",
-                12 => "Alat Berat (>16m)",
+                4 => "Mobil Penumpang",
+                5 => "Truk Pickup",
+                6 => "Bus Sedang",
+                7 => "Truk Sedang",
+                8 => "Bus Besar",
+                9 => "Truk Besar",
+                10 => "Truk Tronton",
+                11 => "Truk Tronton (<16 meter)",
+                12 => "Truk Tronton (>16 meter)",
                 _ => "Tidak Diketahui"
             };
         }
@@ -244,6 +249,12 @@ namespace TiketLaut.Services
         public int JenisKendaraanId { get; set; }
         public int JumlahPenumpang { get; set; }
         public string? PlatNomor { get; set; }
+        
+        // Data Pemesan (kontak saja, NIK tersimpan di Penumpang)
+        public string NamaPemesan { get; set; }
+        public string NomorHpPemesan { get; set; }
+        public string EmailPemesan { get; set; }
+        
         public List<PenumpangData> DataPenumpang { get; set; } = new List<PenumpangData>();
     }
 

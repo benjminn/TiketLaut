@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using TiketLaut.Services;
@@ -17,12 +18,14 @@ namespace TiketLaut.Views
 
         private readonly PembayaranService _pembayaranService;
         private readonly RiwayatService _riwayatService;
+        private readonly TiketService _tiketService;
 
         public CekBookingWindow()
         {
             InitializeComponent();
             _pembayaranService = new PembayaranService();
             _riwayatService = new RiwayatService();
+            _tiketService = new TiketService();
 
             // Set user info di navbar
             if (SessionManager.CurrentUser != null)
@@ -149,6 +152,8 @@ namespace TiketLaut.Views
 
                     var bookingItem = new BookingItem
                     {
+                        TiketId = tiket.tiket_id,
+                        PembayaranId = pembayaran.pembayaran_id,
                         Route = $"{jadwal.pelabuhan_asal.nama_pelabuhan} - {jadwal.pelabuhan_tujuan.nama_pelabuhan}",
                         Status = status,
                         StatusColor = statusColor,
@@ -203,14 +208,69 @@ namespace TiketLaut.Views
 
         private void BookingCard_Click(object sender, MouseButtonEventArgs e)
         {
-            // TODO: Navigate to booking detail page
-            CustomDialog.ShowInfo("Info", "Navigasi ke detail pemesanan");
+            // Get booking item dari sender
+            var border = sender as Border;
+            if (border?.DataContext is not BookingItem bookingItem)
+                return;
+
+            var status = bookingItem.Status;
+
+            switch (status)
+            {
+                case "Sukses":
+                    // Navigate to detail tiket e-boarding pass
+                    var tiketDetailWindow = new TiketDetailWindow(bookingItem.TiketId);
+                    tiketDetailWindow.Left = this.Left;
+                    tiketDetailWindow.Top = this.Top;
+                    tiketDetailWindow.Width = this.Width;
+                    tiketDetailWindow.Height = this.Height;
+                    tiketDetailWindow.WindowState = this.WindowState;
+                    tiketDetailWindow.Show();
+                    this.Close();
+                    break;
+
+                case "Menunggu Pembayaran":
+                    // Navigate to payment page
+                    var paymentWindow = new PaymentWindow();
+                    paymentWindow.Left = this.Left;
+                    paymentWindow.Top = this.Top;
+                    paymentWindow.Width = this.Width;
+                    paymentWindow.Height = this.Height;
+                    paymentWindow.WindowState = this.WindowState;
+                    paymentWindow.Show();
+                    this.Close();
+                    break;
+
+                case "Menunggu Validasi":
+                    // Show popup - sedang menunggu validasi
+                    CustomDialog.ShowInfo(
+                        "Menunggu Validasi",
+                        "Pembayaran Anda sedang menunggu validasi oleh admin. Harap menunggu konfirmasi lebih lanjut.",
+                        CustomDialog.DialogButtons.OK
+                    );
+                    break;
+
+                case "Gagal":
+                    // Show popup - pembayaran gagal
+                    CustomDialog.ShowError(
+                        "Pembayaran Gagal",
+                        "Pembayaran Anda gagal diproses. Kemungkinan penyebab:\n\n• Bukti pembayaran tidak valid\n• Jumlah pembayaran tidak sesuai\n• Waktu pembayaran telah habis\n\nSilakan hubungi customer service untuk informasi lebih lanjut.",
+                        CustomDialog.DialogButtons.OK
+                    );
+                    break;
+
+                default:
+                    CustomDialog.ShowInfo("Info", $"Status: {status}");
+                    break;
+            }
         }
     }
 
     // Model class untuk Booking Item
     public class BookingItem : INotifyPropertyChanged
     {
+        private int _tiketId;
+        private int _pembayaranId;
         private string _route = string.Empty;
         private string _status = string.Empty;
         private SolidColorBrush _statusColor = Brushes.Black;
@@ -219,6 +279,18 @@ namespace TiketLaut.Views
         private string _time = string.Empty;
         private Visibility _showWarning = Visibility.Collapsed;
         private string _warningText = string.Empty;
+
+        public int TiketId
+        {
+            get => _tiketId;
+            set { _tiketId = value; OnPropertyChanged(nameof(TiketId)); }
+        }
+
+        public int PembayaranId
+        {
+            get => _pembayaranId;
+            set { _pembayaranId = value; OnPropertyChanged(nameof(PembayaranId)); }
+        }
 
         public string Route
         {
