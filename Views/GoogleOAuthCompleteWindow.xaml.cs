@@ -2,6 +2,7 @@ using System;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Input;
+using TiketLaut.Views.Components;
 
 namespace TiketLaut.Views
 {
@@ -67,20 +68,14 @@ namespace TiketLaut.Views
 
             if (string.IsNullOrEmpty(namaLengkap))
             {
-                MessageBox.Show("Nama lengkap tidak boleh kosong!",
-                               "Validasi Error",
-                               MessageBoxButton.OK,
-                               MessageBoxImage.Warning);
+                CustomDialog.ShowWarning("Validasi Error", "Nama lengkap tidak boleh kosong!");
                 txtNamaLengkap.Focus();
                 return;
             }
 
             if (string.IsNullOrEmpty(nik))
             {
-                MessageBox.Show("NIK tidak boleh kosong!",
-                               "Validasi Error",
-                               MessageBoxButton.OK,
-                               MessageBoxImage.Warning);
+                CustomDialog.ShowWarning("Validasi Error", "NIK tidak boleh kosong!");
                 txtNIK.Focus();
                 return;
             }
@@ -88,20 +83,14 @@ namespace TiketLaut.Views
             // Validasi NIK harus 16 digit angka
             if (nik.Length != 16 || !long.TryParse(nik, out _))
             {
-                MessageBox.Show("NIK harus berupa 16 digit angka!",
-                               "Validasi Error",
-                               MessageBoxButton.OK,
-                               MessageBoxImage.Warning);
+                CustomDialog.ShowWarning("Validasi Error", "NIK harus berupa 16 digit angka!");
                 txtNIK.Focus();
                 return;
             }
 
             if (!dpTanggalLahir.SelectedDate.HasValue)
             {
-                MessageBox.Show("Tanggal lahir tidak boleh kosong!",
-                               "Validasi Error",
-                               MessageBoxButton.OK,
-                               MessageBoxImage.Warning);
+                CustomDialog.ShowWarning("Validasi Error", "Tanggal lahir tidak boleh kosong!");
                 dpTanggalLahir.Focus();
                 return;
             }
@@ -114,10 +103,7 @@ namespace TiketLaut.Views
 
             if (umur < 17)
             {
-                MessageBox.Show("Usia minimal untuk registrasi adalah 17 tahun!",
-                               "Validasi Error",
-                               MessageBoxButton.OK,
-                               MessageBoxImage.Warning);
+                CustomDialog.ShowWarning("Validasi Error", "Usia minimal untuk registrasi adalah 17 tahun!");
                 dpTanggalLahir.Focus();
                 return;
             }

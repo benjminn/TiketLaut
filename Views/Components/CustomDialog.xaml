@@ -1,0 +1,182 @@
+<Window x:Class="TiketLaut.Views.Components.CustomDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="CustomDialog" 
+        Height="Auto" 
+        Width="Auto"
+        SizeToContent="WidthAndHeight"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize"
+        ShowInTaskbar="False"
+        FontFamily="Plus Jakarta Sans">
+
+    <Window.Resources>
+        <!-- Dialog Shadow -->
+        <DropShadowEffect x:Key="DialogShadow" 
+                         BlurRadius="25" 
+                         ShadowDepth="0" 
+                         Opacity="0.25" 
+                         Color="#000000"/>
+
+        <!-- Primary Button Style -->
+        <Style x:Key="PrimaryButton" TargetType="Button">
+            <Setter Property="Background" Value="#00658D"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="20,12"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="MinWidth" Value="80"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                CornerRadius="8"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#267DAE"/>
+                </Trigger>
+                <Trigger Property="IsPressed" Value="True">
+                    <Setter Property="Background" Value="#004A66"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Secondary Button Style -->
+        <Style x:Key="SecondaryButton" TargetType="Button">
+            <Setter Property="Background" Value="#F5F7FA"/>
+            <Setter Property="Foreground" Value="#4A5568"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="#E2E8F0"/>
+            <Setter Property="Padding" Value="20,12"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="MinWidth" Value="80"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="8"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#EDF2F7"/>
+                </Trigger>
+                <Trigger Property="IsPressed" Value="True">
+                    <Setter Property="Background" Value="#E2E8F0"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
+
+    <!-- Outer Container with Shadow -->
+    <Border Background="Transparent" 
+            CornerRadius="20"
+            Effect="{StaticResource DialogShadow}"
+            Padding="8">
+        
+        <!-- Main Dialog Card - Background Full FEFEFE -->
+        <Border Background="#FEFEFE" 
+                BorderBrush="#00658D"
+                BorderThickness="0.5"
+                CornerRadius="20"
+                Padding="0"
+                MinWidth="380"
+                MaxWidth="500">
+            
+            <Grid>
+                <Grid.RowDefinitions>
+                    <!-- Icon -->
+                    <RowDefinition Height="Auto"/>
+                    <!-- Title -->
+                    <RowDefinition Height="Auto"/>
+                    <!-- Content -->
+                    <RowDefinition Height="Auto"/>
+                    <!-- Buttons -->
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!-- Icon Section -->
+                <Border Grid.Row="0" 
+                        Background="Transparent"
+                        Padding="0,32,0,16">
+                    <Image Source="/Views/Assets/Icons/iconNotifikasi.png"
+                           Width="45" 
+                           Height="45"
+                           HorizontalAlignment="Center"/>
+                </Border>
+
+                <!-- Title Section -->
+                <Border Grid.Row="1" 
+                        Background="Transparent"
+                        Padding="24,0">
+                    <TextBlock x:Name="txtTitle"
+                               Text="Masuk diperlukan"
+                               FontSize="24"
+                               FontWeight="Bold"
+                               Foreground="#1A202C"
+                               HorizontalAlignment="Center"
+                               TextAlignment="Center"/>
+                </Border>
+
+                <!-- Content Section -->
+                <Border Grid.Row="2" 
+                        Background="Transparent"
+                        Padding="32,16,32,24">
+                    <TextBlock x:Name="txtMessage"
+                               Text="Silakan masuk terlebih dahulu untuk mengakses laman cek WKWKWKWKKWKWKWKKWKWKKWKWbooking Ingin Masuk sekarang?"
+                               FontSize="14"
+                               FontWeight="Medium"
+                               Foreground="#00658D"
+                               LineHeight="20"
+                               LineStackingStrategy="BlockLineHeight"
+                               TextWrapping="Wrap"
+                               TextAlignment="Center"
+                               HorizontalAlignment="Center"/>
+                </Border>
+
+                <!-- Buttons Section -->
+                <Border Grid.Row="3" 
+                        Background="Transparent"
+                        Padding="32,0,32,32">
+                    <StackPanel Orientation="Horizontal" 
+                                HorizontalAlignment="Center">
+                        
+                        <!-- Cancel Button -->
+                        <Button x:Name="btnCancel"
+                                Content="Tidak"
+                                Style="{StaticResource SecondaryButton}"
+                                Click="BtnCancel_Click"
+                                Margin="0,0,12,0"/>
+                        
+                        <!-- Confirm Button -->
+                        <Button x:Name="btnConfirm"
+                                Content="Ya"
+                                Style="{StaticResource PrimaryButton}"
+                                Click="BtnConfirm_Click"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </Border>
+    </Border>
+</Window>

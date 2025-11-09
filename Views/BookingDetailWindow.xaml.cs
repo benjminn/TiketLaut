@@ -12,6 +12,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using TiketLaut.Models;
+using TiketLaut.Views.Components;
+using TiketLaut.Services;
 
 namespace TiketLaut.Views
 {
@@ -21,6 +23,7 @@ namespace TiketLaut.Views
         private ScheduleItem? _selectedSchedule;
         private SearchCriteria? _searchCriteria;
         private Window? _parentWindow;
+        private bool _isTogglingProgrammatically = false; // Flag untuk prevent unwanted event
 
         public BookingDetailWindow()
         {
@@ -392,7 +395,8 @@ namespace TiketLaut.Views
                 BorderThickness = new Thickness(0),
                 Cursor = Cursors.Hand,
                 HorizontalContentAlignment = HorizontalAlignment.Stretch,
-                Margin = new Thickness(0, 0, 0, 16)
+                Margin = new Thickness(0, 0, 0, 16),
+                Style = FindResource("TransparentButtonNoHover") as Style
             };
             toggleButton.Click += BtnTogglePassenger_Click;
 
@@ -403,6 +407,7 @@ namespace TiketLaut.Views
 
             TextBlock headerText = new TextBlock
             {
+                Name = $"txtLabelPassenger{passengerNumber}",
                 Text = $"Penumpang {passengerNumber}",
                 FontSize = 20,
                 FontWeight = FontWeights.Bold,
@@ -410,6 +415,8 @@ namespace TiketLaut.Views
                 HorizontalAlignment = HorizontalAlignment.Left,
                 VerticalAlignment = VerticalAlignment.Center
             };
+            // Register the name so we can find it later
+            this.RegisterName($"txtLabelPassenger{passengerNumber}", headerText);
             Grid.SetColumn(headerText, 0);
             toggleGrid.Children.Add(headerText);
 
@@ -423,6 +430,8 @@ namespace TiketLaut.Views
                 RenderTransformOrigin = new Point(0.5, 0.5),
                 RenderTransform = new RotateTransform(0)
             };
+            // Register the name so toggle button can find it
+            this.RegisterName($"pathTogglePassenger{passengerNumber}", toggleIcon);
             Grid.SetColumn(toggleIcon, 1);
             toggleGrid.Children.Add(toggleIcon);
 
@@ -434,6 +443,8 @@ namespace TiketLaut.Views
             {
                 Visibility = Visibility.Collapsed
             };
+            // Register the name so toggle button can find it
+            this.RegisterName($"pnlPassenger{passengerNumber}", contentPanel);
 
             // Add title
             TextBlock infoTitle = new TextBlock
@@ -458,10 +469,12 @@ namespace TiketLaut.Views
             {
                 Content = "Tuan",
                 GroupName = $"Gender{passengerNumber}",
-                IsChecked = true,
                 Style = FindResource("CustomRadioButton") as Style,
                 Margin = new Thickness(0, 0, 16, 0)
             };
+            rbTuan.Checked += (s, e) => UpdateDynamicPassengerLabel(passengerNumber);
+            // Register the name so we can find it later
+            this.RegisterName($"rbTuan{passengerNumber}", rbTuan);
             genderPanel.Children.Add(rbTuan);
 
             RadioButton rbNyonya = new RadioButton
@@ -471,6 +484,9 @@ namespace TiketLaut.Views
                 Style = FindResource("CustomRadioButton") as Style,
                 Margin = new Thickness(0, 0, 16, 0)
             };
+            rbNyonya.Checked += (s, e) => UpdateDynamicPassengerLabel(passengerNumber);
+            // Register the name so we can find it later
+            this.RegisterName($"rbNyonya{passengerNumber}", rbNyonya);
             genderPanel.Children.Add(rbNyonya);
 
             RadioButton rbNona = new RadioButton
@@ -479,6 +495,9 @@ namespace TiketLaut.Views
                 GroupName = $"Gender{passengerNumber}",
                 Style = FindResource("CustomRadioButton") as Style
             };
+            rbNona.Checked += (s, e) => UpdateDynamicPassengerLabel(passengerNumber);
+            // Register the name so we can find it later
+            this.RegisterName($"rbNona{passengerNumber}", rbNona);
             genderPanel.Children.Add(rbNona);
 
             contentPanel.Children.Add(genderPanel);
@@ -534,9 +553,13 @@ namespace TiketLaut.Views
                 Style = FindResource("FloatingLabelTextBox") as Style
             };
 
+            // Generate label name from textBoxName (e.g., txtNoIdentitas4 -> lblNoIdentitas4)
+            string labelName = $"lbl{textBoxName.Substring(3)}";
+
             Grid innerGrid = new Grid();
             TextBox textBox = new TextBox
             {
+                Name = textBoxName,
                 Height = 52,
                 Padding = new Thickness(16, 0, 16, 0),
                 FontSize = 14,
@@ -544,11 +567,15 @@ namespace TiketLaut.Views
                 Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#042769")),
                 BorderThickness = new Thickness(0),
                 Background = new SolidColorBrush(Colors.Transparent),
-                VerticalContentAlignment = VerticalAlignment.Center
+                VerticalContentAlignment = VerticalAlignment.Center,
+                Tag = labelName // Link TextBox to its label
             };
             textBox.GotFocus += FloatingTextBox_GotFocus;
             textBox.LostFocus += FloatingTextBox_LostFocus;
             textBox.TextChanged += FloatingTextBox_TextChanged;
+            
+            // Register the name so we can find it later
+            this.RegisterName(textBoxName, textBox);
 
             innerGrid.Children.Add(textBox);
             inputBorder.Child = innerGrid;
@@ -566,11 +593,15 @@ namespace TiketLaut.Views
 
             TextBlock label = new TextBlock
             {
+                Name = labelName,
                 Text = labelText,
                 FontSize = 14,
                 FontWeight = FontWeights.Regular,
                 Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#94A3B8"))
             };
+            
+            // Register the label so it can be found by the TextBox events
+            this.RegisterName(labelName, label);
 
             labelBorder.Child = label;
             grid.Children.Add(labelBorder);
@@ -592,6 +623,7 @@ namespace TiketLaut.Views
             Grid innerGrid = new Grid();
             TextBox textBox = new TextBox
             {
+                Name = fieldName,
                 Height = 52,
                 Padding = new Thickness(16, 0, 16, 0),
                 FontSize = 14,
@@ -599,11 +631,26 @@ namespace TiketLaut.Views
                 Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#042769")),
                 BorderThickness = new Thickness(0),
                 Background = new SolidColorBrush(Colors.Transparent),
-                VerticalContentAlignment = VerticalAlignment.Center
+                VerticalContentAlignment = VerticalAlignment.Center,
+                Tag = $"lbl{fieldName.Substring(3)}" // lblNamaPassengerX from txtNamaPassengerX
             };
             textBox.GotFocus += FloatingTextBox_GotFocus;
             textBox.LostFocus += FloatingTextBox_LostFocus;
             textBox.TextChanged += FloatingTextBox_TextChanged;
+            
+            // Add specific handler for passenger name fields to update dynamic label
+            if (fieldName.StartsWith("txtNamaPassenger"))
+            {
+                // Extract passenger number from fieldName (e.g., txtNamaPassenger4 -> 4)
+                string numStr = fieldName.Replace("txtNamaPassenger", "");
+                if (int.TryParse(numStr, out int passengerNum))
+                {
+                    textBox.TextChanged += (s, e) => UpdateDynamicPassengerLabel(passengerNum);
+                }
+            }
+            
+            // Register the textBox so we can find it later
+            this.RegisterName(fieldName, textBox);
 
             innerGrid.Children.Add(textBox);
             inputBorder.Child = innerGrid;
@@ -621,11 +668,15 @@ namespace TiketLaut.Views
 
             TextBlock label = new TextBlock
             {
+                Name = $"lbl{fieldName.Substring(3)}", // lblNamaPassengerX from txtNamaPassengerX
                 Text = labelText,
                 FontSize = 14,
                 FontWeight = FontWeights.Regular,
                 Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#94A3B8"))
             };
+            
+            // Register the label so we can find it later
+            this.RegisterName(label.Name, label);
 
             labelBorder.Child = label;
             grid.Children.Add(labelBorder);
@@ -657,15 +708,23 @@ namespace TiketLaut.Views
                 Style = FindResource("FloatingLabelTextBox") as Style
             };
 
+            // Generate label name from comboBoxName (e.g., cmbIdentitas4 -> lblIdentitas4)
+            string labelName = $"lbl{comboBoxName.Substring(3)}";
+
             ComboBox comboBox = new ComboBox
             {
+                Name = comboBoxName,
                 Height = 52,
                 Padding = new Thickness(16, 0, 16, 0),
-                Style = FindResource("FloatingLabelComboBox") as Style
+                Style = FindResource("FloatingLabelComboBox") as Style,
+                Tag = labelName // Link ComboBox to its label
             };
             comboBox.GotFocus += FloatingComboBox_GotFocus;
             comboBox.LostFocus += FloatingComboBox_LostFocus;
             comboBox.SelectionChanged += FloatingComboBox_SelectionChanged;
+            
+            // Register the name so we can find it later
+            this.RegisterName(comboBoxName, comboBox);
 
             foreach (string item in items)
             {
@@ -687,11 +746,15 @@ namespace TiketLaut.Views
 
             TextBlock label = new TextBlock
             {
+                Name = labelName,
                 Text = labelText,
                 FontSize = 14,
                 FontWeight = FontWeights.Regular,
                 Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#94A3B8"))
             };
+            
+            // Register the label so it can be found by the ComboBox events
+            this.RegisterName(labelName, label);
 
             labelBorder.Child = label;
             grid.Children.Add(labelBorder);
@@ -1316,16 +1379,14 @@ namespace TiketLaut.Views
             // Validate Detail Pemesan
             if (IsPlaceholderText(txtNamaPemesan) || string.IsNullOrWhiteSpace(txtNamaPemesan.Text))
             {
-                MessageBox.Show("Nama pemesan harus diisi!", "Validasi",
-                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                CustomDialog.ShowWarning("Validasi", "Nama pemesan harus diisi!");
                 txtNamaPemesan.Focus();
                 return;
             }
 
             if (IsPlaceholderText(txtNomorPonsel) || string.IsNullOrWhiteSpace(txtNomorPonsel.Text))
             {
-                MessageBox.Show("Nomor ponsel harus diisi!", "Validasi",
-                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                CustomDialog.ShowWarning("Validasi", "Nomor ponsel harus diisi!");
                 txtNomorPonsel.Focus();
                 return;
             }
@@ -1333,16 +1394,14 @@ namespace TiketLaut.Views
             // Validasi nomor ponsel harus angka saja
             if (!System.Text.RegularExpressions.Regex.IsMatch(txtNomorPonsel.Text.Trim(), @"^[0-9]+$"))
             {
-                MessageBox.Show("Nomor ponsel harus berupa angka saja!", "Validasi",
-                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                CustomDialog.ShowWarning("Validasi", "Nomor ponsel harus berupa angka saja!");
                 txtNomorPonsel.Focus();
                 return;
             }
 
             if (IsPlaceholderText(txtEmail) || string.IsNullOrWhiteSpace(txtEmail.Text))
             {
-                MessageBox.Show("Email harus diisi!", "Validasi",
-                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                CustomDialog.ShowWarning("Validasi", "Email harus diisi!");
                 txtEmail.Focus();
                 return;
             }
@@ -1351,8 +1410,7 @@ namespace TiketLaut.Views
             string email = txtEmail.Text.Trim();
             if (!email.Contains("@") || !email.Contains("."))
             {
-                MessageBox.Show("Email harus mengandung @ dan . (titik)!", "Validasi",
-                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                CustomDialog.ShowWarning("Validasi", "Email harus mengandung @ dan . (titik)!");
                 txtEmail.Focus();
                 return;
             }
@@ -1360,8 +1418,7 @@ namespace TiketLaut.Views
             // Validate Detail Penumpang (basic validation for at least one passenger)
             if (IsPlaceholderText(txtNamaPassenger1) || string.IsNullOrWhiteSpace(txtNamaPassenger1.Text))
             {
-                MessageBox.Show("Data penumpang 1 harus diisi!", "Validasi",
-                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                CustomDialog.ShowWarning("Validasi", "Data penumpang 1 harus diisi!");
 
                 if (pnlPassenger1.Visibility == Visibility.Collapsed)
                 {
@@ -1377,8 +1434,7 @@ namespace TiketLaut.Views
 
             if (IsPlaceholderText(txtIdPassenger1) || string.IsNullOrWhiteSpace(txtIdPassenger1.Text))
             {
-                MessageBox.Show("Nomor identitas penumpang 1 harus diisi!", "Validasi",
-                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                CustomDialog.ShowWarning("Validasi", "Nomor identitas penumpang 1 harus diisi!");
 
                 if (pnlPassenger1.Visibility == Visibility.Collapsed)
                 {
@@ -1401,8 +1457,7 @@ namespace TiketLaut.Views
                     string nik1 = txtIdPassenger1.Text.Trim();
                     if (!System.Text.RegularExpressions.Regex.IsMatch(nik1, @"^[0-9]{16}$"))
                     {
-                        MessageBox.Show("NIK (KTP) harus berupa 16 digit angka!", "Validasi",
-                            MessageBoxButton.OK, MessageBoxImage.Warning);
+                        CustomDialog.ShowWarning("Validasi", "NIK (KTP) harus berupa 16 digit angka!");
 
                         if (pnlPassenger1.Visibility == Visibility.Collapsed)
                         {
@@ -1422,8 +1477,7 @@ namespace TiketLaut.Views
             if (vehicleSection?.Visibility == Visibility.Visible &&
                 (IsPlaceholderText(txtPlatNomor) || string.IsNullOrWhiteSpace(txtPlatNomor.Text)))
             {
-                MessageBox.Show("Plat nomor kendaraan harus diisi!", "Validasi",
-                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                CustomDialog.ShowWarning("Validasi", "Plat nomor kendaraan harus diisi!");
                 txtPlatNomor.Focus();
                 return;
             }
@@ -1438,16 +1492,14 @@ namespace TiketLaut.Views
                 // Validasi session user
                 if (TiketLaut.Services.SessionManager.CurrentUser == null)
                 {
-                    MessageBox.Show("Sesi login Anda telah berakhir. Silakan login kembali.", 
-                        "Session Expired", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    CustomDialog.ShowWarning("Session Expired", "Sesi login Anda telah berakhir. Silakan login kembali.");
                     return;
                 }
 
                 // Validasi data schedule dan search criteria
                 if (_selectedSchedule == null || _searchCriteria == null)
                 {
-                    MessageBox.Show("Data jadwal tidak lengkap. Silakan ulangi pemesanan dari awal.", 
-                        "Data Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    CustomDialog.ShowError("Data Error", "Data jadwal tidak lengkap. Silakan ulangi pemesanan dari awal.");
                     return;
                 }
 
@@ -1491,8 +1543,7 @@ namespace TiketLaut.Views
                         string nomorIdentitasText = txtId.Text.Trim();
                         if (!long.TryParse(nomorIdentitasText, out long nomorIdentitas))
                         {
-                            MessageBox.Show($"Nomor identitas penumpang {i} harus berupa angka!", 
-                                "Validasi", MessageBoxButton.OK, MessageBoxImage.Warning);
+                            CustomDialog.ShowWarning("Validasi", $"Nomor identitas penumpang {i} harus berupa angka!");
                             txtId.Focus();
                             return;
                         }
@@ -1502,8 +1553,7 @@ namespace TiketLaut.Views
                         {
                             if (!System.Text.RegularExpressions.Regex.IsMatch(nomorIdentitasText, @"^[0-9]{16}$"))
                             {
-                                MessageBox.Show($"NIK (KTP) penumpang {i} harus berupa 16 digit angka!", 
-                                    "Validasi", MessageBoxButton.OK, MessageBoxImage.Warning);
+                                CustomDialog.ShowWarning("Validasi", $"NIK (KTP) penumpang {i} harus berupa 16 digit angka!");
                                 txtId.Focus();
                                 return;
                             }
@@ -1576,8 +1626,7 @@ namespace TiketLaut.Views
                                         {
                                             if (!System.Text.RegularExpressions.Regex.IsMatch(nomorIdentitasText, @"^[0-9]{16}$"))
                                             {
-                                                MessageBox.Show($"NIK (KTP) penumpang {passengerIndex} harus berupa 16 digit angka!", 
-                                                    "Validasi", MessageBoxButton.OK, MessageBoxImage.Warning);
+                                                CustomDialog.ShowWarning("Validasi", $"NIK (KTP) penumpang {passengerIndex} harus berupa 16 digit angka!");
                                                 
                                                 // Reset and return - don't continue processing
                                                 btnLanjutPembayaran.IsEnabled = true;
@@ -1628,20 +1677,16 @@ namespace TiketLaut.Views
                 // Validasi minimal ada 1 penumpang
                 if (bookingData.DataPenumpang.Count == 0)
                 {
-                    MessageBox.Show("Data penumpang harus diisi minimal 1 orang!", 
-                        "Validasi", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    CustomDialog.ShowWarning("Validasi", "Data penumpang harus diisi minimal 1 orang!");
                     return;
                 }
 
                 // Validasi jumlah penumpang sesuai dengan yang dipilih
                 if (bookingData.DataPenumpang.Count < _searchCriteria.JumlahPenumpang)
                 {
-                    MessageBox.Show(
-                        $"Anda memilih {_searchCriteria.JumlahPenumpang} penumpang, tetapi hanya mengisi {bookingData.DataPenumpang.Count} data penumpang.\n\n" +
-                        "Silakan lengkapi semua data penumpang!",
+                    CustomDialog.ShowWarning(
                         "Validasi",
-                        MessageBoxButton.OK,
-                        MessageBoxImage.Warning);
+                        $"Anda memilih {_searchCriteria.JumlahPenumpang} penumpang, tetapi hanya mengisi {bookingData.DataPenumpang.Count} data penumpang.\n\nSilakan lengkapi semua data penumpang!");
                     return;
                 }
 
@@ -1649,14 +1694,9 @@ namespace TiketLaut.Views
                 var bookingService = new TiketLaut.Services.BookingService();
                 var tiket = await bookingService.CreateBookingAsync(bookingData);
 
-                MessageBox.Show(
-                    $"? Booking berhasil!\n\n" +
-                    $"Kode Tiket: {tiket.kode_tiket}\n" +
-                    $"Total: Rp {tiket.total_harga:N0}\n\n" +
-                    $"Silakan lanjutkan ke pembayaran.",
+                CustomDialog.ShowSuccess(
                     "Booking Berhasil",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Information);
+                    $"✅ Booking berhasil!\n\nKode Tiket: {tiket.kode_tiket}\nTotal: Rp {tiket.total_harga:N0}\n\nSilakan lanjutkan ke pembayaran.");
 
                 // Navigasi ke PaymentWindow
                 var paymentWindow = new PaymentWindow();
@@ -1670,11 +1710,9 @@ namespace TiketLaut.Views
             }
             catch (Exception ex)
             {
-                MessageBox.Show(
-                    $"? Terjadi kesalahan saat memproses booking:\n\n{ex.Message}",
+                CustomDialog.ShowError(
                     "Error",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Error);
+                    $"❌ Terjadi kesalahan saat memproses booking:\n\n{ex.Message}");
 
                 System.Diagnostics.Debug.WriteLine($"[BookingDetailWindow] Error: {ex.Message}\n{ex.StackTrace}");
             }
@@ -1682,6 +1720,415 @@ namespace TiketLaut.Views
             {
                 btnLanjutPembayaran.IsEnabled = true;
                 btnLanjutPembayaran.Content = "Lanjut Pembayaran";
+            }
+        }
+
+        /// <summary>
+        /// Event handler ketika checkbox "Sama dengan Pemesan" dicentang
+        /// </summary>
+        private void ChkSamaDenganPemesan_Checked(object sender, RoutedEventArgs e)
+        {
+            // Validasi: Pastikan detail pemesan sudah diisi
+            if (string.IsNullOrWhiteSpace(txtNamaPemesan?.Text) || IsPlaceholderText(txtNamaPemesan))
+            {
+                // Set flag untuk prevent event Unchecked
+                _isTogglingProgrammatically = true;
+                
+                // Uncheck toggle switch menggunakan Dispatcher untuk menghindari re-entrancy
+                if (chkSamaDenganPemesan != null)
+                {
+                    Dispatcher.BeginInvoke(new Action(() =>
+                    {
+                        chkSamaDenganPemesan.IsChecked = false;
+                        _isTogglingProgrammatically = false;
+                    }), System.Windows.Threading.DispatcherPriority.Background);
+                }
+
+                CustomDialog.ShowWarning("Perhatian", "Silakan isi Detail Pemesan terlebih dahulu sebelum menggunakan fitur 'Sama dengan Pemesan'.");
+                return;
+            }
+
+            // Validasi: Pastikan gender pemesan sudah dipilih
+            var rbTuan = this.FindName("rbTuan") as RadioButton;
+            var rbNyonya = this.FindName("rbNyonya") as RadioButton;
+            var rbNona = this.FindName("rbNona") as RadioButton;
+            
+            if (rbTuan?.IsChecked != true && rbNyonya?.IsChecked != true && rbNona?.IsChecked != true)
+            {
+                // Set flag untuk prevent event Unchecked
+                _isTogglingProgrammatically = true;
+                
+                // Uncheck toggle switch menggunakan Dispatcher untuk menghindari re-entrancy
+                if (chkSamaDenganPemesan != null)
+                {
+                    Dispatcher.BeginInvoke(new Action(() =>
+                    {
+                        chkSamaDenganPemesan.IsChecked = false;
+                        _isTogglingProgrammatically = false;
+                    }), System.Windows.Threading.DispatcherPriority.Background);
+                }
+
+                CustomDialog.ShowWarning("Perhatian", "Silakan pilih jenis kelamin (Tuan/Nyonya/Nona) pada Detail Pemesan terlebih dahulu.");
+                return;
+            }
+
+            // Copy title (Tuan/Nyonya/Nona) dari detail pemesan ke penumpang 1
+            var rbTuan1 = this.FindName("rbTuan1") as RadioButton;
+            var rbNyonya1 = this.FindName("rbNyonya1") as RadioButton;
+            var rbNona1 = this.FindName("rbNona1") as RadioButton;
+
+            if (rbTuan?.IsChecked == true && rbTuan1 != null)
+            {
+                rbTuan1.IsChecked = true;
+            }
+            else if (rbNyonya?.IsChecked == true && rbNyonya1 != null)
+            {
+                rbNyonya1.IsChecked = true;
+            }
+            else if (rbNona?.IsChecked == true && rbNona1 != null)
+            {
+                rbNona1.IsChecked = true;
+            }
+
+            // Copy nama dari detail pemesan ke penumpang 1
+            if (txtNamaPassenger1 != null && !string.IsNullOrWhiteSpace(txtNamaPemesan?.Text))
+            {
+                txtNamaPassenger1.Text = txtNamaPemesan.Text;
+                txtNamaPassenger1.IsEnabled = false;
+                txtNamaPassenger1.Background = new System.Windows.Media.SolidColorBrush(
+                    (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#F3F4F6"));
+                txtNamaPassenger1.Padding = new Thickness(16, 16, 16, 8);
+                
+                // Update floating label - adjust border parent position
+                if (lblNamaPassenger1 != null)
+                {
+                    var labelBorder = lblNamaPassenger1.Parent as Border;
+                    if (labelBorder != null)
+                    {
+                        labelBorder.VerticalAlignment = VerticalAlignment.Top;
+                        labelBorder.Margin = new Thickness(12, 8, 0, 0);
+                    }
+                    lblNamaPassenger1.FontSize = 11;
+                    lblNamaPassenger1.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#00658D"));
+                }
+            }
+
+            // Auto-fill NIK dari CurrentUser jika tersedia
+            if (SessionManager.CurrentUser != null && !string.IsNullOrWhiteSpace(SessionManager.CurrentUser.nomor_induk_kependudukan))
+            {
+                if (txtIdPassenger1 != null)
+                {
+                    txtIdPassenger1.Text = SessionManager.CurrentUser.nomor_induk_kependudukan;
+                    txtIdPassenger1.IsEnabled = false;
+                    txtIdPassenger1.Background = new System.Windows.Media.SolidColorBrush(
+                        (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#F3F4F6"));
+                    txtIdPassenger1.Padding = new Thickness(16, 16, 16, 8);
+                    
+                    // Update floating label untuk NIK - adjust border parent position
+                    if (lblIdPassenger1 != null)
+                    {
+                        var labelBorder = lblIdPassenger1.Parent as Border;
+                        if (labelBorder != null)
+                        {
+                            labelBorder.VerticalAlignment = VerticalAlignment.Top;
+                            labelBorder.Margin = new Thickness(12, 8, 0, 0);
+                        }
+                        lblIdPassenger1.FontSize = 11;
+                        lblIdPassenger1.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#00658D"));
+                    }
+                }
+
+                // Set identitas ke KTP
+                if (cmbIdentitas1 != null)
+                {
+                    cmbIdentitas1.SelectedIndex = 0; // KTP adalah index 0
+                    cmbIdentitas1.IsEnabled = false;
+                }
+            }
+
+            // Update label header penumpang 1 dengan title dan nama
+            UpdatePassengerLabel();
+
+            // Auto-expand dropdown penumpang 1 jika masih collapsed
+            var panel = this.FindName("pnlPassenger1") as StackPanel;
+            var image = this.FindName("pathTogglePassenger1") as Image;
+
+            if (panel != null && panel.Visibility == Visibility.Collapsed)
+            {
+                panel.Visibility = Visibility.Visible;
+                // Rotate arrow down (180 degrees)
+                if (image != null && image.RenderTransform is RotateTransform rotate)
+                {
+                    rotate.Angle = 180;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Event handler ketika checkbox "Sama dengan Pemesan" tidak dicentang
+        /// </summary>
+        private void ChkSamaDenganPemesan_Unchecked(object sender, RoutedEventArgs e)
+        {
+            // Skip jika ini adalah programmatic toggle (dari validasi gagal)
+            if (_isTogglingProgrammatically)
+            {
+                return;
+            }
+
+            // Clear dan enable kembali field nama penumpang 1
+            if (txtNamaPassenger1 != null)
+            {
+                txtNamaPassenger1.Text = "";
+                txtNamaPassenger1.IsEnabled = true;
+                txtNamaPassenger1.Background = System.Windows.Media.Brushes.Transparent;
+                txtNamaPassenger1.Padding = new Thickness(16, 0, 16, 0);
+                
+                // Reset floating label
+                if (lblNamaPassenger1 != null)
+                {
+                    var labelBorder = lblNamaPassenger1.Parent as Border;
+                    if (labelBorder != null)
+                    {
+                        labelBorder.VerticalAlignment = VerticalAlignment.Center;
+                        labelBorder.Margin = new Thickness(12, 0, 0, 0);
+                    }
+                    lblNamaPassenger1.FontSize = 14;
+                    lblNamaPassenger1.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#94A3B8"));
+                }
+            }
+
+            // Clear dan enable kembali field nomor identitas
+            if (txtIdPassenger1 != null)
+            {
+                txtIdPassenger1.Text = "";
+                txtIdPassenger1.IsEnabled = true;
+                txtIdPassenger1.Background = System.Windows.Media.Brushes.Transparent;
+                txtIdPassenger1.Padding = new Thickness(16, 0, 16, 0);
+                
+                // Reset floating label
+                if (lblIdPassenger1 != null)
+                {
+                    var labelBorder = lblIdPassenger1.Parent as Border;
+                    if (labelBorder != null)
+                    {
+                        labelBorder.VerticalAlignment = VerticalAlignment.Center;
+                        labelBorder.Margin = new Thickness(12, 0, 0, 0);
+                    }
+                    lblIdPassenger1.FontSize = 14;
+                    lblIdPassenger1.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#94A3B8"));
+                }
+            }
+
+            // Enable kembali combo identitas
+            if (cmbIdentitas1 != null)
+            {
+                cmbIdentitas1.SelectedIndex = -1;
+                cmbIdentitas1.IsEnabled = true;
+            }
+
+            // Reset title selection (uncheck semua)
+            var rbTuan1 = this.FindName("rbTuan1") as RadioButton;
+            var rbNyonya1 = this.FindName("rbNyonya1") as RadioButton;
+            var rbNona1 = this.FindName("rbNona1") as RadioButton;
+
+            if (rbTuan1 != null) rbTuan1.IsChecked = false;
+            if (rbNyonya1 != null) rbNyonya1.IsChecked = false;
+            if (rbNona1 != null) rbNona1.IsChecked = false;
+
+            // Update label kembali ke default "Penumpang 1"
+            UpdatePassengerLabel();
+        }
+
+        /// <summary>
+        /// Event handler ketika radio button title berubah (Tuan/Nyonya/Nona)
+        /// </summary>
+        private void TitleRadioButton_Changed(object sender, RoutedEventArgs e)
+        {
+            UpdatePassengerLabel();
+        }
+
+        /// <summary>
+        /// Event handler ketika text nama penumpang 1 berubah
+        /// </summary>
+        private void TxtNamaPassenger1_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            // Update floating label
+            FloatingTextBox_TextChanged(sender, e);
+            
+            // Update label header
+            UpdatePassengerLabel();
+        }
+
+        /// <summary>
+        /// Update label header "Penumpang 1" menjadi "Title Nama" atau "Title"
+        /// </summary>
+        private void UpdatePassengerLabel()
+        {
+            if (txtLabelPassenger1 == null) return;
+
+            string title = "";
+            
+            // Dapatkan title yang dipilih
+            if (rbTuan1?.IsChecked == true)
+                title = "Tuan";
+            else if (rbNyonya1?.IsChecked == true)
+                title = "Nyonya";
+            else if (rbNona1?.IsChecked == true)
+                title = "Nona";
+
+            // Dapatkan nama
+            string nama = "";
+            if (txtNamaPassenger1 != null && 
+                !string.IsNullOrWhiteSpace(txtNamaPassenger1.Text) && 
+                !IsPlaceholderText(txtNamaPassenger1))
+            {
+                nama = txtNamaPassenger1.Text.Trim();
+            }
+
+            // Update label
+            if (!string.IsNullOrEmpty(title) && !string.IsNullOrEmpty(nama))
+            {
+                txtLabelPassenger1.Text = $"{title} {nama}";
+            }
+            else if (!string.IsNullOrEmpty(title))
+            {
+                txtLabelPassenger1.Text = title;
+            }
+            else
+            {
+                txtLabelPassenger1.Text = "Penumpang 1";
+            }
+        }
+
+        /// <summary>
+        /// Helper method untuk update label penumpang lainnya (2-10)
+        /// Dapat dipanggil dari TextChanged event penumpang lainnya
+        /// </summary>
+        private void UpdatePassengerLabelGeneric(int passengerNumber, TextBlock labelControl, 
+            RadioButton rbTuan, RadioButton rbNyonya, RadioButton rbNona, TextBox txtNama)
+        {
+            if (labelControl == null) return;
+
+            string title = "";
+            
+            // Dapatkan title yang dipilih
+            if (rbTuan?.IsChecked == true)
+                title = "Tuan";
+            else if (rbNyonya?.IsChecked == true)
+                title = "Nyonya";
+            else if (rbNona?.IsChecked == true)
+                title = "Nona";
+
+            // Dapatkan nama
+            string nama = "";
+            if (txtNama != null && 
+                !string.IsNullOrWhiteSpace(txtNama.Text) && 
+                !IsPlaceholderText(txtNama))
+            {
+                nama = txtNama.Text.Trim();
+            }
+
+            // Update label
+            if (!string.IsNullOrEmpty(title) && !string.IsNullOrEmpty(nama))
+            {
+                labelControl.Text = $"{title} {nama}";
+            }
+            else if (!string.IsNullOrEmpty(title))
+            {
+                labelControl.Text = title;
+            }
+            else
+            {
+                labelControl.Text = $"Penumpang {passengerNumber}";
+            }
+        }
+
+        // ========== Event Handlers untuk Penumpang 2 ==========
+        
+        /// <summary>
+        /// Event handler ketika radio button title penumpang 2 berubah
+        /// </summary>
+        private void TitleRadioButton2_Changed(object sender, RoutedEventArgs e)
+        {
+            var txtLabel = this.FindName("txtLabelPassenger2") as TextBlock;
+            var rbTuan = this.FindName("rbTuan2") as RadioButton;
+            var rbNyonya = this.FindName("rbNyonya2") as RadioButton;
+            var rbNona = this.FindName("rbNona2") as RadioButton;
+            var txtNama = this.FindName("txtNamaPassenger2") as TextBox;
+            
+            UpdatePassengerLabelGeneric(2, txtLabel, rbTuan, rbNyonya, rbNona, txtNama);
+        }
+
+        /// <summary>
+        /// Event handler ketika text nama penumpang 2 berubah
+        /// </summary>
+        private void TxtNamaPassenger2_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            // Update floating label
+            FloatingTextBox_TextChanged(sender, e);
+            
+            // Update label header
+            var txtLabel = this.FindName("txtLabelPassenger2") as TextBlock;
+            var rbTuan = this.FindName("rbTuan2") as RadioButton;
+            var rbNyonya = this.FindName("rbNyonya2") as RadioButton;
+            var rbNona = this.FindName("rbNona2") as RadioButton;
+            var txtNama = this.FindName("txtNamaPassenger2") as TextBox;
+            
+            UpdatePassengerLabelGeneric(2, txtLabel, rbTuan, rbNyonya, rbNona, txtNama);
+        }
+
+        // ========== Event Handlers untuk Penumpang 3 ==========
+        
+        /// <summary>
+        /// Event handler ketika radio button title penumpang 3 berubah
+        /// </summary>
+        private void TitleRadioButton3_Changed(object sender, RoutedEventArgs e)
+        {
+            var txtLabel = this.FindName("txtLabelPassenger3") as TextBlock;
+            var rbTuan = this.FindName("rbTuan3") as RadioButton;
+            var rbNyonya = this.FindName("rbNyonya3") as RadioButton;
+            var rbNona = this.FindName("rbNona3") as RadioButton;
+            var txtNama = this.FindName("txtNamaPassenger3") as TextBox;
+            
+            UpdatePassengerLabelGeneric(3, txtLabel, rbTuan, rbNyonya, rbNona, txtNama);
+        }
+
+        /// <summary>
+        /// Event handler ketika text nama penumpang 3 berubah
+        /// </summary>
+        private void TxtNamaPassenger3_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            // Update floating label
+            FloatingTextBox_TextChanged(sender, e);
+            
+            // Update label header
+            var txtLabel = this.FindName("txtLabelPassenger3") as TextBlock;
+            var rbTuan = this.FindName("rbTuan3") as RadioButton;
+            var rbNyonya = this.FindName("rbNyonya3") as RadioButton;
+            var rbNona = this.FindName("rbNona3") as RadioButton;
+            var txtNama = this.FindName("txtNamaPassenger3") as TextBox;
+            
+            UpdatePassengerLabelGeneric(3, txtLabel, rbTuan, rbNyonya, rbNona, txtNama);
+        }
+
+        // ========== Event Handlers untuk Penumpang 4-10 (Dynamic) ==========
+        
+        /// <summary>
+        /// Update label header untuk penumpang dinamis (4-10)
+        /// Mencari controls via FindName dan memanggil UpdatePassengerLabelGeneric
+        /// </summary>
+        /// <param name="passengerNumber">Nomor penumpang (4-10)</param>
+        private void UpdateDynamicPassengerLabel(int passengerNumber)
+        {
+            var txtLabel = this.FindName($"txtLabelPassenger{passengerNumber}") as TextBlock;
+            var rbTuan = this.FindName($"rbTuan{passengerNumber}") as RadioButton;
+            var rbNyonya = this.FindName($"rbNyonya{passengerNumber}") as RadioButton;
+            var rbNona = this.FindName($"rbNona{passengerNumber}") as RadioButton;
+            var txtNama = this.FindName($"txtNamaPassenger{passengerNumber}") as TextBox;
+            
+            if (txtLabel != null)
+            {
+                UpdatePassengerLabelGeneric(passengerNumber, txtLabel, rbTuan, rbNyonya, rbNona, txtNama);
             }
         }
     }

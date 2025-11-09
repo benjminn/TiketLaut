@@ -16,6 +16,7 @@ using Google.Apis.Auth.OAuth2.Flows;
 using Google.Apis.Auth.OAuth2.Responses;
 using Microsoft.Extensions.Configuration;
 using TiketLaut.Services;
+using TiketLaut.Views.Components;
 
 namespace TiketLaut.Views
 {
@@ -97,11 +98,9 @@ namespace TiketLaut.Views
 
                 if (success)
                 {
-                    MessageBox.Show(
-                        "? Registrasi berhasil!\n\nSilakan login dengan akun baru Anda.",
+                    CustomDialog.ShowSuccess(
                         "Sukses",
-                        MessageBoxButton.OK,
-                        MessageBoxImage.Information);
+                        "Registrasi berhasil!\n\nSilakan masuk dengan akun baru Anda.");
 
                     LoginWindow loginWindow = new LoginWindow();
                     loginWindow.Show();
@@ -109,21 +108,16 @@ namespace TiketLaut.Views
                 }
                 else
                 {
-                    MessageBox.Show(
-                        $"? Registrasi gagal!\n\n{message}",
+                    CustomDialog.ShowWarning(
                         "Registrasi Gagal",
-                        MessageBoxButton.OK,
-                        MessageBoxImage.Warning);
+                        $"Registrasi gagal!\n\n{message}");
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show(
-                    $"?? Terjadi kesalahan:\n\n{ex.Message}\n\n" +
-                    $"Detail: {ex.InnerException?.Message ?? "Tidak ada detail tambahan"}",
+                CustomDialog.ShowError(
                     "Error",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Error);
+                    $"Terjadi kesalahan:\n\n{ex.Message}\n\nDetail: {ex.InnerException?.Message ?? "Tidak ada detail tambahan"}");
             }
             finally
             {
@@ -137,8 +131,7 @@ namespace TiketLaut.Views
             // Validasi Nama Lengkap
             if (string.IsNullOrWhiteSpace(txtNamaLengkap.Text))
             {
-                MessageBox.Show("Nama lengkap tidak boleh kosong!", "Peringatan",
-                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                CustomDialog.ShowWarning("Peringatan", "Nama lengkap tidak boleh kosong!");
                 txtNamaLengkap.Focus();
                 return false;
             }
@@ -146,8 +139,7 @@ namespace TiketLaut.Views
             // Validasi Jenis Kelamin
             if (cmbJenisKelamin.SelectedIndex == -1)
             {
-                MessageBox.Show("Silakan pilih jenis kelamin!", "Peringatan",
-                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                CustomDialog.ShowWarning("Peringatan", "Silakan pilih jenis kelamin!");
                 cmbJenisKelamin.Focus();
                 return false;
             }
@@ -155,8 +147,7 @@ namespace TiketLaut.Views
             // Validasi Tanggal Lahir
             if (!dpTanggalLahir.SelectedDate.HasValue)
             {
-                MessageBox.Show("Silakan pilih tanggal lahir!", "Peringatan",
-                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                CustomDialog.ShowWarning("Peringatan", "Silakan pilih tanggal lahir!");
                 dpTanggalLahir.Focus();
                 return false;
             }
@@ -170,8 +161,7 @@ namespace TiketLaut.Views
 
                 if (age < 17)
                 {
-                    MessageBox.Show("Usia minimal untuk registrasi adalah 17 tahun!", "Peringatan",
-                        MessageBoxButton.OK, MessageBoxImage.Warning);
+                    CustomDialog.ShowWarning("Peringatan", "Usia minimal untuk registrasi adalah 17 tahun!");
                     dpTanggalLahir.Focus();
                     return false;
                 }
@@ -180,16 +170,14 @@ namespace TiketLaut.Views
             // Validasi NIK
             if (string.IsNullOrWhiteSpace(txtNIK.Text))
             {
-                MessageBox.Show("NIK tidak boleh kosong!", "Peringatan",
-                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                CustomDialog.ShowWarning("Peringatan", "NIK tidak boleh kosong!");
                 txtNIK.Focus();
                 return false;
             }
 
             if (txtNIK.Text.Length != 16 || !txtNIK.Text.All(char.IsDigit))
             {
-                MessageBox.Show("NIK harus berupa 16 digit angka!", "Peringatan",
-                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                CustomDialog.ShowWarning("Peringatan", "NIK harus berupa 16 digit angka!");
                 txtNIK.Focus();
                 return false;
             }
@@ -197,16 +185,14 @@ namespace TiketLaut.Views
             // Validasi Email
             if (string.IsNullOrWhiteSpace(txtEmail.Text))
             {
-                MessageBox.Show("Email tidak boleh kosong!", "Peringatan",
-                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                CustomDialog.ShowWarning("Peringatan", "Email tidak boleh kosong!");
                 txtEmail.Focus();
                 return false;
             }
 
             if (!IsValidEmail(txtEmail.Text))
             {
-                MessageBox.Show("Format email tidak valid!", "Peringatan",
-                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                CustomDialog.ShowWarning("Peringatan", "Format email tidak valid!");
                 txtEmail.Focus();
                 return false;
             }
@@ -214,24 +200,21 @@ namespace TiketLaut.Views
             // Validasi Password
             if (string.IsNullOrEmpty(txtPassword.Password))
             {
-                MessageBox.Show("Password tidak boleh kosong!", "Peringatan",
-                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                CustomDialog.ShowWarning("Peringatan", "Password tidak boleh kosong!");
                 txtPassword.Focus();
                 return false;
             }
 
             if (txtPassword.Password.Length < 8)
             {
-                MessageBox.Show("Password minimal 8 karakter!", "Peringatan",
-                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                CustomDialog.ShowWarning("Peringatan", "Password minimal 8 karakter!");
                 txtPassword.Focus();
                 return false;
             }
 
             if (!txtPassword.Password.Any(char.IsLower) || !txtPassword.Password.Any(char.IsUpper))
             {
-                MessageBox.Show("Password harus mengandung huruf kecil dan besar!", "Peringatan",
-                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                CustomDialog.ShowWarning("Peringatan", "Password harus mengandung huruf kecil dan besar!");
                 txtPassword.Focus();
                 return false;
             }
@@ -239,8 +222,7 @@ namespace TiketLaut.Views
             // Validasi Konfirmasi Password
             if (txtPassword.Password != txtKonfirmasiPassword.Password)
             {
-                MessageBox.Show("Konfirmasi password tidak cocok!", "Peringatan",
-                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                CustomDialog.ShowWarning("Peringatan", "Konfirmasi password tidak cocok!");
                 txtKonfirmasiPassword.Focus();
                 return false;
             }
@@ -272,16 +254,9 @@ namespace TiketLaut.Views
                 if (GOOGLE_CLIENT_ID.Contains("NOT_CONFIGURED") || GOOGLE_CLIENT_SECRET.Contains("NOT_CONFIGURED"))
                 {
                     // Fallback ke mode simulasi jika credentials belum diisi
-                    MessageBox.Show(
-                        "Google OAuth belum dikonfigurasi!\n\n" +
-                        "Untuk menggunakan real Google login:\n" +
-                        "1. Buat project di Google Cloud Console\n" +
-                        "2. Dapatkan Client ID & Secret\n" +
-                        "3. Update di appsettings.json\n\n" +
-                        "Sementara akan menggunakan mode simulasi.",
+                    CustomDialog.ShowInfo(
                         "Info",
-                        MessageBoxButton.OK,
-                        MessageBoxImage.Information);
+                        "Google OAuth belum dikonfigurasi!\n\nUntuk menggunakan real Google login:\n1. Buat project di Google Cloud Console\n2. Dapatkan Client ID & Secret\n3. Update di appsettings.json\n\nSementara akan menggunakan mode simulasi.");
 
                     // Mode simulasi
                     var inputDialog = new GoogleEmailInputDialog();
@@ -299,10 +274,7 @@ namespace TiketLaut.Views
 
                     if (string.IsNullOrWhiteSpace(googleEmail))
                     {
-                        MessageBox.Show("Email tidak boleh kosong!",
-                                       "Error",
-                                       MessageBoxButton.OK,
-                                       MessageBoxImage.Warning);
+                        CustomDialog.ShowWarning("Error", "Email tidak boleh kosong!");
                         btnGoogleRegister.IsEnabled = true;
                         btnGoogleRegister.Content = "Daftar dengan Google";
                         return;
@@ -318,10 +290,7 @@ namespace TiketLaut.Views
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error Google OAuth: {ex.Message}",
-                               "Error",
-                               MessageBoxButton.OK,
-                               MessageBoxImage.Error);
+                CustomDialog.ShowError("Error", $"Error Google OAuth: {ex.Message}");
             }
             finally
             {
@@ -562,10 +531,9 @@ namespace TiketLaut.Views
                     // User sudah terdaftar - langsung login (redirect ke home)
                     SessionManager.CurrentUser = existingUser;
 
-                    MessageBox.Show($"Email {googleEmail} sudah terdaftar.\nAnda akan langsung masuk.",
-                                   "Akun Sudah Ada",
-                                   MessageBoxButton.OK,
-                                   MessageBoxImage.Information);
+                    CustomDialog.ShowInfo(
+                        "Akun Sudah Ada",
+                        $"Email {googleEmail} sudah terdaftar.\nAnda akan langsung masuk.");
 
                     // Buka HomePage
                     var homePage = new HomePage(isLoggedIn: true, username: existingUser.nama);
@@ -592,10 +560,9 @@ namespace TiketLaut.Views
                             // Set session
                             SessionManager.CurrentUser = pengguna;
 
-                            MessageBox.Show($"Selamat datang, {pengguna.nama}!\n\nAkun Anda telah berhasil dibuat.",
-                                           "Registrasi Berhasil",
-                                           MessageBoxButton.OK,
-                                           MessageBoxImage.Information);
+                            CustomDialog.ShowSuccess(
+                                "Registrasi Berhasil",
+                                $"Selamat datang, {pengguna.nama}!\n\nAkun Anda telah berhasil dibuat.");
 
                             // Buka HomePage
                             var homePage = new HomePage(isLoggedIn: true, username: pengguna.nama);
@@ -604,10 +571,7 @@ namespace TiketLaut.Views
                         }
                         else
                         {
-                            MessageBox.Show($"Registrasi gagal: {message}",
-                                           "Error",
-                                           MessageBoxButton.OK,
-                                           MessageBoxImage.Error);
+                            CustomDialog.ShowError("Error", $"Registrasi gagal: {message}");
                         }
                     }
                     // Jika user cancel dialog, tidak perlu action (tetap di RegisterWindow)
@@ -615,10 +579,7 @@ namespace TiketLaut.Views
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error memproses Google register: {ex.Message}",
-                               "Error",
-                               MessageBoxButton.OK,
-                               MessageBoxImage.Error);
+                CustomDialog.ShowError("Error", $"Error memproses Google register: {ex.Message}");
             }
         }
 

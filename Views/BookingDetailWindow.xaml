@@ -140,6 +140,86 @@
                 </Trigger>
             </Style.Triggers>
         </Style>
+
+        <!-- Toggle Switch Style -->
+        <Style x:Key="ToggleSwitchStyle" TargetType="CheckBox">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="CheckBox">
+                        <Border x:Name="SwitchBorder"
+                                Width="44"
+                                Height="24"
+                                CornerRadius="12"
+                                Background="#CBD5E0"
+                                BorderThickness="0"
+                                Cursor="Hand">
+                            <Ellipse x:Name="SwitchThumb"
+                                    Width="18"
+                                    Height="18"
+                                    Fill="White"
+                                    HorizontalAlignment="Left"
+                                    Margin="3,0,0,0">
+                                <Ellipse.RenderTransform>
+                                    <TranslateTransform x:Name="ThumbTransform" X="0"/>
+                                </Ellipse.RenderTransform>
+                            </Ellipse>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Trigger.EnterActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <ColorAnimation Storyboard.TargetName="SwitchBorder"
+                                                          Storyboard.TargetProperty="Background.(SolidColorBrush.Color)"
+                                                          To="#00658D"
+                                                          Duration="0:0:0.2"/>
+                                            <DoubleAnimation Storyboard.TargetName="ThumbTransform"
+                                                           Storyboard.TargetProperty="X"
+                                                           To="20"
+                                                           Duration="0:0:0.2"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.EnterActions>
+                                <Trigger.ExitActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <ColorAnimation Storyboard.TargetName="SwitchBorder"
+                                                          Storyboard.TargetProperty="Background.(SolidColorBrush.Color)"
+                                                          To="#CBD5E0"
+                                                          Duration="0:0:0.2"/>
+                                            <DoubleAnimation Storyboard.TargetName="ThumbTransform"
+                                                           Storyboard.TargetProperty="X"
+                                                           To="0"
+                                                           Duration="0:0:0.2"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.ExitActions>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Button Style Without Hover Effect (untuk toggle passenger) -->
+        <Style x:Key="TransparentButtonNoHover" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                            VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </Window.Resources>
 
     <Grid>
@@ -218,7 +298,6 @@
                                     <RadioButton x:Name="rbTuan"
                                                Content="Tuan"
                                                GroupName="Title"
-                                               IsChecked="True"
                                                Style="{StaticResource CustomRadioButton}"
                                                Margin="0,0,16,0"/>
                                     <RadioButton x:Name="rbNyonya"
@@ -372,26 +451,45 @@
                                 <!-- Header Penumpang 1 - Toggle Button -->
                                 <Button x:Name="btnTogglePassenger1"
                                       Tag="1"
-                                      Background="Transparent"
-                                      BorderThickness="0"
+                                      Style="{StaticResource TransparentButtonNoHover}"
                                       Click="BtnTogglePassenger_Click"
-                                      Cursor="Hand"
                                       HorizontalContentAlignment="Stretch"
                                       Margin="0,0,0,16">
                                     <Grid>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="*"/>
                                             <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="Auto"/>
                                         </Grid.ColumnDefinitions>
-                                        <TextBlock Grid.Column="0" 
+                                        <TextBlock x:Name="txtLabelPassenger1"
+                                                  Grid.Column="0" 
                                                   Text="Penumpang 1" 
                                                   FontSize="20" 
                                                   FontWeight="Bold"
                                                   Foreground="#042769"
                                                   HorizontalAlignment="Left"
                                                   VerticalAlignment="Center"/>
+                                        
+                                        <!-- Toggle Switch dengan Label -->
+                                        <StackPanel Grid.Column="1" 
+                                                   Orientation="Horizontal" 
+                                                   VerticalAlignment="Center"
+                                                   Margin="0,0,16,0">
+                                            <TextBlock Text="Sama dengan Pemesan" 
+                                                      FontSize="14" 
+                                                      FontWeight="Medium"
+                                                      Foreground="#6B7280"
+                                                      VerticalAlignment="Center"
+                                                      Margin="0,0,12,0"/>
+                                            <CheckBox x:Name="chkSamaDenganPemesan"
+                                                     VerticalAlignment="Center"
+                                                     Checked="ChkSamaDenganPemesan_Checked"
+                                                     Unchecked="ChkSamaDenganPemesan_Unchecked"
+                                                     Style="{StaticResource ToggleSwitchStyle}"/>
+                                        </StackPanel>
+                                        
                                         <Image x:Name="pathTogglePassenger1"
-                                               Grid.Column="1"
+                                               Grid.Column="2"
                                                Source="Assets/Icons/icondropdowngelap.png"
                                                Width="20" 
                                                Height="20"
@@ -420,18 +518,20 @@
                                         <RadioButton x:Name="rbTuan1" 
                                                    Content="Tuan" 
                                                    GroupName="Gender1"
-                                                   IsChecked="True"
                                                    Style="{StaticResource CustomRadioButton}"
+                                                   Checked="TitleRadioButton_Changed"
                                                    Margin="0,0,16,0"/>
                                         <RadioButton x:Name="rbNyonya1" 
                                                    Content="Nyonya" 
                                                    GroupName="Gender1"
                                                    Style="{StaticResource CustomRadioButton}"
+                                                   Checked="TitleRadioButton_Changed"
                                                    Margin="0,0,16,0"/>
                                         <RadioButton x:Name="rbNona1" 
                                                    Content="Nona" 
                                                    GroupName="Gender1"
-                                                   Style="{StaticResource CustomRadioButton}"/>
+                                                   Style="{StaticResource CustomRadioButton}"
+                                                   Checked="TitleRadioButton_Changed"/>
                                     </StackPanel>
 
                                     <!-- Nama Lengkap dengan Floating Label -->
@@ -450,7 +550,7 @@
                                                             VerticalContentAlignment="Center"
                                                             GotFocus="FloatingTextBox_GotFocus"
                                                             LostFocus="FloatingTextBox_LostFocus"
-                                                            TextChanged="FloatingTextBox_TextChanged"
+                                                            TextChanged="TxtNamaPassenger1_TextChanged"
                                                             Tag="lblNamaPassenger1"/>
                                                 </Grid>
                                             </Border>
@@ -566,10 +666,8 @@
                                 <!-- Header Penumpang 2 - Toggle Button -->
                                 <Button x:Name="btnTogglePassenger2"
                                       Tag="2"
-                                      Background="Transparent"
-                                      BorderThickness="0"
+                                      Style="{StaticResource TransparentButtonNoHover}"
                                       Click="BtnTogglePassenger_Click"
-                                      Cursor="Hand"
                                       HorizontalContentAlignment="Stretch"
                                       Margin="0,0,0,16">
                                     <Grid>
@@ -577,7 +675,8 @@
                                             <ColumnDefinition Width="*"/>
                                             <ColumnDefinition Width="Auto"/>
                                         </Grid.ColumnDefinitions>
-                                        <TextBlock Grid.Column="0" 
+                                        <TextBlock x:Name="txtLabelPassenger2"
+                                                  Grid.Column="0" 
                                                   Text="Penumpang 2" 
                                                   FontSize="20" 
                                                   FontWeight="Bold"
@@ -614,17 +713,19 @@
                                         <RadioButton x:Name="rbTuan2" 
                                                    Content="Tuan" 
                                                    GroupName="Gender2"
-                                                   IsChecked="True"
+                                                   Checked="TitleRadioButton2_Changed"
                                                    Style="{StaticResource CustomRadioButton}"
                                                    Margin="0,0,16,0"/>
                                         <RadioButton x:Name="rbNyonya2" 
                                                    Content="Nyonya" 
                                                    GroupName="Gender2"
+                                                   Checked="TitleRadioButton2_Changed"
                                                    Style="{StaticResource CustomRadioButton}"
                                                    Margin="0,0,16,0"/>
                                         <RadioButton x:Name="rbNona2" 
                                                    Content="Nona" 
                                                    GroupName="Gender2"
+                                                   Checked="TitleRadioButton2_Changed"
                                                    Style="{StaticResource CustomRadioButton}"/>
                                     </StackPanel>
 
@@ -644,7 +745,7 @@
                                                             VerticalContentAlignment="Center"
                                                             GotFocus="FloatingTextBox_GotFocus"
                                                             LostFocus="FloatingTextBox_LostFocus"
-                                                            TextChanged="FloatingTextBox_TextChanged"
+                                                            TextChanged="TxtNamaPassenger2_TextChanged"
                                                             Tag="lblNamaPassenger2"/>
                                                 </Grid>
                                             </Border>
@@ -760,10 +861,8 @@
                                 <!-- Header Penumpang 3 - Toggle Button -->
                                 <Button x:Name="btnTogglePassenger3"
                                       Tag="3"
-                                      Background="Transparent"
-                                      BorderThickness="0"
+                                      Style="{StaticResource TransparentButtonNoHover}"
                                       Click="BtnTogglePassenger_Click"
-                                      Cursor="Hand"
                                       HorizontalContentAlignment="Stretch"
                                       Margin="0,0,0,16">
                                     <Grid>
@@ -771,7 +870,8 @@
                                             <ColumnDefinition Width="*"/>
                                             <ColumnDefinition Width="Auto"/>
                                         </Grid.ColumnDefinitions>
-                                        <TextBlock Grid.Column="0" 
+                                        <TextBlock x:Name="txtLabelPassenger3"
+                                                  Grid.Column="0" 
                                                   Text="Penumpang 3" 
                                                   FontSize="20" 
                                                   FontWeight="Bold"
@@ -808,17 +908,19 @@
                                         <RadioButton x:Name="rbTuan3" 
                                                    Content="Tuan" 
                                                    GroupName="Gender3"
-                                                   IsChecked="True"
+                                                   Checked="TitleRadioButton3_Changed"
                                                    Style="{StaticResource CustomRadioButton}"
                                                    Margin="0,0,16,0"/>
                                         <RadioButton x:Name="rbNyonya3" 
                                                    Content="Nyonya" 
                                                    GroupName="Gender3"
+                                                   Checked="TitleRadioButton3_Changed"
                                                    Style="{StaticResource CustomRadioButton}"
                                                    Margin="0,0,16,0"/>
                                         <RadioButton x:Name="rbNona3" 
                                                    Content="Nona" 
                                                    GroupName="Gender3"
+                                                   Checked="TitleRadioButton3_Changed"
                                                    Style="{StaticResource CustomRadioButton}"/>
                                     </StackPanel>
 
@@ -838,7 +940,7 @@
                                                             VerticalContentAlignment="Center"
                                                             GotFocus="FloatingTextBox_GotFocus"
                                                             LostFocus="FloatingTextBox_LostFocus"
-                                                            TextChanged="FloatingTextBox_TextChanged"
+                                                            TextChanged="TxtNamaPassenger3_TextChanged"
                                                             Tag="lblNamaPassenger3"/>
                                                 </Grid>
                                             </Border>

@@ -8,6 +8,7 @@ using System.Windows.Threading;
 using Microsoft.EntityFrameworkCore;
 using TiketLaut.Services;
 using TiketLaut.Views;
+using TiketLaut.Views.Components;
 
 namespace TiketLaut.Views
 {
@@ -82,11 +83,9 @@ namespace TiketLaut.Views
 
                 await MarkPaymentAsFailedDueToTimeout();
 
-                MessageBox.Show(
-                    "Waktu pembayaran telah berakhir. Pembayaran Anda telah dibatalkan secara otomatis.\nSilakan lakukan booking ulang.",
+                CustomDialog.ShowWarning(
                     "Waktu Habis",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Warning);
+                    "Waktu pembayaran telah berakhir. Pembayaran Anda telah dibatalkan secara otomatis.\nSilakan lakukan booking ulang.");
 
                 var scheduleWindow = new ScheduleWindow();
                 scheduleWindow.Left = this.Left;
@@ -197,8 +196,7 @@ namespace TiketLaut.Views
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"[PaymentWindow] Error handling payment method selection: {ex.Message}");
-                MessageBox.Show($"Terjadi kesalahan saat memproses metode pembayaran: {ex.Message}",
-                    "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                CustomDialog.ShowWarning("Error", $"Terjadi kesalahan saat memproses metode pembayaran: {ex.Message}");
             }
         }
 
@@ -209,8 +207,7 @@ namespace TiketLaut.Views
             {
                 if (SessionManager.CurrentUser == null)
                 {
-                    MessageBox.Show("Session user tidak ditemukan!", "Error",
-                        MessageBoxButton.OK, MessageBoxImage.Error);
+                    CustomDialog.ShowError("Error", "Session user tidak ditemukan!");
                     return;
                 }
 
@@ -246,11 +243,9 @@ namespace TiketLaut.Views
                 }
                 else
                 {
-                    MessageBox.Show(
-                        "Tidak ditemukan tiket yang menunggu pembayaran.\nSilakan lakukan booking terlebih dahulu.",
+                    CustomDialog.ShowInfo(
                         "Info",
-                        MessageBoxButton.OK,
-                        MessageBoxImage.Information);
+                        "Tidak ditemukan tiket yang menunggu pembayaran.\nSilakan lakukan booking terlebih dahulu.");
                 }
             }
             catch (Exception ex)
@@ -297,11 +292,9 @@ namespace TiketLaut.Views
                 System.Diagnostics.Debug.WriteLine("[PaymentWindow] KonfirmasiPembayaranAsync started");
                 if (_tiket == null || _currentPembayaran == null)
                 {
-                    MessageBox.Show(
-                        "Data pembayaran tidak ditemukan!\nSilakan pilih metode pembayaran terlebih dahulu.",
+                    CustomDialog.ShowError(
                         "Error",
-                        MessageBoxButton.OK,
-                        MessageBoxImage.Error);
+                        "Data pembayaran tidak ditemukan!\nSilakan pilih metode pembayaran terlebih dahulu.");
                     return;
                 }
                 btnMainAction.IsEnabled = false;
@@ -316,17 +309,9 @@ namespace TiketLaut.Views
                 {
                     _currentPembayaran.status_bayar = "Menunggu Validasi";
                     _countdownTimer?.Stop();
-                    MessageBox.Show(
-                        $"✅ Pembayaran berhasil dikonfirmasi!\n\n" +
-                        $"Kode Tiket: {_tiket.kode_tiket}\n" +
-                        $"Metode: {selectedPaymentMethod}\n" +
-                        $"Jumlah: Rp {_currentPembayaran.jumlah_bayar:N0}\n" +
-                        $"Status: {_currentPembayaran.status_bayar}\n\n" +
-                        $"Pembayaran Anda sedang diverifikasi oleh admin.\n" +
-                        $"Anda dapat mengecek status di menu 'Cek Booking'.",
+                    CustomDialog.ShowSuccess(
                         "Pembayaran Berhasil",
-                        MessageBoxButton.OK,
-                        MessageBoxImage.Information);
+                        $"✅ Pembayaran berhasil dikonfirmasi!\n\nKode Tiket: {_tiket.kode_tiket}\nMetode: {selectedPaymentMethod}\nJumlah: Rp {_currentPembayaran.jumlah_bayar:N0}\nStatus: {_currentPembayaran.status_bayar}\n\nPembayaran Anda sedang diverifikasi oleh admin.\nAnda dapat mengecek status di menu 'Cek Booking'.");
 
                     var cekBookingWindow = new CekBookingWindow();
                     cekBookingWindow.Left = this.Left;
@@ -339,22 +324,16 @@ namespace TiketLaut.Views
                 }
                 else
                 {
-                    MessageBox.Show(
-                        "Gagal memperbarui status pembayaran. Silakan coba lagi.",
+                    CustomDialog.ShowError(
                         "Error",
-                        MessageBoxButton.OK,
-                        MessageBoxImage.Error);
+                        "Gagal memperbarui status pembayaran. Silakan coba lagi.");
                 }
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"[PaymentWindow] EXCEPTION in KonfirmasiPembayaranAsync:");
                 System.Diagnostics.Debug.WriteLine($"[PaymentWindow] Message: {ex.Message}");
-                MessageBox.Show(
-                    $"❌ Terjadi kesalahan saat memproses pembayaran:\n\n{ex.Message}",
-                    "Error",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Error);
+                CustomDialog.ShowError("Error", $"❌ Terjadi kesalahan saat memproses pembayaran:\n\n{ex.Message}");
             }
             finally
             {
@@ -594,8 +573,7 @@ namespace TiketLaut.Views
         {
             if (!isPaymentMethodSelected)
             {
-                MessageBox.Show("Silakan pilih metode pembayaran terlebih dahulu!", "Informasi",
-                    MessageBoxButton.OK, MessageBoxImage.Information);
+                CustomDialog.ShowInfo("Informasi", "Silakan pilih metode pembayaran terlebih dahulu!");
                 return;
             }
             if (PaymentMethodsCard.Visibility == Visibility.Visible)
@@ -638,17 +616,9 @@ namespace TiketLaut.Views
 
         private void BtnCaraMembayar_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show(
-                $"Cara pembayaran untuk {selectedPaymentMethod}:\n\n" +
-                "1. Buka aplikasi mobile banking atau ATM\n" +
-                "2. Pilih menu Transfer\n" +
-                "3. Masukkan nomor rekening tujuan\n" +
-                "4. Masukkan nominal sesuai yang tertera\n" +
-                "5. Konfirmasi transaksi\n" +
-                "6. Simpan bukti Transfer",
+            CustomDialog.ShowInfo(
                 "Cara Membayar",
-                MessageBoxButton.OK,
-                MessageBoxImage.Information);
+                $"Cara pembayaran untuk {selectedPaymentMethod}:\n\n1. Buka aplikasi mobile banking atau ATM\n2. Pilih menu Transfer\n3. Masukkan nomor rekening tujuan\n4. Masukkan nominal sesuai yang tertera\n5. Konfirmasi transaksi\n6. Simpan bukti Transfer");
         }
 
         private void BtnCopyAccount_Click(object sender, RoutedEventArgs e)
@@ -656,8 +626,7 @@ namespace TiketLaut.Views
             if (!string.IsNullOrEmpty(txtAccountNumber.Text))
             {
                 Clipboard.SetText(txtAccountNumber.Text);
-                MessageBox.Show("Nomor rekening telah disalin!", "Berhasil",
-                    MessageBoxButton.OK, MessageBoxImage.Information);
+                CustomDialog.ShowSuccess("Berhasil", "Nomor rekening telah disalin!");
             }
         }
 
@@ -665,8 +634,7 @@ namespace TiketLaut.Views
         {
             decimal totalPembayaran = CalculateTotalPayment();
             Clipboard.SetText(totalPembayaran.ToString());
-            MessageBox.Show("Jumlah pembayaran telah disalin!", "Berhasil",
-                MessageBoxButton.OK, MessageBoxImage.Information);
+            CustomDialog.ShowSuccess("Berhasil", "Jumlah pembayaran telah disalin!");
         }
 
         private void BtnToggleDetailPembayaran_Click(object sender, RoutedEventArgs e)
@@ -694,13 +662,12 @@ namespace TiketLaut.Views
 
         private void BtnKembali_Click(object sender, RoutedEventArgs e)
         {
-            var result = MessageBox.Show(
-                "Apakah Anda yakin membatalkan pembayaran?",
+            var result = CustomDialog.ShowQuestion(
                 "Konfirmasi Pembatalan",
-                MessageBoxButton.YesNo,
-                MessageBoxImage.Question);
+                "Apakah Anda yakin membatalkan pembayaran?",
+                CustomDialog.DialogButtons.YesNo);
 
-            if (result == MessageBoxResult.Yes)
+            if (result == true)
             {
                 _countdownTimer?.Stop();
                 var scheduleWindow = new ScheduleWindow();

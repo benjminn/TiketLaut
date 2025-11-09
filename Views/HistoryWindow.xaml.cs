@@ -6,6 +6,7 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using TiketLaut.Services;
+using TiketLaut.Views.Components;
 
 namespace TiketLaut.Views
 {
@@ -38,8 +39,7 @@ namespace TiketLaut.Views
             {
                 if (SessionManager.CurrentUser == null)
                 {
-                    MessageBox.Show("Session user tidak ditemukan!", "Error",
-                        MessageBoxButton.OK, MessageBoxImage.Error);
+                    CustomDialog.ShowError("Error", "Session user tidak ditemukan!");
                     return;
                 }
 
@@ -84,11 +84,9 @@ namespace TiketLaut.Views
 
                 if (!HistoryItems.Any())
                 {
-                    MessageBox.Show(
-                        "Anda belum memiliki riwayat perjalanan yang selesai.",
+                    CustomDialog.ShowInfo(
                         "Info",
-                        MessageBoxButton.OK,
-                        MessageBoxImage.Information);
+                        "Anda belum memiliki riwayat perjalanan yang selesai.");
                 }
                 else
                 {
@@ -97,11 +95,9 @@ namespace TiketLaut.Views
             }
             catch (Exception ex)
             {
-                MessageBox.Show(
-                    $"Terjadi kesalahan saat memuat riwayat:\n{ex.Message}",
+                CustomDialog.ShowError(
                     "Error",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Error);
+                    $"Terjadi kesalahan saat memuat riwayat:\n{ex.Message}");
 
                 System.Diagnostics.Debug.WriteLine($"[HistoryWindow] Error: {ex.Message}");
                 System.Diagnostics.Debug.WriteLine($"[HistoryWindow] StackTrace: {ex.StackTrace}");
@@ -115,18 +111,9 @@ namespace TiketLaut.Views
                 try
                 {
                     // TODO: Bisa tambahkan detail window jika diperlukan
-                    MessageBox.Show(
-                        $"Detail Riwayat:\n\n" +
-                        $"Kode Tiket: {historyItem.KodeTiket}\n" +
-                        $"Rute: {historyItem.Route}\n" +
-                        $"Kapal: {historyItem.ShipName}\n" +
-                        $"Tanggal: {historyItem.Date}\n" +
-                        $"Waktu: {historyItem.Time}\n" +
-                        $"Total: Rp {historyItem.TotalHarga:N0}\n" +
-                        $"Status: {historyItem.Status}",
+                    CustomDialog.ShowInfo(
                         "Detail Riwayat",
-                        MessageBoxButton.OK,
-                        MessageBoxImage.Information);
+                        $"Kode Tiket: {historyItem.KodeTiket}\nRute: {historyItem.Route}\nKapal: {historyItem.ShipName}\nTanggal: {historyItem.Date}\nWaktu: {historyItem.Time}\nTotal: Rp {historyItem.TotalHarga:N0}\nStatus: {historyItem.Status}");
                 }
                 catch (Exception ex)
                 {

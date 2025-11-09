@@ -37,15 +37,13 @@ namespace TiketLaut.Views.Components
 
         private void BtnCekBooking_Click(object sender, RoutedEventArgs e)
         {
-            // User belum login - tampilkan dialog login untuk Cek Booking
-            var result = MessageBox.Show(
-                "Silakan login terlebih dahulu untuk mengakses Cek Booking.\n\n" +
-                "Ingin login sekarang?",
-                "Login Diperlukan",
-                MessageBoxButton.YesNo,
-                MessageBoxImage.Warning);
+            // User belum login - tampilkan custom dialog login untuk Cek Booking
+            var result = CustomDialog.ShowWarning(
+                "Masuk diperlukan",
+                "Silakan masuk terlebih dahulu untuk mengakses fitur Cek Booking.\nIngin masuk sekarang?",
+                CustomDialog.DialogButtons.YesNo);
 
-            if (result == MessageBoxResult.Yes)
+            if (result == true)
             {
                 // User ingin login - buka LoginWindow
                 try
@@ -83,11 +81,9 @@ namespace TiketLaut.Views.Components
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(
-                        $"Terjadi kesalahan saat membuka halaman login:\n{ex.Message}",
+                    CustomDialog.ShowError(
                         "Error",
-                        MessageBoxButton.OK,
-                        MessageBoxImage.Error);
+                        $"Terjadi kesalahan saat membuka halaman login:\n{ex.Message}");
                 }
             }
             // Jika user pilih "No", tidak ada aksi (tetap di tempat)
@@ -96,14 +92,12 @@ namespace TiketLaut.Views.Components
         private void BtnNotifikasi_Click(object sender, RoutedEventArgs e)
         {
             // User belum login - tampilkan dialog login untuk Notifikasi
-            var result = MessageBox.Show(
-                "Silakan login terlebih dahulu untuk mengakses Notifikasi.\n\n" +
-                "Ingin login sekarang?",
-                "Login Diperlukan",
-                MessageBoxButton.YesNo,
-                MessageBoxImage.Warning);
+            var result = CustomDialog.ShowWarning(
+                "Masuk diperlukan",
+                "Silakan masuk terlebih dahulu untuk mengakses Notifikasi.\nIngin masuk sekarang?",
+                CustomDialog.DialogButtons.YesNo);
 
-            if (result == MessageBoxResult.Yes)
+            if (result == true)
             {
                 // User ingin login - buka LoginWindow
                 try
@@ -141,11 +135,9 @@ namespace TiketLaut.Views.Components
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(
-                        $"Terjadi kesalahan saat membuka halaman login:\n{ex.Message}",
+                    CustomDialog.ShowError(
                         "Error",
-                        MessageBoxButton.OK,
-                        MessageBoxImage.Error);
+                        $"Terjadi kesalahan saat membuka halaman login:\n{ex.Message}");
                 }
             }
             // Jika user pilih "No", tidak ada aksi (tetap di tempat)
