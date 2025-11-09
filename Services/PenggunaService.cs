@@ -152,5 +152,87 @@ namespace TiketLaut.Services
                 return new List<Pengguna>();
             }
         }
+
+        /// <summary>
+        /// Update profil pengguna lengkap
+        /// </summary>
+        public async Task<bool> UpdateProfile(
+            int penggunaId,
+            string nama,
+            string email,
+            string nik,
+            string jenisKelamin,
+            DateOnly tanggalLahir,
+            string? alamat,
+            string? newPassword = null)
+        {
+            try
+            {
+                var pengguna = await _context.Penggunas
+                    .FirstOrDefaultAsync(p => p.pengguna_id == penggunaId);
+
+                if (pengguna == null)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[PenggunaService] User not found: ID {penggunaId}");
+                    return false;
+                }
+
+                // Cek apakah email baru sudah digunakan user lain
+                if (pengguna.email != email)
+                {
+                    var emailExists = await _context.Penggunas
+                        .AnyAsync(p => p.email == email && p.pengguna_id != penggunaId);
+                    
+                    if (emailExists)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"[PenggunaService] Email already in use: {email}");
+                        return false;
+                    }
+                }
+
+                // Cek apakah NIK baru sudah digunakan user lain
+                if (pengguna.nomor_induk_kependudukan != nik)
+                {
+                    var nikExists = await _context.Penggunas
+                        .AnyAsync(p => p.nomor_induk_kependudukan == nik && p.pengguna_id != penggunaId);
+                    
+                    if (nikExists)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"[PenggunaService] NIK already in use: {nik}");
+                        return false;
+                    }
+                }
+
+                // Update data
+                pengguna.nama = nama;
+                pengguna.email = email;
+                pengguna.nomor_induk_kependudukan = nik;
+                pengguna.jenis_kelamin = jenisKelamin;
+                pengguna.tanggal_lahir = tanggalLahir;
+                pengguna.alamat = string.IsNullOrWhiteSpace(alamat) ? null : alamat;
+
+                // Update password jika diisi
+                if (!string.IsNullOrWhiteSpace(newPassword))
+                {
+                    pengguna.password = newPassword;
+                    System.Diagnostics.Debug.WriteLine($"[PenggunaService] Password updated for user ID {penggunaId}");
+                }
+
+                await _context.SaveChangesAsync();
+                System.Diagnostics.Debug.WriteLine($"[PenggunaService] Profile updated successfully for user ID {penggunaId}");
+                return true;
+            }
+            catch (DbUpdateException dbEx)
+            {
+                var innerMessage = dbEx.InnerException?.Message ?? dbEx.Message;
+                System.Diagnostics.Debug.WriteLine($"[PenggunaService] UpdateProfile DB error: {innerMessage}");
+                return false;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[PenggunaService] UpdateProfile error: {ex.Message}");
+                return false;
+            }
+        }
     }
 }

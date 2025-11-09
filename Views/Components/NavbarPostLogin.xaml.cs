@@ -106,6 +106,32 @@ namespace TiketLaut.Views.Components
             popupLogout.IsOpen = !popupLogout.IsOpen;
         }
 
+        private void BtnProfil_Click(object sender, RoutedEventArgs e)
+        {
+            popupLogout.IsOpen = false;
+
+            // Cek apakah sudah di ProfileWindow
+            var currentWindow = Window.GetWindow(this);
+            if (currentWindow is ProfileWindow)
+            {
+                // Sudah di ProfileWindow, tidak perlu navigasi
+                return;
+            }
+
+            // Navigasi ke ProfileWindow
+            var profileWindow = new ProfileWindow();
+            if (currentWindow != null)
+            {
+                profileWindow.Left = currentWindow.Left;
+                profileWindow.Top = currentWindow.Top;
+                profileWindow.Width = currentWindow.Width;
+                profileWindow.Height = currentWindow.Height;
+                profileWindow.WindowState = currentWindow.WindowState;
+            }
+            profileWindow.Show();
+            currentWindow?.Close();
+        }
+
         private void BtnLogout_Click(object sender, RoutedEventArgs e)
         {
             popupLogout.IsOpen = false;

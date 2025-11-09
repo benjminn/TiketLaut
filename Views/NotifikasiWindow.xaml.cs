@@ -24,6 +24,9 @@ namespace TiketLaut.Views
             if (SessionManager.IsLoggedIn && SessionManager.CurrentUser != null)
             {
                 _userId = SessionManager.CurrentUser.pengguna_id;
+                
+                // Set user info di navbar
+                navbarPostLogin.SetUserInfo(SessionManager.CurrentUser.nama);
             }
             else
             {

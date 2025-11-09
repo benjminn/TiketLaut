@@ -167,37 +167,74 @@
                             CornerRadius="8"
                             Padding="5"
                             Effect="{StaticResource CardShadow}">
-                        <Button x:Name="btnLogout"
-                               Content="Logout"
-                               Background="#DC2626"
-                               Foreground="White"
-                               Padding="40,10"
-                               FontSize="13"
-                               FontWeight="SemiBold"
-                               Cursor="Hand"
-                               Click="BtnLogout_Click">
-                            <Button.Style>
-                                <Style TargetType="{x:Type Button}">
-                                    <Setter Property="Template">
-                                        <Setter.Value>
-                                            <ControlTemplate TargetType="{x:Type Button}">
-                                                <Border Background="{TemplateBinding Background}"
-                                                        CornerRadius="6"
-                                                        Padding="{TemplateBinding Padding}">
-                                                    <ContentPresenter HorizontalAlignment="Center"
-                                                                     VerticalAlignment="Center"/>
-                                                </Border>
-                                            </ControlTemplate>
-                                        </Setter.Value>
-                                    </Setter>
-                                    <Style.Triggers>
-                                        <Trigger Property="IsMouseOver" Value="True">
-                                            <Setter Property="Background" Value="#B91C1C"/>
-                                        </Trigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Button.Style>
-                        </Button>
+                        <StackPanel>
+                            <!-- Profil Button -->
+                            <Button x:Name="btnProfil"
+                                   Content="Profil"
+                                   Background="#2563EB"
+                                   Foreground="White"
+                                   Padding="40,10"
+                                   FontSize="13"
+                                   FontWeight="SemiBold"
+                                   Cursor="Hand"
+                                   Click="BtnProfil_Click"
+                                   Margin="0,0,0,5">
+                                <Button.Style>
+                                    <Style TargetType="{x:Type Button}">
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate TargetType="{x:Type Button}">
+                                                    <Border Background="{TemplateBinding Background}"
+                                                            CornerRadius="6"
+                                                            Padding="{TemplateBinding Padding}">
+                                                        <ContentPresenter HorizontalAlignment="Center"
+                                                                         VerticalAlignment="Center"/>
+                                                    </Border>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                        <Style.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter Property="Background" Value="#1D4ED8"/>
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                            </Button>
+
+                            <!-- Logout Button -->
+                            <Button x:Name="btnLogout"
+                                   Content="Logout"
+                                   Background="#DC2626"
+                                   Foreground="White"
+                                   Padding="40,10"
+                                   FontSize="13"
+                                   FontWeight="SemiBold"
+                                   Cursor="Hand"
+                                   Click="BtnLogout_Click">
+                                <Button.Style>
+                                    <Style TargetType="{x:Type Button}">
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate TargetType="{x:Type Button}">
+                                                    <Border Background="{TemplateBinding Background}"
+                                                            CornerRadius="6"
+                                                            Padding="{TemplateBinding Padding}">
+                                                        <ContentPresenter HorizontalAlignment="Center"
+                                                                         VerticalAlignment="Center"/>
+                                                    </Border>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                        <Style.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter Property="Background" Value="#B91C1C"/>
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                            </Button>
+                        </StackPanel>
                     </Border>
                 </Popup>
             </Grid>
