@@ -35,7 +35,12 @@ namespace TiketLaut
         [Required]
         public string jenis_kendaraan_enum { get; set; } = string.Empty;
         
-        public string? plat_nomor { get; set; }  // ? Added - sesuai schema database
+        public string? plat_nomor { get; set; }
+        
+        // Data Pemesan (PIC yang melakukan pemesanan) - NULLABLE untuk backward compatibility
+        public string? nama_pemesan { get; set; }
+        public string? nomor_hp_pemesan { get; set; }
+        public string? email_pemesan { get; set; }
         
         // Navigation properties
         [ForeignKey("pengguna_id")]
