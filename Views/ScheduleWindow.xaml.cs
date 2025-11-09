@@ -11,6 +11,7 @@ using System.Windows.Media;
 using TiketLaut.Models;
 using TiketLaut.Services;
 using TiketLaut.Views;
+using TiketLaut.Views.Components;
 
 namespace TiketLaut.Views
 {
@@ -54,11 +55,9 @@ namespace TiketLaut.Views
                 LoadFilterDropdownsAsync();
                 
                 // Show info message
-                MessageBox.Show(
-                    "Silakan gunakan form pencarian untuk menemukan jadwal keberangkatan.",
+                CustomDialog.ShowInfo(
                     "Info",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Information);
+                    "Silakan gunakan form pencarian untuk menemukan jadwal keberangkatan.");
             }
         }
 
@@ -203,11 +202,7 @@ namespace TiketLaut.Views
             }
             catch (Exception ex)
             {
-                MessageBox.Show(
-                    $"Terjadi kesalahan saat memuat data filter:\n{ex.Message}",
-                    "Error",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Error);
+                CustomDialog.ShowError("Error", $"Terjadi kesalahan saat memuat data filter:\n\n{ex.Message}");
                 System.Diagnostics.Debug.WriteLine($"[ScheduleWindow] Error loading filter dropdowns: {ex.Message}");
             }
         }
@@ -374,11 +369,9 @@ namespace TiketLaut.Views
                 else
                 {
                     // Tampilkan pesan jika sudah maksimal
-                    MessageBox.Show(
-                        $"Jumlah penumpang maksimal untuk jenis kendaraan ini adalah {maksimalPenumpang} orang.",
+                    CustomDialog.ShowInfo(
                         "Batas Maksimal",
-                        MessageBoxButton.OK,
-                        MessageBoxImage.Information);
+                        $"Jumlah penumpang maksimal untuk jenis kendaraan ini adalah {maksimalPenumpang} orang.");
                 }
             }
         }
@@ -654,11 +647,9 @@ namespace TiketLaut.Views
                             txtFilterPenumpang.Text = newValue.ToString();
                             UpdateFilterPenumpangDisplay(newValue);
                             
-                            MessageBox.Show(
-                                $"Jumlah penumpang disesuaikan menjadi {newValue} (maksimal untuk kendaraan ini).",
+                            CustomDialog.ShowInfo(
                                 "Info",
-                                MessageBoxButton.OK,
-                                MessageBoxImage.Information);
+                                $"Jumlah penumpang disesuaikan menjadi {newValue} (maksimal untuk kendaraan ini).");
                         }
                     }
 
@@ -774,8 +765,7 @@ namespace TiketLaut.Views
         {
             if (_jadwals == null || !_jadwals.Any())
             {
-                MessageBox.Show("Tidak ada data jadwal yang tersedia.", "Info",
-                    MessageBoxButton.OK, MessageBoxImage.Information);
+                CustomDialog.ShowInfo("Info", "Tidak ada data jadwal yang tersedia.");
                 return;
             }
 
@@ -931,8 +921,7 @@ namespace TiketLaut.Views
                     !(cmbFilterFrom.SelectedItem is PelabuhanComboBoxItem pelabuhanAsal) ||
                     pelabuhanAsal.Id == 0)
                 {
-                    MessageBox.Show("Silakan pilih Pelabuhan Asal!", "Peringatan",
-                        MessageBoxButton.OK, MessageBoxImage.Warning);
+                    CustomDialog.ShowWarning("Peringatan", "Silakan pilih Pelabuhan Asal!");
                     return;
                 }
 
@@ -941,16 +930,14 @@ namespace TiketLaut.Views
                     !(cmbFilterTo.SelectedItem is PelabuhanComboBoxItem pelabuhanTujuan) ||
                     pelabuhanTujuan.Id == 0)
                 {
-                    MessageBox.Show("Silakan pilih Pelabuhan Tujuan!", "Peringatan",
-                        MessageBoxButton.OK, MessageBoxImage.Warning);
+                    CustomDialog.ShowWarning("Peringatan", "Silakan pilih Pelabuhan Tujuan!");
                     return;
                 }
 
                 // Validasi Tanggal (DatePicker)
                 if (!dpFilterDate.SelectedDate.HasValue)
                 {
-                    MessageBox.Show("Silakan pilih Tanggal!", "Peringatan",
-                        MessageBoxButton.OK, MessageBoxImage.Warning);
+                    CustomDialog.ShowWarning("Peringatan", "Silakan pilih Tanggal!");
                     return;
                 }
 
@@ -958,8 +945,7 @@ namespace TiketLaut.Views
                 if (txtFilterVehicle == null || string.IsNullOrEmpty(txtFilterVehicle.Text) ||
                     !int.TryParse(txtFilterVehicle.Text, out int jenisKendaraanId))
                 {
-                    MessageBox.Show("Silakan pilih Jenis Kendaraan!", "Peringatan",
-                        MessageBoxButton.OK, MessageBoxImage.Warning);
+                    CustomDialog.ShowWarning("Peringatan", "Silakan pilih Jenis Kendaraan!");
                     return;
                 }
                 
@@ -969,8 +955,7 @@ namespace TiketLaut.Views
                 // Validasi Penumpang
                 if (!int.TryParse(txtFilterPenumpang.Text, out int jumlahPenumpang) || jumlahPenumpang < 1)
                 {
-                    MessageBox.Show("Jumlah penumpang minimal adalah 1!", "Peringatan",
-                        MessageBoxButton.OK, MessageBoxImage.Warning);
+                    CustomDialog.ShowWarning("Peringatan", "Jumlah penumpang minimal adalah 1!");
                     return;
                 }
 
@@ -978,11 +963,9 @@ namespace TiketLaut.Views
                 if (jumlahPenumpang > maksimalPenumpang)
                 {
                     var specs = DetailKendaraan.GetSpecificationByJenis((JenisKendaraan)jenisKendaraanId);
-                    MessageBox.Show(
-                        $"Jumlah penumpang untuk {specs.Deskripsi} maksimal {maksimalPenumpang} orang!",
+                    CustomDialog.ShowWarning(
                         "Peringatan",
-                        MessageBoxButton.OK,
-                        MessageBoxImage.Warning);
+                        $"Jumlah penumpang untuk {specs.Deskripsi} maksimal {maksimalPenumpang} orang!");
                     return;
                 }
 
@@ -1010,11 +993,9 @@ namespace TiketLaut.Views
                 // Validasi pelabuhan asal dan tujuan tidak sama
                 if (pelabuhanAsal.Id == pelabuhanTujuan.Id)
                 {
-                    MessageBox.Show(
-                        "Pelabuhan asal dan tujuan tidak boleh sama!",
+                    CustomDialog.ShowWarning(
                         "Peringatan",
-                        MessageBoxButton.OK,
-                        MessageBoxImage.Warning);
+                        "Pelabuhan asal dan tujuan tidak boleh sama!");
                     return;
                 }
 
@@ -1033,12 +1014,9 @@ namespace TiketLaut.Views
 
                 if (jadwals == null || !jadwals.Any())
                 {
-                    MessageBox.Show(
-                        "Tidak ditemukan jadwal yang sesuai dengan kriteria pencarian Anda.\n\n" +
-                        "Silakan coba dengan kriteria lain atau pilih tanggal berbeda.",
+                    CustomDialog.ShowInfo(
                         "Jadwal Tidak Ditemukan",
-                        MessageBoxButton.OK,
-                        MessageBoxImage.Information);
+                        "Tidak ditemukan jadwal yang sesuai dengan kriteria pencarian Anda.\n\nSilakan coba dengan kriteria lain atau pilih tanggal berbeda.");
                     return;
                 }
 
@@ -1062,19 +1040,13 @@ namespace TiketLaut.Views
                 // Reload schedule dengan data baru
                 LoadScheduleFromDatabase();
 
-                MessageBox.Show(
-                    $"Ditemukan {jadwals.Count} jadwal yang sesuai dengan kriteria pencarian.",
+                CustomDialog.ShowSuccess(
                     "Hasil Pencarian",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Information);
+                    $"Ditemukan {jadwals.Count} jadwal yang sesuai dengan kriteria pencarian.");
             }
             catch (Exception ex)
             {
-                MessageBox.Show(
-                    $"Terjadi kesalahan saat mencari jadwal:\n{ex.Message}",
-                    "Error",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Error);
+                CustomDialog.ShowError("Error", $"Terjadi kesalahan saat mencari jadwal:\n\n{ex.Message}");
                 System.Diagnostics.Debug.WriteLine($"[ScheduleWindow] Error searching schedules: {ex.Message}");
             }
         }
@@ -1091,14 +1063,12 @@ namespace TiketLaut.Views
                     TiketLaut.Services.SessionManager.CurrentUser == null)
                 {
                     // User belum login - tampilkan warning dengan opsi login
-                    MessageBoxResult result = MessageBox.Show(
-                        "Silakan login terlebih dahulu untuk melanjutkan pemesanan tiket.\n\n" +
-                        "Ingin login sekarang?",
-                        "Login Diperlukan",
-                        MessageBoxButton.YesNo,
-                        MessageBoxImage.Warning);
+                    var result = CustomDialog.ShowWarning(
+                        "Masuk diperlukan",
+                        "Silakan masuk terlebih dahulu untuk melanjutkan pemesanan tiket.\nIngin masuk sekarang?",
+                        CustomDialog.DialogButtons.YesNo);
 
-                    if (result == MessageBoxResult.Yes)
+                    if (result == true)
                     {
                         // ? FIX: Pastikan menggunakan LoginSource.ScheduleWindow
                         try
@@ -1119,11 +1089,7 @@ namespace TiketLaut.Views
                         }
                         catch (Exception ex)
                         {
-                            MessageBox.Show(
-                                $"Terjadi kesalahan saat membuka halaman login:\n{ex.Message}",
-                                "Error",
-                                MessageBoxButton.OK,
-                                MessageBoxImage.Error);
+                            CustomDialog.ShowError("Error", $"Terjadi kesalahan saat membuka halaman login:\n\n{ex.Message}");
                         }
                     }
                     // Jika user pilih "No", tetap di halaman schedule (tidak ada aksi)
@@ -1174,11 +1140,7 @@ namespace TiketLaut.Views
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(
-                        $"Terjadi kesalahan saat membuka halaman pemesanan:\n{ex.Message}",
-                        "Error",
-                        MessageBoxButton.OK,
-                        MessageBoxImage.Error);
+                    CustomDialog.ShowError("Error", $"Terjadi kesalahan saat membuka halaman pemesanan:\n\n{ex.Message}");
 
                     System.Diagnostics.Debug.WriteLine($"[ScheduleWindow] Error opening booking window: {ex.Message}");
                 }
