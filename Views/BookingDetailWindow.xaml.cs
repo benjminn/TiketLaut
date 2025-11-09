@@ -2056,7 +2056,10 @@ namespace TiketLaut.Views
             var rbNona = this.FindName("rbNona2") as RadioButton;
             var txtNama = this.FindName("txtNamaPassenger2") as TextBox;
             
-            UpdatePassengerLabelGeneric(2, txtLabel, rbTuan, rbNyonya, rbNona, txtNama);
+            if (txtLabel != null && rbTuan != null && rbNyonya != null && rbNona != null && txtNama != null)
+            {
+                UpdatePassengerLabelGeneric(2, txtLabel, rbTuan, rbNyonya, rbNona, txtNama);
+            }
         }
 
         /// <summary>
@@ -2074,7 +2077,10 @@ namespace TiketLaut.Views
             var rbNona = this.FindName("rbNona2") as RadioButton;
             var txtNama = this.FindName("txtNamaPassenger2") as TextBox;
             
-            UpdatePassengerLabelGeneric(2, txtLabel, rbTuan, rbNyonya, rbNona, txtNama);
+            if (txtLabel != null && rbTuan != null && rbNyonya != null && rbNona != null && txtNama != null)
+            {
+                UpdatePassengerLabelGeneric(2, txtLabel, rbTuan, rbNyonya, rbNona, txtNama);
+            }
         }
 
         // ========== Event Handlers untuk Penumpang 3 ==========
@@ -2090,7 +2096,10 @@ namespace TiketLaut.Views
             var rbNona = this.FindName("rbNona3") as RadioButton;
             var txtNama = this.FindName("txtNamaPassenger3") as TextBox;
             
-            UpdatePassengerLabelGeneric(3, txtLabel, rbTuan, rbNyonya, rbNona, txtNama);
+            if (txtLabel != null && rbTuan != null && rbNyonya != null && rbNona != null && txtNama != null)
+            {
+                UpdatePassengerLabelGeneric(3, txtLabel, rbTuan, rbNyonya, rbNona, txtNama);
+            }
         }
 
         /// <summary>
@@ -2108,7 +2117,10 @@ namespace TiketLaut.Views
             var rbNona = this.FindName("rbNona3") as RadioButton;
             var txtNama = this.FindName("txtNamaPassenger3") as TextBox;
             
-            UpdatePassengerLabelGeneric(3, txtLabel, rbTuan, rbNyonya, rbNona, txtNama);
+            if (txtLabel != null && rbTuan != null && rbNyonya != null && rbNona != null && txtNama != null)
+            {
+                UpdatePassengerLabelGeneric(3, txtLabel, rbTuan, rbNyonya, rbNona, txtNama);
+            }
         }
 
         // ========== Event Handlers untuk Penumpang 4-10 (Dynamic) ==========
@@ -2126,7 +2138,7 @@ namespace TiketLaut.Views
             var rbNona = this.FindName($"rbNona{passengerNumber}") as RadioButton;
             var txtNama = this.FindName($"txtNamaPassenger{passengerNumber}") as TextBox;
             
-            if (txtLabel != null)
+            if (txtLabel != null && rbTuan != null && rbNyonya != null && rbNona != null && txtNama != null)
             {
                 UpdatePassengerLabelGeneric(passengerNumber, txtLabel, rbTuan, rbNyonya, rbNona, txtNama);
             }
