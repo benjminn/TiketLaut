@@ -1,4 +1,5 @@
 using System.Windows;
+using TiketLaut.Views.Components;
 
 namespace TiketLaut.Views
 {
@@ -19,20 +20,14 @@ namespace TiketLaut.Views
 
             if (string.IsNullOrWhiteSpace(GoogleEmail))
             {
-                MessageBox.Show("Email tidak boleh kosong!",
-                               "Validasi Error",
-                               MessageBoxButton.OK,
-                               MessageBoxImage.Warning);
+                CustomDialog.ShowWarning("Validasi Error", "Email tidak boleh kosong!");
                 txtEmail.Focus();
                 return;
             }
 
             if (string.IsNullOrWhiteSpace(GoogleName))
             {
-                MessageBox.Show("Nama tidak boleh kosong!",
-                               "Validasi Error",
-                               MessageBoxButton.OK,
-                               MessageBoxImage.Warning);
+                CustomDialog.ShowWarning("Validasi Error", "Nama tidak boleh kosong!");
                 txtName.Focus();
                 return;
             }

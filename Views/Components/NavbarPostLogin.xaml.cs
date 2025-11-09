@@ -98,7 +98,7 @@ namespace TiketLaut.Views.Components
 
         private void BtnFAQ_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("Navigasi ke FAQ", "Info");
+            CustomDialog.ShowInfo("Info", "Navigasi ke FAQ");
         }
 
         private void BtnUserInfo_Click(object sender, RoutedEventArgs e)
@@ -110,12 +110,12 @@ namespace TiketLaut.Views.Components
         {
             popupLogout.IsOpen = false;
 
-            var result = MessageBox.Show("Apakah Anda yakin ingin logout?",
-                                        "Konfirmasi Logout",
-                                        MessageBoxButton.YesNo,
-                                        MessageBoxImage.Question);
+            var result = CustomDialog.ShowQuestion(
+                "Konfirmasi Logout",
+                "Apakah Anda yakin ingin logout?",
+                CustomDialog.DialogButtons.YesNo);
 
-            if (result == MessageBoxResult.Yes)
+            if (result == true)
             {
                 // Clear session terlebih dahulu
                 SessionManager.Logout();

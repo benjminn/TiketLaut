@@ -5,6 +5,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using TiketLaut.Services;
+using TiketLaut.Views.Components;
 using Google.Apis.Auth.OAuth2;
 using Google.Apis.Auth.OAuth2.Flows;
 using Google.Apis.Auth.OAuth2.Responses;
@@ -99,25 +100,19 @@ namespace TiketLaut.Views
                 var isConnected = await DatabaseService.TestConnectionAsync();
                 if (!isConnected)
                 {
-                    MessageBox.Show(
-                        "⚠️ Tidak dapat terhubung ke database Supabase!\n\n" +
-                        "Pastikan:\n" +
-                        "1. Koneksi internet aktif\n" +
-                        "2. Connection string di appsettings.json benar\n" +
-                        "3. Database Supabase sudah dibuat",
+                    CustomDialog.ShowError(
                         "Database Error",
-                        MessageBoxButton.OK,
-                        MessageBoxImage.Error);
+                        "⚠️ Tidak dapat terhubung ke database Supabase!\n\nPastikan:\n1. Koneksi internet aktif\n2. Connection string di appsettings.json benar\n3. Database Supabase sudah dibuat");
                 }
                 else
                 {
                     // Optional: tampilkan pesan sukses (comment jika tidak perlu)
-                    // MessageBox.Show("✅ Koneksi ke database berhasil!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                    // CustomDialog.ShowSuccess("Success", "✅ Koneksi ke database berhasil!");
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error testing connection: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                CustomDialog.ShowError("Error", $"Error testing connection: {ex.Message}");
             }
         }
 
@@ -162,10 +157,7 @@ namespace TiketLaut.Views
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Terjadi kesalahan saat kembali:\n{ex.Message}",
-                               "Error",
-                               MessageBoxButton.OK,
-                               MessageBoxImage.Error);
+                CustomDialog.ShowError("Error", $"Terjadi kesalahan saat kembali:\n\n{ex.Message}");
             }
         }
 
@@ -189,10 +181,7 @@ namespace TiketLaut.Views
             // Validasi input
             if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password))
             {
-                MessageBox.Show("Email dan password tidak boleh kosong!",
-                               "Login Gagal",
-                               MessageBoxButton.OK,
-                               MessageBoxImage.Warning);
+                CustomDialog.ShowWarning("Login Gagal", "Email dan password tidak boleh kosong!");
                 return;
             }
 
@@ -210,10 +199,7 @@ namespace TiketLaut.Views
                     // Login sebagai Admin - redirect ke Admin Dashboard
                     SessionManager.CurrentAdmin = admin;
 
-                    MessageBox.Show($"Selamat datang, Admin {admin.nama}!",
-                                   "Login Berhasil",
-                                   MessageBoxButton.OK,
-                                   MessageBoxImage.Information);
+                    CustomDialog.ShowSuccess("Login Berhasil", $"Selamat datang, Admin {admin.nama}!");
 
                     // Buka Admin Dashboard
                     var adminDashboard = new AdminDashboard();
@@ -230,28 +216,19 @@ namespace TiketLaut.Views
                     // Login berhasil - simpan session
                     SessionManager.CurrentUser = pengguna;
 
-                    MessageBox.Show($"Selamat datang, {pengguna.nama}!",
-                                   "Login Berhasil",
-                                   MessageBoxButton.OK,
-                                   MessageBoxImage.Information);
+                    CustomDialog.ShowSuccess("Login Berhasil", $"Selamat datang, {pengguna.nama}!");
 
                     // ✅ UPDATED: Navigate berdasarkan source
                     NavigateAfterSuccessfulLogin(pengguna);
                 }
                 else
                 {
-                    MessageBox.Show("Email atau password salah!",
-                                   "Login Gagal",
-                                   MessageBoxButton.OK,
-                                   MessageBoxImage.Warning);
+                    CustomDialog.ShowWarning("Login Gagal", "Email atau password salah!");
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Terjadi kesalahan:\n{ex.Message}",
-                               "Error",
-                               MessageBoxButton.OK,
-                               MessageBoxImage.Error);
+                CustomDialog.ShowError("Error", $"Terjadi kesalahan:\n\n{ex.Message}");
             }
             finally
             {
@@ -310,16 +287,9 @@ namespace TiketLaut.Views
                 if (GOOGLE_CLIENT_ID.Contains("YOUR_CLIENT_ID") || GOOGLE_CLIENT_SECRET.Contains("YOUR_CLIENT_SECRET"))
                 {
                     // Fallback ke mode simulasi jika credentials belum diisi
-                    MessageBox.Show(
-                        "Google OAuth belum dikonfigurasi!\n\n" +
-                        "Untuk menggunakan real Google login:\n" +
-                        "1. Buat project di Google Cloud Console\n" +
-                        "2. Dapatkan Client ID & Secret\n" +
-                        "3. Update GOOGLE_CLIENT_ID dan GOOGLE_CLIENT_SECRET di kode\n\n" +
-                        "Sementara akan menggunakan mode simulasi.",
+                    CustomDialog.ShowInfo(
                         "Info",
-                        MessageBoxButton.OK,
-                        MessageBoxImage.Information);
+                        "Google OAuth belum dikonfigurasi!\n\nUntuk menggunakan real Google login:\n1. Buat project di Google Cloud Console\n2. Dapatkan Client ID & Secret\n3. Update GOOGLE_CLIENT_ID dan GOOGLE_CLIENT_SECRET di kode\n\nSementara akan menggunakan mode simulasi.");
 
                     // Mode simulasi
                     var inputDialog = new GoogleEmailInputDialog();
@@ -337,10 +307,7 @@ namespace TiketLaut.Views
 
                     if (string.IsNullOrWhiteSpace(googleEmail))
                     {
-                        MessageBox.Show("Email tidak boleh kosong!",
-                                       "Error",
-                                       MessageBoxButton.OK,
-                                       MessageBoxImage.Warning);
+                        CustomDialog.ShowWarning("Error", "Email tidak boleh kosong!");
                         btnGoogle.IsEnabled = true;
                         btnGoogle.Content = "Google";
                         return;
@@ -356,10 +323,7 @@ namespace TiketLaut.Views
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error Google OAuth: {ex.Message}\n\n{ex.StackTrace}",
-                               "Error",
-                               MessageBoxButton.OK,
-                               MessageBoxImage.Error);
+                CustomDialog.ShowError("Error", $"Error Google OAuth: {ex.Message}\n\n{ex.StackTrace}");
             }
             finally
             {
@@ -610,10 +574,7 @@ namespace TiketLaut.Views
                     // User sudah terdaftar - langsung login
                     SessionManager.CurrentUser = existingUser;
 
-                    MessageBox.Show($"Selamat datang kembali, {existingUser.nama}!",
-                                   "Login Berhasil",
-                                   MessageBoxButton.OK,
-                                   MessageBoxImage.Information);
+                    CustomDialog.ShowSuccess("Login Berhasil", $"Selamat datang kembali, {existingUser.nama}!");
 
                     // ✅ UPDATED: Navigate berdasarkan source
                     NavigateAfterSuccessfulLogin(existingUser);
@@ -638,20 +599,14 @@ namespace TiketLaut.Views
                             // Set session
                             SessionManager.CurrentUser = pengguna;
 
-                            MessageBox.Show($"Selamat datang, {pengguna.nama}!\n\nAkun Anda telah berhasil dibuat.",
-                                           "Registrasi Berhasil",
-                                           MessageBoxButton.OK,
-                                           MessageBoxImage.Information);
+                            CustomDialog.ShowSuccess("Registrasi Berhasil", $"Selamat datang, {pengguna.nama}!\n\nAkun Anda telah berhasil dibuat.");
 
                             // ✅ UPDATED: Navigate berdasarkan source
                             NavigateAfterSuccessfulLogin(pengguna);
                         }
                         else
                         {
-                            MessageBox.Show($"Registrasi gagal: {message}",
-                                           "Error",
-                                           MessageBoxButton.OK,
-                                           MessageBoxImage.Error);
+                            CustomDialog.ShowError("Error", $"Registrasi gagal: {message}");
                         }
                     }
                     // Jika user cancel dialog, tidak perlu action (tetap di LoginWindow)
@@ -659,10 +614,7 @@ namespace TiketLaut.Views
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error memproses Google login: {ex.Message}",
-                               "Error",
-                               MessageBoxButton.OK,
-                               MessageBoxImage.Error);
+                CustomDialog.ShowError("Error", $"Error memproses Google login: {ex.Message}");
             }
         }
 

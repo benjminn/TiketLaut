@@ -7,6 +7,7 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using TiketLaut.Services;
+using TiketLaut.Views.Components;
 
 namespace TiketLaut.Views
 {
@@ -54,8 +55,7 @@ namespace TiketLaut.Views
             {
                 if (SessionManager.CurrentUser == null)
                 {
-                    MessageBox.Show("Session user tidak ditemukan!", "Error",
-                        MessageBoxButton.OK, MessageBoxImage.Error);
+                    CustomDialog.ShowError("Error", "Session user tidak ditemukan!");
                     return;
                 }
 
@@ -171,20 +171,16 @@ namespace TiketLaut.Views
 
                 if (!BookingItems.Any())
                 {
-                    MessageBox.Show(
-                        "Anda belum memiliki booking Sukses.",
+                    CustomDialog.ShowInfo(
                         "Info",
-                        MessageBoxButton.OK,
-                        MessageBoxImage.Information);
+                        "Anda belum memiliki booking Sukses.");
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show(
-                    $"Terjadi kesalahan saat memuat data:\n{ex.Message}",
+                CustomDialog.ShowError(
                     "Error",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Error);
+                    $"Terjadi kesalahan saat memuat data:\n{ex.Message}");
 
                 System.Diagnostics.Debug.WriteLine($"[CekBookingWindow] ========== ERROR ==========");
                 System.Diagnostics.Debug.WriteLine($"[CekBookingWindow] Error: {ex.Message}");
@@ -208,7 +204,7 @@ namespace TiketLaut.Views
         private void BookingCard_Click(object sender, MouseButtonEventArgs e)
         {
             // TODO: Navigate to booking detail page
-            MessageBox.Show("Navigasi ke detail pemesanan", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+            CustomDialog.ShowInfo("Info", "Navigasi ke detail pemesanan");
         }
     }
 

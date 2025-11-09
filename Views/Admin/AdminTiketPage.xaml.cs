@@ -262,7 +262,7 @@ namespace TiketLaut.Views
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            string status = value as string;
+            string? status = value as string;
             if (string.IsNullOrEmpty(status))
             {
                 // Jika status null atau kosong, gunakan warna default

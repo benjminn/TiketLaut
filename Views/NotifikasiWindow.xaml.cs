@@ -7,6 +7,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using TiketLaut.Services;
+using TiketLaut.Views.Components;
 
 namespace TiketLaut.Views
 {
@@ -27,7 +28,7 @@ namespace TiketLaut.Views
             }
             else
             {
-                MessageBox.Show("Anda harus login terlebih dahulu!", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                CustomDialog.ShowError("Error", "Anda harus login terlebih dahulu!");
                 this.Close();
                 return;
             }
@@ -63,7 +64,7 @@ namespace TiketLaut.Views
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                CustomDialog.ShowError("Error", $"Error: {ex.Message}");
             }
         }
 
