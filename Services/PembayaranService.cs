@@ -111,6 +111,13 @@ namespace TiketLaut.Services
                 // Update status ke Menunggu Validasi
                 pembayaran.status_bayar = "Menunggu Validasi";
                 pembayaran.tanggal_bayar = DateTime.UtcNow; // Update waktu konfirmasi
+                
+                // NOTE: Tidak update status_tiket karena database constraint belum support "Menunggu Validasi"
+                // TODO: Setelah database schema diupdate, uncomment code di bawah:
+                // if (pembayaran.tiket != null)
+                // {
+                //     pembayaran.tiket.status_tiket = "Menunggu Validasi";
+                // }
 
                 await _context.SaveChangesAsync();
 

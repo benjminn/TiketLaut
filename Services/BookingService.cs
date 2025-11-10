@@ -114,6 +114,11 @@ namespace TiketLaut.Services
             {
                 await transaction.RollbackAsync();
                 System.Diagnostics.Debug.WriteLine($"[BookingService] Error creating booking: {ex.Message}");
+                if (ex.InnerException != null)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[BookingService] Inner Exception: {ex.InnerException.Message}");
+                }
+                System.Diagnostics.Debug.WriteLine($"[BookingService] StackTrace: {ex.StackTrace}");
                 throw;
             }
         }
