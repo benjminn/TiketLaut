@@ -7,6 +7,7 @@ using TiketLaut.Services;
 using AdminModel = TiketLaut.Admin;
 using ClosedXML.Excel;
 using Microsoft.Win32;
+using TiketLaut.Views.Components;
 
 namespace TiketLaut.Views
 {
@@ -23,7 +24,7 @@ namespace TiketLaut.Views
 
             if (_currentAdmin == null)
             {
-                MessageBox.Show("Anda tidak memiliki akses!", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                CustomDialog.ShowError("Error", "Anda tidak memiliki akses!");
                 this.Close();
                 return;
             }
@@ -112,8 +113,8 @@ namespace TiketLaut.Views
                 
                 if (!canConnect)
                 {
-                    MessageBox.Show("Tidak dapat terhubung ke database!\n\nPastikan:\n1. Koneksi internet aktif\n2. Database server dapat diakses\n3. Connection string di appsettings.json benar", 
-                        "Database Connection Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    CustomDialog.ShowError("Database Connection Error", 
+                        "Tidak dapat terhubung ke database!\n\nPastikan:\n1. Koneksi internet aktif\n2. Database server dapat diakses\n3. Connection string di appsettings.json benar");
                     return;
                 }
                 
@@ -137,8 +138,7 @@ namespace TiketLaut.Views
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"[Dashboard] Error: {ex.Message}");
-                MessageBox.Show($"Error loading dashboard data:\n\n{ex.Message}", 
-                    "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                CustomDialog.ShowError("Error", $"Error loading dashboard data:\n\n{ex.Message}");
             }
         }
 
@@ -159,7 +159,7 @@ namespace TiketLaut.Views
                 if (_adminService == null)
                 {
                     System.Diagnostics.Debug.WriteLine("[Dashboard] AdminService is null");
-                    MessageBox.Show("Service tidak tersedia. Silakan restart aplikasi.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    CustomDialog.ShowError("Error", "Service tidak tersedia. Silakan restart aplikasi.");
                     return;
                 }
 
@@ -220,8 +220,8 @@ namespace TiketLaut.Views
                     System.Diagnostics.Debug.WriteLine($"[Dashboard] Service Stack Trace: {exService.StackTrace}");
                     
                     // Show user-friendly error
-                    MessageBox.Show($"Gagal memuat data pendapatan:\n\n{exService.Message}\n\nSilakan coba lagi atau hubungi administrator.", 
-                        "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    CustomDialog.ShowError("Error", 
+                        $"Gagal memuat data pendapatan:\n\n{exService.Message}\n\nSilakan coba lagi atau hubungi administrator.");
                     
                     // Set to empty list to show "no data" message
                     pendapatanList = new List<PendapatanPerRuteKapal>();
@@ -274,7 +274,7 @@ namespace TiketLaut.Views
             {
                 System.Diagnostics.Debug.WriteLine($"[Dashboard] Error LoadPendapatanDetail: {ex.Message}");
                 System.Diagnostics.Debug.WriteLine($"[Dashboard] Stack Trace: {ex.StackTrace}");
-                MessageBox.Show($"Error memuat data pendapatan:\n\n{ex.Message}\n\nDetail:\n{ex.StackTrace}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                CustomDialog.ShowError("Error", $"Error memuat data pendapatan:\n\n{ex.Message}\n\nDetail:\n{ex.StackTrace}");
             }
         }
 
@@ -367,7 +367,7 @@ namespace TiketLaut.Views
         {
             if (_currentAdmin == null || !_currentAdmin.canCreateAdmin())
             {
-                MessageBox.Show("Anda tidak memiliki akses ke menu ini!", "Access Denied", MessageBoxButton.OK, MessageBoxImage.Warning);
+                CustomDialog.ShowWarning("Access Denied", "Anda tidak memiliki akses ke menu ini!");
                 return;
             }
 
@@ -381,7 +381,7 @@ namespace TiketLaut.Views
         private async void BtnRefreshDashboard_Click(object sender, RoutedEventArgs e)
         {
             await LoadDashboardStats();
-            MessageBox.Show("Data berhasil di-refresh!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+            CustomDialog.ShowSuccess("Success", "Data berhasil di-refresh!");
         }
 
         private async void BtnExportExcel_Click(object sender, RoutedEventArgs e)
@@ -412,7 +412,7 @@ namespace TiketLaut.Views
                 
                 if (pendapatanList.Count == 0)
                 {
-                    MessageBox.Show($"Tidak ada data untuk bulan {bulanNama} {tahun}!", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+                    CustomDialog.ShowInfo("Info", $"Tidak ada data untuk bulan {bulanNama} {tahun}!");
                     return;
                 }
 
@@ -497,11 +497,11 @@ namespace TiketLaut.Views
                     workbook.SaveAs(saveDialog.FileName);
                 }
 
-                MessageBox.Show($"Data berhasil di-export ke:\n{saveDialog.FileName}", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                CustomDialog.ShowSuccess("Success", $"Data berhasil di-export ke:\n{saveDialog.FileName}");
                 
                 // Open file
-                var result = MessageBox.Show("Buka file Excel sekarang?", "Konfirmasi", MessageBoxButton.YesNo, MessageBoxImage.Question);
-                if (result == MessageBoxResult.Yes)
+                var result = CustomDialog.ShowQuestion("Konfirmasi", "Buka file Excel sekarang?");
+                if (result == true)
                 {
                     System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
                     {
@@ -513,15 +513,15 @@ namespace TiketLaut.Views
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"[Export Excel] Error: {ex.Message}");
-                MessageBox.Show($"Error export Excel:\n\n{ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                CustomDialog.ShowError("Error", $"Error export Excel:\n\n{ex.Message}");
             }
         }
 
         private void BtnLogout_Click(object sender, RoutedEventArgs e)
         {
-            var result = MessageBox.Show("Apakah Anda yakin ingin logout?", "Konfirmasi Logout", MessageBoxButton.YesNo, MessageBoxImage.Question);
+            var result = CustomDialog.ShowQuestion("Konfirmasi Logout", "Apakah Anda yakin ingin logout?");
             
-            if (result == MessageBoxResult.Yes)
+            if (result == true)
             {
                 SessionManager.Logout();
                 

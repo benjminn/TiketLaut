@@ -54,6 +54,15 @@
             </Style.Triggers>
         </Style>
 
+        <Style x:Key="SecondaryButton" TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
+            <Setter Property="Background" Value="#6C757D"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#5A6268"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
         <Style x:Key="WarningButton" TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
             <Setter Property="Background" Value="#FFC107"/>
             <Setter Property="Foreground" Value="#000"/>
@@ -66,24 +75,22 @@
 
         <!-- DataGrid Header Style - Bold & Centered -->
         <Style TargetType="DataGridColumnHeader">
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="FontSize" Value="14"/>
-            <Setter Property="Foreground" Value="#011C4B"/>
-            <Setter Property="Background" Value="#F8F9FA"/>
+            <Setter Property="Background" Value="#00658D"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="Padding" Value="12,10"/>
+            <Setter Property="BorderThickness" Value="0,0,1,0"/>
+            <Setter Property="BorderBrush" Value="#267DAE"/>
             <Setter Property="HorizontalContentAlignment" Value="Center"/>
-            <Setter Property="BorderThickness" Value="0,0,0,1"/>
-            <Setter Property="BorderBrush" Value="#DEE2E6"/>
         </Style>
 
         <!-- DataGrid Cell Style - Centered -->
         <Style TargetType="DataGridCell">
-            <Setter Property="TextBlock.TextAlignment" Value="Center"/>
-            <Setter Property="Padding" Value="8"/>
             <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="12,8"/>
             <Style.Triggers>
                 <Trigger Property="IsSelected" Value="True">
-                    <Setter Property="Background" Value="#E7F3F8"/>
+                    <Setter Property="Background" Value="#E8F4F8"/>
                     <Setter Property="Foreground" Value="#011C4B"/>
                 </Trigger>
             </Style.Triggers>
@@ -279,22 +286,14 @@
                                    HorizontalAlignment="Right"
                                    VerticalAlignment="Bottom"
                                    Margin="0,15,0,0">
-                            <Button Click="BtnResetFilter_Click"
+                            <Button Content="Reset Filter"
+                                   Click="BtnResetFilter_Click"
                                    Background="#6C757D"
                                    Foreground="White"
                                    BorderThickness="0"
                                    Padding="15,8"
                                    FontSize="13"
                                    Cursor="Hand">
-                                <StackPanel Orientation="Horizontal">
-                                    <Image Source="/Views/Assets/Icons/iconRefresh.png" 
-                                           Width="16" 
-                                           Height="16" 
-                                           Margin="0,0,8,0"
-                                           VerticalAlignment="Center"/>
-                                    <TextBlock Text="Reset Filter" 
-                                              VerticalAlignment="Center"/>
-                                </StackPanel>
                                 <Button.Style>
                                     <Style TargetType="Button">
                                         <Setter Property="Template">
@@ -330,10 +329,14 @@
                      IsReadOnly="True"
                      SelectionMode="Extended"
                      HeadersVisibility="Column"
-                     GridLinesVisibility="None"
-                     Background="Transparent"
-                     BorderThickness="0"
-                     RowHeight="50">
+                     GridLinesVisibility="Horizontal"
+                     ColumnHeaderHeight="45"
+                     AlternatingRowBackground="#F8F9FA"
+                     Background="White"
+                     BorderBrush="#DEE2E6"
+                     BorderThickness="1"
+                     RowHeight="50"
+                     FontSize="13">
                 
                 <DataGrid.Columns>
                     <!-- Checkbox Column -->
@@ -467,27 +470,27 @@
                                           HorizontalAlignment="Center"
                                           VerticalAlignment="Center">
                                     <!-- Detail Button -->
-                                    <Button Style="{StaticResource PrimaryButton}"
+                                    <Button Style="{StaticResource SecondaryButton}"
                                            Content="Detail"
                                            Tag="{Binding jadwal_id}"
                                            Click="BtnDetailJadwal_Click"
                                            Margin="0,0,6,0"
-                                           Padding="12,6"
+                                           Padding="15,10"
                                            MinWidth="60"/>
                                     <!-- Edit Button -->
-                                    <Button Style="{StaticResource WarningButton}"
+                                    <Button Style="{StaticResource PrimaryButton}"
                                            Content="Edit"
                                            Tag="{Binding jadwal_id}"
                                            Click="BtnEditJadwal_Click"
                                            Margin="0,0,6,0"
-                                           Padding="12,6"
+                                           Padding="15,10"
                                            MinWidth="60"/>
                                     <!-- Delete Button -->
                                     <Button Style="{StaticResource DangerButton}"
                                            Content="Hapus"
                                            Tag="{Binding jadwal_id}"
                                            Click="BtnDeleteJadwal_Click"
-                                           Padding="12,6"
+                                           Padding="15,10"
                                            MinWidth="60"/>
                                 </StackPanel>
                             </DataTemplate>
