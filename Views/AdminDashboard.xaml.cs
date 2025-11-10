@@ -133,6 +133,9 @@ namespace TiketLaut.Views
                 txtTiketHariIni.Text = stats.TiketHariIni.ToString();
                 txtJadwalMingguDepan.Text = stats.JadwalMingguDepan.ToString();
                 txtRataPendapatan.Text = $"Rp {stats.RataRataPendapatanPerHari:N0}";
+
+                await new NotifikasiService().CekDanKirimNotifikasiJadwalOtomatisAsync();
+                System.Diagnostics.Debug.WriteLine("[AdminDashboard] Pengecekan notifikasi otomatis (semua user) selesai.");
             }
             catch (Exception ex)
             {

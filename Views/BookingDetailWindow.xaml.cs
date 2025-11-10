@@ -1728,6 +1728,24 @@ namespace TiketLaut.Views
                 var bookingService = new TiketLaut.Services.BookingService();
                 var tiket = await bookingService.CreateBookingAsync(bookingData);
 
+                try
+                {
+                    var notifService = new NotifikasiService();
+                    await notifService.SendSegeraBayarNotificationAsync(
+                        penggunaId: tiket.pengguna_id,
+                        bookingKode: tiket.kode_tiket,
+                        jamTersisa: 24, // Sesuai dengan timer 24 jam di PaymentWindow
+                        jadwalId: tiket.jadwal_id,
+                        tiketId: tiket.tiket_id
+                    );
+                    System.Diagnostics.Debug.WriteLine("[BookingDetailWindow] Notifikasi 'Segera Bayar' terkirim.");
+                }
+                catch (Exception exNotif)
+                {
+                    // Jangan gagalkan booking hanya karena notif gagal
+                    System.Diagnostics.Debug.WriteLine($"[BookingDetailWindow] GAGAL kirim notifikasi: {exNotif.Message}");
+                }
+
                 CustomDialog.ShowSuccess(
                     "Booking Berhasil",
                     $"✅ Booking berhasil!\n\nKode Tiket: {tiket.kode_tiket}\nTotal: Rp {tiket.total_harga:N0}\n\nSilakan lanjutkan ke pembayaran.");

@@ -313,6 +313,29 @@ namespace TiketLaut.Views
 
                         if (success)
                         {
+                            try
+                            {
+                                // Ambil data lengkap yang baru saja divalidasi
+                                var pembayaran = await _pembayaranService.GetPembayaranByIdAsync(pembayaranId);
+                                if (pembayaran?.tiket?.Jadwal?.pelabuhan_asal != null)
+                                {
+                                    var notifService = new NotifikasiService();
+                                    await notifService.SendPembayaranBerhasilNotificationAsync(
+                                        penggunaId: pembayaran.tiket.pengguna_id,
+                                        tiketKode: pembayaran.tiket.kode_tiket,
+                                        ruteAsal: pembayaran.tiket.Jadwal.pelabuhan_asal.nama_pelabuhan,
+                                        ruteTujuan: pembayaran.tiket.Jadwal.pelabuhan_tujuan.nama_pelabuhan,
+                                        jadwalId: pembayaran.tiket.jadwal_id,
+                                        tiketId: pembayaran.tiket.tiket_id
+                                    );
+                                    System.Diagnostics.Debug.WriteLine($"[AdminPembayaranPage] Notifikasi 'Pembayaran Berhasil' terkirim ke {pembayaran.tiket.pengguna_id}");
+                                }
+                            }
+                            catch (Exception exNotif)
+                            {
+                                System.Diagnostics.Debug.WriteLine($"[AdminPembayaranPage] GAGAL kirim notifikasi: {exNotif.Message}");
+                                // Jangan gagalkan proses utama jika notif error
+                            }
                             await LoadPembayaranDataAsync();
                         }
                     }

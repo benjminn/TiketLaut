@@ -104,6 +104,31 @@ namespace TiketLaut.Views
                     if (statusChanged && newStatus == "Sukses" && oldStatus != "Sukses")
                     {
                         await _pembayaranService.ValidasiPembayaranAsync(_pembayaran.pembayaran_id);
+                        try
+                        {
+                            // Ambil data lengkap yang baru saja divalidasi
+                            // Kita perlu data 'Tiket' yang lengkap
+                            var tiketService = new TiketService();
+                            var tiket = await tiketService.GetTiketByIdAsync(_pembayaran.tiket_id); // Asumsi GetTiketByIdAsync() mengambil relasi
+
+                            if (tiket?.Jadwal?.pelabuhan_asal != null)
+                            {
+                                var notifService = new NotifikasiService();
+                                await notifService.SendPembayaranBerhasilNotificationAsync(
+                                    penggunaId: tiket.pengguna_id,
+                                    tiketKode: tiket.kode_tiket,
+                                    ruteAsal: tiket.Jadwal.pelabuhan_asal.nama_pelabuhan,
+                                    ruteTujuan: tiket.Jadwal.pelabuhan_tujuan.nama_pelabuhan,
+                                    jadwalId: tiket.jadwal_id,
+                                    tiketId: tiket.tiket_id
+                                );
+                                System.Diagnostics.Debug.WriteLine($"[AdminPembayaranEditDialog] Notifikasi 'Pembayaran Berhasil' terkirim ke {tiket.pengguna_id}");
+                            }
+                        }
+                        catch (Exception exNotif)
+                        {
+                            System.Diagnostics.Debug.WriteLine($"[AdminPembayaranEditDialog] GAGAL kirim notifikasi: {exNotif.Message}");
+                        }
                     }
                     // Jika status berubah ke "Gagal", tolak pembayaran
                     else if (statusChanged && newStatus == "Gagal" && oldStatus != "Gagal")
