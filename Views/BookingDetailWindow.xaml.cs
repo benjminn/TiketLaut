@@ -1487,7 +1487,7 @@ namespace TiketLaut.Views
                     (IsPlaceholderText(txtPlatNomor) || string.IsNullOrWhiteSpace(txtPlatNomor?.Text)))
                 {
                     CustomDialog.ShowWarning("Plat Nomor Wajib", "Plat nomor kendaraan harus diisi untuk kendaraan bermotor!");
-                    txtPlatNomor?.Focus();
+                    if (txtPlatNomor != null) txtPlatNomor.Focus();
                     return;
                 }
                 
