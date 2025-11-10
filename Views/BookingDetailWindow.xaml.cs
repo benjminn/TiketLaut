@@ -1868,14 +1868,6 @@ namespace TiketLaut.Views
                     }), System.Windows.Threading.DispatcherPriority.Input);
                 }
             }), System.Windows.Threading.DispatcherPriority.Background);
-
-            // LANGKAH 3: Tampilkan dialog petunjuk SEKARANG JUGA (setelah dispatch)
-            CustomDialog.ShowInfo("Petunjuk",
-                "Nama dan Jenis Kelamin telah diisi otomatis.\n\n" +
-                "Silakan lengkapi:\n" +
-                "• Jenis Identitas (KTP/Passport/SIM)\n" +
-                "• Nomor Identitas\n\n" +
-                "pada form Penumpang 1 yang sudah terbuka.");
         }
 
         /// <summary>
