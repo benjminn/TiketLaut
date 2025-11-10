@@ -17,7 +17,6 @@ using System.Windows.Media.Imaging;
 using System.Drawing; 
 using System.Drawing.Imaging; 
 using System.Text.RegularExpressions; 
-using System.Windows.Input; 
 
 namespace TiketLaut.Views
 {
@@ -982,7 +981,9 @@ namespace TiketLaut.Views
         {
             if (textBox == null || textBox.Tag == null) return false;
 
-            string labelName = textBox.Tag.ToString();
+            string? labelName = textBox.Tag.ToString();
+            if (string.IsNullOrEmpty(labelName)) return false;
+            
             var label = this.FindName(labelName) as TextBlock;
             if (label == null)
             {
