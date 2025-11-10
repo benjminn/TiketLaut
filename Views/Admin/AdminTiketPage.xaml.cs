@@ -54,21 +54,40 @@ namespace TiketLaut.Views
                     var updateCount = await _riwayatService.AutoUpdatePembayaranSelesaiAsync();
                     System.Diagnostics.Debug.WriteLine($"[AdminTiketPage] AutoUpdate completed: {updateCount} records updated");
                     
-                    // Temporary MessageBox for debugging
+                    // Show result with CustomDialog
                     if (updateCount > 0)
                     {
-                        MessageBox.Show($"Auto-update berhasil!\n{updateCount} record diupdate.", "Auto-Update", MessageBoxButton.OK, MessageBoxImage.Information);
+                        var dialog = new CustomDialog(
+                            "Auto-Update Berhasil",
+                            $"Auto-update berhasil!\n{updateCount} record diupdate.",
+                            CustomDialog.DialogType.Success
+                        );
+                        dialog.Owner = Window.GetWindow(this);
+                        dialog.ShowDialog();
                     }
                     else
                     {
-                        MessageBox.Show("Auto-update jalan tapi tidak ada record yang diupdate.\nSemua status sudah benar.", "Auto-Update", MessageBoxButton.OK, MessageBoxImage.Information);
+                        var dialog = new CustomDialog(
+                            "Auto-Update",
+                            "Auto-update jalan tapi tidak ada record yang diupdate.\nSemua status sudah benar.",
+                            CustomDialog.DialogType.Info
+                        );
+                        dialog.Owner = Window.GetWindow(this);
+                        dialog.ShowDialog();
                     }
                 }
                 catch (Exception exAuto)
                 {
                     System.Diagnostics.Debug.WriteLine($"[AdminTiketPage] AutoUpdate ERROR: {exAuto.Message}");
                     System.Diagnostics.Debug.WriteLine($"[AdminTiketPage] StackTrace: {exAuto.StackTrace}");
-                    MessageBox.Show($"Error running auto-update:\n{exAuto.Message}", "Auto-Update Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    
+                    var dialog = new CustomDialog(
+                        "Auto-Update Error",
+                        $"Error running auto-update:\n{exAuto.Message}",
+                        CustomDialog.DialogType.Error
+                    );
+                    dialog.Owner = Window.GetWindow(this);
+                    dialog.ShowDialog();
                 }
 
                 // Load ALL tickets from database
