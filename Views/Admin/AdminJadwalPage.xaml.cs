@@ -12,6 +12,7 @@ namespace TiketLaut.Views
     {
         private readonly JadwalService _jadwalService;
         private readonly PelabuhanService _pelabuhanService;
+        private readonly RiwayatService _riwayatService;
         private ObservableCollection<JadwalViewModel> _allJadwals = new ObservableCollection<JadwalViewModel>();
         private ObservableCollection<JadwalViewModel> _filteredJadwals = new ObservableCollection<JadwalViewModel>();
 
@@ -20,6 +21,7 @@ namespace TiketLaut.Views
             InitializeComponent();
             _jadwalService = new JadwalService();
             _pelabuhanService = new PelabuhanService();
+            _riwayatService = new RiwayatService();
             LoadAllDataAsync();
         }
 
@@ -37,6 +39,9 @@ namespace TiketLaut.Views
             try
             {
                 System.Diagnostics.Debug.WriteLine("[AdminJadwalPage] Loading jadwal data...");
+                
+                // Auto-update status tiket dan jadwal yang sudah selesai
+                await _riwayatService.AutoUpdatePembayaranSelesaiAsync();
                 
                 var jadwals = await _jadwalService.GetAllJadwalAsync();
                 
@@ -444,6 +449,6 @@ namespace TiketLaut.Views
             public string kelas_layanan { get; set; } = string.Empty;
             public string status { get; set; } = string.Empty;
             public bool IsSelected { get; set; }
-        }
-    }
+        }
+    }
 }

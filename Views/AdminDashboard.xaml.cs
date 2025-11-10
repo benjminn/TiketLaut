@@ -13,12 +13,14 @@ namespace TiketLaut.Views
     public partial class AdminDashboard : Window
     {
         private readonly AdminService _adminService;
+        private readonly RiwayatService _riwayatService;
         private AdminModel? _currentAdmin;
 
         public AdminDashboard()
         {
             InitializeComponent();
             _adminService = new AdminService();
+            _riwayatService = new RiwayatService();
             _currentAdmin = SessionManager.CurrentAdmin;
 
             if (_currentAdmin == null)
@@ -38,6 +40,10 @@ namespace TiketLaut.Views
         {
             // Pastikan UI sudah sepenuhnya loaded
             await System.Threading.Tasks.Task.Delay(100);
+            
+            // Auto-update status tiket dan jadwal yang sudah selesai
+            System.Diagnostics.Debug.WriteLine("[AdminDashboard] Running auto-update...");
+            await _riwayatService.AutoUpdatePembayaranSelesaiAsync();
             
             // Initialize month filter
             InitializeMonthFilter();
