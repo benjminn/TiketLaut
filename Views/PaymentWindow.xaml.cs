@@ -393,6 +393,23 @@ namespace TiketLaut.Views
                 {
                     _currentPembayaran.status_bayar = "Menunggu Validasi";
                     _countdownTimer?.Stop();
+
+                    try
+                    {
+                        var notifService = new NotifikasiService();
+                        await notifService.SendMenungguValidasiNotificationAsync(
+                            penggunaId: _tiket.pengguna_id,
+                            jadwalId: _tiket.jadwal_id,
+                            pembayaranId: _currentPembayaran.pembayaran_id,
+                            tiketId: _tiket.tiket_id
+                        );
+                        System.Diagnostics.Debug.WriteLine("[PaymentWindow] Notifikasi 'Menunggu Validasi' terkirim.");
+                    }
+                    catch (Exception exNotif)
+                    {
+                        // Jangan gagalkan pembayaran hanya karena notif gagal
+                        System.Diagnostics.Debug.WriteLine($"[PaymentWindow] GAGAL kirim notifikasi: {exNotif.Message}");
+                    }
                     CustomDialog.ShowSuccess(
                         "Pembayaran Berhasil",
                         $"✅ Pembayaran berhasil dikonfirmasi!\n\nKode Tiket: {_tiket.kode_tiket}\nMetode: {selectedPaymentMethod}\nJumlah: Rp {_currentPembayaran.jumlah_bayar:N0}\nStatus: {_currentPembayaran.status_bayar}\n\nPembayaran Anda sedang diverifikasi oleh admin.\nAnda dapat mengecek status di menu 'Cek Booking'.");

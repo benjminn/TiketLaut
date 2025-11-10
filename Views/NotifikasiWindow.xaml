@@ -71,7 +71,7 @@
 
                     <!-- Notification List dengan Background Biru -->
                     <Border Grid.Row="2" 
-                           Background="#EBF4FF"
+                           Background="#E2F7FF"
                            CornerRadius="0,0,41,41">
                         <ScrollViewer x:Name="notificationScrollViewer"
                                      VerticalScrollBarVisibility="Auto"

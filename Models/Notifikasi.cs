@@ -27,7 +27,7 @@ namespace TiketLaut
         public string pesan { get; set; } = string.Empty;
         
         [Required]                                      // timestamp with time zone NOT NULL DEFAULT now()
-        public DateTime waktu_kirim { get; set; } = DateTime.Now;
+        public DateTime waktu_kirim { get; set; } = DateTime.UtcNow;
         
         [Required]                                      // boolean NOT NULL DEFAULT false
         public bool status_baca { get; set; } = false;
