@@ -15,6 +15,12 @@ namespace TiketLaut.Views
         private ObservableCollection<Pembayaran> _allPembayaran = new ObservableCollection<Pembayaran>();
         private ObservableCollection<Pembayaran> _filteredPembayaran = new ObservableCollection<Pembayaran>();
 
+        // Pagination variables
+        private List<Pembayaran> _allPembayaranData = new List<Pembayaran>();
+        private int _currentPage = 1;
+        private const int _pageSize = 30;
+        private int _totalRecords = 0;
+
         public AdminPembayaranPage()
         {
             InitializeComponent();
@@ -38,19 +44,15 @@ namespace TiketLaut.Views
                 
                 await Dispatcher.InvokeAsync(() =>
                 {
-                    _allPembayaran.Clear();
-                    _filteredPembayaran.Clear();
+                    // Store ALL data for pagination
+                    _allPembayaranData = pembayaranList.OrderByDescending(p => p.pembayaran_id).ToList();
+                    _totalRecords = _allPembayaranData.Count;
                     
-                    foreach (var pembayaran in pembayaranList)
-                    {
-                        _allPembayaran.Add(pembayaran);
-                        _filteredPembayaran.Add(pembayaran);
-                    }
+                    // Reset to page 1
+                    _currentPage = 1;
+                    LoadPageData();
                     
-                    dgPembayaran.ItemsSource = _filteredPembayaran;
-                    UpdateSummary();
-                    
-                    System.Diagnostics.Debug.WriteLine($"[AdminPembayaranPage] Loaded {_allPembayaran.Count} pembayaran records");
+                    System.Diagnostics.Debug.WriteLine($"[AdminPembayaranPage] Loaded {_totalRecords} total pembayaran records");
                 });
             }
             catch (Exception ex)
@@ -61,6 +63,60 @@ namespace TiketLaut.Views
                     MessageBox.Show($"Error loading pembayaran data: {ex.Message}", "Error", 
                         MessageBoxButton.OK, MessageBoxImage.Error);
                 });
+            }
+        }
+
+        private void LoadPageData()
+        {
+            _allPembayaran.Clear();
+            _filteredPembayaran.Clear();
+            
+            // Calculate pagination
+            int skip = (_currentPage - 1) * _pageSize;
+            var pagedData = _allPembayaranData.Skip(skip).Take(_pageSize).ToList();
+            
+            foreach (var pembayaran in pagedData)
+            {
+                _allPembayaran.Add(pembayaran);
+                _filteredPembayaran.Add(pembayaran);
+            }
+            
+            dgPembayaran.ItemsSource = _filteredPembayaran;
+            // UpdateSummary(); // Removed: Old summary display no longer used with pagination
+            UpdatePaginationUI();
+        }
+
+        private void UpdatePaginationUI()
+        {
+            int totalPages = (int)Math.Ceiling((double)_totalRecords / _pageSize);
+            int displayedStart = (_currentPage - 1) * _pageSize + 1;
+            int displayedEnd = Math.Min(_currentPage * _pageSize, _totalRecords);
+            
+            txtPageNumber.Text = _currentPage.ToString();
+            txtPaginationInfo.Text = $"Page {_currentPage} - Menampilkan {displayedStart}-{displayedEnd} dari {_totalRecords} pembayaran";
+            txtTotalRecords.Text = $"Total: {_totalRecords} pembayaran";
+            
+            // Enable/Disable navigation buttons
+            btnPrevPage.IsEnabled = _currentPage > 1;
+            btnNextPage.IsEnabled = _currentPage < totalPages;
+        }
+
+        private void BtnPrevPage_Click(object sender, RoutedEventArgs e)
+        {
+            if (_currentPage > 1)
+            {
+                _currentPage--;
+                LoadPageData();
+            }
+        }
+
+        private void BtnNextPage_Click(object sender, RoutedEventArgs e)
+        {
+            int totalPages = (int)Math.Ceiling((double)_totalRecords / _pageSize);
+            if (_currentPage < totalPages)
+            {
+                _currentPage++;
+                LoadPageData();
             }
         }
 
@@ -186,7 +242,7 @@ namespace TiketLaut.Views
                     _filteredPembayaran.Add(pembayaran);
                 }
 
-                UpdateSummary();
+                // UpdateSummary(); // Removed: Old summary display no longer used with pagination
             }
             catch (Exception ex)
             {
@@ -194,6 +250,10 @@ namespace TiketLaut.Views
             }
         }
 
+        // REMOVED: UpdateSummary() method - Old summary display replaced by pagination info
+        // The old txtSummary and txtTotalPembayaran controls have been removed from XAML
+        // Pagination now shows page info using txtPaginationInfo and txtTotalRecords instead
+        /*
         private void UpdateSummary()
         {
             if (_filteredPembayaran == null) return;
@@ -208,6 +268,7 @@ namespace TiketLaut.Views
                              $"(Sukses: {sukses}, Validasi: {menungguValidasi}, Bayar: {menungguPembayaran}, Gagal: {gagal})";
             txtTotalPembayaran.Text = $"Total: Rp {total:N0}";
         }
+        */
 
         // Filter Event Handlers
         private void TxtSearch_TextChanged(object sender, TextChangedEventArgs e)

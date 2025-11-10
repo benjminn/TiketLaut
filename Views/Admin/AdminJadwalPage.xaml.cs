@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
@@ -15,6 +16,12 @@ namespace TiketLaut.Views
         private readonly RiwayatService _riwayatService;
         private ObservableCollection<JadwalViewModel> _allJadwals = new ObservableCollection<JadwalViewModel>();
         private ObservableCollection<JadwalViewModel> _filteredJadwals = new ObservableCollection<JadwalViewModel>();
+
+        // Pagination variables
+        private List<Jadwal> _allJadwalsData = new List<Jadwal>();
+        private int _currentPage = 1;
+        private const int _pageSize = 30;
+        private int _totalRecords = 0;
 
         public AdminJadwalPage()
         {
@@ -45,45 +52,19 @@ namespace TiketLaut.Views
                 
                 var jadwals = await _jadwalService.GetAllJadwalAsync();
                 
-                System.Diagnostics.Debug.WriteLine($"[AdminJadwalPage] Received {jadwals.Count} jadwals from service");
+                // Store ALL data for pagination
+                _allJadwalsData = jadwals.OrderByDescending(j => j.jadwal_id).ToList();
+                _totalRecords = _allJadwalsData.Count;
+                
+                System.Diagnostics.Debug.WriteLine($"[AdminJadwalPage] Received {_totalRecords} jadwals from service");
+                
+                // Reset to page 1 and load first page
+                _currentPage = 1;
+                LoadPageData();
                 
                 await Dispatcher.InvokeAsync(() =>
                 {
-                    _allJadwals.Clear();
-                    _filteredJadwals.Clear();
-                    
-                    foreach (var jadwal in jadwals)
-                    {
-                        System.Diagnostics.Debug.WriteLine($"[AdminJadwalPage] Processing jadwal ID {jadwal.jadwal_id}");
-                        System.Diagnostics.Debug.WriteLine($"  - Asal: {jadwal.pelabuhan_asal?.nama_pelabuhan ?? "NULL"}");
-                        System.Diagnostics.Debug.WriteLine($"  - Tujuan: {jadwal.pelabuhan_tujuan?.nama_pelabuhan ?? "NULL"}");
-                        System.Diagnostics.Debug.WriteLine($"  - Kapal: {jadwal.kapal?.nama_kapal ?? "NULL"}");
-                        System.Diagnostics.Debug.WriteLine($"  - Waktu Berangkat: {jadwal.waktu_berangkat}");
-                        System.Diagnostics.Debug.WriteLine($"  - Waktu Tiba: {jadwal.waktu_tiba}");
-                        
-                        var vm = new JadwalViewModel
-                        {
-                            jadwal_id = jadwal.jadwal_id,
-                            pelabuhan_asal = jadwal.pelabuhan_asal!,
-                            pelabuhan_tujuan = jadwal.pelabuhan_tujuan!,
-                            kapal = jadwal.kapal!,
-                            waktu_berangkat = jadwal.waktu_berangkat,
-                            waktu_tiba = jadwal.waktu_tiba,
-                            kelas_layanan = jadwal.kelas_layanan,
-                            status = jadwal.status,
-                            IsSelected = false
-                        };
-                        _allJadwals.Add(vm);
-                        _filteredJadwals.Add(vm);
-                    }
-                    
-                    dgJadwal.ItemsSource = _filteredJadwals;
-                    System.Diagnostics.Debug.WriteLine($"[AdminJadwalPage] DataGrid bound with {_filteredJadwals.Count} items");
-                });
-                
-                await Dispatcher.InvokeAsync(() =>
-                {
-                    if (_allJadwals.Count == 0)
+                    if (_allJadwalsData.Count == 0)
                     {
                         MessageBox.Show(
                             "Tidak ada jadwal yang valid ditemukan.\n\n" +
@@ -99,12 +80,82 @@ namespace TiketLaut.Views
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"[AdminJadwalPage] ERROR: {ex.Message}");
-                System.Diagnostics.Debug.WriteLine($"[AdminJadwalPage] StackTrace: {ex.StackTrace}");
+                System.Diagnostics.Debug.WriteLine($"[AdminJadwalPage] Error: {ex.Message}");
                 await Dispatcher.InvokeAsync(() =>
                 {
-                    MessageBox.Show($"Error loading data: {ex.Message}\n\nCek Debug Output untuk detail lengkap.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show($"Error loading jadwal: {ex.Message}", "Error",
+                        MessageBoxButton.OK, MessageBoxImage.Error);
                 });
+            }
+        }
+
+        private void LoadPageData()
+        {
+            int skip = (_currentPage - 1) * _pageSize;
+            var pagedData = _allJadwalsData.Skip(skip).Take(_pageSize).ToList();
+            
+            Dispatcher.InvokeAsync(() =>
+            {
+                _allJadwals.Clear();
+                _filteredJadwals.Clear();
+                
+                foreach (var jadwal in pagedData)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[AdminJadwalPage] Processing jadwal ID {jadwal.jadwal_id}");
+                    
+                    var vm = new JadwalViewModel
+                    {
+                        jadwal_id = jadwal.jadwal_id,
+                        pelabuhan_asal = jadwal.pelabuhan_asal!,
+                        pelabuhan_tujuan = jadwal.pelabuhan_tujuan!,
+                        kapal = jadwal.kapal!,
+                        waktu_berangkat = jadwal.waktu_berangkat,
+                        waktu_tiba = jadwal.waktu_tiba,
+                        kelas_layanan = jadwal.kelas_layanan,
+                        status = jadwal.status,
+                        IsSelected = false
+                    };
+                    _allJadwals.Add(vm);
+                    _filteredJadwals.Add(vm);
+                }
+                
+                dgJadwal.ItemsSource = _filteredJadwals;
+                UpdatePaginationUI();
+                System.Diagnostics.Debug.WriteLine($"[AdminJadwalPage] DataGrid bound with {_filteredJadwals.Count} items");
+            });
+        }
+
+        private void UpdatePaginationUI()
+        {
+            int totalPages = (int)Math.Ceiling((double)_totalRecords / _pageSize);
+            int displayedStart = (_currentPage - 1) * _pageSize + 1;
+            int displayedEnd = Math.Min(_currentPage * _pageSize, _totalRecords);
+            
+            txtPageNumber.Text = _currentPage.ToString();
+            txtPaginationInfo.Text = $"Page {_currentPage} - Menampilkan {displayedStart}-{displayedEnd} dari {_totalRecords} jadwal";
+            txtTotalRecords.Text = $"Total: {_totalRecords} jadwal";
+            
+            // Enable/Disable navigation buttons
+            btnPrevPage.IsEnabled = _currentPage > 1;
+            btnNextPage.IsEnabled = _currentPage < totalPages;
+        }
+
+        private void BtnPrevPage_Click(object sender, RoutedEventArgs e)
+        {
+            if (_currentPage > 1)
+            {
+                _currentPage--;
+                LoadPageData();
+            }
+        }
+
+        private void BtnNextPage_Click(object sender, RoutedEventArgs e)
+        {
+            int totalPages = (int)Math.Ceiling((double)_totalRecords / _pageSize);
+            if (_currentPage < totalPages)
+            {
+                _currentPage++;
+                LoadPageData();
             }
         }
 
