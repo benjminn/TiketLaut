@@ -264,6 +264,190 @@ namespace TiketLaut.Views
                     break;
             }
         }
+
+        // Filter popup handlers
+        private void BtnFilter_Click(object sender, RoutedEventArgs e)
+        {
+            popupFilter.IsOpen = !popupFilter.IsOpen;
+        }
+
+        private void PopupFilter_Opened(object sender, EventArgs e)
+        {
+            // Center popup under the button so it feels anchored to the label
+            if (popupFilter.Child is FrameworkElement child)
+            {
+                var buttonWidth = btnFilter.ActualWidth;
+                var popupWidth = child.ActualWidth > 0 ? child.ActualWidth : 300; // fallback to MinWidth
+                var offset = (buttonWidth - popupWidth) / 2;
+                // Clamp so popup stays under the button (allow slight left shift but not past previous button)
+                popupFilter.HorizontalOffset = offset < -20 ? -20 : offset;
+            }
+        }
+
+        private void PopupFilter_Closed(object sender, EventArgs e)
+        {
+            // Optional: do something when popup closes
+        }
+
+        private void FilterOption_Changed(object sender, RoutedEventArgs e)
+        {
+            if (chkSemua == null || icBookingList == null) return;
+
+            // If "Semua" is checked, uncheck others
+            if (sender == chkSemua && chkSemua.IsChecked == true)
+            {
+                chkMenungguPembayaran.IsChecked = false;
+                chkMenungguValidasi.IsChecked = false;
+                chkSukses.IsChecked = false;
+                chkGagal.IsChecked = false;
+            }
+            // If any other checkbox is checked, uncheck "Semua"
+            else if (sender != chkSemua && ((CheckBox)sender).IsChecked == true)
+            {
+                chkSemua.IsChecked = false;
+            }
+
+            // Check if all are unchecked, then check "Semua"
+            if (chkMenungguPembayaran?.IsChecked != true && 
+                chkMenungguValidasi?.IsChecked != true && 
+                chkSukses?.IsChecked != true && 
+                chkGagal?.IsChecked != true)
+            {
+                chkSemua.IsChecked = true;
+            }
+
+            ApplyFilter();
+        }
+
+        private void ApplyFilter()
+        {
+            if (BookingItems == null || icBookingList == null) return;
+
+            var filtered = BookingItems.AsEnumerable();
+
+            // Apply status filter
+            if (chkSemua?.IsChecked != true)
+            {
+                var statusFilters = new List<string>();
+                
+                if (chkMenungguPembayaran?.IsChecked == true)
+                    statusFilters.Add("Menunggu Pembayaran");
+                
+                if (chkMenungguValidasi?.IsChecked == true)
+                    statusFilters.Add("Menunggu Validasi");
+                
+                if (chkSukses?.IsChecked == true)
+                    statusFilters.Add("Sukses");
+                
+                if (chkGagal?.IsChecked == true)
+                    statusFilters.Add("Gagal");
+
+                if (statusFilters.Any())
+                {
+                    filtered = filtered.Where(b => statusFilters.Contains(b.Status));
+                }
+            }
+
+            // Apply sort
+            filtered = ApplySort(filtered);
+
+            icBookingList.ItemsSource = filtered.ToList();
+
+            // Update filter text
+            UpdateFilterText();
+        }
+
+        private void UpdateFilterText()
+        {
+            if (txtFilter == null) return;
+
+            if (chkSemua?.IsChecked == true)
+            {
+                txtFilter.Text = "Filter";
+            }
+            else
+            {
+                var activeFilters = new List<string>();
+                if (chkMenungguPembayaran?.IsChecked == true) activeFilters.Add("Menunggu Pembayaran");
+                if (chkMenungguValidasi?.IsChecked == true) activeFilters.Add("Menunggu Validasi");
+                if (chkSukses?.IsChecked == true) activeFilters.Add("Sukses");
+                if (chkGagal?.IsChecked == true) activeFilters.Add("Gagal");
+
+                txtFilter.Text = activeFilters.Any() ? $"Filter ({activeFilters.Count})" : "Filter";
+            }
+        }
+
+        // Sort popup handlers
+        private void BtnSort_Click(object sender, RoutedEventArgs e)
+        {
+            popupSort.IsOpen = !popupSort.IsOpen;
+        }
+
+        private void PopupSort_Opened(object sender, EventArgs e)
+        {
+            // Center popup under the button so it feels anchored to the label
+            if (popupSort.Child is FrameworkElement child)
+            {
+                var buttonWidth = btnSort.ActualWidth;
+                var popupWidth = child.ActualWidth > 0 ? child.ActualWidth : 300; // fallback to MinWidth
+                var offset = (buttonWidth - popupWidth) / 2;
+                // Prevent the popup from sliding left under the Filter button and keep a small gap
+                popupSort.HorizontalOffset = offset < 10 ? 10 : offset;
+            }
+        }
+
+        private void PopupSort_Closed(object sender, EventArgs e)
+        {
+            // Optional: do something when popup closes
+        }
+
+        private void MainScrollViewer_ScrollChanged(object sender, ScrollChangedEventArgs e)
+        {
+            if ((popupFilter?.IsOpen == true || popupSort?.IsOpen == true) &&
+                (Math.Abs(e.VerticalChange) > 0.0 || Math.Abs(e.HorizontalChange) > 0.0))
+            {
+                var filterPopup = popupFilter;
+                if (filterPopup?.IsOpen == true)
+                {
+                    filterPopup.IsOpen = false;
+                }
+
+                var sortPopup = popupSort;
+                if (sortPopup?.IsOpen == true)
+                {
+                    sortPopup.IsOpen = false;
+                }
+            }
+        }
+
+        private void SortOption_Changed(object sender, RoutedEventArgs e)
+        {
+            ApplyFilter(); // Re-apply filter which includes sorting
+        }
+
+        private IEnumerable<BookingItem> ApplySort(IEnumerable<BookingItem> items)
+        {
+            if (rbTanggalTerbaru?.IsChecked == true)
+            {
+                return items.OrderByDescending(b => b.TiketId);
+            }
+            else if (rbTanggalTerlama?.IsChecked == true)
+            {
+                return items.OrderBy(b => b.TiketId);
+            }
+            else if (rbHargaTertinggi?.IsChecked == true)
+            {
+                // For now, sort by TiketId as proxy. You can add Price property later
+                return items.OrderByDescending(b => b.TiketId);
+            }
+            else if (rbHargaTerendah?.IsChecked == true)
+            {
+                // For now, sort by TiketId as proxy. You can add Price property later
+                return items.OrderBy(b => b.TiketId);
+            }
+
+            return items;
+        }
     }
 
     // Model class untuk Booking Item

@@ -1478,14 +1478,28 @@ namespace TiketLaut.Views
                 }
             }
 
-            // Validate Detail Kendaraan - Only check if vehicle section is visible
-            if (vehicleSection?.Visibility == Visibility.Visible &&
-                (IsPlaceholderText(txtPlatNomor) || string.IsNullOrWhiteSpace(txtPlatNomor.Text)))
+            // ============ VALIDASI PLAT NOMOR KENDARAAN ============
+            // Validasi wajib untuk kendaraan bermotor (ID > 1)
+            // Pejalan Kaki (0) dan Sepeda (1) tidak perlu plat nomor
+            if (_searchCriteria.JenisKendaraanId > 1)
             {
-                CustomDialog.ShowWarning("Validasi", "Plat nomor kendaraan harus diisi!");
-                txtPlatNomor.Focus();
-                return;
+                if (vehicleSection?.Visibility == Visibility.Visible &&
+                    (IsPlaceholderText(txtPlatNomor) || string.IsNullOrWhiteSpace(txtPlatNomor?.Text)))
+                {
+                    CustomDialog.ShowWarning("Plat Nomor Wajib", "Plat nomor kendaraan harus diisi untuk kendaraan bermotor!");
+                    txtPlatNomor?.Focus();
+                    return;
+                }
+                
+                // Validasi format plat nomor (tidak boleh hanya "-")
+                if (txtPlatNomor?.Text.Trim() == "-")
+                {
+                    CustomDialog.ShowWarning("Plat Nomor Tidak Valid", "Silakan isi plat nomor kendaraan yang valid!");
+                    txtPlatNomor?.Focus();
+                    return;
+                }
             }
+            // ======================================================
 
             // ============ VALIDASI DETAIL PEMESAN ============
             if (string.IsNullOrWhiteSpace(txtNamaPemesan?.Text) || IsPlaceholderText(txtNamaPemesan))

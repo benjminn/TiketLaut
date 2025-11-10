@@ -25,6 +25,13 @@ namespace TiketLaut.Services
             
             try
             {
+                // VALIDASI: Kendaraan bermotor (ID > 1) wajib punya plat nomor
+                if (bookingData.JenisKendaraanId > 1 && 
+                    (string.IsNullOrEmpty(bookingData.PlatNomor) || bookingData.PlatNomor.Trim() == "-"))
+                {
+                    throw new InvalidOperationException("Plat nomor wajib diisi untuk kendaraan bermotor!");
+                }
+
                 // 1. Generate kode tiket unik
                 string kodeTiket = GenerateKodeTiket();
 
@@ -45,7 +52,11 @@ namespace TiketLaut.Services
                     tanggal_pemesanan = DateTime.UtcNow,
                     status_tiket = "Menunggu Pembayaran",
                     jenis_kendaraan_enum = GetJenisKendaraanText(bookingData.JenisKendaraanId),
-                    plat_nomor = bookingData.PlatNomor,
+                    // Default "-" HANYA untuk pejalan kaki (0) dan sepeda (1)
+                    // Kendaraan bermotor (>1) WAJIB isi plat nomor (sudah divalidasi di atas)
+                    plat_nomor = bookingData.JenisKendaraanId <= 1 
+                        ? "-" 
+                        : bookingData.PlatNomor ?? throw new InvalidOperationException("Plat nomor tidak boleh null"),
                     // Data Pemesan (kontak saja, NIK tersimpan di Penumpang)
                     nama_pemesan = bookingData.NamaPemesan,
                     nomor_hp_pemesan = bookingData.NomorHpPemesan,
@@ -114,11 +125,6 @@ namespace TiketLaut.Services
             {
                 await transaction.RollbackAsync();
                 System.Diagnostics.Debug.WriteLine($"[BookingService] Error creating booking: {ex.Message}");
-                if (ex.InnerException != null)
-                {
-                    System.Diagnostics.Debug.WriteLine($"[BookingService] Inner Exception: {ex.InnerException.Message}");
-                }
-                System.Diagnostics.Debug.WriteLine($"[BookingService] StackTrace: {ex.StackTrace}");
                 throw;
             }
         }
