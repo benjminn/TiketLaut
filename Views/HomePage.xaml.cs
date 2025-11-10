@@ -865,7 +865,9 @@ namespace TiketLaut.Views
                         {
                             int newValue = maksimalPenumpang;
                             txtPenumpang.Text = newValue.ToString();
+                            txtPenumpangDisplay.Text = $"{newValue}    Penumpang";
                             
+                            // Show info message
                             CustomDialog.ShowInfo(
                                 "Info",
                                 $"Jumlah penumpang disesuaikan menjadi {newValue} (maksimal untuk kendaraan ini).");
@@ -880,7 +882,6 @@ namespace TiketLaut.Views
                 }
             }
         }
-
         /// <summary>
         /// Helper method to find Border element inside button template
         /// </summary>
