@@ -262,7 +262,8 @@ namespace TiketLaut.Views
             return status switch
             {
                 "Menunggu Pembayaran" => (Color)ColorConverter.ConvertFromString("#FFA500"), // Orange
-                "Aktif" => (Color)ColorConverter.ConvertFromString("#28A745"), // Green  
+                "Aktif" => (Color)ColorConverter.ConvertFromString("#28A745"), // Green
+                "Selesai" => (Color)ColorConverter.ConvertFromString("#17A2B8"), // Cyan/Info
                 "Gagal" => (Color)ColorConverter.ConvertFromString("#DC3545"), // Red
                 _ => (Color)ColorConverter.ConvertFromString("#6C757D") // Gray
 
