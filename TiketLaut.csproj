@@ -21,18 +21,23 @@
 	  <None Remove="Views\Assets\Icons\back.png" />
 	  <None Remove="Views\Assets\Icons\iconarrowlong.png" />
 	  <None Remove="Views\Assets\Icons\iconarrowright.png" />
+	  <None Remove="Views\Assets\Icons\iconasaltujuan.png" />
 	  <None Remove="Views\Assets\Icons\iconBin.png" />
 	  <None Remove="Views\Assets\Icons\iconbolakbalik.png" />
 	  <None Remove="Views\Assets\Icons\iconbooking.png" />
+	  <None Remove="Views\Assets\Icons\iconcar.png" />
 	  <None Remove="Views\Assets\Icons\icondropdown.png" />
 	  <None Remove="Views\Assets\Icons\icondropdowngelap.png" />
 	  <None Remove="Views\Assets\Icons\iconDangerNotif.png" />
 	  <None Remove="Views\Assets\Icons\iconExport.png" />
 	  <None Remove="Views\Assets\Icons\iconGagalNotif.png" />
+	  <None Remove="Views\Assets\Icons\iconkapall.png" />
 	  <None Remove="Views\Assets\Icons\iconNotifikasi.png" />
+	  <None Remove="Views\Assets\Icons\iconoranggg.png" />
 	  <None Remove="Views\Assets\Icons\iconPaymentNotif.png" />
 	  <None Remove="Views\Assets\Icons\iconRefresh.png" />
 	  <None Remove="Views\Assets\Icons\iconRefreshHitam.png" />
+	  <None Remove="Views\Assets\Icons\icontanggall.png" />
 	  <None Remove="Views\Assets\Icons\iconTaskNotif.png" />
 	  <None Remove="Views\Assets\Icons\iconTimerNotif.png" />
 	  <None Remove="Views\Assets\Icons\iconKurang.png" />
@@ -78,11 +83,13 @@
 	  <Resource Include="Views\Assets\Icons\iconarrowright.png">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Resource>
+	  <Resource Include="Views\Assets\Icons\iconasaltujuan.png" />
 	  <Resource Include="Views\Assets\Icons\iconBin.png">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Resource>
 	  <Resource Include="Views\Assets\Icons\iconbolakbalik.png" />
 	  <Resource Include="Views\Assets\Icons\iconbooking.png" />
+	  <Resource Include="Views\Assets\Icons\iconcar.png" />
 	  <Resource Include="Views\Assets\Icons\icondropdown.png">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Resource>
@@ -98,9 +105,11 @@
 	  <Resource Include="Views\Assets\Icons\iconGagalNotif.png">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Resource>
+	  <Resource Include="Views\Assets\Icons\iconkapall.png" />
 	  <Resource Include="Views\Assets\Icons\iconNotifikasi.png">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Resource>
+	  <Resource Include="Views\Assets\Icons\iconoranggg.png" />
 	  <Resource Include="Views\Assets\Icons\iconPaymentNotif.png">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Resource>
@@ -110,6 +119,7 @@
 	  <Resource Include="Views\Assets\Icons\iconRefreshHitam.png">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Resource>
+	  <Resource Include="Views\Assets\Icons\icontanggall.png" />
 	  <Resource Include="Views\Assets\Icons\iconTaskNotif.png">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Resource>

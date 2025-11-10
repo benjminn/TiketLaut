@@ -128,7 +128,7 @@
                                             </Grid.ColumnDefinitions>
 
                                             <Image Grid.Column="0"
-                                                   Source="/Views/Assets/Icons/iconlokasi.png"
+                                                   Source="/Views/Assets/Icons/iconasaltujuan.png"
                                                    Width="18"
                                                    Height="18"
                                                    VerticalAlignment="Center"/>
@@ -178,7 +178,7 @@
                                             </Grid.ColumnDefinitions>
 
                                             <Image Grid.Column="0"
-                                                   Source="/Views/Assets/Icons/iconorang.png"
+                                                   Source="/Views/Assets/Icons/iconkapall.png"
                                                    Width="18"
                                                    Height="18"
                                                    VerticalAlignment="Center"/>
@@ -237,12 +237,12 @@
                                                        VerticalAlignment="Center">
                                                     <StackPanel Orientation="Horizontal">
                                                         <!-- Icon Tanggal -->
-                                                        <Image Source="/Views/Assets/Icons/icontanggal.png"
+                                                        <Image Source="/Views/Assets/Icons/icontanggall.png"
                                                                Width="16"
                                                                Height="16"
                                                                VerticalAlignment="Center"
                                                                Margin="0,0,10,0"/>
-                                                        
+
                                                         <!-- Text Display -->
                                                         <TextBlock x:Name="txtTanggalDisplay"
                                                                   Text="Pilih Tanggal"
@@ -307,7 +307,7 @@
                                                 </Grid.ColumnDefinitions>
 
                                                 <Image Grid.Column="0"
-                                                       Source="/Views/Assets/Icons/icontanggal.png"
+                                                       Source="/Views/Assets/Icons/icontanggall.png"
                                                        Width="16"
                                                        Height="16"
                                                        VerticalAlignment="Center"/>
@@ -368,12 +368,12 @@
                                         BorderThickness="0"
                                         Cursor="Hand"
                                         HorizontalAlignment="Left"
-                                        VerticalAlignment="Top"
+                                        VerticalAlignment="Center"
                                         Padding="0"
                                         Width="40"
                                         Height="40"
                                         Click="BtnSwapPelabuhan_Click"
-                                        ToolTip="Tukar Pelabuhan Asal dan Tujuan" Margin="219,-10,0,0">
+                                        ToolTip="Tukar Pelabuhan Asal dan Tujuan" Margin="221,0,0,0">
                                     <Image Source="pack://application:,,,/Views/Assets/Icons/iconbolakbalik.png"
                                            Width="24"
                                            Height="24"
@@ -444,7 +444,7 @@
                                             </Grid.ColumnDefinitions>
 
                                             <Image Grid.Column="0"
-                                                   Source="/Views/Assets/Icons/iconlokasi.png"
+                                                   Source="/Views/Assets/Icons/iconasaltujuan.png"
                                                    Width="18"
                                                    Height="18"
                                                    VerticalAlignment="Center"/>
@@ -501,12 +501,12 @@
                                                    Padding="0">
                                                 <StackPanel Orientation="Horizontal">
                                                     <!-- Icon -->
-                                                    <Image Source="/Views/Assets/Icons/iconorang.png"
+                                                    <Image Source="/Views/Assets/Icons/iconcar.png"
                                                            Width="18"
                                                            Height="18"
                                                            VerticalAlignment="Center"
                                                            Margin="0,0,10,0"/>
-                                                    
+
                                                     <!-- Text Display -->
                                                     <TextBlock x:Name="txtVehicleDisplay"
                                                               FontSize="12"
@@ -1112,12 +1112,12 @@
                                                    Height="35">
                                                 <StackPanel Orientation="Horizontal">
                                                     <!-- Icon -->
-                                                    <Image Source="/Views/Assets/Icons/iconorang.png"
+                                                    <Image Source="/Views/Assets/Icons/iconoranggg.png"
                                                            Width="16"
                                                            Height="16"
                                                            VerticalAlignment="Center"
                                                            Margin="0,0,10,0"/>
-                                                    
+
                                                     <!-- Text Display -->
                                                     <TextBlock x:Name="txtPenumpangDisplay"
                                                               FontSize="12"
@@ -1146,7 +1146,7 @@
                                                        CornerRadius="8"
                                                        Padding="15"
                                                        Width="180">
-        
+
                                                     <Border.Effect>
                                                         <DropShadowEffect Color="Black" 
                                                             Direction="270" 
