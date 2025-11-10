@@ -31,10 +31,7 @@
                                     Panel.ZIndex="999"/>
 
         <!-- Main Content -->
-    <ScrollViewer x:Name="mainScrollViewer"
-              Grid.Row="1"
-              VerticalScrollBarVisibility="Auto"
-              ScrollChanged="MainScrollViewer_ScrollChanged">
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
             <StackPanel Margin="95,30,95,50">
                     
                     <!-- Header Card -->
@@ -79,201 +76,46 @@
                     </Border>
 
                     <!-- Filter & Sort Buttons -->
-                    <Grid Margin="0,0,0,30">
-                    <StackPanel Orientation="Horizontal">
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,30">
                         <!-- Filter Button -->
-                        <Button x:Name="btnFilter"
-                               Background="White"
-                               BorderBrush="#042769" 
-                               BorderThickness="0.5"
+                        <Border BorderBrush="#042769" 
+                               BorderThickness="0.5" 
+                               CornerRadius="25" 
                                Padding="30,15" 
                                Margin="0,0,15,0"
-                               Cursor="Hand"
-                               Click="BtnFilter_Click">
-                            <Button.Template>
-                                <ControlTemplate TargetType="Button">
-                                    <Border x:Name="borderFilter"
-                                           Background="{TemplateBinding Background}"
-                                           BorderBrush="{TemplateBinding BorderBrush}"
-                                           BorderThickness="{TemplateBinding BorderThickness}"
-                                           CornerRadius="25"
-                                           Padding="{TemplateBinding Padding}">
-                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                    </Border>
-                                </ControlTemplate>
-                            </Button.Template>
+                               Background="White"
+                               Cursor="Hand">
                             <StackPanel Orientation="Horizontal">
                                 <Image Source="/Views/Assets/Icons/iconfilter.png" 
                                        Width="20" 
                                        Height="20" 
                                        Margin="0,0,10,0"/>
-                                <TextBlock x:Name="txtFilter"
-                                          Text="Filter" 
+                                <TextBlock Text="Filter" 
                                           FontSize="20" 
                                           FontWeight="Medium" 
                                           Foreground="#00B4B5"/>
                             </StackPanel>
-                        </Button>
+                        </Border>
 
                         <!-- Sort Button -->
-                        <Button x:Name="btnSort"
-                               Background="White"
-                               BorderBrush="#042769" 
-                               BorderThickness="0.5"
+                        <Border BorderBrush="#042769" 
+                               BorderThickness="0.5" 
+                               CornerRadius="25" 
                                Padding="30,15"
-                               Cursor="Hand"
-                               Click="BtnSort_Click">
-                            <Button.Template>
-                                <ControlTemplate TargetType="Button">
-                                    <Border x:Name="borderSort"
-                                           Background="{TemplateBinding Background}"
-                                           BorderBrush="{TemplateBinding BorderBrush}"
-                                           BorderThickness="{TemplateBinding BorderThickness}"
-                                           CornerRadius="25"
-                                           Padding="{TemplateBinding Padding}">
-                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                    </Border>
-                                </ControlTemplate>
-                            </Button.Template>
+                               Background="White"
+                               Cursor="Hand">
                             <StackPanel Orientation="Horizontal">
                                 <Image Source="/Views/Assets/Icons/iconsort.png" 
                                        Width="20" 
                                        Height="20" 
                                        Margin="0,0,10,0"/>
-                                <TextBlock x:Name="txtSort"
-                                          Text="Urutkan" 
+                                <TextBlock Text="Urutkan" 
                                           FontSize="20" 
                                           FontWeight="Medium" 
                                           Foreground="#00B4B5"/>
                             </StackPanel>
-                        </Button>
+                        </Border>
                     </StackPanel>
-                    
-                    <!-- Filter Popup -->
-                    <Popup x:Name="popupFilter"
-                          PlacementTarget="{Binding ElementName=btnFilter}"
-                          Placement="Bottom"
-                          AllowsTransparency="True"
-                          StaysOpen="False"
-                          Opened="PopupFilter_Opened"
-                          Closed="PopupFilter_Closed">
-                                <Border Background="White"
-                                       BorderBrush="#00B4B5"
-                                       BorderThickness="2"
-                                       CornerRadius="15"
-                                       Padding="30"
-                                       MinWidth="300">
-                                    <Border.Effect>
-                                        <DropShadowEffect BlurRadius="20" 
-                                                         ShadowDepth="5" 
-                                                         Opacity="0.25"/>
-                                    </Border.Effect>
-                                    <StackPanel>
-                                        <TextBlock Text="Filter Status Pesanan" 
-                                                  FontSize="18" 
-                                                  FontWeight="Bold" 
-                                                  Foreground="#042769"
-                                                  Margin="0,0,0,20"/>
-                                        
-                                        <!-- Filter Options -->
-                                        <CheckBox x:Name="chkSemua"
-                                                 Content="Semua Status"
-                                                 FontSize="15"
-                                                 Margin="0,0,0,12"
-                                                 IsChecked="True"
-                                                 Checked="FilterOption_Changed"
-                                                 Unchecked="FilterOption_Changed"
-                                                 Foreground="#042769"/>
-                                        <CheckBox x:Name="chkMenungguPembayaran"
-                                                 Content="Menunggu Pembayaran"
-                                                 FontSize="15"
-                                                 Margin="0,0,0,12"
-                                                 Checked="FilterOption_Changed"
-                                                 Unchecked="FilterOption_Changed"
-                                                 Foreground="#042769"/>
-                                        <CheckBox x:Name="chkMenungguValidasi"
-                                                 Content="Menunggu Validasi"
-                                                 FontSize="15"
-                                                 Margin="0,0,0,12"
-                                                 Checked="FilterOption_Changed"
-                                                 Unchecked="FilterOption_Changed"
-                                                 Foreground="#042769"/>
-                                        <CheckBox x:Name="chkSukses"
-                                                 Content="Sukses"
-                                                 FontSize="15"
-                                                 Margin="0,0,0,12"
-                                                 Checked="FilterOption_Changed"
-                                                 Unchecked="FilterOption_Changed"
-                                                 Foreground="#042769"/>
-                                        <CheckBox x:Name="chkGagal"
-                                                 Content="Gagal"
-                                                 FontSize="15"
-                                                 Checked="FilterOption_Changed"
-                                                 Unchecked="FilterOption_Changed"
-                                                 Foreground="#042769"/>
-                                    </StackPanel>
-                                </Border>
-                    </Popup>
-                    
-                    <!-- Sort Popup -->
-                    <Popup x:Name="popupSort"
-                          PlacementTarget="{Binding ElementName=btnSort}"
-                          Placement="Bottom"
-                          AllowsTransparency="True"
-                          StaysOpen="False"
-                          Opened="PopupSort_Opened"
-                          Closed="PopupSort_Closed">
-                                <Border Background="White"
-                                       BorderBrush="#00B4B5"
-                                       BorderThickness="2"
-                                       CornerRadius="15"
-                                       Padding="30"
-                                       MinWidth="300">
-                                    <Border.Effect>
-                                        <DropShadowEffect BlurRadius="20" 
-                                                         ShadowDepth="5" 
-                                                         Opacity="0.25"/>
-                                    </Border.Effect>
-                                    <StackPanel>
-                                        <TextBlock Text="Urutkan Pesanan" 
-                                                  FontSize="18" 
-                                                  FontWeight="Bold" 
-                                                  Foreground="#042769"
-                                                  Margin="0,0,0,20"/>
-                                        
-                                        <!-- Sort Options -->
-                                        <RadioButton x:Name="rbTanggalTerbaru"
-                                                    Content="Tanggal Terbaru"
-                                                    FontSize="15"
-                                                    GroupName="Sort"
-                                                    Margin="0,0,0,12"
-                                                    IsChecked="True"
-                                                    Checked="SortOption_Changed"
-                                                    Foreground="#042769"/>
-                                        <RadioButton x:Name="rbTanggalTerlama"
-                                                    Content="Tanggal Terlama"
-                                                    FontSize="15"
-                                                    GroupName="Sort"
-                                                    Margin="0,0,0,12"
-                                                    Checked="SortOption_Changed"
-                                                    Foreground="#042769"/>
-                                        <RadioButton x:Name="rbHargaTertinggi"
-                                                    Content="Harga Tertinggi"
-                                                    FontSize="15"
-                                                    GroupName="Sort"
-                                                    Margin="0,0,0,12"
-                                                    Checked="SortOption_Changed"
-                                                    Foreground="#042769"/>
-                                        <RadioButton x:Name="rbHargaTerendah"
-                                                    Content="Harga Terendah"
-                                                    FontSize="15"
-                                                    GroupName="Sort"
-                                                    Checked="SortOption_Changed"
-                                                    Foreground="#042769"/>
-                                    </StackPanel>
-                                </Border>
-                    </Popup>
-                    </Grid>
 
                     <!-- Booking List -->
                     <ItemsControl x:Name="icBookingList">

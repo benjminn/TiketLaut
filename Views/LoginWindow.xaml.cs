@@ -395,37 +395,582 @@ namespace TiketLaut.Views
                 if (!string.IsNullOrEmpty(error))
                 {
                     responseHtml = $@"
-                        <html>
-                        <head><title>Login Gagal</title></head>
-                        <body style='font-family: Arial; text-align: center; padding: 50px;'>
-                            <h1 style='color: #d32f2f;'>Login Gagal</h1>
-                            <p>Error: {error}</p>
-                            <p>Anda bisa menutup halaman ini dan kembali ke aplikasi.</p>
+                        <!DOCTYPE html>
+                        <html lang='id'>
+                        <head>
+                            <meta charset='UTF-8'>
+                            <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+                            <title>Login Gagal - TiketLaut</title>
+                            <link href='https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap' rel='stylesheet'>
+                            <style>
+                                * {{
+                                    margin: 0;
+                                    padding: 0;
+                                    box-sizing: border-box;
+                                }}
+                                
+                                body {{
+                                    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+                                    background: linear-gradient(135deg, #7F1D1D 0%, #991B1B 100%);
+                                    display: flex;
+                                    align-items: center;
+                                    justify-content: center;
+                                    min-height: 100vh;
+                                    padding: 20px;
+                                }}
+                                
+                                .container {{
+                                    background: white;
+                                    border-radius: 24px;
+                                    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+                                    padding: 60px 50px;
+                                    text-align: center;
+                                    max-width: 480px;
+                                    width: 100%;
+                                    animation: slideUp 0.5s ease-out;
+                                }}
+                                
+                                @keyframes slideUp {{
+                                    from {{
+                                        opacity: 0;
+                                        transform: translateY(30px);
+                                    }}
+                                    to {{
+                                        opacity: 1;
+                                        transform: translateY(0);
+                                    }}
+                                }}
+                                
+                                .icon-container {{
+                                    width: 100px;
+                                    height: 100px;
+                                    background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+                                    border-radius: 50%;
+                                    display: flex;
+                                    align-items: center;
+                                    justify-content: center;
+                                    margin: 0 auto 30px;
+                                    animation: shake 0.5s ease-in-out;
+                                }}
+                                
+                                @keyframes shake {{
+                                    0%, 100% {{ transform: translateX(0); }}
+                                    25% {{ transform: translateX(-10px); }}
+                                    75% {{ transform: translateX(10px); }}
+                                }}
+                                
+                                .error-icon {{
+                                    color: white;
+                                    font-size: 50px;
+                                    font-weight: bold;
+                                }}
+                                
+                                h1 {{
+                                    color: #DC2626;
+                                    font-size: 32px;
+                                    font-weight: 700;
+                                    margin-bottom: 16px;
+                                    letter-spacing: -0.5px;
+                                }}
+                                
+                                .subtitle {{
+                                    color: #3E4958;
+                                    font-size: 18px;
+                                    font-weight: 500;
+                                    margin-bottom: 12px;
+                                }}
+                                
+                                .error-message {{
+                                    background: #FEF2F2;
+                                    border-left: 4px solid #EF4444;
+                                    border-radius: 8px;
+                                    padding: 18px 20px;
+                                    margin: 25px 0;
+                                    text-align: left;
+                                }}
+                                
+                                .error-message p {{
+                                    color: #991B1B;
+                                    font-size: 14px;
+                                    line-height: 1.5;
+                                    margin: 0;
+                                    word-break: break-word;
+                                }}
+                                
+                                .error-message strong {{
+                                    color: #7F1D1D;
+                                    font-weight: 600;
+                                }}
+                                
+                                .message {{
+                                    color: #717182;
+                                    font-size: 15px;
+                                    line-height: 1.6;
+                                }}
+                                
+                                .divider {{
+                                    width: 60px;
+                                    height: 4px;
+                                    background: linear-gradient(90deg, #EF4444 0%, #DC2626 100%);
+                                    border-radius: 2px;
+                                    margin: 25px auto;
+                                }}
+                                
+                                .btn-close {{
+                                    display: inline-block;
+                                    background: linear-gradient(135deg, #DC2626 0%, #991B1B 100%);
+                                    color: white;
+                                    padding: 14px 32px;
+                                    border-radius: 12px;
+                                    text-decoration: none;
+                                    font-weight: 600;
+                                    font-size: 15px;
+                                    margin-top: 25px;
+                                    transition: transform 0.2s, box-shadow 0.2s;
+                                    cursor: pointer;
+                                    border: none;
+                                }}
+                                
+                                .btn-close:hover {{
+                                    transform: translateY(-2px);
+                                    box-shadow: 0 8px 20px rgba(220, 38, 38, 0.3);
+                                }}
+                                
+                                .footer {{
+                                    margin-top: 30px;
+                                    padding-top: 25px;
+                                    border-top: 1px solid #E5E7EB;
+                                }}
+                                
+                                .footer p {{
+                                    color: #9CA3AF;
+                                    font-size: 13px;
+                                }}
+                            </style>
+                        </head>
+                        <body>
+                            <div class='container'>
+                                <div class='icon-container'>
+                                    <div class='error-icon'>✕</div>
+                                </div>
+                                
+                                <h1>Login Gagal</h1>
+                                <div class='divider'></div>
+                                
+                                <p class='subtitle'>Terjadi kesalahan saat login</p>
+                                
+                                <div class='error-message'>
+                                    <p><strong>Error:</strong> {error}</p>
+                                </div>
+                                
+                                <p class='message'>
+                                    Silakan tutup jendela ini dan coba lagi dari aplikasi TiketLaut.
+                                </p>
+                                
+                                <button class='btn-close' onclick='window.close()'>Tutup Jendela</button>
+                                
+                                <div class='footer'>
+                                    <p>© 2025 TiketLaut - Sistem Pemesanan Tiket Kapal</p>
+                                </div>
+                            </div>
                         </body>
                         </html>";
                 }
                 else if (string.IsNullOrEmpty(code))
                 {
                     responseHtml = @"
-                        <html>
-                        <head><title>Login Gagal</title></head>
-                        <body style='font-family: Arial; text-align: center; padding: 50px;'>
-                            <h1 style='color: #d32f2f;'>Login Gagal</h1>
-                            <p>Authorization code tidak ditemukan.</p>
-                            <p>Anda bisa menutup halaman ini dan kembali ke aplikasi.</p>
+                        <!DOCTYPE html>
+                        <html lang='id'>
+                        <head>
+                            <meta charset='UTF-8'>
+                            <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+                            <title>Login Gagal - TiketLaut</title>
+                            <link href='https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap' rel='stylesheet'>
+                            <style>
+                                * {
+                                    margin: 0;
+                                    padding: 0;
+                                    box-sizing: border-box;
+                                }
+                                
+                                body {
+                                    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+                                    background: linear-gradient(135deg, #7F1D1D 0%, #991B1B 100%);
+                                    display: flex;
+                                    align-items: center;
+                                    justify-content: center;
+                                    min-height: 100vh;
+                                    padding: 20px;
+                                }
+                                
+                                .container {
+                                    background: white;
+                                    border-radius: 24px;
+                                    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+                                    padding: 60px 50px;
+                                    text-align: center;
+                                    max-width: 480px;
+                                    width: 100%;
+                                    animation: slideUp 0.5s ease-out;
+                                }
+                                
+                                @keyframes slideUp {
+                                    from {
+                                        opacity: 0;
+                                        transform: translateY(30px);
+                                    }
+                                    to {
+                                        opacity: 1;
+                                        transform: translateY(0);
+                                    }
+                                }
+                                
+                                .icon-container {
+                                    width: 100px;
+                                    height: 100px;
+                                    background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+                                    border-radius: 50%;
+                                    display: flex;
+                                    align-items: center;
+                                    justify-content: center;
+                                    margin: 0 auto 30px;
+                                    animation: shake 0.5s ease-in-out;
+                                }
+                                
+                                @keyframes shake {
+                                    0%, 100% { transform: translateX(0); }
+                                    25% { transform: translateX(-10px); }
+                                    75% { transform: translateX(10px); }
+                                }
+                                
+                                .error-icon {
+                                    color: white;
+                                    font-size: 50px;
+                                    font-weight: bold;
+                                }
+                                
+                                h1 {
+                                    color: #DC2626;
+                                    font-size: 32px;
+                                    font-weight: 700;
+                                    margin-bottom: 16px;
+                                    letter-spacing: -0.5px;
+                                }
+                                
+                                .subtitle {
+                                    color: #3E4958;
+                                    font-size: 18px;
+                                    font-weight: 500;
+                                    margin-bottom: 12px;
+                                }
+                                
+                                .error-message {
+                                    background: #FEF2F2;
+                                    border-left: 4px solid #EF4444;
+                                    border-radius: 8px;
+                                    padding: 18px 20px;
+                                    margin: 25px 0;
+                                    text-align: left;
+                                }
+                                
+                                .error-message p {
+                                    color: #991B1B;
+                                    font-size: 14px;
+                                    line-height: 1.5;
+                                    margin: 0;
+                                }
+                                
+                                .error-message strong {
+                                    color: #7F1D1D;
+                                    font-weight: 600;
+                                }
+                                
+                                .message {
+                                    color: #717182;
+                                    font-size: 15px;
+                                    line-height: 1.6;
+                                }
+                                
+                                .divider {
+                                    width: 60px;
+                                    height: 4px;
+                                    background: linear-gradient(90deg, #EF4444 0%, #DC2626 100%);
+                                    border-radius: 2px;
+                                    margin: 25px auto;
+                                }
+                                
+                                .btn-close {
+                                    display: inline-block;
+                                    background: linear-gradient(135deg, #DC2626 0%, #991B1B 100%);
+                                    color: white;
+                                    padding: 14px 32px;
+                                    border-radius: 12px;
+                                    text-decoration: none;
+                                    font-weight: 600;
+                                    font-size: 15px;
+                                    margin-top: 25px;
+                                    transition: transform 0.2s, box-shadow 0.2s;
+                                    cursor: pointer;
+                                    border: none;
+                                }
+                                
+                                .btn-close:hover {
+                                    transform: translateY(-2px);
+                                    box-shadow: 0 8px 20px rgba(220, 38, 38, 0.3);
+                                }
+                                
+                                .footer {
+                                    margin-top: 30px;
+                                    padding-top: 25px;
+                                    border-top: 1px solid #E5E7EB;
+                                }
+                                
+                                .footer p {
+                                    color: #9CA3AF;
+                                    font-size: 13px;
+                                }
+                            </style>
+                        </head>
+                        <body>
+                            <div class='container'>
+                                <div class='icon-container'>
+                                    <div class='error-icon'>✕</div>
+                                </div>
+                                
+                                <h1>Login Gagal</h1>
+                                <div class='divider'></div>
+                                
+                                <p class='subtitle'>Kode otorisasi tidak ditemukan</p>
+                                
+                                <div class='error-message'>
+                                    <p><strong>Error:</strong> Authorization code tidak ditemukan dalam respons OAuth.</p>
+                                </div>
+                                
+                                <p class='message'>
+                                    Silakan tutup jendela ini dan coba lagi dari aplikasi TiketLaut.
+                                </p>
+                                
+                                <button class='btn-close' onclick='window.close()'>Tutup Jendela</button>
+                                
+                                <div class='footer'>
+                                    <p>© 2025 TiketLaut - Sistem Pemesanan Tiket Kapal</p>
+                                </div>
+                            </div>
                         </body>
                         </html>";
                 }
                 else
                 {
                     responseHtml = @"
-                        <html>
-                        <head><title>Login Berhasil</title></head>
-                        <body style='font-family: Arial; text-align: center; padding: 50px;'>
-                            <h1 style='color: #4CAF50;'>✓ Login Berhasil!</h1>
-                            <p>Anda berhasil login dengan Google.</p>
-                            <p>Silakan kembali ke aplikasi TiketLaut.</p>
-                            <script>window.close();</script>
+                        <!DOCTYPE html>
+                        <html lang='id'>
+                        <head>
+                            <meta charset='UTF-8'>
+                            <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+                            <title>Login Berhasil - TiketLaut</title>
+                            <link href='https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap' rel='stylesheet'>
+                            <style>
+                                * {
+                                    margin: 0;
+                                    padding: 0;
+                                    box-sizing: border-box;
+                                }
+                                
+                                body {
+                                    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+                                    background: linear-gradient(135deg, #042769 0%, #00658D 100%);
+                                    display: flex;
+                                    align-items: center;
+                                    justify-content: center;
+                                    min-height: 100vh;
+                                    padding: 20px;
+                                }
+                                
+                                .container {
+                                    background: white;
+                                    border-radius: 24px;
+                                    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+                                    padding: 60px 50px;
+                                    text-align: center;
+                                    max-width: 480px;
+                                    width: 100%;
+                                    animation: slideUp 0.5s ease-out;
+                                }
+                                
+                                @keyframes slideUp {
+                                    from {
+                                        opacity: 0;
+                                        transform: translateY(30px);
+                                    }
+                                    to {
+                                        opacity: 1;
+                                        transform: translateY(0);
+                                    }
+                                }
+                                
+                                .icon-container {
+                                    width: 140px;
+                                    height: 140px;
+                                    background: linear-gradient(135deg, #D9A494 0%, #C89484 100%);
+                                    border-radius: 50%;
+                                    display: flex;
+                                    align-items: center;
+                                    justify-content: center;
+                                    margin: 0 auto 30px;
+                                    animation: checkmark 0.6s ease-in-out 0.2s both;
+                                    box-shadow: 0 8px 24px rgba(217, 164, 148, 0.35);
+                                }
+                                
+                                @keyframes checkmark {
+                                    0% {
+                                        transform: scale(0);
+                                        opacity: 0;
+                                    }
+                                    50% {
+                                        transform: scale(1.1);
+                                    }
+                                    100% {
+                                        transform: scale(1);
+                                        opacity: 1;
+                                    }
+                                }
+                                
+                                .checkmark {
+                                    width: 80px;
+                                    height: 80px;
+                                    stroke: white;
+                                    stroke-width: 5;
+                                    stroke-linecap: round;
+                                    fill: none;
+                                    animation: draw 0.5s ease-in-out 0.4s both;
+                                }
+                                
+                                @keyframes draw {
+                                    to {
+                                        stroke-dashoffset: 0;
+                                    }
+                                }
+                                
+                                .checkmark {
+                                    stroke-dasharray: 100;
+                                    stroke-dashoffset: 100;
+                                }
+                                
+                                h1 {
+                                    color: #042769;
+                                    font-size: 32px;
+                                    font-weight: 700;
+                                    margin-bottom: 16px;
+                                    letter-spacing: -0.5px;
+                                }
+                                
+                                .subtitle {
+                                    color: #3E4958;
+                                    font-size: 18px;
+                                    font-weight: 500;
+                                    margin-bottom: 12px;
+                                }
+                                
+                                .message {
+                                    color: #717182;
+                                    font-size: 15px;
+                                    line-height: 1.6;
+                                    margin-bottom: 35px;
+                                }
+                                
+                                .divider {
+                                    width: 60px;
+                                    height: 4px;
+                                    background: linear-gradient(90deg, #D9A494 0%, #C89484 100%);
+                                    border-radius: 2px;
+                                    margin: 25px auto;
+                                }
+                                
+                                .info-box {
+                                    background: #F8F9FA;
+                                    border-left: 4px solid #D9A494;
+                                    border-radius: 8px;
+                                    padding: 18px 20px;
+                                    margin-top: 25px;
+                                    text-align: left;
+                                }
+                                
+                                .info-box p {
+                                    color: #3E4958;
+                                    font-size: 14px;
+                                    line-height: 1.5;
+                                    margin: 0;
+                                }
+                                
+                                .info-box strong {
+                                    color: #042769;
+                                    font-weight: 600;
+                                }
+                                
+                                .footer {
+                                    margin-top: 30px;
+                                    padding-top: 25px;
+                                    border-top: 1px solid #E5E7EB;
+                                }
+                                
+                                .footer p {
+                                    color: #9CA3AF;
+                                    font-size: 13px;
+                                }
+                                
+                                .brand {
+                                    color: #042769;
+                                    font-weight: 700;
+                                    font-size: 16px;
+                                    display: inline-flex;
+                                    align-items: center;
+                                    gap: 6px;
+                                }
+                                
+                                .wave {
+                                    display: inline-block;
+                                    animation: wave 0.5s ease-in-out 1s 3;
+                                }
+                                
+                                @keyframes wave {
+                                    0%, 100% { transform: rotate(0deg); }
+                                    25% { transform: rotate(-10deg); }
+                                    75% { transform: rotate(10deg); }
+                                }
+                            </style>
+                        </head>
+                        <body>
+                            <div class='container'>
+                                <div class='icon-container'>
+                                    <svg class='checkmark' viewBox='0 0 52 52'>
+                                        <path d='M14 27l7.5 7.5L38 18'/>
+                                    </svg>
+                                </div>
+                                
+                                <h1>Login Berhasil!</h1>
+                                <div class='divider'></div>
+                                
+                                <p class='subtitle'>Selamat datang kembali!</p>
+                                <p class='message'>
+                                    Anda berhasil login menggunakan akun Google Anda.<br>
+                                    Mohon klik 'OK' untuk kembali ke aplikasi TiketLaut.
+                                </p>
+                                
+                                <div class='info-box'>
+                                    <p><strong>💡 Tips:</strong> Jika jendela ini tidak tertutup otomatis, silakan tutup secara manual dan kembali ke aplikasi</p>
+                                </div>
+                                
+                                <div class='footer'>
+                                    <p>© 2025 TiketLaut - Sistem Pemesanan Tiket Kapal</p>
+                                </div>
+                            </div>
+                            
+                            <script>
+                                // Auto close after 2 seconds
+                                setTimeout(function() {
+                                    window.close();
+                                }, 2000);
+                            </script>
                         </body>
                         </html>";
                 }
