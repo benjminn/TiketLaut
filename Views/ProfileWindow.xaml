@@ -86,10 +86,34 @@
                                                FontWeight="Normal"
                                                Foreground="#94A3B8"
                                                Margin="0,0,0,8"/>
-                                    <Border Background="#F1F5F9"
+                                    <!-- View Mode: Text Only -->
+                                    <Border x:Name="borderEmailView"
+                                           Background="#F1F5F9"
                                            CornerRadius="12"
                                            Padding="18,14"
                                            BorderThickness="0">
+                                        <Grid>
+                                            <TextBlock x:Name="txtEmailView"
+                                                      FontSize="15"
+                                                      Foreground="#1E293B"
+                                                      VerticalAlignment="Center"
+                                                      TextWrapping="Wrap"/>
+                                            <Image Source="/Views/Assets/Icons/email.png"
+                                                   Width="20"
+                                                   Height="20"
+                                                   HorizontalAlignment="Right"
+                                                   VerticalAlignment="Center"
+                                                   Margin="0,0,5,0"
+                                                   Opacity="0.5"/>
+                                        </Grid>
+                                    </Border>
+                                    <!-- Edit Mode: TextBox -->
+                                    <Border x:Name="borderEmailEdit"
+                                           Background="#F1F5F9"
+                                           CornerRadius="12"
+                                           Padding="18,14"
+                                           BorderThickness="0"
+                                           Visibility="Collapsed">
                                         <Grid>
                                             <TextBox x:Name="txtEmail"
                                                     Background="Transparent"
@@ -116,16 +140,30 @@
                                                FontWeight="Normal"
                                                Foreground="#94A3B8"
                                                Margin="0,0,0,8"/>
-                                    <Border Background="#F1F5F9"
+                                    <!-- View Mode -->
+                                    <Border x:Name="borderNamaView"
+                                           Background="#F1F5F9"
                                            CornerRadius="12"
                                            Padding="18,14"
                                            BorderThickness="0">
+                                        <TextBlock x:Name="txtNamaView"
+                                                  FontSize="15"
+                                                  Foreground="#1E293B"
+                                                  VerticalAlignment="Center"
+                                                  TextWrapping="Wrap"/>
+                                    </Border>
+                                    <!-- Edit Mode -->
+                                    <Border x:Name="borderNamaEdit"
+                                           Background="#F1F5F9"
+                                           CornerRadius="12"
+                                           Padding="18,14"
+                                           BorderThickness="0"
+                                           Visibility="Collapsed">
                                         <TextBox x:Name="txtNama"
                                                 Background="Transparent"
                                                 BorderThickness="0"
                                                 FontSize="15"
                                                 Foreground="#1E293B"
-                                                IsReadOnly="True"
                                                 VerticalAlignment="Center"/>
                                     </Border>
                                 </StackPanel>
@@ -137,16 +175,30 @@
                                                FontWeight="Normal"
                                                Foreground="#94A3B8"
                                                Margin="0,0,0,8"/>
-                                    <Border Background="#F1F5F9"
+                                    <!-- View Mode -->
+                                    <Border x:Name="borderNIKView"
+                                           Background="#F1F5F9"
                                            CornerRadius="12"
                                            Padding="18,14"
                                            BorderThickness="0">
+                                        <TextBlock x:Name="txtNIKView"
+                                                  FontSize="15"
+                                                  Foreground="#1E293B"
+                                                  VerticalAlignment="Center"
+                                                  TextWrapping="Wrap"/>
+                                    </Border>
+                                    <!-- Edit Mode -->
+                                    <Border x:Name="borderNIKEdit"
+                                           Background="#F1F5F9"
+                                           CornerRadius="12"
+                                           Padding="18,14"
+                                           BorderThickness="0"
+                                           Visibility="Collapsed">
                                         <TextBox x:Name="txtNIK"
                                                 Background="Transparent"
                                                 BorderThickness="0"
                                                 FontSize="15"
                                                 Foreground="#1E293B"
-                                                IsReadOnly="True"
                                                 VerticalAlignment="Center"
                                                 MaxLength="16"/>
                                     </Border>
@@ -159,16 +211,30 @@
                                                FontWeight="Normal"
                                                Foreground="#94A3B8"
                                                Margin="0,0,0,8"/>
-                                    <Border Background="#F1F5F9"
+                                    <!-- View Mode -->
+                                    <Border x:Name="borderJenisKelaminView"
+                                           Background="#F1F5F9"
                                            CornerRadius="12"
                                            Padding="18,14"
                                            BorderThickness="0">
+                                        <TextBlock x:Name="txtJenisKelaminView"
+                                                  FontSize="15"
+                                                  Foreground="#1E293B"
+                                                  VerticalAlignment="Center"
+                                                  TextWrapping="Wrap"/>
+                                    </Border>
+                                    <!-- Edit Mode -->
+                                    <Border x:Name="borderJenisKelaminEdit"
+                                           Background="#F1F5F9"
+                                           CornerRadius="12"
+                                           Padding="18,14"
+                                           BorderThickness="0"
+                                           Visibility="Collapsed">
                                         <ComboBox x:Name="cmbJenisKelamin"
                                                  Background="Transparent"
                                                  BorderThickness="0"
                                                  FontSize="15"
-                                                 Foreground="#1E293B"
-                                                 IsEnabled="False">
+                                                 Foreground="#1E293B">
                                             <ComboBox.ItemContainerStyle>
                                                 <Style TargetType="ComboBoxItem">
                                                     <Setter Property="Foreground" Value="#1E293B"/>
@@ -187,16 +253,30 @@
                                                FontWeight="Normal"
                                                Foreground="#94A3B8"
                                                Margin="0,0,0,8"/>
-                                    <Border Background="#F1F5F9"
+                                    <!-- View Mode -->
+                                    <Border x:Name="borderTanggalLahirView"
+                                           Background="#F1F5F9"
                                            CornerRadius="12"
                                            Padding="18,14"
                                            BorderThickness="0">
+                                        <TextBlock x:Name="txtTanggalLahirView"
+                                                  FontSize="15"
+                                                  Foreground="#1E293B"
+                                                  VerticalAlignment="Center"
+                                                  TextWrapping="Wrap"/>
+                                    </Border>
+                                    <!-- Edit Mode -->
+                                    <Border x:Name="borderTanggalLahirEdit"
+                                           Background="#F1F5F9"
+                                           CornerRadius="12"
+                                           Padding="18,14"
+                                           BorderThickness="0"
+                                           Visibility="Collapsed">
                                         <DatePicker x:Name="dpTanggalLahir"
                                                    Background="Transparent"
                                                    BorderThickness="0"
                                                    FontSize="15"
-                                                   Foreground="#1E293B"
-                                                   IsEnabled="False"/>
+                                                   Foreground="#1E293B"/>
                                     </Border>
                                 </StackPanel>
 
@@ -207,16 +287,30 @@
                                                FontWeight="Normal"
                                                Foreground="#94A3B8"
                                                Margin="0,0,0,8"/>
-                                    <Border Background="#F1F5F9"
+                                    <!-- View Mode -->
+                                    <Border x:Name="borderAlamatView"
+                                           Background="#F1F5F9"
                                            CornerRadius="12"
                                            Padding="18,14"
                                            BorderThickness="0">
+                                        <TextBlock x:Name="txtAlamatView"
+                                                  FontSize="15"
+                                                  Foreground="#1E293B"
+                                                  TextWrapping="Wrap"
+                                                  MinHeight="60"/>
+                                    </Border>
+                                    <!-- Edit Mode -->
+                                    <Border x:Name="borderAlamatEdit"
+                                           Background="#F1F5F9"
+                                           CornerRadius="12"
+                                           Padding="18,14"
+                                           BorderThickness="0"
+                                           Visibility="Collapsed">
                                         <TextBox x:Name="txtAlamat"
                                                 Background="Transparent"
                                                 BorderThickness="0"
                                                 FontSize="15"
                                                 Foreground="#1E293B"
-                                                IsReadOnly="True"
                                                 TextWrapping="Wrap"
                                                 MinHeight="60"
                                                 AcceptsReturn="True"
