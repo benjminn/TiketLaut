@@ -22,6 +22,7 @@ namespace TiketLaut.Views
         private readonly TiketService _tiketService;
         private readonly JadwalService _jadwalService;
         private readonly PenggunaService _penggunaService;
+        private readonly RiwayatService _riwayatService;
 
         public AdminTiketPage()
         {
@@ -29,6 +30,7 @@ namespace TiketLaut.Views
             _tiketService = new TiketService();
             _jadwalService = new JadwalService();
             _penggunaService = new PenggunaService();
+            _riwayatService = new RiwayatService();
             _allTikets = new ObservableCollection<TiketViewModel>();
             _filteredTikets = new ObservableCollection<TiketViewModel>();
             LoadData();
@@ -38,6 +40,30 @@ namespace TiketLaut.Views
         {
             try
             {
+                // Auto-update status tiket dan jadwal yang sudah selesai
+                System.Diagnostics.Debug.WriteLine("[AdminTiketPage] Calling AutoUpdate...");
+                try
+                {
+                    var updateCount = await _riwayatService.AutoUpdatePembayaranSelesaiAsync();
+                    System.Diagnostics.Debug.WriteLine($"[AdminTiketPage] AutoUpdate completed: {updateCount} records updated");
+                    
+                    // Temporary MessageBox for debugging
+                    if (updateCount > 0)
+                    {
+                        MessageBox.Show($"Auto-update berhasil!\n{updateCount} record diupdate.", "Auto-Update", MessageBoxButton.OK, MessageBoxImage.Information);
+                    }
+                    else
+                    {
+                        MessageBox.Show("Auto-update jalan tapi tidak ada record yang diupdate.\nSemua status sudah benar.", "Auto-Update", MessageBoxButton.OK, MessageBoxImage.Information);
+                    }
+                }
+                catch (Exception exAuto)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[AdminTiketPage] AutoUpdate ERROR: {exAuto.Message}");
+                    System.Diagnostics.Debug.WriteLine($"[AdminTiketPage] StackTrace: {exAuto.StackTrace}");
+                    MessageBox.Show($"Error running auto-update:\n{exAuto.Message}", "Auto-Update Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                }
+
                 // Load tickets
                 var tikets = await _tiketService.GetAllTiketsAsync();
                 _allTikets.Clear();
@@ -278,6 +304,6 @@ namespace TiketLaut.Views
         {
             // Tidak perlu diimplementasikan untuk case ini
             throw new NotImplementedException();
-        }
-    }
+        }
+    }
 }

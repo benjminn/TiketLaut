@@ -266,13 +266,13 @@ namespace TiketLaut.Services
                 // Get pendapatan - Use UTC for PostgreSQL compatibility
                 var today = DateTime.UtcNow.Date;
                 var pendapatanHariIni = await _context.Pembayarans
-                    .Where(p => p.status_bayar == "Sukses" && p.tanggal_bayar.Date == today)
+                    .Where(p => (p.status_bayar == "Sukses" || p.status_bayar == "Selesai") && p.tanggal_bayar.Date == today)
                     .SumAsync(p => (decimal?)p.jumlah_bayar) ?? 0;
 
                 var currentMonth = DateTime.UtcNow.Month;
                 var currentYear = DateTime.UtcNow.Year;
                 var pendapatanBulanIni = await _context.Pembayarans
-                    .Where(p => p.status_bayar == "Sukses" &&
+                    .Where(p => (p.status_bayar == "Sukses" || p.status_bayar == "Selesai") &&
                                p.tanggal_bayar.Month == currentMonth &&
                                p.tanggal_bayar.Year == currentYear)
                     .SumAsync(p => (decimal?)p.jumlah_bayar) ?? 0;
@@ -333,7 +333,7 @@ namespace TiketLaut.Services
             try
             {
                 var pendapatanDetail = await _context.Pembayarans
-                    .Where(p => p.status_bayar == "Sukses" &&
+                    .Where(p => (p.status_bayar == "Sukses" || p.status_bayar == "Selesai") &&
                                p.tanggal_bayar.Month == bulan &&
                                p.tanggal_bayar.Year == tahun)
                     .Include(p => p.tiket)
