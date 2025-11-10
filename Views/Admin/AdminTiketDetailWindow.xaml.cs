@@ -4,6 +4,7 @@ using System.Windows;
 using System.Windows.Media;
 using TiketLaut.Services;
 using TiketLaut.Helpers;
+using TiketLaut.Views.Components;
 
 namespace TiketLaut.Views
 {
@@ -93,8 +94,12 @@ namespace TiketLaut.Views
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error loading tiket detail: {ex.Message}", "Error",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
+                var dialog = new CustomDialog(
+                    "Error",
+                    $"Error loading tiket detail: {ex.Message}",
+                    CustomDialog.DialogType.Error
+                );
+                dialog.ShowDialog();
             }
         }
 
@@ -152,31 +157,31 @@ namespace TiketLaut.Views
 
                 if (pembayaran == null)
                 {
-                    MessageBox.Show(
+                    var dialog = new CustomDialog(
+                        "Pembayaran Tidak Ditemukan",
                         $"Tiket: {_tiket.kode_tiket}\n\n" +
                         "Tidak ada data pembayaran untuk tiket ini.\n\n" +
                         "Silakan tambahkan pembayaran terlebih dahulu di menu 'Kelola Pembayaran'.",
-                        "Pembayaran Tidak Ditemukan",
-                        MessageBoxButton.OK,
-                        MessageBoxImage.Information
+                        CustomDialog.DialogType.Info
                     );
+                    dialog.ShowDialog();
                 }
                 else
                 {
-                    // Show payment detail
-                    var result = MessageBox.Show(
+                    // Show payment detail with confirmation
+                    var confirmDialog = new CustomDialog(
+                        "Detail Pembayaran",
                         $"Tiket: {_tiket.kode_tiket}\n" +
                         $"Metode Pembayaran: {pembayaran.metode_pembayaran}\n" +
                         $"Jumlah: Rp {pembayaran.jumlah_bayar:N0}\n" +
                         $"Status: {pembayaran.status_bayar}\n" +
                         $"Tanggal: {pembayaran.tanggal_bayar:dd MMMM yyyy HH:mm}\n\n" +
                         "Buka detail pembayaran di 'Kelola Pembayaran'?",
-                        "Detail Pembayaran",
-                        MessageBoxButton.YesNo,
-                        MessageBoxImage.Information
+                        CustomDialog.DialogType.Info,
+                        CustomDialog.DialogButtons.YesNo
                     );
 
-                    if (result == MessageBoxResult.Yes)
+                    if (confirmDialog.ShowDialog() == true)
                     {
                         Close();
                     }
@@ -184,8 +189,12 @@ namespace TiketLaut.Views
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error: {ex.Message}", "Error",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
+                var dialog = new CustomDialog(
+                    "Error",
+                    $"Error: {ex.Message}",
+                    CustomDialog.DialogType.Error
+                );
+                dialog.ShowDialog();
             }
         }
 
@@ -193,7 +202,12 @@ namespace TiketLaut.Views
         {
             if (_tiket == null || _tiket.jadwal_id == 0)
             {
-                MessageBox.Show("Data jadwal tidak ditemukan untuk tiket ini.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                var dialog = new CustomDialog(
+                    "Error",
+                    "Data jadwal tidak ditemukan untuk tiket ini.",
+                    CustomDialog.DialogType.Error
+                );
+                dialog.ShowDialog();
                 return;
             }
 

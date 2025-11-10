@@ -25,6 +25,12 @@ namespace TiketLaut.Views
         private readonly PenggunaService _penggunaService;
         private readonly RiwayatService _riwayatService;
 
+        // Pagination variables
+        private List<Tiket> _allTiketsData = new List<Tiket>(); // Store all data from DB
+        private int _currentPage = 1;
+        private const int _pageSize = 30;
+        private int _totalRecords = 0;
+
         public AdminTiketPage()
         {
             InitializeComponent();
@@ -48,36 +54,53 @@ namespace TiketLaut.Views
                     var updateCount = await _riwayatService.AutoUpdatePembayaranSelesaiAsync();
                     System.Diagnostics.Debug.WriteLine($"[AdminTiketPage] AutoUpdate completed: {updateCount} records updated");
                     
-                    // Temporary MessageBox for debugging
+                    // Show result with CustomDialog
                     if (updateCount > 0)
                     {
-                        MessageBox.Show($"Auto-update berhasil!\n{updateCount} record diupdate.", "Auto-Update", MessageBoxButton.OK, MessageBoxImage.Information);
+                        var dialog = new CustomDialog(
+                            "Auto-Update Berhasil",
+                            $"Auto-update berhasil!\n{updateCount} record diupdate.",
+                            CustomDialog.DialogType.Success
+                        );
+                        dialog.Owner = Window.GetWindow(this);
+                        dialog.ShowDialog();
                     }
                     else
                     {
-                        MessageBox.Show("Auto-update jalan tapi tidak ada record yang diupdate.\nSemua status sudah benar.", "Auto-Update", MessageBoxButton.OK, MessageBoxImage.Information);
+                        var dialog = new CustomDialog(
+                            "Auto-Update",
+                            "Auto-update jalan tapi tidak ada record yang diupdate.\nSemua status sudah benar.",
+                            CustomDialog.DialogType.Info
+                        );
+                        dialog.Owner = Window.GetWindow(this);
+                        dialog.ShowDialog();
                     }
                 }
                 catch (Exception exAuto)
                 {
                     System.Diagnostics.Debug.WriteLine($"[AdminTiketPage] AutoUpdate ERROR: {exAuto.Message}");
                     System.Diagnostics.Debug.WriteLine($"[AdminTiketPage] StackTrace: {exAuto.StackTrace}");
-                    MessageBox.Show($"Error running auto-update:\n{exAuto.Message}", "Auto-Update Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    
+                    var dialog = new CustomDialog(
+                        "Auto-Update Error",
+                        $"Error running auto-update:\n{exAuto.Message}",
+                        CustomDialog.DialogType.Error
+                    );
+                    dialog.Owner = Window.GetWindow(this);
+                    dialog.ShowDialog();
                 }
 
-                // Load tickets
+                // Load ALL tickets from database
                 var tikets = await _tiketService.GetAllTiketsAsync();
-                _allTikets.Clear();
-                foreach (var tiket in tikets)
-                {
-                    _allTikets.Add(new TiketViewModel { Tiket = tiket, IsSelected = false });
-                }
-
-                _filteredTikets = new ObservableCollection<TiketViewModel>(_allTikets);
-                dgTiket.ItemsSource = _filteredTikets;
+                _allTiketsData = tikets.OrderByDescending(t => t.tiket_id).ToList();
+                _totalRecords = _allTiketsData.Count;
+                
+                // Reset to page 1
+                _currentPage = 1;
+                LoadPageData();
 
                 // Load schedules for filter
-                var jadwals = await _jadwalService.GetAllAsync(); // Menggunakan GetAllAsync()
+                var jadwals = await _jadwalService.GetAllAsync();
                 cmbJadwal.Items.Add(new { Id = 0, Text = "Semua Jadwal" });
                 foreach (var jadwal in jadwals)
                 {
@@ -90,7 +113,60 @@ namespace TiketLaut.Views
             }
             catch (Exception ex)
             {
-                CustomDialog.ShowError($"Error loading data: {ex.Message}", "Error");
+                CustomDialog.ShowError("Error loading data", $"Error loading data: {ex.Message}");
+            }
+        }
+
+        private void LoadPageData()
+        {
+            _allTikets.Clear();
+            
+            // Calculate pagination
+            int skip = (_currentPage - 1) * _pageSize;
+            var pagedData = _allTiketsData.Skip(skip).Take(_pageSize).ToList();
+            
+            foreach (var tiket in pagedData)
+            {
+                _allTikets.Add(new TiketViewModel { Tiket = tiket, IsSelected = false });
+            }
+
+            _filteredTikets = new ObservableCollection<TiketViewModel>(_allTikets);
+            dgTiket.ItemsSource = _filteredTikets;
+            
+            UpdatePaginationUI();
+        }
+
+        private void UpdatePaginationUI()
+        {
+            int totalPages = (int)Math.Ceiling((double)_totalRecords / _pageSize);
+            int displayedStart = (_currentPage - 1) * _pageSize + 1;
+            int displayedEnd = Math.Min(_currentPage * _pageSize, _totalRecords);
+            
+            txtPageNumber.Text = _currentPage.ToString();
+            txtPaginationInfo.Text = $"Page {_currentPage} - Menampilkan {displayedStart}-{displayedEnd} dari {_totalRecords} tiket";
+            txtTotalRecords.Text = $"Total: {_totalRecords} tiket";
+            
+            // Enable/Disable navigation buttons
+            btnPrevPage.IsEnabled = _currentPage > 1;
+            btnNextPage.IsEnabled = _currentPage < totalPages;
+        }
+
+        private void BtnPrevPage_Click(object sender, RoutedEventArgs e)
+        {
+            if (_currentPage > 1)
+            {
+                _currentPage--;
+                LoadPageData();
+            }
+        }
+
+        private void BtnNextPage_Click(object sender, RoutedEventArgs e)
+        {
+            int totalPages = (int)Math.Ceiling((double)_totalRecords / _pageSize);
+            if (_currentPage < totalPages)
+            {
+                _currentPage++;
+                LoadPageData();
             }
         }
         private void ApplyFilters()

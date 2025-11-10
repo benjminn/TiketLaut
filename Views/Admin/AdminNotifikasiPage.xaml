@@ -626,11 +626,11 @@
 
                                 <!-- Buttons -->
                                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                                    <Button Content="🧹 Bersihkan" 
+                                    <Button Content="Bersihkan" 
                                            Style="{StaticResource DangerButton}"
                                            Click="BtnClear_Click"
                                            Margin="0,0,12,0"/>
-                                    <Button Content="✉️ Kirim Notifikasi" 
+                                    <Button Content="✉️  Kirim Notifikasi" 
                                            Style="{StaticResource SuccessButton}"
                                            Click="BtnKirim_Click"/>
                                 </StackPanel>
@@ -645,7 +645,7 @@
                                BorderBrush="#DEE2E6"
                                BorderThickness="1">
                             <StackPanel>
-                                <TextBlock Text="📱 Preview Notifikasi" 
+                                <TextBlock Text="Preview Notifikasi" 
                                           FontSize="14" 
                                           FontWeight="Bold" 
                                           Foreground="#011C4B"
@@ -755,34 +755,252 @@
                                  CanUserDeleteRows="False"
                                  SelectionMode="Single"
                                  GridLinesVisibility="None"
+                                 HeadersVisibility="Column"
+                                 RowHeight="45"
                                  Background="White"
-                                 RowBackground="White"
-                                 AlternatingRowBackground="#F8F9FA"
-                                 MinHeight="400">
+                                 BorderThickness="0"
+                                 MinHeight="450"
+                                 CanUserResizeRows="False"
+                                 CanUserReorderColumns="False">
+                            
+                            <!-- Column Header Style -->
+                            <DataGrid.ColumnHeaderStyle>
+                                <Style TargetType="DataGridColumnHeader">
+                                    <Setter Property="Background" Value="#042769"/>
+                                    <Setter Property="Foreground" Value="White"/>
+                                    <Setter Property="FontWeight" Value="Bold"/>
+                                    <Setter Property="FontSize" Value="13"/>
+                                    <Setter Property="Padding" Value="12,10"/>
+                                    <Setter Property="BorderThickness" Value="0"/>
+                                    <Setter Property="HorizontalContentAlignment" Value="Left"/>
+                                </Style>
+                            </DataGrid.ColumnHeaderStyle>
+                            
+                            <!-- Row Style -->
+                            <DataGrid.RowStyle>
+                                <Style TargetType="DataGridRow">
+                                    <Setter Property="Background" Value="White"/>
+                                    <Style.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Background" Value="#E7F5FF"/>
+                                        </Trigger>
+                                        <Trigger Property="IsSelected" Value="True">
+                                            <Setter Property="Background" Value="#B3D9FF"/>
+                                            <Setter Property="Foreground" Value="#011C4B"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </DataGrid.RowStyle>
+                            
+                            <!-- Cell Style -->
+                            <DataGrid.CellStyle>
+                                <Style TargetType="DataGridCell">
+                                    <Setter Property="BorderThickness" Value="0"/>
+                                    <Setter Property="Padding" Value="12,0"/>
+                                    <Setter Property="VerticalAlignment" Value="Center"/>
+                                    <Style.Triggers>
+                                        <Trigger Property="IsSelected" Value="True">
+                                            <Setter Property="Background" Value="Transparent"/>
+                                            <Setter Property="Foreground" Value="#011C4B"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </DataGrid.CellStyle>
+                            
                             <DataGrid.Columns>
-                                <DataGridTextColumn Header="Kategori" Binding="{Binding Kategori}" Width="150">
+                                <DataGridTextColumn Header="Kategori" Binding="{Binding Kategori}" Width="*" MinWidth="180">
+                                    <DataGridTextColumn.HeaderStyle>
+                                        <Style TargetType="DataGridColumnHeader">
+                                            <Setter Property="Background" Value="#042769"/>
+                                            <Setter Property="Foreground" Value="White"/>
+                                            <Setter Property="FontWeight" Value="Bold"/>
+                                            <Setter Property="FontSize" Value="13"/>
+                                            <Setter Property="Padding" Value="12,10"/>
+                                            <Setter Property="BorderThickness" Value="0"/>
+                                            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+                                        </Style>
+                                    </DataGridTextColumn.HeaderStyle>
                                     <DataGridTextColumn.ElementStyle>
                                         <Style TargetType="TextBlock">
                                             <Setter Property="FontWeight" Value="SemiBold"/>
+                                            <Setter Property="FontSize" Value="13"/>
                                             <Setter Property="Foreground" Value="#00658D"/>
+                                            <Setter Property="Padding" Value="5,0,0,0"/>
                                         </Style>
                                     </DataGridTextColumn.ElementStyle>
                                 </DataGridTextColumn>
-                                <DataGridTextColumn Header="Rute Jadwal" Binding="{Binding RuteJadwal}" Width="250"/>
-                                <DataGridTextColumn Header="Kapal" Binding="{Binding NamaKapal}" Width="150"/>
-                                <DataGridTextColumn Header="Waktu Keberangkatan" Binding="{Binding WaktuKeberangkatan, StringFormat='dd MMM yyyy HH:mm'}" Width="150"/>
-                                <DataGridTextColumn Header="Waktu Kirim Notifikasi" Binding="{Binding WaktuKirim, StringFormat='dd MMM yyyy HH:mm'}" Width="150"/>
-                                <DataGridTextColumn Header="Jumlah Penerima" Binding="{Binding JumlahPenerima}" Width="120">
+                                
+                                <DataGridTextColumn Header="Rute Jadwal" Binding="{Binding RuteJadwal}" Width="*" MinWidth="220">
+                                    <DataGridTextColumn.HeaderStyle>
+                                        <Style TargetType="DataGridColumnHeader">
+                                            <Setter Property="Background" Value="#042769"/>
+                                            <Setter Property="Foreground" Value="White"/>
+                                            <Setter Property="FontWeight" Value="Bold"/>
+                                            <Setter Property="FontSize" Value="13"/>
+                                            <Setter Property="Padding" Value="12,10"/>
+                                            <Setter Property="BorderThickness" Value="0"/>
+                                            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+                                        </Style>
+                                    </DataGridTextColumn.HeaderStyle>
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="FontSize" Value="13"/>
+                                            <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+                                            <Setter Property="ToolTip" Value="{Binding RuteJadwal}"/>
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
+                                
+                                <DataGridTextColumn Header="Kapal" Binding="{Binding NamaKapal}" Width="150">
+                                    <DataGridTextColumn.HeaderStyle>
+                                        <Style TargetType="DataGridColumnHeader">
+                                            <Setter Property="Background" Value="#042769"/>
+                                            <Setter Property="Foreground" Value="White"/>
+                                            <Setter Property="FontWeight" Value="Bold"/>
+                                            <Setter Property="FontSize" Value="13"/>
+                                            <Setter Property="Padding" Value="12,10"/>
+                                            <Setter Property="BorderThickness" Value="0"/>
+                                            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+                                        </Style>
+                                    </DataGridTextColumn.HeaderStyle>
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="FontSize" Value="13"/>
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
+                                
+                                <DataGridTextColumn Header="Waktu Keberangkatan" Binding="{Binding WaktuKeberangkatan, StringFormat='dd/MM/yyyy HH:mm'}" Width="160">
+                                    <DataGridTextColumn.HeaderStyle>
+                                        <Style TargetType="DataGridColumnHeader">
+                                            <Setter Property="Background" Value="#042769"/>
+                                            <Setter Property="Foreground" Value="White"/>
+                                            <Setter Property="FontWeight" Value="Bold"/>
+                                            <Setter Property="FontSize" Value="13"/>
+                                            <Setter Property="Padding" Value="12,10"/>
+                                            <Setter Property="BorderThickness" Value="0"/>
+                                            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                                        </Style>
+                                    </DataGridTextColumn.HeaderStyle>
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="FontSize" Value="12"/>
+                                            <Setter Property="FontFamily" Value="Consolas"/>
+                                            <Setter Property="HorizontalAlignment" Value="Center"/>
+                                            <Setter Property="TextAlignment" Value="Center"/>
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
+                                
+                                <DataGridTextColumn Header="Waktu Kirim" Binding="{Binding WaktuKirim, StringFormat='dd/MM/yyyy HH:mm'}" Width="140">
+                                    <DataGridTextColumn.HeaderStyle>
+                                        <Style TargetType="DataGridColumnHeader">
+                                            <Setter Property="Background" Value="#042769"/>
+                                            <Setter Property="Foreground" Value="White"/>
+                                            <Setter Property="FontWeight" Value="Bold"/>
+                                            <Setter Property="FontSize" Value="13"/>
+                                            <Setter Property="Padding" Value="12,10"/>
+                                            <Setter Property="BorderThickness" Value="0"/>
+                                            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                                        </Style>
+                                    </DataGridTextColumn.HeaderStyle>
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="FontSize" Value="12"/>
+                                            <Setter Property="FontFamily" Value="Consolas"/>
+                                            <Setter Property="HorizontalAlignment" Value="Center"/>
+                                            <Setter Property="TextAlignment" Value="Center"/>
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
+                                
+                                <DataGridTextColumn Header="Jumlah Penerima" Binding="{Binding JumlahPenerima}" Width="130">
+                                    <DataGridTextColumn.HeaderStyle>
+                                        <Style TargetType="DataGridColumnHeader">
+                                            <Setter Property="Background" Value="#042769"/>
+                                            <Setter Property="Foreground" Value="White"/>
+                                            <Setter Property="FontWeight" Value="Bold"/>
+                                            <Setter Property="FontSize" Value="13"/>
+                                            <Setter Property="Padding" Value="12,10"/>
+                                            <Setter Property="BorderThickness" Value="0"/>
+                                            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                                        </Style>
+                                    </DataGridTextColumn.HeaderStyle>
                                     <DataGridTextColumn.ElementStyle>
                                         <Style TargetType="TextBlock">
                                             <Setter Property="HorizontalAlignment" Value="Center"/>
+                                            <Setter Property="TextAlignment" Value="Center"/>
                                             <Setter Property="FontWeight" Value="Bold"/>
+                                            <Setter Property="FontSize" Value="13"/>
                                             <Setter Property="Foreground" Value="#28A745"/>
                                         </Style>
                                     </DataGridTextColumn.ElementStyle>
                                 </DataGridTextColumn>
                             </DataGrid.Columns>
                         </DataGrid>
+
+                        <!-- Pagination Controls for Notifikasi Otomatis -->
+                        <Border Background="White" 
+                                BorderBrush="#DEE2E6" 
+                                BorderThickness="1" 
+                                CornerRadius="8" 
+                                Padding="15" 
+                                Margin="0,15,0,0">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <!-- Pagination Info -->
+                                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                                    <TextBlock x:Name="txtPaginationInfoOtomatis" 
+                                              Text="Page 1 - Menampilkan 1-30 dari 0 notifikasi" 
+                                              FontSize="13" 
+                                              Foreground="#6C757D"
+                                              VerticalAlignment="Center"/>
+                                </StackPanel>
+
+                                <!-- Page Navigation -->
+                                <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right">
+                                    <Button x:Name="btnPrevPageOtomatis"
+                                            Content="◀ Previous" 
+                                            Style="{StaticResource PrimaryButton}"
+                                            Click="BtnPrevPageOtomatis_Click"
+                                            Padding="12,8"
+                                            Margin="0,0,10,0"
+                                            FontSize="13"/>
+                                    
+                                    <Border Background="#F8F9FA" 
+                                            BorderBrush="#DEE2E6" 
+                                            BorderThickness="1" 
+                                            CornerRadius="6" 
+                                            Padding="12,8"
+                                            Margin="0,0,10,0">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="Page " 
+                                                      FontSize="13" 
+                                                      Foreground="#495057"
+                                                      VerticalAlignment="Center"/>
+                                            <TextBlock x:Name="txtPageNumberOtomatis" 
+                                                      Text="1" 
+                                                      FontSize="13" 
+                                                      FontWeight="Bold"
+                                                      Foreground="#00658D"
+                                                      VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </Border>
+                                    
+                                    <Button x:Name="btnNextPageOtomatis"
+                                            Content="Next ▶" 
+                                            Style="{StaticResource PrimaryButton}"
+                                            Click="BtnNextPageOtomatis_Click"
+                                            Padding="12,8"
+                                            FontSize="13"/>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
                     </StackPanel>
 
                     <!-- Tab 3: Semua Notifikasi -->
@@ -911,10 +1129,11 @@
                                BorderThickness="2"
                                CornerRadius="8"
                                Background="White">
-                            <DataGrid x:Name="dgSemua" 
-                                     AutoGenerateColumns="False"
-                                     IsReadOnly="True"
-                                     CanUserAddRows="False"
+                            <StackPanel>
+                                <DataGrid x:Name="dgSemua" 
+                                         AutoGenerateColumns="False"
+                                         IsReadOnly="True"
+                                         CanUserAddRows="False"
                                      CanUserDeleteRows="False"
                                      SelectionMode="Single"
                                      GridLinesVisibility="None"
@@ -1123,6 +1342,70 @@
                                     </DataGridTemplateColumn>
                                 </DataGrid.Columns>
                             </DataGrid>
+
+                            <!-- Pagination Controls for Semua Notifikasi -->
+                            <Border Background="White" 
+                                    BorderBrush="#DEE2E6" 
+                                    BorderThickness="1" 
+                                    CornerRadius="8" 
+                                    Padding="15" 
+                                    Margin="0,15,0,0">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <!-- Pagination Info -->
+                                    <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                                        <TextBlock x:Name="txtPaginationInfoSemua" 
+                                                  Text="Page 1 - Menampilkan 1-30 dari 0 notifikasi" 
+                                                  FontSize="13" 
+                                                  Foreground="#6C757D"
+                                                  VerticalAlignment="Center"/>
+                                    </StackPanel>
+
+                                    <!-- Page Navigation -->
+                                    <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right">
+                                        <Button x:Name="btnPrevPageSemua"
+                                                Content="◀ Previous" 
+                                                Style="{StaticResource PrimaryButton}"
+                                                Click="BtnPrevPageSemua_Click"
+                                                Padding="12,8"
+                                                Margin="0,0,10,0"
+                                                FontSize="13"/>
+                                        
+                                        <Border Background="#F8F9FA" 
+                                                BorderBrush="#DEE2E6" 
+                                                BorderThickness="1" 
+                                                CornerRadius="6" 
+                                                Padding="12,8"
+                                                Margin="0,0,10,0">
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Text="Page " 
+                                                          FontSize="13" 
+                                                          Foreground="#495057"
+                                                          VerticalAlignment="Center"/>
+                                                <TextBlock x:Name="txtPageNumberSemua" 
+                                                          Text="1" 
+                                                          FontSize="13" 
+                                                          FontWeight="Bold"
+                                                          Foreground="#00658D"
+                                                          VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                        </Border>
+                                        
+                                        <Button x:Name="btnNextPageSemua"
+                                                Content="Next ▶" 
+                                                Style="{StaticResource PrimaryButton}"
+                                                Click="BtnNextPageSemua_Click"
+                                                Padding="12,8"
+                                                FontSize="13"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+                            </StackPanel>
                         </Border>
                     </StackPanel>
                 </Grid>
@@ -1130,3 +1413,4 @@
         </StackPanel>
     </Grid>
 </UserControl>
+

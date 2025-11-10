@@ -6,6 +6,7 @@ using System.Windows;
 using System.Windows.Controls;
 using TiketLaut.Services;
 using TiketLaut.Models;
+using TiketLaut.Views.Components;
 
 namespace TiketLaut.Views
 {
@@ -58,8 +59,12 @@ namespace TiketLaut.Views
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error loading tiket data: {ex.Message}", "Error",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
+                var dialog = new CustomDialog(
+                    "Error",
+                    $"Error loading tiket data: {ex.Message}",
+                    CustomDialog.DialogType.Error
+                );
+                dialog.ShowDialog();
                 Close();
             }
         }
@@ -68,7 +73,12 @@ namespace TiketLaut.Views
         {
             if (_tiket == null || _tiket.Jadwal == null)
             {
-                MessageBox.Show("Gagal memuat data kendaraan: Data jadwal tidak ditemukan pada tiket ini.", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                var dialog = new CustomDialog(
+                    "Error",
+                    "Gagal memuat data kendaraan: Data jadwal tidak ditemukan pada tiket ini.",
+                    CustomDialog.DialogType.Warning
+                );
+                dialog.ShowDialog();
                 return;
             }
 
@@ -84,7 +94,12 @@ namespace TiketLaut.Views
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error loading kendaraan data: {ex.Message}", "Error");
+                var dialog = new CustomDialog(
+                    "Error",
+                    $"Error loading kendaraan data: {ex.Message}",
+                    CustomDialog.DialogType.Error
+                );
+                dialog.ShowDialog();
             }
         }
 
@@ -141,7 +156,12 @@ namespace TiketLaut.Views
 
             if (cmbJenisKendaraan.SelectedItem == null)
             {
-                MessageBox.Show("Silakan pilih jenis kendaraan.", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+                var dialog = new CustomDialog(
+                    "Info",
+                    "Silakan pilih jenis kendaraan.",
+                    CustomDialog.DialogType.Info
+                );
+                dialog.ShowDialog();
                 return;
             }
 
@@ -165,7 +185,12 @@ namespace TiketLaut.Views
                     // Jika BUKAN, ini pasti kendaraan dan plat nomor WAJIB
                     if (string.IsNullOrWhiteSpace(txtPlatNomor.Text))
                     {
-                        MessageBox.Show("Plat nomor wajib diisi untuk kendaraan.", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+                        var dialogPlat = new CustomDialog(
+                            "Info",
+                            "Plat nomor wajib diisi untuk kendaraan.",
+                            CustomDialog.DialogType.Info
+                        );
+                        dialogPlat.ShowDialog();
                         return; // Hentikan penyimpanan
                     }
                     _tiket.plat_nomor = txtPlatNomor.Text.Trim();
@@ -174,15 +199,24 @@ namespace TiketLaut.Views
                 var tiketService = new TiketService();
                 await tiketService.UpdateTiketAsync(_tiket);
 
-                MessageBox.Show("Tiket berhasil diperbarui.", "Success",
-                    MessageBoxButton.OK, MessageBoxImage.Information);
+                var successDialog = new CustomDialog(
+                    "Success",
+                    "Tiket berhasil diperbarui.",
+                    CustomDialog.DialogType.Success
+                );
+                successDialog.ShowDialog();
+                
                 DialogResult = true;
                 Close();
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error saving tiket: {ex.Message}", "Error",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
+                var errorDialog = new CustomDialog(
+                    "Error",
+                    $"Error saving tiket: {ex.Message}",
+                    CustomDialog.DialogType.Error
+                );
+                errorDialog.ShowDialog();
             }
         }
 

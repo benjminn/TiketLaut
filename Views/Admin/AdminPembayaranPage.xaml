@@ -709,26 +709,73 @@
                             </DataGrid.Columns>
                         </DataGrid>
 
-                        <!-- Summary -->
-                        <Grid Margin="0,15,0,0">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
+                        <!-- Pagination Controls -->
+                        <Border Margin="0,15,0,0"
+                                Background="White"
+                                CornerRadius="8"
+                                Padding="15"
+                                BorderBrush="#DEE2E6"
+                                BorderThickness="1">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
 
-                            <TextBlock Grid.Column="0"
-                                      x:Name="txtSummary"
-                                      FontSize="13"
-                                      Foreground="#64748B"
-                                      VerticalAlignment="Center"/>
+                                    <!-- Pagination Info -->
+                                    <TextBlock Grid.Column="0"
+                                               x:Name="txtPaginationInfo"
+                                               Text="Page 1 - Menampilkan 30 dari 30 pembayaran"
+                                               FontSize="14"
+                                               FontWeight="Medium"
+                                               Foreground="#00658D"
+                                               VerticalAlignment="Center"
+                                               HorizontalAlignment="Left"/>
 
-                            <TextBlock Grid.Column="1"
-                                      x:Name="txtTotalPembayaran"
-                                      FontSize="14"
-                                      FontWeight="Bold"
-                                      Foreground="#011C4B"
-                                      VerticalAlignment="Center"/>
-                        </Grid>
+                                    <!-- Navigation Buttons -->
+                                    <StackPanel Grid.Column="1" 
+                                                Orientation="Horizontal"
+                                                HorizontalAlignment="Center">
+                                        <Button x:Name="btnPrevPage"
+                                                Content="◀ Previous"
+                                                Style="{StaticResource PrimaryButton}"
+                                                Click="BtnPrevPage_Click"
+                                                Margin="0,0,10,0"
+                                                Padding="12,8"
+                                                FontSize="13"
+                                                IsEnabled="False"/>
+                                        
+                                        <TextBlock x:Name="txtPageNumber"
+                                                   Text="1"
+                                                   FontSize="16"
+                                                   FontWeight="Bold"
+                                                   Foreground="#00658D"
+                                                   VerticalAlignment="Center"
+                                                   Margin="15,0"
+                                                   MinWidth="30"
+                                                   TextAlignment="Center"/>
+                                        
+                                        <Button x:Name="btnNextPage"
+                                                Content="Next ▶"
+                                                Style="{StaticResource PrimaryButton}"
+                                                Click="BtnNextPage_Click"
+                                                Margin="10,0,0,0"
+                                                Padding="12,8"
+                                                FontSize="13"/>
+                                    </StackPanel>
+
+                                    <!-- Total Records Info -->
+                                    <TextBlock Grid.Column="2"
+                                               x:Name="txtTotalRecords"
+                                               Text="Total: 30 pembayaran"
+                                               FontSize="14"
+                                               FontWeight="Medium"
+                                               Foreground="#6C757D"
+                                               VerticalAlignment="Center"
+                                               HorizontalAlignment="Right"/>
+                                </Grid>
+                            </Border>
                     </StackPanel>
                 </Border>
         </StackPanel>

@@ -9,6 +9,7 @@ using System.Windows.Media.Imaging;
 using TiketLaut.Models;
 using TiketLaut.Services;
 using TiketLaut.Views.Admin;
+using TiketLaut.Views.Components;
 
 namespace TiketLaut.Views
 {
@@ -53,6 +54,18 @@ namespace TiketLaut.Views
         private List<Notifikasi> _filteredNotifikasi = new();
         private List<Jadwal> _allJadwals = new();
         private List<Jadwal> _filteredJadwals = new();
+
+        // Pagination variables for Notifikasi Otomatis
+        private List<dynamic> _allOtomatisData = new();
+        private int _currentPageOtomatis = 1;
+        private readonly int _pageSizeOtomatis = 30;
+        private int _totalRecordsOtomatis = 0;
+
+        // Pagination variables for Semua Notifikasi
+        private List<Notifikasi> _allSemuaData = new();
+        private int _currentPageSemua = 1;
+        private readonly int _pageSizeSemua = 30;
+        private int _totalRecordsSemua = 0;
 
         public AdminNotifikasiPage()
         {
@@ -192,18 +205,33 @@ namespace TiketLaut.Views
                 
                 // Apply filter
                 ApplyJadwalFilter();
+                
+                // Debug: Show success if jadwal loaded
+                if (_allJadwals.Count == 0)
+                {
+                    System.Diagnostics.Debug.WriteLine("[AdminNotifikasiPage] WARNING: No jadwal found in database!");
+                }
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"[AdminNotifikasiPage] Error loading jadwal: {ex.Message}");
-                MessageBox.Show($"Error memuat data jadwal: {ex.Message}", "Error", 
-                    MessageBoxButton.OK, MessageBoxImage.Error);
+                System.Diagnostics.Debug.WriteLine($"[AdminNotifikasiPage] StackTrace: {ex.StackTrace}");
+                
+                var dialog = new CustomDialog(
+                    "Error",
+                    $"Error memuat data jadwal: {ex.Message}",
+                    CustomDialog.DialogType.Error
+                );
+                dialog.Owner = Window.GetWindow(this);
+                dialog.ShowDialog();
             }
         }
 
         private void ApplyJadwalFilter()
         {
             _filteredJadwals = _allJadwals.ToList();
+            
+            System.Diagnostics.Debug.WriteLine($"[ApplyJadwalFilter] Starting with {_allJadwals.Count} total jadwal");
 
             // Filter by Pelabuhan Asal
             if (cmbFilterPelabuhanAsal?.SelectedIndex > 0)
@@ -213,6 +241,7 @@ namespace TiketLaut.Views
                 {
                     var pelabuhanId = (int)selectedItem.Tag;
                     _filteredJadwals = _filteredJadwals.Where(j => j.pelabuhan_asal_id == pelabuhanId).ToList();
+                    System.Diagnostics.Debug.WriteLine($"[ApplyJadwalFilter] After Pelabuhan Asal filter: {_filteredJadwals.Count} jadwal");
                 }
             }
 
@@ -224,6 +253,7 @@ namespace TiketLaut.Views
                 {
                     var pelabuhanId = (int)selectedItem.Tag;
                     _filteredJadwals = _filteredJadwals.Where(j => j.pelabuhan_tujuan_id == pelabuhanId).ToList();
+                    System.Diagnostics.Debug.WriteLine($"[ApplyJadwalFilter] After Pelabuhan Tujuan filter: {_filteredJadwals.Count} jadwal");
                 }
             }
 
@@ -232,6 +262,7 @@ namespace TiketLaut.Views
             {
                 var selectedDate = dpFilterTanggal.SelectedDate.Value.Date;
                 _filteredJadwals = _filteredJadwals.Where(j => j.waktu_berangkat.Date == selectedDate).ToList();
+                System.Diagnostics.Debug.WriteLine($"[ApplyJadwalFilter] After Date filter: {_filteredJadwals.Count} jadwal");
             }
 
             // Filter by Jam
@@ -246,7 +277,10 @@ namespace TiketLaut.Views
                     4 => _filteredJadwals.Where(j => j.waktu_berangkat.Hour >= 18 && j.waktu_berangkat.Hour < 24).ToList(), // 18:00 - 24:00
                     _ => _filteredJadwals
                 };
+                System.Diagnostics.Debug.WriteLine($"[ApplyJadwalFilter] After Time filter: {_filteredJadwals.Count} jadwal");
             }
+            
+            System.Diagnostics.Debug.WriteLine($"[ApplyJadwalFilter] Final result: {_filteredJadwals.Count} jadwal");
 
             // Update DataGrid
             if (dgJadwal != null)
@@ -266,11 +300,11 @@ namespace TiketLaut.Views
                     .ToList();
 
                 dgJadwal.ItemsSource = jadwalList;
-
+                
+                System.Diagnostics.Debug.WriteLine($"[ApplyJadwalFilter] DataGrid updated with {jadwalList.Count} items");
+                
                 // Load penumpang count asynchronously
                 _ = UpdateJumlahPenumpangAsync(jadwalList);
-
-                System.Diagnostics.Debug.WriteLine($"[AdminNotifikasiPage] Added {jadwalList.Count} items to dgJadwal after filter");
 
                 // Hanya tampilkan pesan jika memang tidak ada jadwal sama sekali di database
                 // (bukan karena filter)
@@ -284,6 +318,10 @@ namespace TiketLaut.Views
                     // Ada jadwal di database tapi semua tersaring
                     System.Diagnostics.Debug.WriteLine("[AdminNotifikasiPage] Semua jadwal tersaring oleh filter");
                 }
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine("[ApplyJadwalFilter] WARNING: dgJadwal is null!");
             }
         }
 
@@ -675,13 +713,61 @@ namespace TiketLaut.Views
                     .OrderByDescending(x => x.WaktuKirim)
                     .ToList();
 
-                ApplyOtomatisFilter(grouped);
+                // Store all data for pagination
+                _allOtomatisData = grouped.Cast<dynamic>().ToList();
+                _totalRecordsOtomatis = _allOtomatisData.Count;
+                _currentPageOtomatis = 1;
+
+                LoadPageDataOtomatis();
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"[LoadOtomatisNotifikasi] Error: {ex.Message}\n{ex.StackTrace}");
                 MessageBox.Show($"Error memuat notifikasi otomatis: {ex.Message}", "Error",
                     MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void LoadPageDataOtomatis()
+        {
+            if (dgOtomatis == null) return;
+
+            int skip = (_currentPageOtomatis - 1) * _pageSizeOtomatis;
+            var pagedData = _allOtomatisData.Skip(skip).Take(_pageSizeOtomatis).ToList();
+
+            dgOtomatis.ItemsSource = pagedData;
+            UpdatePaginationUIOtomatis();
+        }
+
+        private void UpdatePaginationUIOtomatis()
+        {
+            int totalPages = (int)Math.Ceiling((double)_totalRecordsOtomatis / _pageSizeOtomatis);
+            int displayedStart = (_currentPageOtomatis - 1) * _pageSizeOtomatis + 1;
+            int displayedEnd = Math.Min(_currentPageOtomatis * _pageSizeOtomatis, _totalRecordsOtomatis);
+
+            txtPageNumberOtomatis.Text = _currentPageOtomatis.ToString();
+            txtPaginationInfoOtomatis.Text = $"Page {_currentPageOtomatis} - Menampilkan {displayedStart}-{displayedEnd} dari {_totalRecordsOtomatis} notifikasi";
+
+            btnPrevPageOtomatis.IsEnabled = _currentPageOtomatis > 1;
+            btnNextPageOtomatis.IsEnabled = _currentPageOtomatis < totalPages;
+        }
+
+        private void BtnPrevPageOtomatis_Click(object sender, RoutedEventArgs e)
+        {
+            if (_currentPageOtomatis > 1)
+            {
+                _currentPageOtomatis--;
+                LoadPageDataOtomatis();
+            }
+        }
+
+        private void BtnNextPageOtomatis_Click(object sender, RoutedEventArgs e)
+        {
+            int totalPages = (int)Math.Ceiling((double)_totalRecordsOtomatis / _pageSizeOtomatis);
+            if (_currentPageOtomatis < totalPages)
+            {
+                _currentPageOtomatis++;
+                LoadPageDataOtomatis();
             }
         }
 
@@ -745,8 +831,11 @@ namespace TiketLaut.Views
         {
             try
             {
-                _allNotifikasi = await _notifikasiService.GetAllNotifikasiAsync();
-                ApplyFilter();
+                _allSemuaData = await _notifikasiService.GetAllNotifikasiAsync();
+                _totalRecordsSemua = _allSemuaData.Count;
+                _currentPageSemua = 1;
+                
+                LoadPageDataSemua();
             }
             catch (Exception ex)
             {
@@ -755,34 +844,18 @@ namespace TiketLaut.Views
             }
         }
 
-        private void ApplyFilter()
+        private void LoadPageDataSemua()
         {
-            // Null check - method bisa dipanggil saat initialization
-            if (cmbFilterJenis == null || cmbFilterSumber == null || dgSemua == null || txtTotalNotif == null)
-                return;
-                
-            _filteredNotifikasi = _allNotifikasi.ToList();
+            if (dgSemua == null || txtTotalNotif == null) return;
 
-            // Filter by Jenis
-            if (cmbFilterJenis.SelectedIndex > 0)
-            {
-                var jenisText = (cmbFilterJenis.SelectedItem as ComboBoxItem)?.Content?.ToString();
-                _filteredNotifikasi = _filteredNotifikasi
-                    .Where(n => n.jenis_notifikasi.Equals(jenisText, StringComparison.OrdinalIgnoreCase))
-                    .ToList();
-            }
+            int skip = (_currentPageSemua - 1) * _pageSizeSemua;
+            var pagedData = _allSemuaData
+                .OrderByDescending(n => n.waktu_kirim)
+                .Skip(skip)
+                .Take(_pageSizeSemua)
+                .ToList();
 
-            // Filter by Sumber
-            if (cmbFilterSumber.SelectedIndex == 1) // Otomatis
-            {
-                _filteredNotifikasi = _filteredNotifikasi.Where(n => n.oleh_system).ToList();
-            }
-            else if (cmbFilterSumber.SelectedIndex == 2) // Manual
-            {
-                _filteredNotifikasi = _filteredNotifikasi.Where(n => !n.oleh_system).ToList();
-            }
-
-            dgSemua.ItemsSource = _filteredNotifikasi.Select(n => new
+            dgSemua.ItemsSource = pagedData.Select(n => new
             {
                 n.notifikasi_id,
                 n.Pengguna,
@@ -793,7 +866,47 @@ namespace TiketLaut.Views
                 dibaca = n.status_baca ? "Dibaca" : "Belum"
             }).ToList();
 
-            txtTotalNotif.Text = $"Total: {_filteredNotifikasi.Count} notifikasi";
+            txtTotalNotif.Text = $"Total: {_totalRecordsSemua} notifikasi";
+            UpdatePaginationUISemua();
+        }
+
+        private void UpdatePaginationUISemua()
+        {
+            int totalPages = (int)Math.Ceiling((double)_totalRecordsSemua / _pageSizeSemua);
+            int displayedStart = (_currentPageSemua - 1) * _pageSizeSemua + 1;
+            int displayedEnd = Math.Min(_currentPageSemua * _pageSizeSemua, _totalRecordsSemua);
+
+            txtPageNumberSemua.Text = _currentPageSemua.ToString();
+            txtPaginationInfoSemua.Text = $"Page {_currentPageSemua} - Menampilkan {displayedStart}-{displayedEnd} dari {_totalRecordsSemua} notifikasi";
+
+            btnPrevPageSemua.IsEnabled = _currentPageSemua > 1;
+            btnNextPageSemua.IsEnabled = _currentPageSemua < totalPages;
+        }
+
+        private void BtnPrevPageSemua_Click(object sender, RoutedEventArgs e)
+        {
+            if (_currentPageSemua > 1)
+            {
+                _currentPageSemua--;
+                LoadPageDataSemua();
+            }
+        }
+
+        private void BtnNextPageSemua_Click(object sender, RoutedEventArgs e)
+        {
+            int totalPages = (int)Math.Ceiling((double)_totalRecordsSemua / _pageSizeSemua);
+            if (_currentPageSemua < totalPages)
+            {
+                _currentPageSemua++;
+                LoadPageDataSemua();
+            }
+        }
+
+        private void ApplyFilter()
+        {
+            // DEPRECATED: This method is no longer used with pagination
+            // Filtering is now handled within LoadPageDataSemua
+            // Kept for backward compatibility but does nothing
         }
 
         private void Filter_Changed(object sender, SelectionChangedEventArgs e)
