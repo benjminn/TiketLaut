@@ -21,9 +21,10 @@ namespace TiketLaut.Views
         private List<Jadwal>? _jadwals;
         private SearchCriteria? _searchCriteria;
         private readonly JadwalService _jadwalService;
-        private Button? _selectedVehicleButton;
-        
-         // Constructor 1 (default)
+        private Button? _selectedVehicleButton; // Track selected vehicle button for highlight
+
+        // Constructor default (backward compatibility)
+        // Constructor default (backward compatibility) - UPDATED
         public ScheduleWindow()
         {
             InitializeComponent();
@@ -31,19 +32,19 @@ namespace TiketLaut.Views
 
             SetNavbarVisibility();
 
-            // Check data pencarian ada di session ga
+            // CHECK: Apakah ada data pencarian tersimpan di session?
             if (SessionManager.LastSearchCriteria != null && SessionManager.LastSearchResults != null)
             {
                 System.Diagnostics.Debug.WriteLine("[ScheduleWindow] Loading from saved search session");
 
-                // pake data dari session
+                // Gunakan data dari session
                 _searchCriteria = SessionManager.LastSearchCriteria;
                 _jadwals = SessionManager.LastSearchResults;
 
-                // load dari session
+                // Load dropdown dengan data dari session
                 LoadFilterDropdownsAsync();
 
-                // Load jadwal dari database 
+                // Load jadwal dari database (bukan sample data)
                 LoadScheduleFromDatabase();
             }
             else
@@ -61,7 +62,7 @@ namespace TiketLaut.Views
         }
 
 
-        // Constructor baru dgn parameter dari DB
+        // Constructor baru dengan parameter dari database
         public ScheduleWindow(List<Jadwal> jadwals, SearchCriteria searchCriteria)
         {
             InitializeComponent();
@@ -85,7 +86,7 @@ namespace TiketLaut.Views
         {
             if (SessionManager.IsLoggedIn && SessionManager.CurrentUser != null)
             {
-                // User sudah login pake NavbarPostLogin
+                // User sudah login - tampilkan NavbarPostLogin
                 navbarPreLogin.Visibility = Visibility.Collapsed;
                 navbarPostLogin.Visibility = Visibility.Visible;
                 navbarPostLogin.SetUserInfo(SessionManager.CurrentUser.nama);
@@ -94,7 +95,7 @@ namespace TiketLaut.Views
             }
             else
             {
-                // User belum login pake NavbarPreLogin
+                // User belum login - tampilkan NavbarPreLogin
                 navbarPreLogin.Visibility = Visibility.Visible;
                 navbarPostLogin.Visibility = Visibility.Collapsed;
 

@@ -251,9 +251,9 @@ namespace TiketLaut.Services
         public string? PlatNomor { get; set; }
         
         // Data Pemesan (kontak saja, NIK tersimpan di Penumpang)
-        public string NamaPemesan { get; set; } = string.Empty;
-        public string NomorHpPemesan { get; set; } = string.Empty;
-        public string EmailPemesan { get; set; } = string.Empty;
+        public string NamaPemesan { get; set; }
+        public string NomorHpPemesan { get; set; }
+        public string EmailPemesan { get; set; }
         
         public List<PenumpangData> DataPenumpang { get; set; } = new List<PenumpangData>();
     }
