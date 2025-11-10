@@ -1868,6 +1868,7 @@ namespace TiketLaut.Views
                     }), System.Windows.Threading.DispatcherPriority.Input);
                 }
             }), System.Windows.Threading.DispatcherPriority.Background);
+
         }
 
         /// <summary>
