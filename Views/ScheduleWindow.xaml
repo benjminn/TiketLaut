@@ -5,7 +5,7 @@
         xmlns:System="clr-namespace:System;assembly=mscorlib"
         Title="Jadwal - Tiket Laut"
         MinHeight="800"
-        MinWidth="1500"
+        MinWidth="1200"
         WindowState="Maximized"
         WindowStartupLocation="CenterScreen"
         ResizeMode="CanResize"
@@ -31,8 +31,9 @@
 
         <!-- Main Content -->
         <ScrollViewer Grid.Row="1"
-                      VerticalScrollBarVisibility="Auto">
-            <StackPanel Margin="95,30,95,50">
+                      VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Auto">
+            <StackPanel Margin="95,30,95,50" MinWidth="1100">
 
                 <!-- Back Button -->
                 <Button Click="BtnKembali_Click"
@@ -57,21 +58,22 @@
                 <Border Background="White"
                         CornerRadius="17"
                         Padding="20,15"
-                        Margin="0,0,0,30">
-                    <Grid>
+                        Margin="0,0,0,30"
+                        ClipToBounds="False">
+                    <Grid ClipToBounds="False">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="Auto" MinWidth="148.547"/>
-                            <ColumnDefinition Width="Auto" MinWidth="20"/>
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="Auto" MinWidth="155"/>
-                            <ColumnDefinition/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
 
@@ -152,15 +154,13 @@
                                             <Popup x:Name="PART_Popup" 
                                                   PlacementTarget="{Binding ElementName=txtFilterDateDisplay}"
                                                   Placement="Bottom"
-                                                  HorizontalOffset="5"
-                                                  VerticalOffset="3"
                                                   AllowsTransparency="True"
                                                   StaysOpen="False"/>
                                         </Grid>
                                     </ControlTemplate>
                                 </DatePicker.Template>
                             </DatePicker>
-                            
+
                             <!-- TextBlock untuk menampilkan tanggal yang dipilih -->
                             <TextBlock x:Name="txtFilterDateDisplay"
                                       Text="Sab, 1 November 2025"
@@ -171,7 +171,7 @@
                                       HorizontalAlignment="Center"
                                       IsHitTestVisible="False"
                                       Background="Transparent"/>
-                            
+
                             <!-- Button transparan di atas untuk buka kalender -->
                             <Button x:Name="btnFilterDate"
                                    Background="Transparent"
@@ -179,7 +179,8 @@
                                    Cursor="Hand"
                                    Click="BtnFilterDate_Click"
                                    HorizontalAlignment="Stretch"
-                                   VerticalAlignment="Stretch"/>
+                                   VerticalAlignment="Stretch"
+                                   Padding="2,0"/>
                         </Grid>
 
                         <!-- Separator 2 -->
@@ -300,8 +301,6 @@
                             <Popup x:Name="popupVehicle"
                                   PlacementTarget="{Binding ElementName=btnFilterVehicle}"
                                   Placement="Bottom"
-                                  HorizontalOffset="180"
-                                  VerticalOffset="10"
                                   AllowsTransparency="True"
                                   StaysOpen="False"
                                   Opened="PopupVehicle_Opened">
@@ -853,11 +852,12 @@
                         <Rectangle Grid.Column="10"
                                    Width="1"
                                    Fill="#00B4B5"
-                                   Margin="6,0,221,0"/>
+                                   Margin="6,0,6,0"
+                                   HorizontalAlignment="Left"/>
 
                         <!-- Passengers (Clickable Button + Popup) -->
                         <Grid Grid.Column="10" 
-                              Margin="10,0,88,0" 
+                              Margin="0,0,10,0" 
                               VerticalAlignment="Center">
                             <!-- Button untuk toggle popup -->
                             <Button x:Name="btnFilterPenumpang"
@@ -865,16 +865,15 @@
                                    BorderThickness="0"
                                    Cursor="Hand"
                                    Click="BtnFilterPenumpang_Click"
-                                   Padding="5,0"
-                                   HorizontalAlignment="Center"
-                                   VerticalAlignment="Center" Width="130">
+                                   Padding="0"
+                                   VerticalAlignment="Center" Margin="10,0,13,0">
                                 <TextBlock x:Name="txtFilterPenumpangDisplay"
                                           FontSize="15"
                                           FontFamily="Plus Jakarta Sans"
                                           FontWeight="SemiBold"
                                           TextAlignment="Center"
                                           VerticalAlignment="Center"
-                                          Foreground="#011C4B" Width="132">
+                                          Foreground="#011C4B" Width="127">
                                     <Run Text="1"/>
                                     <Run Text=" "/>
                                     <Run Text="Penumpang"/>
@@ -890,8 +889,6 @@
                             <Popup x:Name="popupPenumpang"
                                   PlacementTarget="{Binding ElementName=btnFilterPenumpang}"
                                   Placement="Bottom"
-                                  HorizontalOffset="40"
-                                  VerticalOffset="7"
                                   AllowsTransparency="True"
                                   StaysOpen="False"
                                   Closed="PopupPenumpang_Closed">
@@ -1046,7 +1043,7 @@
                         </Grid>
 
                         <!-- Spacer -->
-                        <Grid Grid.Column="11" Margin="120,0,0,0"/>
+                        <Grid Grid.Column="11" MinWidth="10"/>
 
                         <!-- Search Button -->
                         <Button Grid.Column="12"
@@ -1055,7 +1052,7 @@
                                 Padding="45,14"
                                 Cursor="Hand"
                                 Click="BtnCari_Click"
-                                Margin="20,0,0,0"
+                                Margin="10,0,0,0"
                                 MinWidth="110">
                             <Button.Style>
                                 <Style TargetType="{x:Type Button}">

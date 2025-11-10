@@ -39,24 +39,25 @@
                    Stretch="UniformToFill" 
                    Opacity="0.7" 
                    VerticalAlignment="Top"
-                   Height="474" 
-                   Margin="0,-74,0,0" 
+                   MinHeight="450"
+                   MaxHeight="550"
                    Grid.ColumnSpan="3"/>
 
             <!-- Overlay -->
             <Rectangle Fill="#011C4B" 
                        Opacity="0.2"
                        VerticalAlignment="Top"
-                       Height="474" 
-                       Margin="0,-74,0,0" 
+                       MinHeight="450"
+                       MaxHeight="550"
                        Grid.ColumnSpan="3"/>
 
             <!-- ScrollViewer -->
             <ScrollViewer VerticalScrollBarVisibility="Auto" 
                          HorizontalScrollBarVisibility="Disabled"
                          Padding="0" 
-                         Height="710" 
+                         MaxHeight="710"
                          VerticalAlignment="Center" 
+                         ClipToBounds="False"
                          Grid.ColumnSpan="3">
                 <!-- Content -->
                 <StackPanel VerticalAlignment="Center" 
@@ -93,10 +94,11 @@
                     <Border Background="White" 
                            CornerRadius="20" 
                            Padding="40" 
-                           Effect="{StaticResource CardShadow}">
-                        <StackPanel>
+                           Effect="{StaticResource CardShadow}"
+                           ClipToBounds="False">
+                        <StackPanel ClipToBounds="False">
                             <!-- Row 1: Pelabuhan Asal, Kelas Layanan, Jadwal Masuk -->
-                            <Grid Margin="0,0,0,25">
+                            <Grid Margin="0,0,0,25" ClipToBounds="False">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="280"/>
                                     <ColumnDefinition Width="280"/>
@@ -214,30 +216,18 @@
                                         </Grid.ColumnDefinitions>
 
                                         <!-- Tanggal -->
-                                        <Border Background="#F0F0F0" 
+                                        <Border x:Name="borderTanggalContainer"
+                                               Background="#F0F0F0" 
                                                CornerRadius="10" 
                                                Padding="15,12"
                                                BorderThickness="1.5"
                                                BorderBrush="#999999"
-                                               Grid.Column="0">
-                                            <Grid x:Name="gridTanggalContainer" Width="143">
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="Auto"/>
-                                                    <ColumnDefinition Width="*"/>
-                                                </Grid.ColumnDefinitions>
-
-                                                <!-- Icon Tanggal di kiri -->
-                                                <Image Grid.Column="0"
-                                                       Source="/Views/Assets/Icons/icontanggal.png"
-                                                       Width="16"
-                                                       Height="16"
-                                                       VerticalAlignment="Center"
-                                                       HorizontalAlignment="Left"
-                                                       Margin="0,0,10,0"/>
-
-                                                <!-- Button untuk toggle calendar dengan text display -->
+                                               Grid.Column="0"
+                                               Panel.ZIndex="1000"
+                                               ClipToBounds="False">
+                                            <Grid x:Name="gridTanggalContainer" ClipToBounds="False">
+                                                <!-- Button untuk toggle calendar dengan icon + text display -->
                                                 <Button x:Name="btnTanggal"
-                                                       Grid.Column="1"
                                                        Background="Transparent"
                                                        BorderThickness="0"
                                                        Cursor="Hand"
@@ -245,15 +235,23 @@
                                                        Padding="0"
                                                        HorizontalAlignment="Left"
                                                        VerticalAlignment="Center">
-                                                    <!-- Text Display -->
-                                                    <TextBlock x:Name="txtTanggalDisplay"
-                                                              Text="Pilih Tanggal"
-                                                              FontSize="12"
-                                                              FontFamily="Plus Jakarta Sans"
-                                                              FontWeight="Medium"
-                                                              TextAlignment="Left"
-                                                              VerticalAlignment="Center"
-                                                              Foreground="#666666"/>
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <!-- Icon Tanggal -->
+                                                        <Image Source="/Views/Assets/Icons/icontanggal.png"
+                                                               Width="16"
+                                                               Height="16"
+                                                               VerticalAlignment="Center"
+                                                               Margin="0,0,10,0"/>
+                                                        
+                                                        <!-- Text Display -->
+                                                        <TextBlock x:Name="txtTanggalDisplay"
+                                                                  Text="Pilih Tanggal"
+                                                                  FontSize="12"
+                                                                  FontFamily="Plus Jakarta Sans"
+                                                                  FontWeight="Medium"
+                                                                  VerticalAlignment="Center"
+                                                                  Foreground="#666666"/>
+                                                    </StackPanel>
                                                 </Button>
 
                                                 <!-- DatePicker dengan template kosong dan Popup custom positioning -->
@@ -277,10 +275,8 @@
                                                                 <Button x:Name="PART_Button" 
                                                                        Visibility="Collapsed"/>
                                                                 <Popup x:Name="PART_Popup" 
-                                                                      PlacementTarget="{Binding ElementName=gridTanggalContainer}"
+                                                                      PlacementTarget="{Binding ElementName=borderTanggalContainer}"
                                                                       Placement="Bottom"
-                                                                      VerticalOffset="15"
-                                                                      HorizontalOffset="12"
                                                                       AllowsTransparency="True"
                                                                       StaysOpen="False"/>
                                                             </Grid>
@@ -418,7 +414,7 @@
                             </Grid>
 
                             <!-- Row 2: Pelabuhan Tujuan, Jenis Kendaraan, Penumpang -->
-                            <Grid Margin="0,0,0,25">
+                            <Grid Margin="0,0,0,25" ClipToBounds="False">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="280"/>
                                     <ColumnDefinition Width="280"/>
@@ -477,50 +473,50 @@
                                 </StackPanel>
 
                                 <!-- ✅ Jenis Kendaraan - POPUP VERSION (Same as Schedule) -->
-                                <StackPanel Grid.Column="1" Margin="0,0,15,0">
+                                <StackPanel Grid.Column="1" Margin="0,0,15,0" ClipToBounds="False">
                                     <TextBlock Text="Jenis Kendaraan" 
                                               FontSize="13" 
                                               FontFamily="Plus Jakarta Sans"
                                               FontWeight="SemiBold"
                                               Foreground="#333"
                                               Margin="0,0,0,10"/>
-                                    <Border Background="#F0F0F0" 
+                                    <Border x:Name="borderVehicleContainer"
+                                           Background="#F0F0F0" 
                                            CornerRadius="10" 
                                            Padding="15,12"
                                            BorderThickness="1.5"
                                            BorderBrush="#999999"
                                            Width="265"
-                                           HorizontalAlignment="Left">
-                                        <Grid Width="235">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="Auto"/>
-                                                <ColumnDefinition Width="8"/>
-                                                <ColumnDefinition Width="*"/>
-                                            </Grid.ColumnDefinitions>
-
-                                            <Image Grid.Column="0"
-                                                   Source="/Views/Assets/Icons/iconorang.png"
-                                                   Width="18"
-                                                   Height="18"
-                                                   VerticalAlignment="Center"/>
-
+                                           HorizontalAlignment="Left"
+                                           Height="49">
+                                        <Grid>
                                             <!-- Button untuk toggle popup -->
                                             <Button x:Name="btnVehicle"
-                                                   Grid.Column="2"
                                                    Click="BtnVehicle_Click"
                                                    Background="Transparent"
                                                    BorderThickness="0"
                                                    Cursor="Hand"
-                                                   HorizontalAlignment="Stretch"
+                                                   HorizontalAlignment="Left"
                                                    HorizontalContentAlignment="Left"
                                                    Padding="0">
-                                                <TextBlock x:Name="txtVehicleDisplay"
-                                                          FontSize="12"
-                                                          FontFamily="Plus Jakarta Sans"
-                                                          Foreground="#666666"
-                                                          TextTrimming="CharacterEllipsis">
-                                                    <Run Text="Pilih Jenis Kendaraan" Foreground="#666666"/>
-                                                </TextBlock>
+                                                <StackPanel Orientation="Horizontal">
+                                                    <!-- Icon -->
+                                                    <Image Source="/Views/Assets/Icons/iconorang.png"
+                                                           Width="18"
+                                                           Height="18"
+                                                           VerticalAlignment="Center"
+                                                           Margin="0,0,10,0"/>
+                                                    
+                                                    <!-- Text Display -->
+                                                    <TextBlock x:Name="txtVehicleDisplay"
+                                                              FontSize="12"
+                                                              FontFamily="Plus Jakarta Sans"
+                                                              Foreground="#666666"
+                                                              TextTrimming="CharacterEllipsis"
+                                                              VerticalAlignment="Center">
+                                                        <Run Text="Pilih Jenis Kendaraan" Foreground="#666666"/>
+                                                    </TextBlock>
+                                                </StackPanel>
                                             </Button>
 
                                             <!-- Hidden TextBox untuk menyimpan ID -->
@@ -530,10 +526,8 @@
 
                                             <!-- Popup untuk pilihan kendaraan -->
                                             <Popup x:Name="popupVehicleHome"
-                                                  PlacementTarget="{Binding ElementName=btnVehicle}"
+                                                  PlacementTarget="{Binding ElementName=borderVehicleContainer}"
                                                   Placement="Bottom"
-                                                  HorizontalOffset="100"
-                                                  VerticalOffset="-20"
                                                   AllowsTransparency="True"
                                                   StaysOpen="False"
                                                   Opened="PopupVehicleHome_Opened">
@@ -543,7 +537,7 @@
                                                        CornerRadius="8"
                                                        Padding="10"
                                                        Width="420"
-                                                       MaxHeight="400">
+                                                       MaxHeight="250">
                                                     <Border.Effect>
                                                         <DropShadowEffect Color="Black" 
                                                                          Direction="270" 
@@ -1091,46 +1085,47 @@
                                               FontWeight="SemiBold"
                                               Foreground="#333"
                                               Margin="0,0,0,10"/>
-                                    <Border Background="#F0F0F0" 
+                                    <Border x:Name="borderPenumpangContainer"
+                                           Background="#F0F0F0" 
                                            CornerRadius="10" 
                                            Padding="15,12"
                                            BorderThickness="1.5"
                                            BorderBrush="#999999"
                                            Width="350"
-                                           Height="48">
-                                        <Grid x:Name="gridPenumpangContainer" Width="328">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="Auto"/>
-                                                <ColumnDefinition Width="*"/>
-                                            </Grid.ColumnDefinitions>
-
-                                            <!-- Icon di kiri -->
-                                            <Image Grid.Column="0"
-                                                   Source="/Views/Assets/Icons/iconorang.png"
-                                                   Width="16"
-                                                   Height="16"
-                                                   VerticalAlignment="Center"
-                                                   HorizontalAlignment="Left"
-                                                   Margin="0,0,10,0"/>
-
-                                            <!-- Button untuk toggle popup dengan text display -->
+                                           Height="48"
+                                           HorizontalAlignment="Left"
+                                           Panel.ZIndex="1000"
+                                           ClipToBounds="False">
+                                        <Grid ClipToBounds="False">
+                                            <!-- Button untuk toggle popup dengan icon + text -->
                                             <Button x:Name="btnPenumpang"
-                                                   Grid.Column="1"
                                                    Background="Transparent"
                                                    BorderThickness="0"
                                                    Cursor="Hand"
                                                    Click="BtnPenumpang_Click"
-                                                   Padding="0"
+                                                   Padding="0,0,0,5"
                                                    HorizontalAlignment="Left"
-                                                   VerticalAlignment="Center">
-                                                <!-- Text Display -->
-                                                <TextBlock x:Name="txtPenumpangDisplay"
-                                                          FontSize="12"
-                                                          FontFamily="Plus Jakarta Sans"
-                                                          FontWeight="Medium"
-                                                          TextAlignment="Left"
-                                                          VerticalAlignment="Center"
-                                                          Foreground="#666666"><Run Text="1"/><Run Text=" "/><Run Text=" "/><Run Text=" "/><Run Text="Penumpang"/></TextBlock>
+                                                   HorizontalContentAlignment="Left"
+                                                   VerticalAlignment="Top"
+                                                   VerticalContentAlignment="Top"
+                                                   Width="168"
+                                                   Height="35">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <!-- Icon -->
+                                                    <Image Source="/Views/Assets/Icons/iconorang.png"
+                                                           Width="16"
+                                                           Height="16"
+                                                           VerticalAlignment="Center"
+                                                           Margin="0,0,10,0"/>
+                                                    
+                                                    <!-- Text Display -->
+                                                    <TextBlock x:Name="txtPenumpangDisplay"
+                                                              FontSize="12"
+                                                              FontFamily="Plus Jakarta Sans"
+                                                              FontWeight="Medium"
+                                                              VerticalAlignment="Center"
+                                                              Foreground="#666666"><Run Text="1"/><Run Text=" "/><Run Text=" "/><Run Text=" "/><Run Text="Penumpang"/></TextBlock>
+                                                </StackPanel>
                                             </Button>
 
                                             <!-- Hidden TextBox for value -->
@@ -1140,10 +1135,8 @@
 
                                             <!-- Popup untuk +/- dan input -->
                                             <Popup x:Name="popupPenumpangHome"
-                                                  PlacementTarget="{Binding ElementName=gridPenumpangContainer}"
+                                                  PlacementTarget="{Binding ElementName=btnPenumpang}"
                                                   Placement="Bottom"
-                                                  HorizontalOffset="-186"
-                                                  VerticalOffset="20"
                                                   AllowsTransparency="True"
                                                   StaysOpen="False"
                                                   Closed="PopupPenumpangHome_Closed">
@@ -1152,13 +1145,14 @@
                                                        BorderThickness="2"
                                                        CornerRadius="8"
                                                        Padding="15"
-                                                       MinWidth="150">
+                                                       Width="180">
+        
                                                     <Border.Effect>
                                                         <DropShadowEffect Color="Black" 
-                                                                         Direction="270" 
-                                                                         ShadowDepth="2" 
-                                                                         BlurRadius="8" 
-                                                                         Opacity="0.15"/>
+                                                            Direction="270" 
+                                                            ShadowDepth="2" 
+                                                            BlurRadius="8" 
+                                                            Opacity="0.15"/>
                                                     </Border.Effect>
 
                                                     <StackPanel>
