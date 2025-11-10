@@ -887,11 +887,21 @@
                                     </StackPanel>
 
                                     <Button Grid.Column="4" 
-                                           Content="❌ Reset Filter" 
-                                           Style="{StaticResource DangerButton}"
+                                           Content="Reset Filter" 
                                            Click="BtnResetFilter_Click"
                                            Padding="12,8"
-                                           VerticalAlignment="Bottom"/>
+                                           VerticalAlignment="Bottom">
+                                        <Button.Style>
+                                            <Style TargetType="Button" BasedOn="{StaticResource DangerButton}">
+                                                <Setter Property="Background" Value="#6C757D"/>
+                                                <Style.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter Property="Background" Value="#5A6268"/>
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Button.Style>
+                                    </Button>
                                 </Grid>
                             </StackPanel>
                         </Border>
@@ -1105,7 +1115,7 @@
                                                        Style="{StaticResource PrimaryButton}"
                                                        Click="BtnDetailNotif_Click"
                                                        Tag="{Binding notifikasi_id}"
-                                                       Padding="10,5"
+                                                       Padding="15,10"
                                                        FontSize="12"
                                                        HorizontalAlignment="Center"/>
                                             </DataTemplate>

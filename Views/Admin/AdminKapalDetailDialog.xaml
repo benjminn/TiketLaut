@@ -2,9 +2,9 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Detail Kapal" 
-        SizeToContent="WidthAndHeight"
-        MinWidth="700"
-        MaxWidth="900"
+        Width="750"
+        Height="650"
+        MaxHeight="750"
         WindowStartupLocation="CenterOwner"
         ResizeMode="CanResizeWithGrip"
         Background="#F5F7FA"
@@ -46,7 +46,8 @@
     </Window.Resources>
 
     <Border Background="White" CornerRadius="12" Margin="20" Padding="30">
-        <StackPanel>
+        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+            <StackPanel>
             <!-- Header -->
             <TextBlock x:Name="txtTitle" 
                       Text="Detail Kapal" 
@@ -206,5 +207,6 @@
                    HorizontalAlignment="Center"
                    Margin="0,10,0,0"/>
         </StackPanel>
+        </ScrollViewer>
     </Border>
 </Window>

@@ -7,6 +7,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using TiketLaut.Services;
 using TiketLaut.Helpers;
+using TiketLaut.Views.Components;
 
 namespace TiketLaut.Views
 {
@@ -40,7 +41,7 @@ namespace TiketLaut.Views
                 _currentJadwal = await _jadwalService.GetJadwalByIdAsync(_jadwalId);
                 if (_currentJadwal == null)
                 {
-                    MessageBox.Show("Jadwal tidak ditemukan!", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    CustomDialog.ShowError("Error", "Jadwal tidak ditemukan!");
                     this.Close();
                     return;
                 }
@@ -51,7 +52,7 @@ namespace TiketLaut.Views
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error loading data: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                CustomDialog.ShowError("Error", $"Error loading data: {ex.Message}");
             }
         }
 
@@ -199,11 +200,9 @@ namespace TiketLaut.Views
 
             if (_similarSchedules.Count == 0)
             {
-                MessageBox.Show(
-                    "Tidak ada jadwal serupa ditemukan untuk rute dan tanggal yang sama.",
+                CustomDialog.ShowInfo(
                     "Info",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Information
+                    "Tidak ada jadwal serupa ditemukan untuk rute dan tanggal yang sama."
                 );
             }
         }
@@ -310,12 +309,12 @@ namespace TiketLaut.Views
                 {
                     // Reload data after successful edit
                     LoadData();
-                    MessageBox.Show("Jadwal berhasil diupdate!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                    CustomDialog.ShowSuccess("Success", "Jadwal berhasil diupdate!");
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                CustomDialog.ShowError("Error", $"Error: {ex.Message}");
             }
         }
 
@@ -323,18 +322,16 @@ namespace TiketLaut.Views
         {
             if (_currentJadwal == null) return;
 
-            var result = MessageBox.Show(
+            var result = CustomDialog.ShowQuestion(
+                "Konfirmasi Hapus",
                 $"Apakah Anda yakin ingin menghapus jadwal ini?\n\n" +
                 $"Rute: {_currentJadwal.pelabuhan_asal?.nama_pelabuhan} → {_currentJadwal.pelabuhan_tujuan?.nama_pelabuhan}\n" +
                 $"Tanggal: {_currentJadwal.waktu_berangkat:dd MMM yyyy}\n" +
                 $"Waktu: {_currentJadwal.waktu_berangkat:HH:mm}\n\n" +
-                $"Jadwal yang dihapus tidak dapat dikembalikan!",
-                "Konfirmasi Hapus",
-                MessageBoxButton.YesNo,
-                MessageBoxImage.Warning
+                $"Jadwal yang dihapus tidak dapat dikembalikan!"
             );
 
-            if (result == MessageBoxResult.Yes)
+            if (result == true)
             {
                 try
                 {
@@ -342,7 +339,7 @@ namespace TiketLaut.Views
                     
                     if (deleteResult.success)
                     {
-                        MessageBox.Show("Jadwal berhasil dihapus!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                        CustomDialog.ShowSuccess("Success", "Jadwal berhasil dihapus!");
                         
                         // Close this window and notify parent to refresh
                         DialogResult = true;
@@ -350,12 +347,12 @@ namespace TiketLaut.Views
                     }
                     else
                     {
-                        MessageBox.Show($"Gagal menghapus jadwal: {deleteResult.message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        CustomDialog.ShowError("Error", $"Gagal menghapus jadwal: {deleteResult.message}");
                     }
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"Error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    CustomDialog.ShowError("Error", $"Error: {ex.Message}");
                 }
             }
         }

@@ -424,19 +424,20 @@
                         </Grid>
 
                         <!-- Reset Button -->
-                        <Button Style="{StaticResource PrimaryButton}"
+                        <Button Content="Reset Filter"
                                Click="BtnResetFilter_Click"
                                HorizontalAlignment="Right"
-                               Margin="0,20,0,0"
-                               Background="#6C757D">
-                            <StackPanel Orientation="Horizontal">
-                                <Image Source="/Views/Assets/Icons/iconReset.png" 
-                                       Width="13" 
-                                       Height="13" 
-                                       Margin="0,0,8,0"
-                                       VerticalAlignment="Center"/>
-                                <TextBlock Text="Reset Filter" VerticalAlignment="Center"/>
-                            </StackPanel>
+                               Margin="0,20,0,0">
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
+                                    <Setter Property="Background" Value="#6C757D"/>
+                                    <Style.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Background" Value="#5A6268"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
                         </Button>
                     </StackPanel>
                 </Border>

@@ -11,6 +11,7 @@ using TiketLaut.Services;
 using System.Threading.Tasks;
 using TiketLaut.Models;
 using System.ComponentModel;
+using TiketLaut.Views.Components;
 
 
 namespace TiketLaut.Views
@@ -89,8 +90,7 @@ namespace TiketLaut.Views
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error loading data: {ex.Message}", "Error",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
+                CustomDialog.ShowError($"Error loading data: {ex.Message}", "Error");
             }
         }
         private void ApplyFilters()
@@ -199,26 +199,22 @@ namespace TiketLaut.Views
         {
             if (dgTiket.SelectedItem is TiketViewModel viewModel)
             {
-                var result = MessageBox.Show(
+                var result = CustomDialog.ShowQuestion(
                     $"Hapus tiket {viewModel.Tiket.kode_tiket}?",
-                    "Konfirmasi",
-                    MessageBoxButton.YesNo,
-                    MessageBoxImage.Question);
+                    "Konfirmasi");
 
-                if (result == MessageBoxResult.Yes)
+                if (result == true)
                 {
                     try
                     {
                         await _tiketService.DeleteTiketAsync(viewModel.Tiket.tiket_id);
                         _allTikets.Remove(viewModel);
                         _filteredTikets.Remove(viewModel);
-                        MessageBox.Show("Tiket berhasil dihapus", "Sukses",
-                            MessageBoxButton.OK, MessageBoxImage.Information);
+                        CustomDialog.ShowSuccess("Tiket berhasil dihapus", "Sukses");
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show($"Gagal menghapus tiket: {ex.Message}", "Error",
-                            MessageBoxButton.OK, MessageBoxImage.Error);
+                        CustomDialog.ShowError($"Gagal menghapus tiket: {ex.Message}", "Error");
                     }
                 }
             }
@@ -237,13 +233,11 @@ namespace TiketLaut.Views
                     _filteredTikets.Remove(tiketToRemove);
                 }
 
-                MessageBox.Show("Tiket berhasil dihapus.", "Success",
-                    MessageBoxButton.OK, MessageBoxImage.Information);
+                CustomDialog.ShowSuccess("Tiket berhasil dihapus.", "Success");
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error deleting tiket: {ex.Message}", "Error",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
+                CustomDialog.ShowError($"Error deleting tiket: {ex.Message}", "Error");
             }
         }
 

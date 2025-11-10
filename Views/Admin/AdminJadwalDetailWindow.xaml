@@ -74,14 +74,27 @@
                 </Setter.Value>
             </Setter>
             <Style.Triggers>
+                <!-- Normal hover (not active) -->
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#F8FAFC"/>
+                    <Setter Property="Foreground" Value="#64748B"/>
+                </Trigger>
+                <!-- Active state -->
                 <Trigger Property="Tag" Value="Active">
                     <Setter Property="Background" Value="#00658D"/>
                     <Setter Property="Foreground" Value="White"/>
                     <Setter Property="BorderBrush" Value="#00658D"/>
                 </Trigger>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#F8FAFC"/>
-                </Trigger>
+                <!-- Active state + hover -->
+                <MultiTrigger>
+                    <MultiTrigger.Conditions>
+                        <Condition Property="Tag" Value="Active"/>
+                        <Condition Property="IsMouseOver" Value="True"/>
+                    </MultiTrigger.Conditions>
+                    <Setter Property="Background" Value="#267DAE"/>
+                    <Setter Property="Foreground" Value="White"/>
+                    <Setter Property="BorderBrush" Value="#267DAE"/>
+                </MultiTrigger>
             </Style.Triggers>
         </Style>
 
@@ -222,33 +235,19 @@
 
                     <!-- Action Buttons (Edit & Delete) -->
                     <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
-                        <Button Style="{StaticResource WarningButton}"
+                        <Button Style="{StaticResource PrimaryButton}"
                                Click="BtnEditJadwal_Click"
-                               Padding="15,8"
+                               Padding="15,10"
                                Margin="0,0,10,0">
-                            <StackPanel Orientation="Horizontal">
-                                <Image Source="/Views/Assets/Icons/iconEdit.png" 
-                                       Width="16" 
-                                       Height="16" 
-                                       Margin="0,0,8,0"
-                                       VerticalAlignment="Center"/>
-                                <TextBlock Text="Edit Jadwal" 
-                                          VerticalAlignment="Center"/>
-                            </StackPanel>
+                            <TextBlock Text="Edit Jadwal" 
+                                      VerticalAlignment="Center"/>
                         </Button>
 
                         <Button Style="{StaticResource DangerButton}"
                                Click="BtnDeleteJadwal_Click"
-                               Padding="15,8">
-                            <StackPanel Orientation="Horizontal">
-                                <Image Source="/Views/Assets/Icons/iconHapus.png" 
-                                       Width="16" 
-                                       Height="16" 
-                                       Margin="0,0,8,0"
-                                       VerticalAlignment="Center"/>
-                                <TextBlock Text="Hapus Jadwal" 
-                                          VerticalAlignment="Center"/>
-                            </StackPanel>
+                               Padding="15,10">
+                            <TextBlock Text="Hapus Jadwal" 
+                                      VerticalAlignment="Center"/>
                         </Button>
                     </StackPanel>
                 </Grid>

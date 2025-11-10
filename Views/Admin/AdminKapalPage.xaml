@@ -66,24 +66,22 @@
 
         <!-- DataGrid Header Style - Bold & Centered -->
         <Style TargetType="DataGridColumnHeader">
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="FontSize" Value="14"/>
-            <Setter Property="Foreground" Value="#011C4B"/>
-            <Setter Property="Background" Value="#F8F9FA"/>
+            <Setter Property="Background" Value="#00658D"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="Padding" Value="12,10"/>
+            <Setter Property="BorderThickness" Value="0,0,1,0"/>
+            <Setter Property="BorderBrush" Value="#267DAE"/>
             <Setter Property="HorizontalContentAlignment" Value="Center"/>
-            <Setter Property="BorderThickness" Value="0,0,0,1"/>
-            <Setter Property="BorderBrush" Value="#DEE2E6"/>
         </Style>
 
         <!-- DataGrid Cell Style - Centered -->
         <Style TargetType="DataGridCell">
-            <Setter Property="TextBlock.TextAlignment" Value="Center"/>
-            <Setter Property="Padding" Value="8"/>
             <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="12,8"/>
             <Style.Triggers>
                 <Trigger Property="IsSelected" Value="True">
-                    <Setter Property="Background" Value="#E7F3F8"/>
+                    <Setter Property="Background" Value="#E8F4F8"/>
                     <Setter Property="Foreground" Value="#011C4B"/>
                 </Trigger>
             </Style.Triggers>
@@ -118,10 +116,14 @@
                      IsReadOnly="True"
                      SelectionMode="Single"
                      HeadersVisibility="Column"
-                     GridLinesVisibility="None"
-                     Background="Transparent"
-                     BorderThickness="0"
-                     RowHeight="50">
+                     GridLinesVisibility="Horizontal"
+                     ColumnHeaderHeight="45"
+                     AlternatingRowBackground="#F8F9FA"
+                     Background="White"
+                     BorderBrush="#DEE2E6"
+                     BorderThickness="1"
+                     RowHeight="50"
+                     FontSize="13">
                 
                 <DataGrid.Columns>
                     <!-- ID Column - Center Horizontal & Vertical -->
@@ -188,21 +190,21 @@
                                            Style="{StaticResource SecondaryButton}"
                                            Click="BtnDetailKapal_Click"
                                            Tag="{Binding kapal_id}"
-                                           Padding="12,6"
+                                           Padding="15,10"
                                            Margin="0,0,6,0"
                                            MinWidth="60"/>
                                     <Button Content="Edit" 
                                            Style="{StaticResource PrimaryButton}"
                                            Click="BtnEditKapal_Click"
                                            Tag="{Binding kapal_id}"
-                                           Padding="12,6"
+                                           Padding="15,10"
                                            Margin="0,0,6,0"
                                            MinWidth="60"/>
                                     <Button Content="Hapus" 
                                            Style="{StaticResource DangerButton}"
                                            Click="BtnDeleteKapal_Click"
                                            Tag="{Binding kapal_id}"
-                                           Padding="12,6"
+                                           Padding="15,10"
                                            MinWidth="60"/>
                                 </StackPanel>
                             </DataTemplate>
