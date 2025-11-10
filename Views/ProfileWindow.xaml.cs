@@ -3,6 +3,7 @@ using System.Windows;
 using System.Windows.Controls;
 using TiketLaut.Services;
 using TiketLaut.Models;
+using TiketLaut.Views.Components;
 
 namespace TiketLaut.Views
 {
@@ -31,8 +32,7 @@ namespace TiketLaut.Views
             else
             {
                 // Redirect ke login jika belum login
-                MessageBox.Show("Silakan login terlebih dahulu!", "Peringatan",
-                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                CustomDialog.ShowWarning("Peringatan", "Silakan login terlebih dahulu!");
                 
                 var loginWindow = new LoginWindow();
                 loginWindow.Show();
@@ -48,6 +48,15 @@ namespace TiketLaut.Views
             var user = SessionManager.CurrentUser;
             if (user != null)
             {
+                // Set data untuk VIEW MODE (TextBlock - Read Only)
+                txtEmailView.Text = user.email;
+                txtNamaView.Text = user.nama;
+                txtNIKView.Text = user.nomor_induk_kependudukan;
+                txtJenisKelaminView.Text = user.jenis_kelamin;
+                txtTanggalLahirView.Text = user.tanggal_lahir.ToString("dd MMMM yyyy", new System.Globalization.CultureInfo("id-ID"));
+                txtAlamatView.Text = string.IsNullOrWhiteSpace(user.alamat) ? "-" : user.alamat;
+
+                // Set data untuk EDIT MODE (Input Controls)
                 txtEmail.Text = user.email;
                 txtNama.Text = user.nama;
                 txtNIK.Text = user.nomor_induk_kependudukan;
@@ -106,13 +115,24 @@ namespace TiketLaut.Views
         {
             _isEditMode = true;
 
-            // Enable editing
-            txtNama.IsReadOnly = false;
-            txtEmail.IsReadOnly = false;
-            txtNIK.IsReadOnly = false;
-            cmbJenisKelamin.IsEnabled = true;
-            dpTanggalLahir.IsEnabled = true;
-            txtAlamat.IsReadOnly = false;
+            // Hide View Mode, Show Edit Mode
+            borderEmailView.Visibility = Visibility.Collapsed;
+            borderEmailEdit.Visibility = Visibility.Visible;
+            
+            borderNamaView.Visibility = Visibility.Collapsed;
+            borderNamaEdit.Visibility = Visibility.Visible;
+            
+            borderNIKView.Visibility = Visibility.Collapsed;
+            borderNIKEdit.Visibility = Visibility.Visible;
+            
+            borderJenisKelaminView.Visibility = Visibility.Collapsed;
+            borderJenisKelaminEdit.Visibility = Visibility.Visible;
+            
+            borderTanggalLahirView.Visibility = Visibility.Collapsed;
+            borderTanggalLahirEdit.Visibility = Visibility.Visible;
+            
+            borderAlamatView.Visibility = Visibility.Collapsed;
+            borderAlamatEdit.Visibility = Visibility.Visible;
 
             // Show password fields
             pnlPasswordLama.Visibility = Visibility.Visible;
@@ -137,13 +157,24 @@ namespace TiketLaut.Views
         {
             _isEditMode = false;
 
-            // Disable editing
-            txtNama.IsReadOnly = true;
-            txtEmail.IsReadOnly = true;
-            txtNIK.IsReadOnly = true;
-            cmbJenisKelamin.IsEnabled = false;
-            dpTanggalLahir.IsEnabled = false;
-            txtAlamat.IsReadOnly = true;
+            // Show View Mode, Hide Edit Mode
+            borderEmailView.Visibility = Visibility.Visible;
+            borderEmailEdit.Visibility = Visibility.Collapsed;
+            
+            borderNamaView.Visibility = Visibility.Visible;
+            borderNamaEdit.Visibility = Visibility.Collapsed;
+            
+            borderNIKView.Visibility = Visibility.Visible;
+            borderNIKEdit.Visibility = Visibility.Collapsed;
+            
+            borderJenisKelaminView.Visibility = Visibility.Visible;
+            borderJenisKelaminEdit.Visibility = Visibility.Collapsed;
+            
+            borderTanggalLahirView.Visibility = Visibility.Visible;
+            borderTanggalLahirEdit.Visibility = Visibility.Collapsed;
+            
+            borderAlamatView.Visibility = Visibility.Visible;
+            borderAlamatEdit.Visibility = Visibility.Collapsed;
 
             // Hide password fields
             pnlPasswordLama.Visibility = Visibility.Collapsed;
@@ -176,44 +207,38 @@ namespace TiketLaut.Views
                 // Validasi input
                 if (string.IsNullOrWhiteSpace(txtNama.Text))
                 {
-                    MessageBox.Show("Nama tidak boleh kosong!", "Validasi",
-                        MessageBoxButton.OK, MessageBoxImage.Warning);
+                    CustomDialog.ShowWarning("Validasi", "Nama tidak boleh kosong!");
                     return;
                 }
 
                 if (string.IsNullOrWhiteSpace(txtEmail.Text))
                 {
-                    MessageBox.Show("Email tidak boleh kosong!", "Validasi",
-                        MessageBoxButton.OK, MessageBoxImage.Warning);
+                    CustomDialog.ShowWarning("Validasi", "Email tidak boleh kosong!");
                     return;
                 }
 
                 if (string.IsNullOrWhiteSpace(txtNIK.Text))
                 {
-                    MessageBox.Show("NIK tidak boleh kosong!", "Validasi",
-                        MessageBoxButton.OK, MessageBoxImage.Warning);
+                    CustomDialog.ShowWarning("Validasi", "NIK tidak boleh kosong!");
                     return;
                 }
 
                 if (txtNIK.Text.Length != 16)
                 {
-                    MessageBox.Show("NIK harus 16 digit!", "Validasi",
-                        MessageBoxButton.OK, MessageBoxImage.Warning);
+                    CustomDialog.ShowWarning("Validasi", "NIK harus 16 digit!");
                     return;
                 }
 
                 if (!dpTanggalLahir.SelectedDate.HasValue)
                 {
-                    MessageBox.Show("Pilih tanggal lahir!", "Validasi",
-                        MessageBoxButton.OK, MessageBoxImage.Warning);
+                    CustomDialog.ShowWarning("Validasi", "Pilih tanggal lahir!");
                     return;
                 }
 
                 // Validasi email format
                 if (!IsValidEmail(txtEmail.Text))
                 {
-                    MessageBox.Show("Format email tidak valid!", "Validasi",
-                        MessageBoxButton.OK, MessageBoxImage.Warning);
+                    CustomDialog.ShowWarning("Validasi", "Format email tidak valid!");
                     return;
                 }
 
@@ -224,31 +249,27 @@ namespace TiketLaut.Views
                     // Jika ingin ganti password, harus isi password lama dulu
                     if (string.IsNullOrWhiteSpace(txtPasswordLama.Password))
                     {
-                        MessageBox.Show("Masukkan password lama untuk mengubah password!", "Validasi",
-                            MessageBoxButton.OK, MessageBoxImage.Warning);
+                        CustomDialog.ShowWarning("Validasi", "Masukkan password lama untuk mengubah password!");
                         return;
                     }
 
                     // Verifikasi password lama
                     if (SessionManager.CurrentUser != null && txtPasswordLama.Password != SessionManager.CurrentUser.password)
                     {
-                        MessageBox.Show("Password lama tidak sesuai!", "Validasi",
-                            MessageBoxButton.OK, MessageBoxImage.Warning);
+                        CustomDialog.ShowWarning("Validasi", "Password lama tidak sesuai!");
                         return;
                     }
 
                     // Validasi password baru
                     if (txtPassword.Password.Length < 6)
                     {
-                        MessageBox.Show("Password baru minimal 6 karakter!", "Validasi",
-                            MessageBoxButton.OK, MessageBoxImage.Warning);
+                        CustomDialog.ShowWarning("Validasi", "Password baru minimal 6 karakter!");
                         return;
                     }
 
                     if (txtPassword.Password != txtConfirmPassword.Password)
                     {
-                        MessageBox.Show("Konfirmasi password tidak cocok!", "Validasi",
-                            MessageBoxButton.OK, MessageBoxImage.Warning);
+                        CustomDialog.ShowWarning("Validasi", "Konfirmasi password tidak cocok!");
                         return;
                     }
 
@@ -256,21 +277,19 @@ namespace TiketLaut.Views
                 }
 
                 // Konfirmasi save
-                var result = MessageBox.Show(
-                    "Apakah Anda yakin ingin menyimpan perubahan?",
+                var result = CustomDialog.ShowQuestion(
                     "Konfirmasi",
-                    MessageBoxButton.YesNo,
-                    MessageBoxImage.Question);
+                    "Apakah Anda yakin ingin menyimpan perubahan?",
+                    CustomDialog.DialogButtons.YesNo);
 
-                if (result != MessageBoxResult.Yes)
+                if (result != true)
                     return;
 
                 // Update data
                 var currentUser = SessionManager.CurrentUser;
                 if (currentUser == null)
                 {
-                    MessageBox.Show("Sesi login tidak valid!", "Error",
-                        MessageBoxButton.OK, MessageBoxImage.Error);
+                    CustomDialog.ShowError("Error", "Sesi login tidak valid!");
                     return;
                 }
 
@@ -311,23 +330,28 @@ namespace TiketLaut.Views
                     _originalJenisKelamin = currentUser.jenis_kelamin;
                     _originalTanggalLahir = currentUser.tanggal_lahir;
                     _originalAlamat = currentUser.alamat ?? "";
+                    
+                    // Update View Mode text blocks
+                    txtNamaView.Text = currentUser.nama;
+                    txtEmailView.Text = currentUser.email;
+                    txtNIKView.Text = currentUser.nomor_induk_kependudukan;
+                    txtJenisKelaminView.Text = currentUser.jenis_kelamin;
+                    txtTanggalLahirView.Text = currentUser.tanggal_lahir.ToString("dd MMMM yyyy", new System.Globalization.CultureInfo("id-ID"));
+                    txtAlamatView.Text = string.IsNullOrWhiteSpace(currentUser.alamat) ? "-" : currentUser.alamat;
 
-                    MessageBox.Show("Profil berhasil diperbarui!", "Sukses",
-                        MessageBoxButton.OK, MessageBoxImage.Information);
+                    CustomDialog.ShowSuccess("Sukses", "Profil berhasil diperbarui!");
 
                     // Exit edit mode
                     ExitEditMode();
                 }
                 else
                 {
-                    MessageBox.Show("Gagal memperbarui profil. Silakan coba lagi.", "Error",
-                        MessageBoxButton.OK, MessageBoxImage.Error);
+                    CustomDialog.ShowError("Error", "Gagal memperbarui profil. Silakan coba lagi.");
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Terjadi kesalahan: {ex.Message}", "Error",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
+                CustomDialog.ShowError("Error", $"Terjadi kesalahan: {ex.Message}");
                 System.Diagnostics.Debug.WriteLine($"[ProfileWindow] Error saving profile: {ex.Message}");
             }
         }
@@ -353,13 +377,12 @@ namespace TiketLaut.Views
         /// </summary>
         private void BtnCancel_Click(object sender, RoutedEventArgs e)
         {
-            var result = MessageBox.Show(
-                "Batalkan perubahan?",
+            var result = CustomDialog.ShowQuestion(
                 "Konfirmasi",
-                MessageBoxButton.YesNo,
-                MessageBoxImage.Question);
+                "Batalkan perubahan?",
+                CustomDialog.DialogButtons.YesNo);
 
-            if (result == MessageBoxResult.Yes)
+            if (result == true)
             {
                 // Restore original data
                 txtNama.Text = _originalNama;
@@ -387,18 +410,19 @@ namespace TiketLaut.Views
         /// </summary>
         private void BtnKembali_Click(object sender, RoutedEventArgs e)
         {
+            // Jika sedang edit mode, tanyakan konfirmasi
             if (_isEditMode)
             {
-                var result = MessageBox.Show(
-                    "Ada perubahan yang belum disimpan. Tetap kembali?",
+                var result = CustomDialog.ShowQuestion(
                     "Konfirmasi",
-                    MessageBoxButton.YesNo,
-                    MessageBoxImage.Warning);
+                    "Ada perubahan yang belum disimpan. Tetap kembali?",
+                    CustomDialog.DialogButtons.YesNo);
 
-                if (result != MessageBoxResult.Yes)
+                if (result != true)
                     return;
             }
 
+            // Kembali ke HomePage (bukan menutup window)
             var homePage = new HomePage(true, SessionManager.CurrentUser?.nama ?? "");
             homePage.Show();
             this.Close();

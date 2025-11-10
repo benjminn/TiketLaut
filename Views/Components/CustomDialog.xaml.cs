@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -30,9 +31,9 @@ namespace TiketLaut.Views.Components
         {
             InitializeComponent();
             
-            // Set owner untuk modal behavior - akan di-set dari caller jika perlu
-            // this.Owner akan di-set di Show() method
-            this.Topmost = true;
+            // Set window properties untuk modal behavior yang proper
+            this.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+            this.ShowInTaskbar = false;
             this.ShowActivated = true;
             this.Focusable = true;
             
@@ -46,15 +47,19 @@ namespace TiketLaut.Views.Components
                 }
             };
             
-            // Keep focus on dialog
-            this.Deactivated += (s, e) =>
+            // When dialog is loaded, temporarily set Topmost to ensure it appears on top
+            // then immediately remove it so it stays with parent window layer
+            this.Loaded += (s, e) =>
             {
-                // Re-activate the dialog if it loses focus
-                if (this.IsLoaded && this.IsVisible)
+                this.Topmost = true;
+                this.Activate();
+                this.Focus();
+                
+                // Remove Topmost after a brief moment so dialog stays with parent
+                this.Dispatcher.BeginInvoke(new Action(() =>
                 {
-                    this.Activate();
-                    this.Focus();
-                }
+                    this.Topmost = false;
+                }), System.Windows.Threading.DispatcherPriority.Loaded);
             };
             
             txtTitle.Text = title;
@@ -111,6 +116,7 @@ namespace TiketLaut.Views.Components
             var dialog = new CustomDialog(title, message, type, buttons);
             
             // Set owner to current active window untuk modal behavior
+            bool ownerSet = false;
             try
             {
                 if (Application.Current?.Windows != null && Application.Current.Windows.Count > 0)
@@ -125,16 +131,23 @@ namespace TiketLaut.Views.Components
                         potentialOwner = Application.Current.MainWindow;
                     }
                     
-                    // Only set owner if it's a valid, shown window
-                    if (potentialOwner != null && potentialOwner.IsLoaded && potentialOwner != dialog)
+                    // Only set owner if it's a valid, shown window and visible on screen
+                    if (potentialOwner != null && potentialOwner.IsLoaded && potentialOwner.IsVisible && potentialOwner != dialog)
                     {
                         dialog.Owner = potentialOwner;
+                        ownerSet = true;
                     }
                 }
             }
             catch
             {
                 // If owner setting fails, continue without owner (dialog will still work)
+            }
+            
+            // If no owner could be set, use CenterScreen instead of CenterOwner
+            if (!ownerSet)
+            {
+                dialog.WindowStartupLocation = WindowStartupLocation.CenterScreen;
             }
             
             dialog.ShowDialog();
