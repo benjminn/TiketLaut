@@ -17,50 +17,41 @@ using TiketLaut.Helpers;
 
 namespace TiketLaut.Views
 {
-    /// <summary>
-    /// Interaction logic for HomePage.xaml
-    /// </summary>
     public partial class HomePage : Window
     {
         private bool _isLoggedIn = false;
         private string _currentUser = "";
         private readonly JadwalService _jadwalService;
-        private Button? _selectedVehicleButtonHome; // Track selected vehicle button for highlight
-        private List<Pelabuhan> _pelabuhans = new List<Pelabuhan>(); // Store pelabuhan data
+        private Button? _selectedVehicleButtonHome;
+        private List<Pelabuhan> _pelabuhans = new List<Pelabuhan>();
         
-        // Carousel background images
         private readonly List<string> _backgroundImages = new List<string>
         {
             "/Views/Assets/Images/bekgron.png",
-            "/Views/Assets/Images/bg2.png",    // Ganti dengan nama file gambar Anda
-            "/Views/Assets/Images/bg3.jpg",    // Ganti dengan nama file gambar Anda
-            "/Views/Assets/Images/bg4.jpg"     // Tambahkan sebanyak yang diinginkan
+            "/Views/Assets/Images/bg2.png",
+            "/Views/Assets/Images/bg3.jpg",
+            "/Views/Assets/Images/bg4.jpg"
         };
         private int _currentImageIndex = 0;
         private DispatcherTimer? _carouselTimer;
         private DispatcherTimer? _clockTimer;
 
-        // Constructor default (untuk pertama kali buka app)
         public HomePage()
         {
             InitializeComponent();
             _jadwalService = new JadwalService();
             
-            // Enable zoom functionality
             ZoomHelper.EnableZoom(this);
             
-            // Set default penumpang value after controls are initialized
             txtPenumpang.Text = "1";
             
             SetNavbarVisibility();
             LoadDataAsync();
             
-            // Initialize carousel and clock
             InitializeCarousel();
             InitializeClock();
         }
 
-        // Constructor dengan parameter (untuk setelah login/logout)
         public HomePage(bool isLoggedIn, string username = "") : this()
         {
             _isLoggedIn = isLoggedIn;
@@ -74,29 +65,21 @@ namespace TiketLaut.Views
             }
         }
 
-        /// <summary>
-        /// Load data dari database saat window dibuka
-        /// </summary>
         private async void LoadDataAsync()
         {
             try
             {
-                // Show loading state
                 btnCariJadwal.IsEnabled = false;
                 btnCariJadwal.Content = "Memuat data...";
 
-                // Load pelabuhan dari database
                 var pelabuhans = await _jadwalService.GetAllPelabuhanAsync();
 
                 if (pelabuhans.Any())
                 {
-                    // Store pelabuhan data
                     _pelabuhans = pelabuhans.ToList();
 
-                    // Populate Pelabuhan Asal Popup
                     PopulatePelabuhanPopup(spPelabuhanAsalList, pelabuhans, true);
 
-                    // Populate Pelabuhan Tujuan Popup
                     PopulatePelabuhanPopup(spPelabuhanTujuanList, pelabuhans, false);
 
                     // Set DatePicker default to today
