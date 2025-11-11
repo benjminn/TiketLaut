@@ -230,6 +230,17 @@
                     </StackPanel>
                 </Button>
 
+                <!-- Test Marine Weather API -->
+                <Button x:Name="btnTestWeather" 
+                       Style="{StaticResource SidebarButtonStyle}"
+                       Click="BtnTestWeather_Click"
+                       Margin="10,5">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="🌊" FontSize="18" Margin="0,0,10,0"/>
+                        <TextBlock Text="Cek Cuaca" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+
                 <!-- Separator -->
                 <Border Height="1" Background="#2AFFFFFF" Margin="20,20"/>
 

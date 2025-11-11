@@ -31,6 +31,10 @@ namespace TiketLaut
         [StringLength(1000)]
         public string? deskripsi { get; set; }  // NULLABLE!
 
+        // Geographic coordinates for marine weather API
+        public double? latitude { get; set; }   // Latitude koordinat pelabuhan
+        public double? longitude { get; set; }  // Longitude koordinat pelabuhan
+
         // ? NEW: Timezone support (WIB, WITA, WIT)
         [Required]
         [StringLength(10)]

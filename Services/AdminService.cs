@@ -9,11 +9,9 @@ namespace TiketLaut.Services
 {
     public class AdminService
     {
-        private readonly AppDbContext _context;
-
         public AdminService()
         {
-            _context = DatabaseService.GetContext();
+            // No longer need to initialize _context field
         }
 
         /// <summary>
@@ -23,7 +21,8 @@ namespace TiketLaut.Services
         {
             try
             {
-                return await _context.Admins
+                using var context = DatabaseService.GetContext();
+                return await context.Admins
                     .FirstOrDefaultAsync(a => a.email == email && a.password == password);
             }
             catch (Exception ex)
@@ -38,7 +37,8 @@ namespace TiketLaut.Services
         /// </summary>
         public async Task<Admin?> GetAdminByIdAsync(int adminId)
         {
-            return await _context.Admins.FirstOrDefaultAsync(a => a.admin_id == adminId);
+            using var context = DatabaseService.GetContext();
+            return await context.Admins.FirstOrDefaultAsync(a => a.admin_id == adminId);
         }
 
         /// <summary>
@@ -46,7 +46,8 @@ namespace TiketLaut.Services
         /// </summary>
         public async Task<List<Admin>> GetAllAdminsAsync()
         {
-            return await _context.Admins
+            using var context = DatabaseService.GetContext();
+            return await context.Admins
                 .OrderBy(a => a.nama)
                 .ToListAsync();
         }
@@ -58,8 +59,10 @@ namespace TiketLaut.Services
         {
             try
             {
+                using var context = DatabaseService.GetContext();
+                
                 // Cek apakah email sudah ada (case insensitive)
-                var existingEmail = await _context.Admins
+                var existingEmail = await context.Admins
                     .AnyAsync(a => a.email.ToLower() == admin.email.ToLower());
                 if (existingEmail)
                 {
@@ -76,7 +79,7 @@ namespace TiketLaut.Services
                 // Cek apakah username sudah ada (case insensitive)
                 var baseUsername = admin.username;
                 var counter = 1;
-                while (await _context.Admins.AnyAsync(a => a.username.ToLower() == admin.username.ToLower()))
+                while (await context.Admins.AnyAsync(a => a.username.ToLower() == admin.username.ToLower()))
                 {
                     admin.username = $"{baseUsername}{counter}";
                     counter++;
@@ -87,8 +90,8 @@ namespace TiketLaut.Services
                 admin.created_at = DateTime.Now;
                 admin.updated_at = DateTime.Now;
 
-                _context.Admins.Add(admin);
-                await _context.SaveChangesAsync();
+                context.Admins.Add(admin);
+                await context.SaveChangesAsync();
 
                 System.Diagnostics.Debug.WriteLine($"Admin created successfully: {admin.email}");
                 return admin;
@@ -108,7 +111,9 @@ namespace TiketLaut.Services
         {
             try
             {
-                var existing = await _context.Admins.FindAsync(admin.admin_id);
+                using var context = DatabaseService.GetContext();
+                
+                var existing = await context.Admins.FindAsync(admin.admin_id);
                 if (existing == null)
                 {
                     return false;
@@ -132,7 +137,7 @@ namespace TiketLaut.Services
                     existing.username = admin.username;
                 }
 
-                await _context.SaveChangesAsync();
+                await context.SaveChangesAsync();
                 return true;
             }
             catch (Exception ex)
@@ -149,14 +154,16 @@ namespace TiketLaut.Services
         {
             try
             {
-                var admin = await _context.Admins.FindAsync(adminId);
+                using var context = DatabaseService.GetContext();
+                
+                var admin = await context.Admins.FindAsync(adminId);
                 if (admin == null)
                 {
                     return false;
                 }
 
-                _context.Admins.Remove(admin);
-                await _context.SaveChangesAsync();
+                context.Admins.Remove(admin);
+                await context.SaveChangesAsync();
 
                 return true;
             }
@@ -180,21 +187,23 @@ namespace TiketLaut.Services
                     return (false, "Anda tidak memiliki akses untuk membuat admin baru!");
                 }
 
+                using var context = DatabaseService.GetContext();
+                
                 // Cek apakah email atau username sudah ada
-                var existingEmail = await _context.Admins.AnyAsync(a => a.email == admin.email);
+                var existingEmail = await context.Admins.AnyAsync(a => a.email == admin.email);
                 if (existingEmail)
                 {
                     return (false, "Email sudah digunakan!");
                 }
 
-                var existingUsername = await _context.Admins.AnyAsync(a => a.username == admin.username);
+                var existingUsername = await context.Admins.AnyAsync(a => a.username == admin.username);
                 if (existingUsername)
                 {
                     return (false, "Username sudah digunakan!");
                 }
 
-                _context.Admins.Add(admin);
-                await _context.SaveChangesAsync();
+                context.Admins.Add(admin);
+                await context.SaveChangesAsync();
 
                 return (true, "Admin baru berhasil dibuat!");
             }
@@ -223,14 +232,16 @@ namespace TiketLaut.Services
                     return (false, "Tidak dapat menghapus akun sendiri!");
                 }
 
-                var admin = await _context.Admins.FindAsync(adminId);
+                using var context = DatabaseService.GetContext();
+                
+                var admin = await context.Admins.FindAsync(adminId);
                 if (admin == null)
                 {
                     return (false, "Admin tidak ditemukan!");
                 }
 
-                _context.Admins.Remove(admin);
-                await _context.SaveChangesAsync();
+                context.Admins.Remove(admin);
+                await context.SaveChangesAsync();
 
                 return (true, "Admin berhasil dihapus!");
             }
@@ -247,46 +258,48 @@ namespace TiketLaut.Services
         {
             try
             {
+                using var context = DatabaseService.GetContext();
+                
                 // Get counts - parallel execution for better performance
-                var totalPengguna = await _context.Penggunas.CountAsync();
-                var totalTiket = await _context.Tikets.CountAsync();
-                var totalJadwal = await _context.Jadwals.Where(j => j.status == "Active").CountAsync();
-                var totalKapal = await _context.Kapals.CountAsync();
-                var totalPelabuhan = await _context.Pelabuhans.CountAsync();
+                var totalPengguna = await context.Penggunas.CountAsync();
+                var totalTiket = await context.Tikets.CountAsync();
+                var totalJadwal = await context.Jadwals.Where(j => j.status == "Active").CountAsync();
+                var totalKapal = await context.Kapals.CountAsync();
+                var totalPelabuhan = await context.Pelabuhans.CountAsync();
 
-                var tiketMenunggu = await _context.Tikets
+                var tiketMenunggu = await context.Tikets
                     .CountAsync(t => t.status_tiket == "Menunggu Pembayaran");
                 
-                var tiketSukses = await _context.Tikets
+                var tiketSukses = await context.Tikets
                     .CountAsync(t => t.status_tiket == "Aktif");
 
-                var pembayaranMenunggu = await _context.Pembayarans
+                var pembayaranMenunggu = await context.Pembayarans
                     .CountAsync(p => p.status_bayar == "Menunggu Validasi");
 
                 // Get pendapatan - Use UTC for PostgreSQL compatibility
                 var today = DateTime.UtcNow.Date;
-                var pendapatanHariIni = await _context.Pembayarans
+                var pendapatanHariIni = await context.Pembayarans
                     .Where(p => (p.status_bayar == "Sukses" || p.status_bayar == "Selesai") && p.tanggal_bayar.Date == today)
                     .SumAsync(p => (decimal?)p.jumlah_bayar) ?? 0;
 
                 var currentMonth = DateTime.UtcNow.Month;
                 var currentYear = DateTime.UtcNow.Year;
-                var pendapatanBulanIni = await _context.Pembayarans
+                var pendapatanBulanIni = await context.Pembayarans
                     .Where(p => (p.status_bayar == "Sukses" || p.status_bayar == "Selesai") &&
                                p.tanggal_bayar.Month == currentMonth &&
                                p.tanggal_bayar.Year == currentYear)
                     .SumAsync(p => (decimal?)p.jumlah_bayar) ?? 0;
                 
                 // NEW: Get additional insights
-                var penggunaBaru7Hari = await _context.Penggunas
+                var penggunaBaru7Hari = await context.Penggunas
                     .Where(p => p.tanggal_daftar >= DateTime.UtcNow.AddDays(-7))
                     .CountAsync();
                 
-                var tiketHariIni = await _context.Tikets
+                var tiketHariIni = await context.Tikets
                     .Where(t => t.tanggal_pemesanan.Date == today)
                     .CountAsync();
                 
-                var jadwalMingguDepan = await _context.Jadwals
+                var jadwalMingguDepan = await context.Jadwals
                     .Where(j => j.status == "Active" && 
                                j.waktu_berangkat >= DateTime.UtcNow &&
                                j.waktu_berangkat <= DateTime.UtcNow.AddDays(7))
@@ -332,7 +345,9 @@ namespace TiketLaut.Services
         {
             try
             {
-                var pendapatanDetail = await _context.Pembayarans
+                using var context = DatabaseService.GetContext();
+                
+                var pendapatanDetail = await context.Pembayarans
                     .Where(p => (p.status_bayar == "Sukses" || p.status_bayar == "Selesai") &&
                                p.tanggal_bayar.Month == bulan &&
                                p.tanggal_bayar.Year == tahun)
