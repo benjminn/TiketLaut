@@ -106,97 +106,249 @@
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
 
-                                <!-- ✅ Pelabuhan Asal - FIXED WIDTH -->
-                                <StackPanel Grid.Column="0" Margin="0,0,15,0">
+                                <!-- ✅ Pelabuhan Asal - POPUP VERSION -->
+                                <StackPanel Grid.Column="0" Margin="0,0,15,0" ClipToBounds="False">
                                     <TextBlock Text="Pelabuhan Asal" 
                                               FontSize="13" 
                                               FontFamily="Plus Jakarta Sans"
                                               FontWeight="SemiBold"
                                               Foreground="#333"
                                               Margin="0,0,0,10"/>
-                                    <Border Background="#F0F0F0" 
+                                    <Border x:Name="borderPelabuhanAsalContainer"
+                                           Background="#F0F0F0" 
                                            CornerRadius="10" 
                                            Padding="15,12"
                                            BorderThickness="1.5"
                                            BorderBrush="#999999"
                                            Width="265"
-                                           HorizontalAlignment="Left">
-                                        <Grid Width="235">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="Auto"/>
-                                                <ColumnDefinition Width="8"/>
-                                                <ColumnDefinition Width="*"/>
-                                            </Grid.ColumnDefinitions>
+                                           HorizontalAlignment="Left"
+                                           Height="49">
+                                        <Grid>
+                                            <!-- Button untuk toggle popup -->
+                                            <Button x:Name="btnPelabuhanAsal"
+                                                   Click="BtnPelabuhanAsal_Click"
+                                                   Background="Transparent"
+                                                   BorderThickness="0"
+                                                   Cursor="Hand"
+                                                   HorizontalAlignment="Left"
+                                                   HorizontalContentAlignment="Left"
+                                                   Padding="0">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <!-- Icon -->
+                                                    <Image Source="/Views/Assets/Icons/iconasaltujuan.png"
+                                                           Width="18"
+                                                           Height="18"
+                                                           VerticalAlignment="Center"
+                                                           Margin="0,0,10,0"/>
 
-                                            <Image Grid.Column="0"
-                                                   Source="/Views/Assets/Icons/iconasaltujuan.png"
-                                                   Width="18"
-                                                   Height="18"
-                                                   VerticalAlignment="Center"/>
+                                                    <!-- Text Display -->
+                                                    <TextBlock x:Name="txtPelabuhanAsalDisplay"
+                                                              FontSize="12"
+                                                              FontFamily="Plus Jakarta Sans"
+                                                              Foreground="#666666"
+                                                              TextTrimming="CharacterEllipsis"
+                                                              VerticalAlignment="Center"
+                                                              Width="195">
+                                                        <Run Text="Pilih Pelabuhan Asal" Foreground="#666666"/>
+                                                    </TextBlock>
+                                                </StackPanel>
+                                            </Button>
 
-                                            <ComboBox x:Name="cmbPelabuhanAsal"
-                                                     Grid.Column="2"
-                                                     Background="Transparent" 
-                                                     BorderThickness="0"
-                                                     FontSize="12"
-                                                     FontFamily="Plus Jakarta Sans"
-                                                     Foreground="#666666"
-                                                     SelectedIndex="0"
-                                                     MaxDropDownHeight="250"
-                                                     SelectionChanged="CmbPelabuhanAsal_SelectionChanged" HorizontalAlignment="Center" Width="209">
-                                                <ComboBox.Resources>
-                                                    <Style TargetType="TextBlock">
-                                                        <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
-                                                        <Setter Property="ToolTip" Value="{Binding Text, RelativeSource={RelativeSource Self}}"/>
-                                                    </Style>
-                                                </ComboBox.Resources>
-                                                <ComboBoxItem IsSelected="True" Content="Pilih Asal" />
-                                            </ComboBox>
+                                            <!-- Hidden TextBox untuk menyimpan ID -->
+                                            <TextBox x:Name="txtPelabuhanAsal"
+                                                    Visibility="Collapsed"
+                                                    Text="0"/>
+
+                                            <!-- Popup untuk pilihan pelabuhan -->
+                                            <Popup x:Name="popupPelabuhanAsal"
+                                                  PlacementTarget="{Binding ElementName=borderPelabuhanAsalContainer}"
+                                                  Placement="Bottom"
+                                                  AllowsTransparency="True"
+                                                  StaysOpen="False">
+                                                <Border Background="White"
+                                                       BorderBrush="#00B4B5"
+                                                       BorderThickness="2"
+                                                       CornerRadius="8"
+                                                       Padding="10"
+                                                       Width="420"
+                                                       MaxHeight="300">
+                                                    <Border.Effect>
+                                                        <DropShadowEffect Color="Black" 
+                                                                         Direction="270" 
+                                                                         ShadowDepth="2" 
+                                                                         BlurRadius="8" 
+                                                                         Opacity="0.15"/>
+                                                    </Border.Effect>
+
+                                                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                                        <StackPanel x:Name="spPelabuhanAsalList">
+                                                            <TextBlock Text="Pilih Pelabuhan Asal"
+                                                                      FontSize="14"
+                                                                      FontWeight="SemiBold"
+                                                                      Foreground="#042769"
+                                                                      Margin="0,5,0,15"/>
+                                                            <!-- Items will be populated from code-behind -->
+                                                        </StackPanel>
+                                                    </ScrollViewer>
+                                                </Border>
+                                            </Popup>
                                         </Grid>
                                     </Border>
                                 </StackPanel>
 
-                                <!-- ✅ Kelas Layanan - FIXED WIDTH -->
-                                <StackPanel Grid.Column="1" Margin="0,0,15,0">
+                                <!-- ✅ Kelas Layanan - POPUP VERSION -->
+                                <StackPanel Grid.Column="1" Margin="0,0,15,0" ClipToBounds="False">
                                     <TextBlock Text="Kelas Layanan" 
                                               FontSize="13" 
                                               FontFamily="Plus Jakarta Sans"
                                               FontWeight="SemiBold"
                                               Foreground="#333"
                                               Margin="0,0,0,10"/>
-                                    <Border Background="#F0F0F0" 
+                                    <Border x:Name="borderKelasLayananContainer"
+                                           Background="#F0F0F0" 
                                            CornerRadius="10" 
                                            Padding="15,12"
                                            BorderThickness="1.5"
                                            BorderBrush="#999999"
                                            Width="265"
-                                           HorizontalAlignment="Left">
-                                        <Grid Width="235">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="Auto"/>
-                                                <ColumnDefinition Width="8"/>
-                                                <ColumnDefinition Width="*"/>
-                                            </Grid.ColumnDefinitions>
+                                           HorizontalAlignment="Left"
+                                           Height="49">
+                                        <Grid>
+                                            <!-- Button untuk toggle popup -->
+                                            <Button x:Name="btnKelasLayanan"
+                                                   Click="BtnKelasLayanan_Click"
+                                                   Background="Transparent"
+                                                   BorderThickness="0"
+                                                   Cursor="Hand"
+                                                   HorizontalAlignment="Left"
+                                                   HorizontalContentAlignment="Left"
+                                                   Padding="0">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <!-- Icon -->
+                                                    <Image Source="/Views/Assets/Icons/iconkapall.png"
+                                                           Width="18"
+                                                           Height="18"
+                                                           VerticalAlignment="Center"
+                                                           Margin="0,0,10,0"/>
 
-                                            <Image Grid.Column="0"
-                                                   Source="/Views/Assets/Icons/iconkapall.png"
-                                                   Width="18"
-                                                   Height="18"
-                                                   VerticalAlignment="Center"/>
+                                                    <!-- Text Display -->
+                                                    <TextBlock x:Name="txtKelasLayananDisplay"
+                                                              FontSize="12"
+                                                              FontFamily="Plus Jakarta Sans"
+                                                              Foreground="#666666"
+                                                              TextTrimming="CharacterEllipsis"
+                                                              VerticalAlignment="Center">
+                                                        <Run Text="Pilih Kelas Layanan" Foreground="#666666"/>
+                                                    </TextBlock>
+                                                </StackPanel>
+                                            </Button>
 
-                                            <ComboBox x:Name="cmbKelasLayanan"
-                                                     Grid.Column="2"
-                                                     Background="Transparent" 
-                                                     BorderThickness="0"
-                                                     FontSize="12"
-                                                     FontFamily="Plus Jakarta Sans"
-                                                     Foreground="#666666"
-                                                     SelectedIndex="0"
-                                                     SelectionChanged="CmbKelasLayanan_SelectionChanged" Margin="0,0,6,0">
-                                                <ComboBoxItem IsSelected="True" Content="Pilih Kelas" />
-                                                <ComboBoxItem Content="Reguler"/>
-                                                <ComboBoxItem Content="Express"/>
-                                            </ComboBox>
+                                            <!-- Hidden TextBox untuk menyimpan value -->
+                                            <TextBox x:Name="txtKelasLayanan"
+                                                    Visibility="Collapsed"
+                                                    Text=""/>
+
+                                            <!-- Popup untuk pilihan kelas -->
+                                            <Popup x:Name="popupKelasLayanan"
+                                                  PlacementTarget="{Binding ElementName=borderKelasLayananContainer}"
+                                                  Placement="Bottom"
+                                                  AllowsTransparency="True"
+                                                  StaysOpen="False">
+                                                <Border Background="White"
+                                                       BorderBrush="#00B4B5"
+                                                       BorderThickness="2"
+                                                       CornerRadius="8"
+                                                       Padding="10"
+                                                       Width="280">
+                                                    <Border.Effect>
+                                                        <DropShadowEffect Color="Black" 
+                                                                         Direction="270" 
+                                                                         ShadowDepth="2" 
+                                                                         BlurRadius="8" 
+                                                                         Opacity="0.15"/>
+                                                    </Border.Effect>
+
+                                                    <StackPanel>
+                                                        <TextBlock Text="Pilih Kelas Layanan"
+                                                                  FontSize="14"
+                                                                  FontWeight="SemiBold"
+                                                                  Foreground="#042769"
+                                                                  Margin="0,5,0,15"/>
+
+                                                        <!-- Reguler -->
+                                                        <Button Click="BtnKelasOption_Click"
+                                                               Tag="Reguler"
+                                                               BorderThickness="0"
+                                                               Cursor="Hand"
+                                                               Padding="10,8"
+                                                               Margin="0,2"
+                                                               HorizontalAlignment="Stretch"
+                                                               HorizontalContentAlignment="Left">
+                                                            <Button.Style>
+                                                                <Style TargetType="Button">
+                                                                    <Setter Property="Background" Value="Transparent"/>
+                                                                    <Setter Property="Template">
+                                                                        <Setter.Value>
+                                                                            <ControlTemplate TargetType="Button">
+                                                                                <Border Background="{TemplateBinding Background}"
+                                                                                       CornerRadius="6"
+                                                                                       Padding="{TemplateBinding Padding}">
+                                                                                    <ContentPresenter/>
+                                                                                </Border>
+                                                                            </ControlTemplate>
+                                                                        </Setter.Value>
+                                                                    </Setter>
+                                                                    <Style.Triggers>
+                                                                        <Trigger Property="IsMouseOver" Value="True">
+                                                                            <Setter Property="Background" Value="#74c0f3ff"/>
+                                                                        </Trigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </Button.Style>
+                                                            <StackPanel>
+                                                                <TextBlock Text="Reguler" FontSize="13" FontWeight="SemiBold" Foreground="Black"/>
+                                                                <TextBlock Text="Kelas standar dengan fasilitas normal." FontSize="11" Foreground="#64748B" TextWrapping="Wrap" Margin="0,2,0,0"/>
+                                                            </StackPanel>
+                                                        </Button>
+
+                                                        <!-- Ekspress (sesuai database typo) -->
+                                                        <Button Click="BtnKelasOption_Click"
+                                                               Tag="Ekspress"
+                                                               BorderThickness="0"
+                                                               Cursor="Hand"
+                                                               Padding="10,8"
+                                                               Margin="0,2"
+                                                               HorizontalAlignment="Stretch"
+                                                               HorizontalContentAlignment="Left">
+                                                            <Button.Style>
+                                                                <Style TargetType="Button">
+                                                                    <Setter Property="Background" Value="Transparent"/>
+                                                                    <Setter Property="Template">
+                                                                        <Setter.Value>
+                                                                            <ControlTemplate TargetType="Button">
+                                                                                <Border Background="{TemplateBinding Background}"
+                                                                                       CornerRadius="6"
+                                                                                       Padding="{TemplateBinding Padding}">
+                                                                                    <ContentPresenter/>
+                                                                                </Border>
+                                                                            </ControlTemplate>
+                                                                        </Setter.Value>
+                                                                    </Setter>
+                                                                    <Style.Triggers>
+                                                                        <Trigger Property="IsMouseOver" Value="True">
+                                                                            <Setter Property="Background" Value="#74c0f3ff"/>
+                                                                        </Trigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </Button.Style>
+                                                            <StackPanel>
+                                                                <TextBlock Text="Ekspress" FontSize="13" FontWeight="SemiBold" Foreground="Black"/>
+                                                                <TextBlock Text="Kelas cepat dengan waktu tempuh lebih singkat." FontSize="11" Foreground="#64748B" TextWrapping="Wrap" Margin="0,2,0,0"/>
+                                                            </StackPanel>
+                                                        </Button>
+                                                    </StackPanel>
+                                                </Border>
+                                            </Popup>
                                         </Grid>
                                     </Border>
                                 </StackPanel>
@@ -294,61 +446,82 @@
                                                   Grid.Column="1"
                                                   HorizontalAlignment="Center"/>
 
-                                        <!-- Jam -->
-                                        <Border Background="#F0F0F0" 
+                                        <!-- Jam - POPUP VERSION -->
+                                        <Border x:Name="borderJamContainer"
+                                               Background="#F0F0F0" 
                                                CornerRadius="10" 
                                                Padding="15,12"
                                                BorderThickness="1.5"
                                                BorderBrush="#999999"
-                                               Grid.Column="2">
-                                            <Grid Width="143">
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="Auto"/>
-                                                    <ColumnDefinition Width="6"/>
-                                                    <ColumnDefinition Width="*"/>
-                                                </Grid.ColumnDefinitions>
+                                               Grid.Column="2"
+                                               Height="49">
+                                            <Grid>
+                                                <!-- Button untuk toggle popup -->
+                                                <Button x:Name="btnJam"
+                                                       Click="BtnJam_Click"
+                                                       Background="Transparent"
+                                                       BorderThickness="0"
+                                                       Cursor="Hand"
+                                                       HorizontalAlignment="Left"
+                                                       HorizontalContentAlignment="Left"
+                                                       Padding="0">
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <!-- Icon -->
+                                                        <Image Source="/Views/Assets/Icons/icontanggall.png"
+                                                               Width="16"
+                                                               Height="16"
+                                                               VerticalAlignment="Center"
+                                                               Margin="0,0,10,0"/>
 
-                                                <Image Grid.Column="0"
-                                                       Source="/Views/Assets/Icons/icontanggall.png"
-                                                       Width="16"
-                                                       Height="16"
-                                                       VerticalAlignment="Center"/>
+                                                        <!-- Text Display -->
+                                                        <TextBlock x:Name="txtJamDisplay"
+                                                                  FontSize="12"
+                                                                  FontFamily="Plus Jakarta Sans"
+                                                                  Foreground="#666666"
+                                                                  VerticalAlignment="Center">
+                                                            <Run Text="Pilih Jam" Foreground="#666666"/>
+                                                        </TextBlock>
+                                                    </StackPanel>
+                                                </Button>
 
-                                                <ComboBox x:Name="cmbJam"
-                                                         Grid.Column="2"
-                                                         Background="Transparent" 
-                                                         BorderThickness="0"
-                                                         FontSize="11"
-                                                         FontFamily="Plus Jakarta Sans"
-                                                         Foreground="#666666"
-                                                         SelectedIndex="0"
-                                                         MaxDropDownHeight="250" Margin="2,0,10,0">
-                                                    <ComboBoxItem IsSelected="True" Content="Pilih Jam"/>
-                                                    <ComboBoxItem Content="00:00"/>
-                                                    <ComboBoxItem Content="01:00"/>
-                                                    <ComboBoxItem Content="02:00"/>
-                                                    <ComboBoxItem Content="03:00"/>
-                                                    <ComboBoxItem Content="04:00"/>
-                                                    <ComboBoxItem Content="05:00"/>
-                                                    <ComboBoxItem Content="06:00"/>
-                                                    <ComboBoxItem Content="07:00"/>
-                                                    <ComboBoxItem Content="08:00"/>
-                                                    <ComboBoxItem Content="09:00"/>
-                                                    <ComboBoxItem Content="10:00"/>
-                                                    <ComboBoxItem Content="11:00"/>
-                                                    <ComboBoxItem Content="12:00"/>
-                                                    <ComboBoxItem Content="13:00"/>
-                                                    <ComboBoxItem Content="14:00"/>
-                                                    <ComboBoxItem Content="15:00"/>
-                                                    <ComboBoxItem Content="16:00"/>
-                                                    <ComboBoxItem Content="17:00"/>
-                                                    <ComboBoxItem Content="18:00"/>
-                                                    <ComboBoxItem Content="19:00"/>
-                                                    <ComboBoxItem Content="20:00"/>
-                                                    <ComboBoxItem Content="21:00"/>
-                                                    <ComboBoxItem Content="22:00"/>
-                                                    <ComboBoxItem Content="23:00"/>
-                                                </ComboBox>
+                                                <!-- Hidden TextBox untuk menyimpan jam -->
+                                                <TextBox x:Name="txtJam"
+                                                        Visibility="Collapsed"
+                                                        Text=""/>
+
+                                                <!-- Popup untuk pilihan jam -->
+                                                <Popup x:Name="popupJam"
+                                                      PlacementTarget="{Binding ElementName=borderJamContainer}"
+                                                      Placement="Bottom"
+                                                      AllowsTransparency="True"
+                                                      StaysOpen="False">
+                                                    <Border Background="White"
+                                                           BorderBrush="#00B4B5"
+                                                           BorderThickness="2"
+                                                           CornerRadius="8"
+                                                           Padding="10"
+                                                           Width="200"
+                                                           MaxHeight="300">
+                                                        <Border.Effect>
+                                                            <DropShadowEffect Color="Black" 
+                                                                             Direction="270" 
+                                                                             ShadowDepth="2" 
+                                                                             BlurRadius="8" 
+                                                                             Opacity="0.15"/>
+                                                        </Border.Effect>
+
+                                                        <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                                            <StackPanel x:Name="spJamList">
+                                                                <TextBlock Text="Jam Keberangkatan"
+                                                                          FontSize="14"
+                                                                          FontWeight="SemiBold"
+                                                                          Foreground="#042769"
+                                                                          Margin="0,5,0,15"/>
+                                                                <!-- Items will be populated from code-behind -->
+                                                            </StackPanel>
+                                                        </ScrollViewer>
+                                                    </Border>
+                                                </Popup>
                                             </Grid>
                                         </Border>
                                     </Grid>
@@ -423,53 +596,92 @@
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
 
-                                <!-- ✅ Pelabuhan Tujuan - FIXED WIDTH -->
-                                <StackPanel Grid.Column="0" Margin="0,0,15,0">
+                                <!-- ✅ Pelabuhan Tujuan - POPUP VERSION -->
+                                <StackPanel Grid.Column="0" Margin="0,0,15,0" ClipToBounds="False">
                                     <TextBlock Text="Pelabuhan Tujuan" 
                                               FontSize="13" 
                                               FontFamily="Plus Jakarta Sans"
                                               FontWeight="SemiBold"
                                               Foreground="#333"
                                               Margin="0,0,0,10"/>
-                                    <Border Background="#F0F0F0" 
+                                    <Border x:Name="borderPelabuhanTujuanContainer"
+                                           Background="#F0F0F0" 
                                            CornerRadius="10" 
                                            Padding="15,12"
                                            BorderThickness="1.5"
                                            BorderBrush="#999999"
                                            Width="265"
-                                           HorizontalAlignment="Left">
-                                        <Grid Width="235">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="Auto"/>
-                                                <ColumnDefinition Width="8"/>
-                                                <ColumnDefinition Width="*"/>
-                                            </Grid.ColumnDefinitions>
+                                           HorizontalAlignment="Left"
+                                           Height="49">
+                                        <Grid>
+                                            <!-- Button untuk toggle popup -->
+                                            <Button x:Name="btnPelabuhanTujuan"
+                                                   Click="BtnPelabuhanTujuan_Click"
+                                                   Background="Transparent"
+                                                   BorderThickness="0"
+                                                   Cursor="Hand"
+                                                   HorizontalAlignment="Left"
+                                                   HorizontalContentAlignment="Left"
+                                                   Padding="0">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <!-- Icon -->
+                                                    <Image Source="/Views/Assets/Icons/iconasaltujuan.png"
+                                                           Width="18"
+                                                           Height="18"
+                                                           VerticalAlignment="Center"
+                                                           Margin="0,0,10,0"/>
 
-                                            <Image Grid.Column="0"
-                                                   Source="/Views/Assets/Icons/iconasaltujuan.png"
-                                                   Width="18"
-                                                   Height="18"
-                                                   VerticalAlignment="Center"/>
+                                                    <!-- Text Display -->
+                                                    <TextBlock x:Name="txtPelabuhanTujuanDisplay"
+                                                              FontSize="12"
+                                                              FontFamily="Plus Jakarta Sans"
+                                                              Foreground="#666666"
+                                                              TextTrimming="CharacterEllipsis"
+                                                              VerticalAlignment="Center"
+                                                              Width="195">
+                                                        <Run Text="Pilih Pelabuhan Tujuan" Foreground="#666666"/>
+                                                    </TextBlock>
+                                                </StackPanel>
+                                            </Button>
 
-                                            <ComboBox x:Name="cmbPelabuhanTujuan"
-                                                     Grid.Column="2"
-                                                     Background="Transparent" 
-                                                     BorderThickness="0"
-                                                     FontSize="12"
-                                                     FontFamily="Plus Jakarta Sans"
-                                                     Foreground="#666666"
-                                                     SelectedIndex="0"
-                                                     Width="209"
-                                                     MaxDropDownHeight="250"
-                                                     SelectionChanged="CmbPelabuhanTujuan_SelectionChanged">
-                                                <ComboBox.Resources>
-                                                    <Style TargetType="TextBlock">
-                                                        <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
-                                                        <Setter Property="ToolTip" Value="{Binding Text, RelativeSource={RelativeSource Self}}"/>
-                                                    </Style>
-                                                </ComboBox.Resources>
-                                                <ComboBoxItem IsSelected="True" Content="Pilih Tujuan"/>
-                                            </ComboBox>
+                                            <!-- Hidden TextBox untuk menyimpan ID -->
+                                            <TextBox x:Name="txtPelabuhanTujuan"
+                                                    Visibility="Collapsed"
+                                                    Text="0"/>
+
+                                            <!-- Popup untuk pilihan pelabuhan -->
+                                            <Popup x:Name="popupPelabuhanTujuan"
+                                                  PlacementTarget="{Binding ElementName=borderPelabuhanTujuanContainer}"
+                                                  Placement="Bottom"
+                                                  AllowsTransparency="True"
+                                                  StaysOpen="False">
+                                                <Border Background="White"
+                                                       BorderBrush="#00B4B5"
+                                                       BorderThickness="2"
+                                                       CornerRadius="8"
+                                                       Padding="10"
+                                                       Width="420"
+                                                       MaxHeight="300">
+                                                    <Border.Effect>
+                                                        <DropShadowEffect Color="Black" 
+                                                                         Direction="270" 
+                                                                         ShadowDepth="2" 
+                                                                         BlurRadius="8" 
+                                                                         Opacity="0.15"/>
+                                                    </Border.Effect>
+
+                                                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                                        <StackPanel x:Name="spPelabuhanTujuanList">
+                                                            <TextBlock Text="Pilih Pelabuhan Tujuan"
+                                                                      FontSize="14"
+                                                                      FontWeight="SemiBold"
+                                                                      Foreground="#042769"
+                                                                      Margin="0,5,0,15"/>
+                                                            <!-- Items will be populated from code-behind -->
+                                                        </StackPanel>
+                                                    </ScrollViewer>
+                                                </Border>
+                                            </Popup>
                                         </Grid>
                                     </Border>
                                 </StackPanel>
@@ -1105,14 +1317,14 @@
                                                    BorderThickness="0"
                                                    Cursor="Hand"
                                                    Click="BtnPenumpang_Click"
-                                                   Padding="0,0,0,5"
+                                                   Padding="0"
                                                    HorizontalAlignment="Left"
                                                    HorizontalContentAlignment="Left"
-                                                   VerticalAlignment="Top"
-                                                   VerticalContentAlignment="Top"
+                                                   VerticalAlignment="Center"
+                                                   VerticalContentAlignment="Center"
                                                    Width="168"
                                                    Height="35">
-                                                <StackPanel Orientation="Horizontal">
+                                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                                     <!-- Icon -->
                                                     <Image Source="/Views/Assets/Icons/iconoranggg.png"
                                                            Width="16"

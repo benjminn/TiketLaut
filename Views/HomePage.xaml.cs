@@ -20,6 +20,7 @@ namespace TiketLaut.Views
         private string _currentUser = "";
         private readonly JadwalService _jadwalService;
         private Button? _selectedVehicleButtonHome; // Track selected vehicle button for highlight
+        private List<Pelabuhan> _pelabuhans = new List<Pelabuhan>(); // Store pelabuhan data
 
         // Constructor default (untuk pertama kali buka app)
         public HomePage()
@@ -64,48 +65,14 @@ namespace TiketLaut.Views
 
                 if (pelabuhans.Any())
                 {
-                    // Populate ComboBox Pelabuhan Asal
-                    cmbPelabuhanAsal.Items.Clear();
-                    cmbPelabuhanAsal.Items.Add(new PelabuhanComboBoxItem
-                    {
-                        Id = 0,
-                        DisplayText = "Pilih Pelabuhan Asal"
-                    });
+                    // Store pelabuhan data
+                    _pelabuhans = pelabuhans.ToList();
 
-                    foreach (var pelabuhan in pelabuhans)
-                    {
-                        cmbPelabuhanAsal.Items.Add(new PelabuhanComboBoxItem
-                        {
-                            Id = pelabuhan.pelabuhan_id,
-                            DisplayText = $"{pelabuhan.nama_pelabuhan} ({pelabuhan.kota})"
-                        });
-                    }
-                    cmbPelabuhanAsal.SelectedIndex = 0;
+                    // Populate Pelabuhan Asal Popup
+                    PopulatePelabuhanPopup(spPelabuhanAsalList, pelabuhans, true);
 
-                    // Populate ComboBox Pelabuhan Tujuan
-                    cmbPelabuhanTujuan.Items.Clear();
-                    cmbPelabuhanTujuan.Items.Add(new PelabuhanComboBoxItem
-                    {
-                        Id = 0,
-                        DisplayText = "Pilih Pelabuhan Tujuan"
-                    });
-
-                    foreach (var pelabuhan in pelabuhans)
-                    {
-                        cmbPelabuhanTujuan.Items.Add(new PelabuhanComboBoxItem
-                        {
-                            Id = pelabuhan.pelabuhan_id,
-                            DisplayText = $"{pelabuhan.nama_pelabuhan} ({pelabuhan.kota})"
-                        });
-                    }
-                    cmbPelabuhanTujuan.SelectedIndex = 0;
-
-                    // Populate Kelas Layanan
-                    cmbKelasLayanan.Items.Clear();
-                    cmbKelasLayanan.Items.Add(new ComboBoxItem { Content = "Pilih Kelas Layanan" });
-                    cmbKelasLayanan.Items.Add(new ComboBoxItem { Content = "Reguler" });
-                    cmbKelasLayanan.Items.Add(new ComboBoxItem { Content = "Ekspress" }); // ? TYPO SESUAI DATABASE
-                    cmbKelasLayanan.SelectedIndex = 0;
+                    // Populate Pelabuhan Tujuan Popup
+                    PopulatePelabuhanPopup(spPelabuhanTujuanList, pelabuhans, false);
 
                     // Set DatePicker default to today
                     dpTanggal.SelectedDate = DateTime.Today;
@@ -169,21 +136,21 @@ namespace TiketLaut.Views
             try
             {
                 // Validasi Pelabuhan Asal
-                if (cmbPelabuhanAsal.SelectedIndex <= 0)
+                if (!int.TryParse(txtPelabuhanAsal.Text, out int pelabuhanAsalId) || pelabuhanAsalId <= 0)
                 {
                     CustomDialog.ShowWarning("Peringatan", "Silakan pilih Pelabuhan Asal!");
                     return;
                 }
 
                 // Validasi Pelabuhan Tujuan
-                if (cmbPelabuhanTujuan.SelectedIndex <= 0)
+                if (!int.TryParse(txtPelabuhanTujuan.Text, out int pelabuhanTujuanId) || pelabuhanTujuanId <= 0)
                 {
                     CustomDialog.ShowWarning("Peringatan", "Silakan pilih Pelabuhan Tujuan!");
                     return;
                 }
 
                 // Validasi Kelas Layanan
-                if (cmbKelasLayanan.SelectedIndex <= 0)
+                if (string.IsNullOrEmpty(txtKelasLayanan.Text))
                 {
                     CustomDialog.ShowWarning("Peringatan", "Silakan pilih Kelas Layanan!");
                     return;
@@ -230,11 +197,11 @@ namespace TiketLaut.Views
                 btnCariJadwal.IsEnabled = false;
                 btnCariJadwal.Content = "Mencari jadwal...";
 
-                // Ambil data dari form
-                var pelabuhanAsal = (PelabuhanComboBoxItem?)cmbPelabuhanAsal.SelectedItem;
-                var pelabuhanTujuan = (PelabuhanComboBoxItem?)cmbPelabuhanTujuan.SelectedItem;
+                // Get pelabuhan objects from stored list
+                var pelabuhanAsal = _pelabuhans.FirstOrDefault(p => p.pelabuhan_id == pelabuhanAsalId);
+                var pelabuhanTujuan = _pelabuhans.FirstOrDefault(p => p.pelabuhan_id == pelabuhanTujuanId);
                 
-                // Double check null (untuk menghilangkan warning)
+                // Double check null
                 if (pelabuhanAsal == null || pelabuhanTujuan == null)
                 {
                     CustomDialog.ShowError("Error", "Pelabuhan tidak valid!");
@@ -242,9 +209,21 @@ namespace TiketLaut.Views
                     btnCariJadwal.Content = "Cari Jadwal";
                     return;
                 }
+
+                // Create PelabuhanComboBoxItem objects for compatibility
+                var pelabuhanAsalItem = new PelabuhanComboBoxItem
+                {
+                    Id = pelabuhanAsal.pelabuhan_id,
+                    DisplayText = $"{pelabuhanAsal.nama_pelabuhan} ({pelabuhanAsal.kota})"
+                };
+
+                var pelabuhanTujuanItem = new PelabuhanComboBoxItem
+                {
+                    Id = pelabuhanTujuan.pelabuhan_id,
+                    DisplayText = $"{pelabuhanTujuan.nama_pelabuhan} ({pelabuhanTujuan.kota})"
+                };
                 
-                var kelasLayananItem = cmbKelasLayanan.SelectedItem as ComboBoxItem;
-                var kelasLayanan = kelasLayananItem?.Content?.ToString();
+                var kelasLayanan = txtKelasLayanan.Text;
 
                 // Parse jumlah penumpang dari TextBox
                 int jumlahPenumpang = int.Parse(txtPenumpang.Text);
@@ -256,17 +235,16 @@ namespace TiketLaut.Views
 
                 // Parse jam keberangkatan (optional)
                 int? jamKeberangkatan = null;
-                if (cmbJam.SelectedIndex > 0) // Index 0 adalah "Pilih Jam"
+                if (!string.IsNullOrEmpty(txtJam.Text))
                 {
-                    var selectedJamItem = cmbJam.SelectedItem as ComboBoxItem;
-                    if (selectedJamItem?.Tag != null)
+                    if (int.TryParse(txtJam.Text, out int jam))
                     {
-                        jamKeberangkatan = (int)selectedJamItem.Tag;
+                        jamKeberangkatan = jam;
                     }
                 }
 
                 // Validasi pelabuhan asal dan tujuan tidak sama
-                if (pelabuhanAsal.Id == pelabuhanTujuan.Id)
+                if (pelabuhanAsalItem.Id == pelabuhanTujuanItem.Id)
                 {
                     CustomDialog.ShowWarning(
                         "Peringatan",
@@ -276,8 +254,8 @@ namespace TiketLaut.Views
 
                 // Search jadwal dari database
                 var jadwals = await _jadwalService.SearchJadwalAsync(
-                    pelabuhanAsal.Id,
-                    pelabuhanTujuan.Id,
+                    pelabuhanAsalItem.Id,
+                    pelabuhanTujuanItem.Id,
                     kelasLayanan ?? "Reguler",
                     tanggalKeberangkatan,
                     jenisKendaraanIndex,
@@ -295,8 +273,8 @@ namespace TiketLaut.Views
                 // Buat search criteria untuk dikirim ke ScheduleWindow
                 var searchCriteria = new SearchCriteria
                 {
-                    PelabuhanAsalId = pelabuhanAsal!.Id,
-                    PelabuhanTujuanId = pelabuhanTujuan!.Id,
+                    PelabuhanAsalId = pelabuhanAsalItem!.Id,
+                    PelabuhanTujuanId = pelabuhanTujuanItem!.Id,
                     KelasLayanan = kelasLayanan ?? "Reguler",
                     TanggalKeberangkatan = tanggalKeberangkatan ?? DateTime.Today,
                     JamKeberangkatan = jamKeberangkatan,
@@ -626,13 +604,35 @@ namespace TiketLaut.Views
         {
             try
             {
-                // Simpan index yang dipilih saat ini
-                int tempAsalIndex = cmbPelabuhanAsal.SelectedIndex;
-                int tempTujuanIndex = cmbPelabuhanTujuan.SelectedIndex;
+                // Simpan value yang dipilih saat ini
+                string tempAsalId = txtPelabuhanAsal.Text;
+                string tempAsalDisplay = string.Join("", txtPelabuhanAsalDisplay.Inlines.OfType<Run>().Select(r => r.Text));
+                
+                string tempTujuanId = txtPelabuhanTujuan.Text;
+                string tempTujuanDisplay = string.Join("", txtPelabuhanTujuanDisplay.Inlines.OfType<Run>().Select(r => r.Text));
 
-                // Tukar selectedIndex
-                cmbPelabuhanAsal.SelectedIndex = tempTujuanIndex;
-                cmbPelabuhanTujuan.SelectedIndex = tempAsalIndex;
+                // Tukar values
+                txtPelabuhanAsal.Text = tempTujuanId;
+                txtPelabuhanAsalDisplay.Inlines.Clear();
+                if (!string.IsNullOrEmpty(tempTujuanDisplay) && tempTujuanDisplay != "Pilih Pelabuhan Asal")
+                {
+                    txtPelabuhanAsalDisplay.Inlines.Add(new Run(tempTujuanDisplay) { Foreground = Brushes.Black });
+                }
+                else
+                {
+                    txtPelabuhanAsalDisplay.Inlines.Add(new Run("Pilih Pelabuhan Asal") { Foreground = (Brush)new BrushConverter().ConvertFrom("#666666")! });
+                }
+
+                txtPelabuhanTujuan.Text = tempAsalId;
+                txtPelabuhanTujuanDisplay.Inlines.Clear();
+                if (!string.IsNullOrEmpty(tempAsalDisplay) && tempAsalDisplay != "Pilih Pelabuhan Tujuan")
+                {
+                    txtPelabuhanTujuanDisplay.Inlines.Add(new Run(tempAsalDisplay) { Foreground = Brushes.Black });
+                }
+                else
+                {
+                    txtPelabuhanTujuanDisplay.Inlines.Add(new Run("Pilih Pelabuhan Tujuan") { Foreground = (Brush)new BrushConverter().ConvertFrom("#666666")! });
+                }
             }
             catch (Exception ex)
             {
@@ -695,33 +695,6 @@ namespace TiketLaut.Views
         }
 
         /// <summary>
-        /// Event handler saat pelabuhan asal dipilih
-        /// </summary>
-        private void CmbPelabuhanAsal_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (IsLoaded) // Hanya jalankan jika window sudah fully loaded
-                LoadAvailableJamAsync();
-        }
-
-        /// <summary>
-        /// Event handler saat pelabuhan tujuan dipilih
-        /// </summary>
-        private void CmbPelabuhanTujuan_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (IsLoaded) // Hanya jalankan jika window sudah fully loaded
-                LoadAvailableJamAsync();
-        }
-
-        /// <summary>
-        /// Event handler saat kelas layanan dipilih
-        /// </summary>
-        private void CmbKelasLayanan_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (IsLoaded) // Hanya jalankan jika window sudah fully loaded
-                LoadAvailableJamAsync();
-        }
-
-        /// <summary>
         /// OBSOLETE: Event handler untuk ComboBox (diganti dengan Popup)
         /// </summary>
         private void CmbJenisKendaraan_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -762,37 +735,73 @@ namespace TiketLaut.Views
             try
             {
                 // Null check untuk semua controls
-                if (cmbJam == null)
+                if (spJamList == null)
                     return;
+
+                // Clear existing items except the header
+                var itemsToRemove = spJamList.Children.OfType<Button>().ToList();
+                foreach (var item in itemsToRemove)
+                {
+                    spJamList.Children.Remove(item);
+                }
 
                 // SELALU tampilkan semua jam 00:00 - 23:00
                 // Tidak peduli ada jadwal atau tidak, user bisa pilih jam apapun
                 // Backend akan menampilkan jadwal yang >= jam yang dipilih
-                cmbJam.Items.Clear();
-                cmbJam.Items.Add(new ComboBoxItem { Content = "Pilih Jam", Tag = null });
-                
                 for (int i = 0; i < 24; i++)
                 {
-                    cmbJam.Items.Add(new ComboBoxItem 
-                    { 
-                        Content = $"{i:D2}:00",
-                        Tag = i 
-                    });
-                }
+                    var button = new Button
+                    {
+                        Tag = i.ToString(),
+                        BorderThickness = new Thickness(0),
+                        Cursor = System.Windows.Input.Cursors.Hand,
+                        Padding = new Thickness(10, 8, 10, 8),
+                        Margin = new Thickness(0, 2, 0, 2),
+                        HorizontalAlignment = HorizontalAlignment.Stretch,
+                        HorizontalContentAlignment = HorizontalAlignment.Center
+                    };
 
-                cmbJam.SelectedIndex = 0;
+                    // Set button style
+                    var style = new Style(typeof(Button));
+                    style.Setters.Add(new Setter(Button.BackgroundProperty, Brushes.Transparent));
+                    
+                    var template = new ControlTemplate(typeof(Button));
+                    var factory = new FrameworkElementFactory(typeof(Border));
+                    factory.SetBinding(Border.BackgroundProperty, new System.Windows.Data.Binding("Background") { RelativeSource = new System.Windows.Data.RelativeSource(System.Windows.Data.RelativeSourceMode.TemplatedParent) });
+                    factory.SetValue(Border.CornerRadiusProperty, new CornerRadius(6));
+                    factory.SetBinding(Border.PaddingProperty, new System.Windows.Data.Binding("Padding") { RelativeSource = new System.Windows.Data.RelativeSource(System.Windows.Data.RelativeSourceMode.TemplatedParent) });
+                    
+                    var contentPresenter = new FrameworkElementFactory(typeof(ContentPresenter));
+                    factory.AppendChild(contentPresenter);
+                    template.VisualTree = factory;
+                    style.Setters.Add(new Setter(Button.TemplateProperty, template));
+                    
+                    // Hover trigger
+                    var trigger = new Trigger { Property = Button.IsMouseOverProperty, Value = true };
+                    trigger.Setters.Add(new Setter(Button.BackgroundProperty, (Brush)(new BrushConverter().ConvertFrom("#74c0f3ff") ?? Brushes.Transparent)));
+                    style.Triggers.Add(trigger);
+                    
+                    button.Style = style;
+
+                    // Button content
+                    var textBlock = new TextBlock
+                    {
+                        Text = $"{i:D2}:00",
+                        FontSize = 13,
+                        FontWeight = FontWeights.SemiBold,
+                        Foreground = Brushes.Black,
+                        TextAlignment = TextAlignment.Center
+                    };
+                    
+                    button.Content = textBlock;
+                    button.Click += BtnJamOption_Click;
+
+                    spJamList.Children.Add(button);
+                }
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Error loading jam: {ex.Message}");
-                // Fallback ke semua jam jika error
-                cmbJam.Items.Clear();
-                cmbJam.Items.Add(new ComboBoxItem { Content = "Pilih Jam" });
-                for (int i = 0; i < 24; i++)
-                {
-                    cmbJam.Items.Add(new ComboBoxItem { Content = $"{i:D2}:00", Tag = i });
-                }
-                cmbJam.SelectedIndex = 0;
             }
         }
 
@@ -953,6 +962,196 @@ namespace TiketLaut.Views
                     Foreground = golonganBrush
                 };
                 txtVehicleDisplay.Inlines.Add(golonganRun);
+            }
+        }
+
+        // ========================================
+        // PELABUHAN POPUP FUNCTIONS
+        // ========================================
+
+        private void PopulatePelabuhanPopup(StackPanel container, IEnumerable<Pelabuhan> pelabuhans, bool isAsal)
+        {
+            // Clear existing items except the header
+            var itemsToRemove = container.Children.OfType<Button>().ToList();
+            foreach (var item in itemsToRemove)
+            {
+                container.Children.Remove(item);
+            }
+
+            foreach (var pelabuhan in pelabuhans)
+            {
+                var button = new Button
+                {
+                    Tag = $"{pelabuhan.pelabuhan_id}|{pelabuhan.nama_pelabuhan}|{pelabuhan.kota}",
+                    BorderThickness = new Thickness(0),
+                    Cursor = System.Windows.Input.Cursors.Hand,
+                    Padding = new Thickness(10, 8, 10, 8),
+                    Margin = new Thickness(0, 2, 0, 2),
+                    HorizontalAlignment = HorizontalAlignment.Stretch,
+                    HorizontalContentAlignment = HorizontalAlignment.Left
+                };
+
+                // Set button style
+                var style = new Style(typeof(Button));
+                style.Setters.Add(new Setter(Button.BackgroundProperty, Brushes.Transparent));
+                
+                var template = new ControlTemplate(typeof(Button));
+                var factory = new FrameworkElementFactory(typeof(Border));
+                factory.SetBinding(Border.BackgroundProperty, new System.Windows.Data.Binding("Background") { RelativeSource = new System.Windows.Data.RelativeSource(System.Windows.Data.RelativeSourceMode.TemplatedParent) });
+                factory.SetValue(Border.CornerRadiusProperty, new CornerRadius(6));
+                factory.SetBinding(Border.PaddingProperty, new System.Windows.Data.Binding("Padding") { RelativeSource = new System.Windows.Data.RelativeSource(System.Windows.Data.RelativeSourceMode.TemplatedParent) });
+                
+                var contentPresenter = new FrameworkElementFactory(typeof(ContentPresenter));
+                factory.AppendChild(contentPresenter);
+                template.VisualTree = factory;
+                style.Setters.Add(new Setter(Button.TemplateProperty, template));
+                
+                // Hover trigger
+                var trigger = new Trigger { Property = Button.IsMouseOverProperty, Value = true };
+                trigger.Setters.Add(new Setter(Button.BackgroundProperty, (Brush)(new BrushConverter().ConvertFrom("#74c0f3ff") ?? Brushes.Transparent)));
+                style.Triggers.Add(trigger);
+                
+                button.Style = style;
+
+                // Button content
+                var stackPanel = new StackPanel();
+                
+                var titleBlock = new TextBlock
+                {
+                    Text = pelabuhan.nama_pelabuhan,
+                    FontSize = 13,
+                    FontWeight = FontWeights.SemiBold,
+                    Foreground = Brushes.Black
+                };
+                
+                var subtitleBlock = new TextBlock
+                {
+                    Text = $"Kota: {pelabuhan.kota}",
+                    FontSize = 11,
+                    Foreground = (Brush)(new BrushConverter().ConvertFrom("#64748B") ?? Brushes.Gray),
+                    TextWrapping = TextWrapping.Wrap,
+                    Margin = new Thickness(0, 2, 0, 0)
+                };
+                
+                stackPanel.Children.Add(titleBlock);
+                stackPanel.Children.Add(subtitleBlock);
+                button.Content = stackPanel;
+
+                // Add event handler
+                if (isAsal)
+                {
+                    button.Click += BtnPelabuhanAsalOption_Click;
+                }
+                else
+                {
+                    button.Click += BtnPelabuhanTujuanOption_Click;
+                }
+
+                container.Children.Add(button);
+            }
+        }
+
+        private void BtnPelabuhanAsal_Click(object sender, RoutedEventArgs e)
+        {
+            popupPelabuhanAsal.IsOpen = !popupPelabuhanAsal.IsOpen;
+        }
+
+        private void BtnPelabuhanAsalOption_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button button && button.Tag is string tag)
+            {
+                var parts = tag.Split('|');
+                if (parts.Length == 3)
+                {
+                    var id = parts[0];
+                    var nama = parts[1];
+                    var kota = parts[2];
+
+                    txtPelabuhanAsal.Text = id;
+                    txtPelabuhanAsalDisplay.Inlines.Clear();
+                    txtPelabuhanAsalDisplay.Inlines.Add(new Run($"{nama} ({kota})") { Foreground = Brushes.Black });
+                    
+                    popupPelabuhanAsal.IsOpen = false;
+
+                    // Load available jam setelah pelabuhan dipilih
+                    if (IsLoaded)
+                        LoadAvailableJamAsync();
+                }
+            }
+        }
+
+        private void BtnPelabuhanTujuan_Click(object sender, RoutedEventArgs e)
+        {
+            popupPelabuhanTujuan.IsOpen = !popupPelabuhanTujuan.IsOpen;
+        }
+
+        private void BtnPelabuhanTujuanOption_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button button && button.Tag is string tag)
+            {
+                var parts = tag.Split('|');
+                if (parts.Length == 3)
+                {
+                    var id = parts[0];
+                    var nama = parts[1];
+                    var kota = parts[2];
+
+                    txtPelabuhanTujuan.Text = id;
+                    txtPelabuhanTujuanDisplay.Inlines.Clear();
+                    txtPelabuhanTujuanDisplay.Inlines.Add(new Run($"{nama} ({kota})") { Foreground = Brushes.Black });
+                    
+                    popupPelabuhanTujuan.IsOpen = false;
+
+                    // Load available jam setelah pelabuhan dipilih
+                    if (IsLoaded)
+                        LoadAvailableJamAsync();
+                }
+            }
+        }
+
+        // ========================================
+        // KELAS LAYANAN POPUP FUNCTIONS
+        // ========================================
+
+        private void BtnKelasLayanan_Click(object sender, RoutedEventArgs e)
+        {
+            popupKelasLayanan.IsOpen = !popupKelasLayanan.IsOpen;
+        }
+
+        private void BtnKelasOption_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button button && button.Tag is string kelas)
+            {
+                txtKelasLayanan.Text = kelas;
+                txtKelasLayananDisplay.Inlines.Clear();
+                txtKelasLayananDisplay.Inlines.Add(new Run(kelas) { Foreground = Brushes.Black });
+                
+                popupKelasLayanan.IsOpen = false;
+
+                // Load available jam setelah kelas layanan dipilih
+                if (IsLoaded)
+                    LoadAvailableJamAsync();
+            }
+        }
+
+        // ========================================
+        // JAM POPUP FUNCTIONS
+        // ========================================
+
+        private void BtnJam_Click(object sender, RoutedEventArgs e)
+        {
+            popupJam.IsOpen = !popupJam.IsOpen;
+        }
+
+        private void BtnJamOption_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button button && button.Tag is string jam)
+            {
+                txtJam.Text = jam;
+                txtJamDisplay.Inlines.Clear();
+                txtJamDisplay.Inlines.Add(new Run($"{int.Parse(jam):D2}:00") { Foreground = Brushes.Black });
+                
+                popupJam.IsOpen = false;
             }
         }
     }
