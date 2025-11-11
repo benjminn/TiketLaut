@@ -214,7 +214,7 @@
                        Margin="10,5">
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="🔔" FontSize="18" Margin="0,0,10,0"/>
-                        <TextBlock Text="Kelola Notifikasi" VerticalAlignment="Center"/>
+                        <TextBlock Text="Kelola Notifikasi" FontSize="14" VerticalAlignment="Center"/>
                     </StackPanel>
                 </Button>
 
@@ -237,7 +237,7 @@
                        Margin="10,5">
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="🌊" FontSize="18" Margin="0,0,10,0"/>
-                        <TextBlock Text="Cek Cuaca" VerticalAlignment="Center"/>
+                        <TextBlock Text="Cek Cuaca" FontSize="14" VerticalAlignment="Center"/>
                     </StackPanel>
                 </Button>
 

@@ -305,7 +305,7 @@ namespace TiketLaut.Views.Admin
         {
             if (cbJadwal.SelectedItem is Jadwal jadwal)
             {
-                txtJadwalInfo.Text = $"✅ Rute: {jadwal.pelabuhan_asal?.nama_pelabuhan} → {jadwal.pelabuhan_tujuan?.nama_pelabuhan}\n" +
+                txtJadwalInfo.Text = $"Rute: {jadwal.pelabuhan_asal?.nama_pelabuhan} → {jadwal.pelabuhan_tujuan?.nama_pelabuhan}\n" +
                                     $"Kapal: {jadwal.kapal?.nama_kapal}\n" +
                                     $"Berangkat: {jadwal.waktu_berangkat:dd MMM yyyy HH:mm}";
                 btnGetForecast.IsEnabled = true;
@@ -339,12 +339,12 @@ namespace TiketLaut.Views.Admin
 
                 // Get forecast untuk pelabuhan asal dan tujuan
                 var forecastAsal = await _weatherService.GetForecastAsync(
-                    jadwal.pelabuhan_asal.latitude.Value,
-                    jadwal.pelabuhan_asal.longitude.Value);
+                    jadwal.pelabuhan_asal.latitude ?? 0,
+                    jadwal.pelabuhan_asal.longitude ?? 0);
 
                 var forecastTujuan = await _weatherService.GetForecastAsync(
-                    jadwal.pelabuhan_tujuan.latitude.Value,
-                    jadwal.pelabuhan_tujuan.longitude.Value);
+                    jadwal.pelabuhan_tujuan.latitude ?? 0,
+                    jadwal.pelabuhan_tujuan.longitude ?? 0);
 
                 if (forecastAsal != null && forecastTujuan != null)
                 {
