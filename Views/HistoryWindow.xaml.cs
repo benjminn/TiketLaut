@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
@@ -14,6 +15,7 @@ namespace TiketLaut.Views
     public partial class HistoryWindow : Window
     {
         public ObservableCollection<HistoryItem> HistoryItems { get; set; } = new ObservableCollection<HistoryItem>();
+        private List<HistoryItem> _allHistoryItems = new List<HistoryItem>(); // Store all items for filtering
 
         private readonly RiwayatService _riwayatService;
 
@@ -91,6 +93,9 @@ namespace TiketLaut.Views
                     System.Diagnostics.Debug.WriteLine($"[HistoryWindow] Added history: {historyItem.KodeTiket}");
                 }
 
+                // Store all items for filtering/sorting
+                _allHistoryItems = HistoryItems.ToList();
+
                 icHistoryList.ItemsSource = HistoryItems;
 
                 if (!HistoryItems.Any())
@@ -144,6 +149,60 @@ namespace TiketLaut.Views
             cekBookingWindow.WindowState = this.WindowState;
             cekBookingWindow.Show();
             this.Close();
+        }
+
+        // ========================================
+        // SORTING FUNCTIONS
+        // ========================================
+
+        private void BtnSort_Click(object sender, RoutedEventArgs e)
+        {
+            popupSort.IsOpen = !popupSort.IsOpen;
+        }
+
+        private void SortOption_Changed(object sender, RoutedEventArgs e)
+        {
+            ApplySort();
+            // Don't close popup immediately, let user see the change
+            // popupSort.IsOpen = false; // Remove this line
+        }
+
+        private void ApplySort()
+        {
+            if (HistoryItems == null || !HistoryItems.Any()) return;
+
+            var sortedItems = _allHistoryItems.AsEnumerable();
+
+            // Apply sorting based on selected radio button
+            if (rbSortTanggalTerbaru?.IsChecked == true)
+            {
+                // Sort by date descending (newest first)
+                sortedItems = sortedItems.OrderByDescending(h => h.PembayaranId);
+            }
+            else if (rbSortTanggalTerlama?.IsChecked == true)
+            {
+                // Sort by date ascending (oldest first)
+                sortedItems = sortedItems.OrderBy(h => h.PembayaranId);
+            }
+            else if (rbSortHargaTertinggi?.IsChecked == true)
+            {
+                // Sort by price descending (highest first)
+                sortedItems = sortedItems.OrderByDescending(h => h.TotalHarga);
+            }
+            else if (rbSortHargaTerendah?.IsChecked == true)
+            {
+                // Sort by price ascending (lowest first)
+                sortedItems = sortedItems.OrderBy(h => h.TotalHarga);
+            }
+
+            // Update the ObservableCollection
+            HistoryItems.Clear();
+            foreach (var item in sortedItems)
+            {
+                HistoryItems.Add(item);
+            }
+
+            System.Diagnostics.Debug.WriteLine($"[HistoryWindow] Applied sorting. {HistoryItems.Count} items displayed.");
         }
     }
 

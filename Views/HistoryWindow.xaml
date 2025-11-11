@@ -65,33 +65,36 @@
 
                         <!-- Filter & Sort Buttons -->
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,30">
-                            <!-- Filter Button -->
-                            <Border BorderBrush="#042769" 
+                            <!-- Sort Button with Popup -->
+                            <Button x:Name="btnSort"
+                                   BorderBrush="#042769" 
                                    BorderThickness="0.5" 
-                                   CornerRadius="25" 
-                                   Padding="30,15" 
-                                   Margin="0,0,15,0"
                                    Background="White"
-                                   Cursor="Hand">
-                                <StackPanel Orientation="Horizontal">
-                                    <Image Source="/Views/Assets/Icons/iconfilter.png" 
-                                           Width="20" 
-                                           Height="20" 
-                                           Margin="0,0,10,0"/>
-                                    <TextBlock Text="Filter" 
-                                              FontSize="20" 
-                                              FontWeight="Medium" 
-                                              Foreground="#00B4B5"/>
-                                </StackPanel>
-                            </Border>
-
-                            <!-- Sort Button -->
-                            <Border BorderBrush="#042769" 
-                                   BorderThickness="0.5" 
-                                   CornerRadius="25" 
+                                   Cursor="Hand"
                                    Padding="30,15"
-                                   Background="White"
-                                   Cursor="Hand">
+                                   Click="BtnSort_Click">
+                                <Button.Style>
+                                    <Style TargetType="Button">
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate TargetType="Button">
+                                                    <Border Background="{TemplateBinding Background}"
+                                                            BorderBrush="{TemplateBinding BorderBrush}"
+                                                            BorderThickness="{TemplateBinding BorderThickness}"
+                                                            CornerRadius="25"
+                                                            Padding="{TemplateBinding Padding}">
+                                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                    </Border>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                        <Style.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter Property="Background" Value="#F8F9FA"/>
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
                                 <StackPanel Orientation="Horizontal">
                                     <Image Source="/Views/Assets/Icons/iconsort.png" 
                                            Width="20" 
@@ -102,7 +105,65 @@
                                               FontWeight="Medium" 
                                               Foreground="#00B4B5"/>
                                 </StackPanel>
-                            </Border>
+                            </Button>
+
+                            <!-- Sort Popup -->
+                            <Popup x:Name="popupSort"
+                                   PlacementTarget="{Binding ElementName=btnSort}"
+                                   Placement="Bottom"
+                                   AllowsTransparency="True"
+                                   StaysOpen="False">
+                                <Border Background="White"
+                                        BorderBrush="#E2E8F0"
+                                        BorderThickness="1"
+                                        CornerRadius="12"
+                                        Padding="20"
+                                        Margin="10"
+                                        MinWidth="250">
+                                    <Border.Effect>
+                                        <DropShadowEffect Color="#000000" Opacity="0.15" BlurRadius="20" ShadowDepth="0"/>
+                                    </Border.Effect>
+                                    <StackPanel>
+                                        <TextBlock Text="Urutkan Pesanan"
+                                                   FontSize="16"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="#042769"
+                                                   Margin="0,0,0,15"/>
+                                        
+                                        <RadioButton x:Name="rbSortTanggalTerbaru"
+                                                     Content="Tanggal Terbaru"
+                                                     GroupName="Sort"
+                                                     IsChecked="True"
+                                                     FontSize="14"
+                                                     Foreground="#475569"
+                                                     Margin="0,0,0,10"
+                                                     Checked="SortOption_Changed"/>
+                                        
+                                        <RadioButton x:Name="rbSortTanggalTerlama"
+                                                     Content="Tanggal Terlama"
+                                                     GroupName="Sort"
+                                                     FontSize="14"
+                                                     Foreground="#475569"
+                                                     Margin="0,0,0,10"
+                                                     Checked="SortOption_Changed"/>
+                                        
+                                        <RadioButton x:Name="rbSortHargaTertinggi"
+                                                     Content="Harga Tertinggi"
+                                                     GroupName="Sort"
+                                                     FontSize="14"
+                                                     Foreground="#475569"
+                                                     Margin="0,0,0,10"
+                                                     Checked="SortOption_Changed"/>
+                                        
+                                        <RadioButton x:Name="rbSortHargaTerendah"
+                                                     Content="Harga Terendah"
+                                                     GroupName="Sort"
+                                                     FontSize="14"
+                                                     Foreground="#475569"
+                                                     Checked="SortOption_Changed"/>
+                                    </StackPanel>
+                                </Border>
+                            </Popup>
                         </StackPanel>
 
                         <!-- History List -->
