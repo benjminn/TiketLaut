@@ -34,15 +34,11 @@ namespace TiketLaut.Views
         private readonly PenggunaService _penggunaService;
         private readonly AdminService _adminService;
         private readonly IConfiguration _configuration;
-        private readonly LoginSource _loginSource; // ✅ FIXED: Added missing field
-
-        // Google OAuth Config - Dibaca dari Environment Variables atau appsettings.json
+        private readonly LoginSource _loginSource;         // Google OAuth Config - Dibaca dari Environment Variables atau appsettings.json
         private readonly string GOOGLE_CLIENT_ID;
         private readonly string GOOGLE_CLIENT_SECRET;
         private readonly string REDIRECT_URI;
         private readonly int REDIRECT_PORT;
-
-        // Constructor default (untuk backward compatibility)
         public LoginWindow() : this(LoginSource.HomePage)
         {
         }
@@ -50,15 +46,12 @@ namespace TiketLaut.Views
         public LoginWindow(LoginSource source)
         {
             InitializeComponent();
-            _loginSource = source; // ✅ Now this will work
-
-            System.Diagnostics.Debug.WriteLine($"[LoginWindow] Constructor called with source: {source}");
+            _loginSource = source;             System.Diagnostics.Debug.WriteLine($"[LoginWindow] Constructor called with source: {source}");
 
             _penggunaService = new PenggunaService();
             _adminService = new AdminService();
 
-            // ✅ FIXED: Changed 'configuration' to '_configuration'
-            // Load configuration dari appsettings.json
+                        // Load configuration dari appsettings.json
             _configuration = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
@@ -115,17 +108,11 @@ namespace TiketLaut.Views
                 CustomDialog.ShowError("Error", $"Error testing connection: {ex.Message}");
             }
         }
-
-        /// <summary>
-        /// Event handler untuk tombol kembali - redirect berdasarkan source
-        /// </summary>
         private void BtnKembali_Click(object sender, RoutedEventArgs e)
         {
             try
             {
-                System.Diagnostics.Debug.WriteLine($"[LoginWindow] BtnKembali_Click - Source: {_loginSource}"); // ✅ Debug log
-
-                switch (_loginSource)
+                System.Diagnostics.Debug.WriteLine($"[LoginWindow] BtnKembali_Click - Source: {_loginSource}");                 switch (_loginSource)
                 {
                     case LoginSource.HomePage:
                         System.Diagnostics.Debug.WriteLine("[LoginWindow] Navigating back to HomePage");
@@ -160,10 +147,6 @@ namespace TiketLaut.Views
                 CustomDialog.ShowError("Error", $"Terjadi kesalahan saat kembali:\n\n{ex.Message}");
             }
         }
-
-        /// <summary>
-        /// Helper method untuk copy window properties
-        /// </summary>
         private void CopyWindowProperties(Window targetWindow)
         {
             targetWindow.Left = this.Left;
@@ -177,15 +160,11 @@ namespace TiketLaut.Views
         {
             string email = txtEmail.Text.Trim();
             string password = txtPassword.Password;
-
-            // Validasi input
             if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password))
             {
                 CustomDialog.ShowWarning("Login Gagal", "Email dan password tidak boleh kosong!");
                 return;
             }
-
-            // Show loading
             btnLogin.IsEnabled = false;
             btnLogin.Content = "Memproses...";
 
@@ -200,8 +179,6 @@ namespace TiketLaut.Views
                     SessionManager.CurrentAdmin = admin;
 
                     CustomDialog.ShowSuccess("Login Berhasil", $"Selamat datang, Admin {admin.nama}!");
-
-                    // Buka Admin Dashboard
                     var adminDashboard = new AdminDashboard();
                     adminDashboard.Show();
                     this.Close();
@@ -218,8 +195,7 @@ namespace TiketLaut.Views
 
                     CustomDialog.ShowSuccess("Login Berhasil", $"Selamat datang, {pengguna.nama}!");
 
-                    // ✅ UPDATED: Navigate berdasarkan source
-                    NavigateAfterSuccessfulLogin(pengguna);
+                                        NavigateAfterSuccessfulLogin(pengguna);
                 }
                 else
                 {
@@ -236,10 +212,6 @@ namespace TiketLaut.Views
                 btnLogin.Content = "Masuk";
             }
         }
-
-        /// <summary>
-        /// Navigate setelah login berhasil berdasarkan source
-        /// </summary>
         private async void NavigateAfterSuccessfulLogin(Pengguna pengguna)
         {
             try
@@ -342,10 +314,6 @@ namespace TiketLaut.Views
                 btnGoogle.Content = "Google";
             }
         }
-
-        /// <summary>
-        /// Real Google OAuth flow - membuka browser untuk login
-        /// </summary>
         private async Task PerformRealGoogleOAuthAsync()
         {
             HttpListener? listener = null;
@@ -1010,10 +978,6 @@ namespace TiketLaut.Views
                 listener?.Close();
             }
         }
-
-        /// <summary>
-        /// Exchange authorization code untuk access token
-        /// </summary>
         private async Task<GoogleTokenResponse> ExchangeCodeForTokenAsync(string code)
         {
             using var httpClient = new HttpClient();
@@ -1035,8 +999,6 @@ namespace TiketLaut.Views
             {
                 throw new Exception($"Failed to exchange code for token: {responseContent}");
             }
-
-            // Parse JSON response (simple parsing untuk demo)
             var json = System.Text.Json.JsonDocument.Parse(responseContent);
             var root = json.RootElement;
 
@@ -1048,10 +1010,6 @@ namespace TiketLaut.Views
                 id_token = root.TryGetProperty("id_token", out var idToken) ? idToken.GetString() : null
             };
         }
-
-        /// <summary>
-        /// Dapatkan user info dari Google menggunakan access token
-        /// </summary>
         private async Task<GoogleUserInfo> GetGoogleUserInfoAsync(string accessToken)
         {
             using var httpClient = new HttpClient();
@@ -1065,8 +1023,6 @@ namespace TiketLaut.Views
             {
                 throw new Exception($"Failed to get user info: {responseContent}");
             }
-
-            // Parse JSON response
             var json = System.Text.Json.JsonDocument.Parse(responseContent);
             var root = json.RootElement;
 
@@ -1132,8 +1088,7 @@ namespace TiketLaut.Views
 
                     CustomDialog.ShowSuccess("Login Berhasil", $"Selamat datang kembali, {existingUser.nama}!");
 
-                    // ✅ UPDATED: Navigate berdasarkan source
-                    NavigateAfterSuccessfulLogin(existingUser);
+                                        NavigateAfterSuccessfulLogin(existingUser);
                 }
                 else
                 {
@@ -1157,8 +1112,7 @@ namespace TiketLaut.Views
 
                             CustomDialog.ShowSuccess("Registrasi Berhasil", $"Selamat datang, {pengguna.nama}!\n\nAkun Anda telah berhasil dibuat.");
 
-                            // ✅ UPDATED: Navigate berdasarkan source
-                            NavigateAfterSuccessfulLogin(pengguna);
+                                                        NavigateAfterSuccessfulLogin(pengguna);
                         }
                         else
                         {

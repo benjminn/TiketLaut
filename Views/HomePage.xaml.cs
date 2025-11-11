@@ -17,50 +17,41 @@ using TiketLaut.Helpers;
 
 namespace TiketLaut.Views
 {
-    /// <summary>
-    /// Interaction logic for HomePage.xaml
-    /// </summary>
     public partial class HomePage : Window
     {
         private bool _isLoggedIn = false;
         private string _currentUser = "";
         private readonly JadwalService _jadwalService;
-        private Button? _selectedVehicleButtonHome; // Track selected vehicle button for highlight
-        private List<Pelabuhan> _pelabuhans = new List<Pelabuhan>(); // Store pelabuhan data
+        private Button? _selectedVehicleButtonHome;
+        private List<Pelabuhan> _pelabuhans = new List<Pelabuhan>();
         
-        // Carousel background images
         private readonly List<string> _backgroundImages = new List<string>
         {
             "/Views/Assets/Images/bekgron.png",
-            "/Views/Assets/Images/bg2.png",    // Ganti dengan nama file gambar Anda
-            "/Views/Assets/Images/bg3.jpg",    // Ganti dengan nama file gambar Anda
-            "/Views/Assets/Images/bg4.jpg"     // Tambahkan sebanyak yang diinginkan
+            "/Views/Assets/Images/bg2.png",
+            "/Views/Assets/Images/bg3.jpg",
+            "/Views/Assets/Images/bg4.jpg"
         };
         private int _currentImageIndex = 0;
         private DispatcherTimer? _carouselTimer;
         private DispatcherTimer? _clockTimer;
 
-        // Constructor default (untuk pertama kali buka app)
         public HomePage()
         {
             InitializeComponent();
             _jadwalService = new JadwalService();
             
-            // Enable zoom functionality
             ZoomHelper.EnableZoom(this);
             
-            // Set default penumpang value after controls are initialized
             txtPenumpang.Text = "1";
             
             SetNavbarVisibility();
             LoadDataAsync();
             
-            // Initialize carousel and clock
             InitializeCarousel();
             InitializeClock();
         }
 
-        // Constructor dengan parameter (untuk setelah login/logout)
         public HomePage(bool isLoggedIn, string username = "") : this()
         {
             _isLoggedIn = isLoggedIn;
@@ -74,29 +65,21 @@ namespace TiketLaut.Views
             }
         }
 
-        /// <summary>
-        /// Load data dari database saat window dibuka
-        /// </summary>
         private async void LoadDataAsync()
         {
             try
             {
-                // Show loading state
                 btnCariJadwal.IsEnabled = false;
                 btnCariJadwal.Content = "Memuat data...";
 
-                // Load pelabuhan dari database
                 var pelabuhans = await _jadwalService.GetAllPelabuhanAsync();
 
                 if (pelabuhans.Any())
                 {
-                    // Store pelabuhan data
                     _pelabuhans = pelabuhans.ToList();
 
-                    // Populate Pelabuhan Asal Popup
                     PopulatePelabuhanPopup(spPelabuhanAsalList, pelabuhans, true);
 
-                    // Populate Pelabuhan Tujuan Popup
                     PopulatePelabuhanPopup(spPelabuhanTujuanList, pelabuhans, false);
 
                     // Set DatePicker default to today
@@ -115,7 +98,6 @@ namespace TiketLaut.Views
             }
             finally
             {
-                // Restore button state
                 btnCariJadwal.IsEnabled = true;
                 btnCariJadwal.Content = "Cari Jadwal";
             }
@@ -144,14 +126,9 @@ namespace TiketLaut.Views
 
             if (result == true)
             {
-                // Clear session
                 SessionManager.Logout();
-
-                // Buka LoginWindow
                 LoginWindow loginWindow = new LoginWindow();
                 loginWindow.Show();
-
-                // Tutup HomePage
                 this.Close();
             }
         }
@@ -160,55 +137,38 @@ namespace TiketLaut.Views
         {
             try
             {
-                // Validasi Pelabuhan Asal
                 if (!int.TryParse(txtPelabuhanAsal.Text, out int pelabuhanAsalId) || pelabuhanAsalId <= 0)
                 {
                     CustomDialog.ShowWarning("Peringatan", "Silakan pilih Pelabuhan Asal!");
                     return;
                 }
-
-                // Validasi Pelabuhan Tujuan
                 if (!int.TryParse(txtPelabuhanTujuan.Text, out int pelabuhanTujuanId) || pelabuhanTujuanId <= 0)
                 {
                     CustomDialog.ShowWarning("Peringatan", "Silakan pilih Pelabuhan Tujuan!");
                     return;
                 }
-
-                // Validasi Kelas Layanan
                 if (string.IsNullOrEmpty(txtKelasLayanan.Text))
                 {
                     CustomDialog.ShowWarning("Peringatan", "Silakan pilih Kelas Layanan!");
                     return;
                 }
-
-                // Validasi Tanggal
                 if (!dpTanggal?.SelectedDate.HasValue ?? true)
                 {
                     CustomDialog.ShowWarning("Peringatan", "Silakan pilih Tanggal!");
                     return;
                 }
-
-                // Validasi Jenis Kendaraan (harus sebelum validasi penumpang)
                 if (!int.TryParse(txtVehicle.Text, out int jenisKendaraanId) || jenisKendaraanId < 0)
                 {
                     CustomDialog.ShowWarning("Peringatan", "Silakan pilih Jenis Kendaraan!");
                     return;
                 }
-
-                // Dapatkan index jenis kendaraan
                 int jenisKendaraanIndex = jenisKendaraanId;
-                
-                // Dapatkan maksimal penumpang untuk jenis kendaraan yang dipilih
                 int maksimalPenumpang = DetailKendaraan.GetMaksimalPenumpangByIndex(jenisKendaraanIndex);
-
-                // Validasi Penumpang
                 if (!int.TryParse(txtPenumpang.Text, out int jumlahPenumpangInput) || jumlahPenumpangInput < 1)
                 {
                     CustomDialog.ShowWarning("Peringatan", "Jumlah penumpang minimal adalah 1!");
                     return;
                 }
-
-                // Validasi penumpang tidak melebihi maksimal untuk jenis kendaraan
                 if (jumlahPenumpangInput > maksimalPenumpang)
                 {
                     string jenisKendaraanText = GetJenisKendaraanText(jenisKendaraanIndex);
@@ -217,16 +177,10 @@ namespace TiketLaut.Views
                         $"Jumlah penumpang untuk {jenisKendaraanText} maksimal {maksimalPenumpang} orang!");
                     return;
                 }
-
-                // Show loading
                 btnCariJadwal.IsEnabled = false;
                 btnCariJadwal.Content = "Mencari jadwal...";
-
-                // Get pelabuhan objects from stored list
                 var pelabuhanAsal = _pelabuhans.FirstOrDefault(p => p.pelabuhan_id == pelabuhanAsalId);
                 var pelabuhanTujuan = _pelabuhans.FirstOrDefault(p => p.pelabuhan_id == pelabuhanTujuanId);
-                
-                // Double check null
                 if (pelabuhanAsal == null || pelabuhanTujuan == null)
                 {
                     CustomDialog.ShowError("Error", "Pelabuhan tidak valid!");
@@ -234,8 +188,6 @@ namespace TiketLaut.Views
                     btnCariJadwal.Content = "Cari Jadwal";
                     return;
                 }
-
-                // Create PelabuhanComboBoxItem objects for compatibility
                 var pelabuhanAsalItem = new PelabuhanComboBoxItem
                 {
                     Id = pelabuhanAsal.pelabuhan_id,
@@ -249,16 +201,10 @@ namespace TiketLaut.Views
                 };
                 
                 var kelasLayanan = txtKelasLayanan.Text;
-
-                // Parse jumlah penumpang dari TextBox
                 int jumlahPenumpang = int.Parse(txtPenumpang.Text);
-
-                // Parse tanggal keberangkatan (from dpTanggal DatePicker)
 #pragma warning disable CS8602
                 DateTime? tanggalKeberangkatan = dpTanggal.SelectedDate;
 #pragma warning restore CS8602
-
-                // Parse jam keberangkatan (optional)
                 int? jamKeberangkatan = null;
                 if (!string.IsNullOrEmpty(txtJam.Text))
                 {
@@ -267,8 +213,6 @@ namespace TiketLaut.Views
                         jamKeberangkatan = jam;
                     }
                 }
-
-                // Validasi pelabuhan asal dan tujuan tidak sama
                 if (pelabuhanAsalItem.Id == pelabuhanTujuanItem.Id)
                 {
                     CustomDialog.ShowWarning(
@@ -306,11 +250,7 @@ namespace TiketLaut.Views
                     JumlahPenumpang = jumlahPenumpang,
                     JenisKendaraanId = jenisKendaraanIndex
                 };
-
-                // SAVE TO SESSION - PENTING!
                 SessionManager.SaveSearchSession(searchCriteria, jadwals);
-
-                // Buka ScheduleWindow dengan hasil pencarian
                 var scheduleWindow = new ScheduleWindow(jadwals, searchCriteria);
                 scheduleWindow.Show();
                 this.Close();
@@ -323,30 +263,19 @@ namespace TiketLaut.Views
             }
             finally
             {
-                // Restore button state
                 btnCariJadwal.IsEnabled = true;
                 btnCariJadwal.Content = "Cari Jadwal";
             }
         }
-
-        /// <summary>
-        /// OBSOLETE: Old ComboBox handler (not used anymore)
-        /// </summary>
         private void cmbJenisKendaraan_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            // No longer used - replaced by popup button system
         }
 
         private void navbarPreLogin_Loaded(object sender, RoutedEventArgs e)
         {
-            // Event handler untuk navbar pre-login
         }
 
         // ========== EVENT HANDLERS UNTUK PENUMPANG INPUT ==========
-
-        /// <summary>
-        /// Button minus untuk mengurangi jumlah penumpang
-        /// </summary>
         private void BtnMinusPenumpang_Click(object sender, RoutedEventArgs e)
         {
             if (int.TryParse(txtPenumpang.Text, out int currentValue))
@@ -355,8 +284,6 @@ namespace TiketLaut.Views
                 {
                     currentValue--;
                     txtPenumpang.Text = currentValue.ToString();
-                    
-                    // Sync ke popup textbox jika ada
                     if (txtPopupPenumpangHome != null)
                         txtPopupPenumpangHome.Text = currentValue.ToString();
                     
@@ -365,15 +292,10 @@ namespace TiketLaut.Views
                 }
             }
         }
-
-        /// <summary>
-        /// Button untuk toggle popup penumpang
-        /// </summary>
         private void BtnPenumpang_Click(object sender, RoutedEventArgs e)
         {
             if (popupPenumpangHome != null)
             {
-                // Sync nilai dari hidden textbox ke popup textbox
                 if (int.TryParse(txtPenumpang.Text, out int current))
                 {
                     txtPopupPenumpangHome.Text = current.ToString();
@@ -383,15 +305,10 @@ namespace TiketLaut.Views
                 popupPenumpangHome.IsOpen = !popupPenumpangHome.IsOpen;
             }
         }
-
-        /// <summary>
-        /// Button plus untuk menambah jumlah penumpang
-        /// </summary>
         private void BtnPlusPenumpang_Click(object sender, RoutedEventArgs e)
         {
             if (int.TryParse(txtPenumpang.Text, out int currentValue))
             {
-                // Dapatkan maksimal penumpang berdasarkan kendaraan yang dipilih
                 int maksimalPenumpang = GetMaksimalPenumpangFromKendaraan();
                 
                 if (currentValue < maksimalPenumpang)
@@ -411,10 +328,6 @@ namespace TiketLaut.Views
                 }
             }
         }
-
-        /// <summary>
-        /// Mendapatkan maksimal penumpang berdasarkan kendaraan yang dipilih
-        /// </summary>
         private int GetMaksimalPenumpangFromKendaraan()
         {
             if (txtVehicle == null || !int.TryParse(txtVehicle.Text, out int jenisKendaraanId) || jenisKendaraanId < 0)
@@ -423,34 +336,21 @@ namespace TiketLaut.Views
             int jenisKendaraanIndex = jenisKendaraanId;
             return DetailKendaraan.GetMaksimalPenumpangByIndex(jenisKendaraanIndex);
         }
-
-        /// <summary>
-        /// Update tampilan text penumpang
-        /// </summary>
         private void UpdatePenumpangDisplay(int count)
         {
             if (txtPenumpangDisplay != null)
             {
-                // Update menggunakan Inlines karena TextBlock menggunakan Run elements
                 txtPenumpangDisplay.Inlines.Clear();
                 txtPenumpangDisplay.Inlines.Add(new System.Windows.Documents.Run(count.ToString()));
                 txtPenumpangDisplay.Inlines.Add(new System.Windows.Documents.Run(" "));
                 txtPenumpangDisplay.Inlines.Add(new System.Windows.Documents.Run("Penumpang"));
             }
         }
-
-        /// <summary>
-        /// Validasi input hanya angka untuk TextBox penumpang popup
-        /// </summary>
         private void TxtPopupPenumpangHome_PreviewTextInput(object sender, System.Windows.Input.TextCompositionEventArgs e)
         {
             // Hanya terima angka
             e.Handled = !int.TryParse(e.Text, out _);
         }
-
-        /// <summary>
-        /// Event handler ketika text penumpang popup berubah (manual input)
-        /// </summary>
         private void TxtPopupPenumpangHome_TextChanged(object sender, TextChangedEventArgs e)
         {
             if (txtPopupPenumpangHome == null || txtPenumpang == null)
@@ -464,23 +364,18 @@ namespace TiketLaut.Views
 
             if (int.TryParse(txtPopupPenumpangHome.Text, out int value))
             {
-                // Validasi tidak boleh 0
                 if (value == 0)
                 {
                     txtPopupPenumpangHome.Text = "";
                     txtPopupPenumpangHome.SelectionStart = 0;
                     return;
                 }
-
-                // Validasi minimal 1
                 if (value < 1)
                 {
                     value = 1;
                     txtPopupPenumpangHome.Text = "1";
                     txtPopupPenumpangHome.SelectionStart = 1;
                 }
-
-                // Validasi maksimal sesuai kendaraan
                 int maksimalPenumpang = GetMaksimalPenumpangFromKendaraan();
                 if (value > maksimalPenumpang)
                 {
@@ -488,17 +383,11 @@ namespace TiketLaut.Views
                     txtPopupPenumpangHome.Text = maksimalPenumpang.ToString();
                     txtPopupPenumpangHome.SelectionStart = maksimalPenumpang.ToString().Length;
                 }
-
-                // Sync ke hidden textbox dan update display
                 txtPenumpang.Text = value.ToString();
                 UpdatePenumpangDisplay(value);
                 UpdatePopupButtonStatesHome(value);
             }
         }
-
-        /// <summary>
-        /// Update state enabled/disabled untuk button +/- di popup
-        /// </summary>
         private void UpdatePopupButtonStatesHome(int current)
         {
             int maksimalPenumpang = GetMaksimalPenumpangFromKendaraan();
@@ -509,10 +398,6 @@ namespace TiketLaut.Views
             if (btnPopupPlusPenumpangHome != null)
                 btnPopupPlusPenumpangHome.IsEnabled = current < maksimalPenumpang;
         }
-
-        /// <summary>
-        /// Event handler ketika popup penumpang ditutup
-        /// </summary>
         private void PopupPenumpangHome_Closed(object sender, EventArgs e)
         {
             // Saat popup ditutup, jika TextBox kosong atau invalid, restore ke nilai terakhir yang valid
@@ -520,7 +405,6 @@ namespace TiketLaut.Views
             {
                 if (string.IsNullOrWhiteSpace(txtPopupPenumpangHome.Text))
                 {
-                    // Restore dari hidden textbox
                     if (int.TryParse(txtPenumpang.Text, out int lastValue) && lastValue >= 1)
                     {
                         txtPopupPenumpangHome.Text = lastValue.ToString();
@@ -535,10 +419,6 @@ namespace TiketLaut.Views
                 }
             }
         }
-
-        /// <summary>
-        /// Button minus di dalam popup untuk mengurangi jumlah penumpang
-        /// </summary>
         private void BtnPopupMinusPenumpangHome_Click(object sender, RoutedEventArgs e)
         {
             if (int.TryParse(txtPopupPenumpangHome.Text, out int currentValue))
@@ -553,10 +433,6 @@ namespace TiketLaut.Views
                 }
             }
         }
-
-        /// <summary>
-        /// Button plus di dalam popup untuk menambah jumlah penumpang
-        /// </summary>
         private void BtnPopupPlusPenumpangHome_Click(object sender, RoutedEventArgs e)
         {
             if (int.TryParse(txtPopupPenumpangHome.Text, out int currentValue))
@@ -573,35 +449,21 @@ namespace TiketLaut.Views
                 }
             }
         }
-
-        /// <summary>
-        /// Validasi input hanya angka di TextBox penumpang
-        /// </summary>
         private void TxtPenumpang_PreviewTextInput(object sender, System.Windows.Input.TextCompositionEventArgs e)
         {
             // Hanya izinkan angka
             e.Handled = !IsTextNumeric(e.Text);
         }
-
-        /// <summary>
-        /// Handle perubahan text untuk update status button +/-
-        /// </summary>
         private void TxtPenumpang_TextChanged(object sender, TextChangedEventArgs e)
         {
-            // Null check untuk semua controls
             if (txtPenumpang == null)
                 return;
-
-            // Prevent infinite loop during initialization
             if (string.IsNullOrEmpty(txtPenumpang.Text))
                 return;
 
             if (int.TryParse(txtPenumpang.Text, out int value))
             {
-                // Update display text
                 UpdatePenumpangDisplay(value);
-                
-                // Update popup button states jika popup sedang terbuka
                 UpdatePopupButtonStatesHome(value);
             }
             else
@@ -611,20 +473,12 @@ namespace TiketLaut.Views
                     txtPenumpang.Text = "1";
             }
         }
-
-        /// <summary>
-        /// Helper method untuk cek apakah text adalah numeric
-        /// </summary>
         private static bool IsTextNumeric(string text)
         {
             return int.TryParse(text, out _);
         }
 
         // ========== EVENT HANDLERS UNTUK JAM INPUT ==========
-
-        /// <summary>
-        /// Event handler untuk swap/tukar pelabuhan asal dan tujuan
-        /// </summary>
         private void BtnSwapPelabuhan_Click(object sender, RoutedEventArgs e)
         {
             try
@@ -664,10 +518,6 @@ namespace TiketLaut.Views
                 CustomDialog.ShowError("Error", $"Terjadi kesalahan saat menukar pelabuhan: {ex.Message}");
             }
         }
-
-        /// <summary>
-        /// Event handler ketika button tanggal diklik
-        /// </summary>
         private void BtnTanggal_Click(object sender, RoutedEventArgs e)
         {
             if (dpTanggal != null)
@@ -678,10 +528,6 @@ namespace TiketLaut.Views
                 // Akan di-collapsed lagi setelah calendar tertutup di event CalendarClosed
             }
         }
-
-        /// <summary>
-        /// Event handler saat tanggal dipilih
-        /// </summary>
         private void DpTanggal_SelectedDateChanged(object sender, SelectionChangedEventArgs e)
         {
             if (dpTanggal.SelectedDate.HasValue && txtTanggalDisplay != null)
@@ -696,18 +542,10 @@ namespace TiketLaut.Views
             if (IsLoaded) // Hanya jalankan jika window sudah fully loaded
                 LoadAvailableJamAsync();
         }
-
-        /// <summary>
-        /// Event handler ketika calendar dibuka
-        /// </summary>
         private void DpTanggal_CalendarOpened(object sender, RoutedEventArgs e)
         {
             System.Diagnostics.Debug.WriteLine("[HomePage] Calendar opened");
         }
-
-        /// <summary>
-        /// Event handler ketika calendar ditutup
-        /// </summary>
         private void DpTanggal_CalendarClosed(object sender, RoutedEventArgs e)
         {
             System.Diagnostics.Debug.WriteLine("[HomePage] Calendar closed");
@@ -718,18 +556,9 @@ namespace TiketLaut.Views
                 dpTanggal.Visibility = Visibility.Collapsed;
             }
         }
-
-        /// <summary>
-        /// OBSOLETE: Event handler untuk ComboBox (diganti dengan Popup)
-        /// </summary>
         private void CmbJenisKendaraan_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            // No longer used - replaced by popup button system
         }
-
-        /// <summary>
-        /// Update status button +/- berdasarkan maksimal penumpang
-        /// </summary>
         private void UpdatePenumpangButtonStates(int maksimalPenumpang)
         {
             if (txtPenumpang == null)
@@ -737,33 +566,21 @@ namespace TiketLaut.Views
 
             if (int.TryParse(txtPenumpang.Text, out int value))
             {
-                // Update popup button states jika tersedia
                 UpdatePopupButtonStatesHome(value);
             }
         }
-
-        /// <summary>
-        /// Get text deskripsi jenis kendaraan
-        /// </summary>
         private string GetJenisKendaraanText(int index)
         {
             var jenis = (JenisKendaraan)index;
             var specs = DetailKendaraan.GetSpecificationByJenis(jenis);
             return specs.Deskripsi;
         }
-
-        /// <summary>
-        /// Load jam yang tersedia dari database berdasarkan kriteria yang dipilih
-        /// </summary>
         private void LoadAvailableJamAsync()
         {
             try
             {
-                // Null check untuk semua controls
                 if (spJamList == null)
                     return;
-
-                // Clear existing items except the header
                 var itemsToRemove = spJamList.Children.OfType<Button>().ToList();
                 foreach (var item in itemsToRemove)
                 {
@@ -829,10 +646,6 @@ namespace TiketLaut.Views
                 System.Diagnostics.Debug.WriteLine($"Error loading jam: {ex.Message}");
             }
         }
-
-        /// <summary>
-        /// Event handler untuk button toggle popup kendaraan
-        /// </summary>
         private void BtnVehicle_Click(object sender, RoutedEventArgs e)
         {
             if (popupVehicleHome != null)
@@ -840,13 +653,8 @@ namespace TiketLaut.Views
                 popupVehicleHome.IsOpen = !popupVehicleHome.IsOpen;
             }
         }
-
-        /// <summary>
-        /// Event handler ketika popup kendaraan dibuka - maintain highlight state
-        /// </summary>
         private void PopupVehicleHome_Opened(object sender, EventArgs e)
         {
-            // Maintain selected button highlight when popup reopens
             if (_selectedVehicleButtonHome != null)
             {
                 var blueBrush = new SolidColorBrush(
@@ -854,15 +662,10 @@ namespace TiketLaut.Views
                 _selectedVehicleButtonHome.SetValue(Button.BackgroundProperty, blueBrush);
             }
         }
-
-        /// <summary>
-        /// Event handler untuk memilih opsi kendaraan
-        /// </summary>
         private void BtnVehicleOptionHome_Click(object sender, RoutedEventArgs e)
         {
             if (sender is Button button && button.Tag is string tagValue)
             {
-                // Parse tag format: "ID|Name"
                 var parts = tagValue.Split('|');
                 if (parts.Length == 2 && int.TryParse(parts[0], out int jenisKendaraanId))
                 {
@@ -878,11 +681,7 @@ namespace TiketLaut.Views
                     var blueBrush = new SolidColorBrush(
                         (Color)ColorConverter.ConvertFromString("#b7def8ff")); // Soft blue - same as hover
                     button.SetValue(Button.BackgroundProperty, blueBrush);
-                    
-                    // Save current selected button
                     _selectedVehicleButtonHome = button;
-                    
-                    // Update display text and hidden value
                     UpdateVehicleDisplay(jenisKendaraanId, vehicleName);
                     txtVehicle.Text = jenisKendaraanId.ToString();
 
@@ -890,8 +689,6 @@ namespace TiketLaut.Views
                     int maksimalPenumpang = DetailKendaraan.GetMaksimalPenumpangByIndex(jenisKendaraanId);
                     
                     System.Diagnostics.Debug.WriteLine($"[HomePage] Kendaraan dipilih: {vehicleName} (ID: {jenisKendaraanId}), Maks penumpang: {maksimalPenumpang}");
-                    
-                    // Check current passenger count
                     if (int.TryParse(txtPenumpang.Text, out int currentPenumpang))
                     {
                         // If current passengers exceed max, adjust to max
@@ -916,9 +713,6 @@ namespace TiketLaut.Views
                 }
             }
         }
-        /// <summary>
-        /// Helper method to find Border element inside button template
-        /// </summary>
         private Border? FindChildBorder(DependencyObject parent)
         {
             if (parent == null) return null;
@@ -932,8 +726,6 @@ namespace TiketLaut.Views
                 {
                     return border;
                 }
-                
-                // Recursively search in children
                 var result = FindChildBorder(child);
                 if (result != null)
                 {
@@ -946,14 +738,9 @@ namespace TiketLaut.Views
 
         private void UpdateVehicleDisplay(int id, string vehicleName)
         {
-            // Clear existing text
             txtVehicleDisplay.Inlines.Clear();
-
-            // Create color for golongan
             var golonganBrush = new SolidColorBrush(
                 (Color)ColorConverter.ConvertFromString("#00B4B5"));
-
-            // Map ID to golongan
             Dictionary<int, string> golonganMap = new Dictionary<int, string>
             {
                 { 0, "" },  // Pejalan Kaki - no golongan
@@ -970,16 +757,12 @@ namespace TiketLaut.Views
                 { 11, " (Golongan VIII)" },
                 { 12, " (Golongan IX)" }
             };
-
-            // Create runs with different colors
             var nameRun = new Run(vehicleName)
             {
                 Foreground = Brushes.Black
             };
 
             txtVehicleDisplay.Inlines.Add(nameRun);
-
-            // Add golongan if exists
             if (golonganMap.ContainsKey(id) && !string.IsNullOrEmpty(golonganMap[id]))
             {
                 var golonganRun = new Run(golonganMap[id])
@@ -989,14 +772,9 @@ namespace TiketLaut.Views
                 txtVehicleDisplay.Inlines.Add(golonganRun);
             }
         }
-
-        // ========================================
         // PELABUHAN POPUP FUNCTIONS
-        // ========================================
-
         private void PopulatePelabuhanPopup(StackPanel container, IEnumerable<Pelabuhan> pelabuhans, bool isAsal)
         {
-            // Clear existing items except the header
             var itemsToRemove = container.Children.OfType<Button>().ToList();
             foreach (var item in itemsToRemove)
             {
@@ -1061,8 +839,6 @@ namespace TiketLaut.Views
                 stackPanel.Children.Add(titleBlock);
                 stackPanel.Children.Add(subtitleBlock);
                 button.Content = stackPanel;
-
-                // Add event handler
                 if (isAsal)
                 {
                     button.Click += BtnPelabuhanAsalOption_Click;
@@ -1133,11 +909,7 @@ namespace TiketLaut.Views
                 }
             }
         }
-
-        // ========================================
         // KELAS LAYANAN POPUP FUNCTIONS
-        // ========================================
-
         private void BtnKelasLayanan_Click(object sender, RoutedEventArgs e)
         {
             popupKelasLayanan.IsOpen = !popupKelasLayanan.IsOpen;
@@ -1158,11 +930,7 @@ namespace TiketLaut.Views
                     LoadAvailableJamAsync();
             }
         }
-
-        // ========================================
         // JAM POPUP FUNCTIONS
-        // ========================================
-
         private void BtnJam_Click(object sender, RoutedEventArgs e)
         {
             popupJam.IsOpen = !popupJam.IsOpen;
@@ -1179,11 +947,7 @@ namespace TiketLaut.Views
                 popupJam.IsOpen = false;
             }
         }
-        
-        // ========================================
         // BACKGROUND CAROUSEL FUNCTIONS
-        // ========================================
-        
         private void InitializeCarousel()
         {
             _carouselTimer = new DispatcherTimer
@@ -1241,11 +1005,7 @@ namespace TiketLaut.Views
             currentTransform.BeginAnimation(TranslateTransform.XProperty, slideOutAnim);
             nextTransform.BeginAnimation(TranslateTransform.XProperty, slideInAnim);
         }
-        
-        // ========================================
         // DATE TIME DISPLAY FUNCTIONS
-        // ========================================
-        
         private void InitializeClock()
         {
             UpdateDateTime();
@@ -1274,11 +1034,7 @@ namespace TiketLaut.Views
             // Format: HH:mm:ss WIB
             txtCurrentTime.Text = now.ToString("HH:mm:ss") + " WIB";
         }
-        
-        // ========================================
         // HELP BUTTON FUNCTIONS
-        // ========================================
-        
         private void HelpButton_Click(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
             ShowHelpDialog();

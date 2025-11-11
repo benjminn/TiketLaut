@@ -15,11 +15,6 @@ namespace TiketLaut.Services
         {
             _context = DatabaseService.GetContext();
         }
-
-        /// <summary>
-        /// Buat pembayaran baru setelah user konfirmasi di PaymentWindow
-        /// Status awal: "Menunggu Pembayaran"
-        /// </summary>
         public async Task<Pembayaran> CreatePembayaranAsync(
             int tiketId,
             string metodePembayaran,
@@ -32,8 +27,6 @@ namespace TiketLaut.Services
                 System.Diagnostics.Debug.WriteLine($"  tiketId: {tiketId}");
                 System.Diagnostics.Debug.WriteLine($"  metodePembayaran: {metodePembayaran}");
                 System.Diagnostics.Debug.WriteLine($"  jumlahBayar: {jumlahBayar}");
-
-                // Validasi tiket exists
                 var tiket = await _context.Tikets.FindAsync(tiketId);
                 if (tiket == null)
                 {
@@ -41,8 +34,6 @@ namespace TiketLaut.Services
                 }
 
                 System.Diagnostics.Debug.WriteLine($"[PembayaranService] Tiket found: {tiket.kode_tiket}");
-
-                // Check existing pembayaran using correct enum values
                 var existingPembayaran = await _context.Pembayarans
                     .FirstOrDefaultAsync(p => p.tiket_id == tiketId &&
                         (p.status_bayar == "Menunggu Validasi" ||
@@ -86,10 +77,6 @@ namespace TiketLaut.Services
                 throw;
             }
         }
-
-        /// <summary>
-        /// User konfirmasi sudah melakukan pembayaran (ubah status ke Menunggu Validasi)
-        /// </summary>
         public async Task<(bool success, string message)> KonfirmasiPembayaranAsync(int pembayaranId)
         {
             try
@@ -107,8 +94,6 @@ namespace TiketLaut.Services
                 {
                     return (false, $"Pembayaran dengan status '{pembayaran.status_bayar}' tidak bisa dikonfirmasi");
                 }
-
-                // Update status ke Menunggu Validasi
                 pembayaran.status_bayar = "Menunggu Validasi";
                 pembayaran.tanggal_bayar = DateTime.UtcNow; // Update waktu konfirmasi
                 
@@ -130,11 +115,6 @@ namespace TiketLaut.Services
                 return (false, $"Gagal konfirmasi pembayaran: {ex.Message}");
             }
         }
-
-        /// <summary>
-        /// Update status pembayaran (untuk admin konfirmasi)
-        /// Status yang valid: "Menunggu Pembayaran", "Menunggu Validasi", "Aktif", "Gagal", "Selesai"
-        /// </summary>
         public async Task<bool> UpdateStatusPembayaranAsync(int pembayaranId, string statusBaru)
         {
             try
@@ -147,18 +127,12 @@ namespace TiketLaut.Services
                 {
                     throw new Exception($"Pembayaran dengan ID {pembayaranId} tidak ditemukan!");
                 }
-
-                // Validasi status yang valid
                 var validStatuses = new[] { "Menunggu Pembayaran", "Menunggu Validasi", "Aktif", "Gagal", "Selesai" };
                 if (!validStatuses.Contains(statusBaru))
                 {
                     throw new Exception($"Status '{statusBaru}' tidak valid! Gunakan: {string.Join(", ", validStatuses)}");
                 }
-
-                // Update status pembayaran
                 pembayaran.status_bayar = statusBaru;
-
-                // Update status tiket sesuai status pembayaran
                 switch (statusBaru)
                 {
                     case "Aktif":
@@ -183,10 +157,6 @@ namespace TiketLaut.Services
                 throw;
             }
         }
-
-        /// <summary>
-        /// Update payment method and amount (when user changes payment method)
-        /// </summary>
         public async Task<bool> UpdatePembayaranMethodAsync(int pembayaranId, string newMethodePembayaran, decimal newJumlahBayar)
         {
             try
@@ -209,8 +179,6 @@ namespace TiketLaut.Services
 
                 var oldMethod = pembayaran.metode_pembayaran;
                 var oldAmount = pembayaran.jumlah_bayar;
-
-                // Update method and amount
                 pembayaran.metode_pembayaran = newMethodePembayaran;
                 pembayaran.jumlah_bayar = newJumlahBayar;
                 pembayaran.tanggal_bayar = DateTime.UtcNow; // Update timestamp
@@ -229,10 +197,6 @@ namespace TiketLaut.Services
                 return false;
             }
         }
-
-        /// <summary>
-        /// Get pembayaran by tiket ID
-        /// </summary>
         public async Task<Pembayaran?> GetPembayaranByTiketIdAsync(int tiketId)
         {
             try
@@ -255,10 +219,6 @@ namespace TiketLaut.Services
                 return null;
             }
         }
-
-        /// <summary>
-        /// Get pembayaran by ID dengan semua relasi untuk detail view
-        /// </summary>
         public async Task<Pembayaran?> GetPembayaranByIdAsync(int pembayaranId)
         {
             try
@@ -286,10 +246,6 @@ namespace TiketLaut.Services
                 throw;
             }
         }
-
-        /// <summary>
-        /// Get semua pembayaran untuk user tertentu
-        /// </summary>
         public async Task<List<Pembayaran>> GetPembayaranByPenggunaIdAsync(int penggunaId)
         {
             try
@@ -314,10 +270,6 @@ namespace TiketLaut.Services
                 return new List<Pembayaran>();
             }
         }
-
-        /// <summary>
-        /// Get pembayaran dengan filter status
-        /// </summary>
         public async Task<List<Pembayaran>> GetPembayaranByStatusAsync(string status)
         {
             try
@@ -341,10 +293,6 @@ namespace TiketLaut.Services
                 return new List<Pembayaran>();
             }
         }
-
-        /// <summary>
-        /// Validasi apakah jumlah bayar sesuai dengan total harga tiket
-        /// </summary>
         public async Task<bool> ValidateJumlahBayarAsync(int tiketId, decimal jumlahBayar)
         {
             var tiket = await _context.Tikets.FindAsync(tiketId);
@@ -354,10 +302,6 @@ namespace TiketLaut.Services
             return jumlahBayar >= tiket.total_harga &&
                    jumlahBayar <= (tiket.total_harga + 999);
         }
-
-        /// <summary>
-        /// Get all pembayaran dengan relasi lengkap untuk Admin Page
-        /// </summary>
         public async Task<List<Pembayaran>> GetAllPembayaranAsync()
         {
             try
@@ -383,10 +327,6 @@ namespace TiketLaut.Services
                 throw;
             }
         }
-
-        /// <summary>
-        /// Admin validasi pembayaran - ubah status dari Menunggu Validasi ke Sukses
-        /// </summary>
         public async Task<(bool success, string message)> ValidasiPembayaranAsync(int pembayaranId)
         {
             try
@@ -409,11 +349,7 @@ namespace TiketLaut.Services
                 {
                     return (false, $"Hanya pembayaran dengan status 'Menunggu Validasi' yang bisa divalidasi. Status saat ini: {pembayaran.status_bayar}");
                 }
-
-                // Update status pembayaran menjadi Sukses
                 pembayaran.status_bayar = "Sukses";
-                
-                // Update status tiket menjadi aktif
                 if (pembayaran.tiket != null)
                 {
                     pembayaran.tiket.status_tiket = "Aktif";
@@ -430,10 +366,6 @@ namespace TiketLaut.Services
                 return (false, $"Gagal validasi pembayaran: {ex.Message}");
             }
         }
-
-        /// <summary>
-        /// Tolak pembayaran - ubah status menjadi Gagal dan batalkan tiket
-        /// </summary>
         public async Task<(bool success, string message)> TolakPembayaranAsync(int pembayaranId, string alasan)
         {
             try
@@ -451,11 +383,7 @@ namespace TiketLaut.Services
                 {
                     return (false, "Pembayaran yang sudah aktif tidak bisa ditolak");
                 }
-
-                // Update status pembayaran
                 pembayaran.status_bayar = "Gagal";
-                
-                // Update status tiket menjadi gagal
                 if (pembayaran.tiket != null)
                 {
                     pembayaran.tiket.status_tiket = "Gagal";
@@ -472,10 +400,6 @@ namespace TiketLaut.Services
                 return (false, $"Gagal tolak pembayaran: {ex.Message}");
             }
         }
-
-        /// <summary>
-        /// Mark payment as failed due to validation timeout or admin rejection
-        /// </summary>
         public async Task<bool> MarkPaymentAsFailedAsync(int pembayaranId, string reason = "Tidak tervalidasi")
         {
             try
@@ -494,11 +418,7 @@ namespace TiketLaut.Services
                 {
                     throw new Exception($"Pembayaran tidak dalam status 'Menunggu Validasi'. Status saat ini: {pembayaran.status_bayar}");
                 }
-
-                // Update payment status to failed
                 pembayaran.status_bayar = "Gagal";
-
-                // Update ticket status to failed
                 pembayaran.tiket.status_tiket = "Gagal";
 
                 await _context.SaveChangesAsync();
@@ -512,10 +432,6 @@ namespace TiketLaut.Services
                 throw;
             }
         }
-
-        /// <summary>
-        /// Get all payments that are pending validation and past deadline (for automated cleanup)
-        /// </summary>
         public async Task<List<Pembayaran>> GetExpiredPendingPaymentsAsync(int timeoutHours = 48)
         {
             try
@@ -535,10 +451,6 @@ namespace TiketLaut.Services
                 return new List<Pembayaran>();
             }
         }
-
-        /// <summary>
-        /// Auto-mark expired pending payments as failed (for background service)
-        /// </summary>
         public async Task<int> AutoMarkExpiredPaymentsAsFailedAsync(int timeoutHours = 48)
         {
             try
@@ -568,10 +480,6 @@ namespace TiketLaut.Services
                 return 0;
             }
         }
-
-        /// <summary>
-        /// Get unique metode pembayaran untuk filter dropdown
-        /// </summary>
         public async Task<List<string>> GetUniqueMetodePembayaranAsync()
         {
             try
@@ -589,10 +497,6 @@ namespace TiketLaut.Services
                 return new List<string>();
             }
         }
-
-        /// <summary>
-        /// Get unique pengguna names untuk filter dropdown
-        /// </summary>
         public async Task<List<string>> GetUniquePenggunaAsync()
         {
             try
@@ -612,21 +516,14 @@ namespace TiketLaut.Services
                 return new List<string>();
             }
         }
-
-        /// <summary>
-        /// Update pembayaran (status, metode, keterangan)
-        /// </summary>
         public async Task<(bool success, string message)> UpdatePembayaranAsync(Pembayaran pembayaran)
         {
             try
             {
-                // Validasi input
                 if (pembayaran == null)
                 {
                     return (false, "Data pembayaran tidak valid");
                 }
-
-                // Get existing pembayaran from database
                 var existingPembayaran = await _context.Pembayarans
                     .Include(p => p.tiket)
                     .FirstOrDefaultAsync(p => p.pembayaran_id == pembayaran.pembayaran_id);
@@ -635,8 +532,6 @@ namespace TiketLaut.Services
                 {
                     return (false, "Pembayaran tidak ditemukan");
                 }
-
-                // Update fields
                 existingPembayaran.status_bayar = pembayaran.status_bayar;
                 existingPembayaran.metode_pembayaran = pembayaran.metode_pembayaran;
 

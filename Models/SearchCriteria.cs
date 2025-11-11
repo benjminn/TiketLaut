@@ -2,10 +2,6 @@ using System;
 
 namespace TiketLaut.Models
 {
-    /// <summary>
-    /// Data Transfer Object untuk kriteria pencarian jadwal
-    /// Digunakan untuk passing data antara HomePage dan ScheduleWindow
-    /// </summary>
     public class SearchCriteria
     {
         public int PelabuhanAsalId { get; set; }

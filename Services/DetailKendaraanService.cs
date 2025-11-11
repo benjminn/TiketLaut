@@ -15,10 +15,6 @@ namespace TiketLaut.Services
         {
             _context = DatabaseService.GetContext();
         }
-
-        /// <summary>
-        /// Get all detail kendaraan
-        /// </summary>
         public async Task<List<DetailKendaraan>> GetAllDetailKendaraanAsync()
         {
             try
@@ -33,10 +29,6 @@ namespace TiketLaut.Services
                 return new List<DetailKendaraan>();
             }
         }
-
-        /// <summary>
-        /// Get detail kendaraan by ID
-        /// </summary>
         public async Task<DetailKendaraan?> GetDetailKendaraanByIdAsync(int detailKendaraanId)
         {
             try
@@ -50,10 +42,6 @@ namespace TiketLaut.Services
                 return null;
             }
         }
-
-        /// <summary>
-        /// Get detail kendaraan by jenis
-        /// </summary>
         public async Task<List<DetailKendaraan>> GetDetailKendaraanByJenisAsync(JenisKendaraan jenis)
         {
             try
@@ -69,10 +57,6 @@ namespace TiketLaut.Services
                 return new List<DetailKendaraan>();
             }
         }
-
-        /// <summary>
-        /// Create new detail kendaraan
-        /// </summary>
         public async Task<(bool success, string message, int? id)> CreateDetailKendaraanAsync(DetailKendaraan detailKendaraan)
         {
             try
@@ -86,10 +70,6 @@ namespace TiketLaut.Services
                 return (false, $"Error: {ex.Message}", null);
             }
         }
-
-        /// <summary>
-        /// Update detail kendaraan
-        /// </summary>
         public async Task<(bool success, string message)> UpdateDetailKendaraanAsync(DetailKendaraan detailKendaraan)
         {
             try
@@ -103,15 +83,10 @@ namespace TiketLaut.Services
                 return (false, $"Error: {ex.Message}");
             }
         }
-
-        /// <summary>
-        /// Delete detail kendaraan
-        /// </summary>
         public async Task<(bool success, string message)> DeleteDetailKendaraanAsync(int detailKendaraanId)
         {
             try
             {
-                // Check if detail kendaraan is part of a grup that is used by jadwal
                 var detailKendaraan = await _context.DetailKendaraans
                     .Include(dk => dk.GrupKendaraan)
                     .ThenInclude(g => g!.Jadwals)
@@ -136,10 +111,6 @@ namespace TiketLaut.Services
                 return (false, $"Error: {ex.Message}");
             }
         }
-
-        /// <summary>
-        /// Find or create detail kendaraan by jenis and harga (untuk reusability)
-        /// </summary>
         public async Task<(bool success, string message, int? detailKendaraanId)> FindOrCreateDetailKendaraanAsync(
             JenisKendaraan jenis, 
             decimal harga)
@@ -156,8 +127,6 @@ namespace TiketLaut.Services
                 {
                     return (true, "Menggunakan detail kendaraan yang sudah ada", existing.detail_kendaraan_id);
                 }
-
-                // Create new
                 var newDetail = DetailKendaraan.Create(jenis, harga);
                 var result = await CreateDetailKendaraanAsync(newDetail);
                 return result;
@@ -167,10 +136,6 @@ namespace TiketLaut.Services
                 return (false, $"Error: {ex.Message}", null);
             }
         }
-
-        /// <summary>
-        /// Get all detail kendaraan by Grup ID
-        /// </summary>
         public async Task<List<DetailKendaraan>> GetByGrupAsync(int grupId)
         {
             try
@@ -188,10 +153,6 @@ namespace TiketLaut.Services
                 return new List<DetailKendaraan>(); // Kembalikan list kosong
             }
         }
-
-        /// <summary>
-        /// Assign detail kendaraan to jadwal (DEPRECATED - use GrupKendaraan instead)
-        /// </summary>
         [Obsolete("Use GrupKendaraanService instead. Jadwal now uses grup_kendaraan_id.")]
         public async Task<(bool success, string message)> AssignDetailKendaraanToJadwalAsync(
             int jadwalId, 
@@ -199,10 +160,6 @@ namespace TiketLaut.Services
         {
             return await Task.FromResult((false, "Method deprecated. Use GrupKendaraanService instead."));
         }
-
-        /// <summary>
-        /// Remove detail kendaraan from jadwal (DEPRECATED - use GrupKendaraan instead)
-        /// </summary>
         [Obsolete("Use GrupKendaraanService instead. Jadwal now uses grup_kendaraan_id.")]
         public async Task<(bool success, string message)> RemoveDetailKendaraanFromJadwalAsync(int jadwalId)
         {

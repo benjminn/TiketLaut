@@ -23,8 +23,6 @@ namespace TiketLaut.Views
         {
             InitializeComponent();
             _riwayatService = new RiwayatService();
-            
-            // Enable zoom functionality
             ZoomHelper.EnableZoom(this);
 
             // Set user info di navbar
@@ -35,10 +33,6 @@ namespace TiketLaut.Views
 
             LoadHistoryDataFromDatabaseAsync();
         }
-
-        /// <summary>
-        /// Load riwayat data dari database
-        /// </summary>
         private async void LoadHistoryDataFromDatabaseAsync()
         {
             try
@@ -62,8 +56,7 @@ namespace TiketLaut.Views
                     var tiket = riwayat.tiket;
                     var jadwal = tiket.Jadwal;
 
-                    // ✅ TIMEZONE FIX: Convert UTC to pelabuhan timezone
-                    var offsetAsalHours = jadwal.pelabuhan_asal?.TimezoneOffsetHours ?? 7;  // Default WIB
+                                        var offsetAsalHours = jadwal.pelabuhan_asal?.TimezoneOffsetHours ?? 7;  // Default WIB
                     var offsetTujuanHours = jadwal.pelabuhan_tujuan?.TimezoneOffsetHours ?? 7;
                     
                     var waktuBerangkatLocal = jadwal.waktu_berangkat.AddHours(offsetAsalHours);
@@ -73,18 +66,14 @@ namespace TiketLaut.Views
                     var dateText = tiket.tanggal_pemesanan.ToString("dddd, dd MMMM yyyy",
                         new System.Globalization.CultureInfo("id-ID"));
 
-                    // ? Semua riwayat pasti "Selesai" karena sudah difilter di service
-                    var historyItem = new HistoryItem
+                                        var historyItem = new HistoryItem
                     {
                         PembayaranId = riwayat.pembayaran_id,
                         TiketId = tiket.tiket_id,
                         Route = $"{jadwal.pelabuhan_asal?.nama_pelabuhan ?? "Unknown"} - {jadwal.pelabuhan_tujuan?.nama_pelabuhan ?? "Unknown"}",
-                        Status = "Selesai", // ? Always "Selesai"
-                        StatusColor = new SolidColorBrush(Color.FromRgb(0, 180, 181)), // ?? Cyan #00B4B5
-                        ShipName = jadwal.kapal?.nama_kapal ?? "Unknown",
+                        Status = "Selesai",                         StatusColor = new SolidColorBrush(Color.FromRgb(0, 180, 181)),                         ShipName = jadwal.kapal?.nama_kapal ?? "Unknown",
                         Date = dateText,
-                        Time = $"{waktuBerangkatLocal:HH:mm} - {waktuTibaLocal:HH:mm}",  // ✅ Gunakan waktu lokal
-                        KodeTiket = tiket.kode_tiket,
+                        Time = $"{waktuBerangkatLocal:HH:mm} - {waktuTibaLocal:HH:mm}",                          KodeTiket = tiket.kode_tiket,
                         TotalHarga = riwayat.jumlah_bayar
                     };
 

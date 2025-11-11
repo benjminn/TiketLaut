@@ -78,8 +78,6 @@ namespace TiketLaut.Services
                 return (false, $"Error: {ex.Message}");
             }
         }
-
-        // Update tiket
         public async Task<(bool success, string message)> UpdateTiketAsync(Tiket tiket)
         {
             try
@@ -89,8 +87,6 @@ namespace TiketLaut.Services
                 {
                     return (false, "Tiket tidak ditemukan");
                 }
-
-                // Update editable fields only
                 existingTiket.status_tiket = tiket.status_tiket;
                 existingTiket.plat_nomor = tiket.plat_nomor;
                 existingTiket.jenis_kendaraan_enum = tiket.jenis_kendaraan_enum;
@@ -104,8 +100,6 @@ namespace TiketLaut.Services
                 return (false, $"Error: {ex.Message}");
             }
         }
-
-        // Update tiket status
         public async Task<(bool success, string message)> UpdateTiketStatusAsync(int tiketId, string newStatus)
         {
             try

@@ -22,8 +22,6 @@ namespace TiketLaut.Views
             _kapalService = new KapalService();
             _jadwalService = new JadwalService();
             _kapalId = kapalId;
-            
-            // Enable zoom functionality
             ZoomHelper.EnableZoom(this);
 
             LoadKapalDetail();

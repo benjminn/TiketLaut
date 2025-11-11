@@ -39,10 +39,6 @@ namespace TiketLaut.Views
                 this.Close();
             }
         }
-
-        /// <summary>
-        /// Load data user dari SessionManager
-        /// </summary>
         private void LoadUserData()
         {
             var user = SessionManager.CurrentUser;
@@ -90,10 +86,6 @@ namespace TiketLaut.Views
                 _originalAlamat = user.alamat ?? "";
             }
         }
-
-        /// <summary>
-        /// Toggle antara mode view dan edit
-        /// </summary>
         private void BtnToggleEdit_Click(object sender, RoutedEventArgs e)
         {
             if (!_isEditMode)
@@ -103,14 +95,9 @@ namespace TiketLaut.Views
             }
             else
             {
-                // Save changes
                 SaveProfile();
             }
         }
-
-        /// <summary>
-        /// Aktifkan mode edit
-        /// </summary>
         private void EnterEditMode()
         {
             _isEditMode = true;
@@ -149,10 +136,6 @@ namespace TiketLaut.Views
 
             System.Diagnostics.Debug.WriteLine("[ProfileWindow] Entered edit mode");
         }
-
-        /// <summary>
-        /// Keluar dari mode edit tanpa menyimpan
-        /// </summary>
         private void ExitEditMode()
         {
             _isEditMode = false;
@@ -188,23 +171,16 @@ namespace TiketLaut.Views
             btnToggleEdit.Content = "Edit Profil";
             btnToggleEdit.Background = new System.Windows.Media.SolidColorBrush(
                 (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#00658D"));
-
-            // Clear password fields
             txtPasswordLama.Clear();
             txtPassword.Clear();
             txtConfirmPassword.Clear();
 
             System.Diagnostics.Debug.WriteLine("[ProfileWindow] Exited edit mode");
         }
-
-        /// <summary>
-        /// Simpan perubahan profil
-        /// </summary>
         private async void SaveProfile()
         {
             try
             {
-                // Validasi input
                 if (string.IsNullOrWhiteSpace(txtNama.Text))
                 {
                     CustomDialog.ShowWarning("Validasi", "Nama tidak boleh kosong!");
@@ -234,15 +210,11 @@ namespace TiketLaut.Views
                     CustomDialog.ShowWarning("Validasi", "Pilih tanggal lahir!");
                     return;
                 }
-
-                // Validasi email format
                 if (!IsValidEmail(txtEmail.Text))
                 {
                     CustomDialog.ShowWarning("Validasi", "Format email tidak valid!");
                     return;
                 }
-
-                // Validasi password jika ingin diubah
                 string? newPassword = null;
                 if (!string.IsNullOrWhiteSpace(txtPassword.Password))
                 {
@@ -259,8 +231,6 @@ namespace TiketLaut.Views
                         CustomDialog.ShowWarning("Validasi", "Password lama tidak sesuai!");
                         return;
                     }
-
-                    // Validasi password baru
                     if (txtPassword.Password.Length < 6)
                     {
                         CustomDialog.ShowWarning("Validasi", "Password baru minimal 6 karakter!");
@@ -284,16 +254,12 @@ namespace TiketLaut.Views
 
                 if (result != true)
                     return;
-
-                // Update data
                 var currentUser = SessionManager.CurrentUser;
                 if (currentUser == null)
                 {
                     CustomDialog.ShowError("Error", "Sesi login tidak valid!");
                     return;
                 }
-
-                // Update ke database
                 // Jenis kelamin bisa kosong jika tidak dipilih
                 var jenisKelamin = cmbJenisKelamin.SelectedIndex == -1 
                     ? "" 
@@ -312,26 +278,19 @@ namespace TiketLaut.Views
 
                 if (success)
                 {
-                    // Update SessionManager
                     currentUser.nama = txtNama.Text.Trim();
                     currentUser.email = txtEmail.Text.Trim();
                     currentUser.nomor_induk_kependudukan = txtNIK.Text.Trim();
                     currentUser.jenis_kelamin = jenisKelamin;
                     currentUser.tanggal_lahir = tanggalLahir;
                     currentUser.alamat = txtAlamat.Text.Trim();
-
-                    // Update navbar
                     navbarPostLogin.SetUserInfo(currentUser.nama);
-
-                    // Update original values
                     _originalNama = currentUser.nama;
                     _originalEmail = currentUser.email;
                     _originalNIK = currentUser.nomor_induk_kependudukan;
                     _originalJenisKelamin = currentUser.jenis_kelamin;
                     _originalTanggalLahir = currentUser.tanggal_lahir;
                     _originalAlamat = currentUser.alamat ?? "";
-                    
-                    // Update View Mode text blocks
                     txtNamaView.Text = currentUser.nama;
                     txtEmailView.Text = currentUser.email;
                     txtNIKView.Text = currentUser.nomor_induk_kependudukan;
@@ -355,10 +314,6 @@ namespace TiketLaut.Views
                 System.Diagnostics.Debug.WriteLine($"[ProfileWindow] Error saving profile: {ex.Message}");
             }
         }
-
-        /// <summary>
-        /// Validasi format email
-        /// </summary>
         private bool IsValidEmail(string email)
         {
             try
@@ -371,10 +326,6 @@ namespace TiketLaut.Views
                 return false;
             }
         }
-
-        /// <summary>
-        /// Cancel edit dan restore data original
-        /// </summary>
         private void BtnCancel_Click(object sender, RoutedEventArgs e)
         {
             var result = CustomDialog.ShowQuestion(
@@ -384,12 +335,9 @@ namespace TiketLaut.Views
 
             if (result == true)
             {
-                // Restore original data
                 txtNama.Text = _originalNama;
                 txtEmail.Text = _originalEmail;
                 txtNIK.Text = _originalNIK;
-                
-                // Restore jenis kelamin
                 if (_originalJenisKelamin == "Laki-laki")
                     cmbJenisKelamin.SelectedIndex = 0;
                 else if (_originalJenisKelamin == "Perempuan")
@@ -404,10 +352,6 @@ namespace TiketLaut.Views
                 ExitEditMode();
             }
         }
-
-        /// <summary>
-        /// Kembali ke halaman sebelumnya
-        /// </summary>
         private void BtnKembali_Click(object sender, RoutedEventArgs e)
         {
             // Jika sedang edit mode, tanyakan konfirmasi
