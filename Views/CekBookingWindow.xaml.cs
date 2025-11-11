@@ -165,10 +165,10 @@ namespace TiketLaut.Views
                     {
                         TiketId = tiket.tiket_id,
                         PembayaranId = pembayaran.pembayaran_id,
-                        Route = $"{jadwal.pelabuhan_asal.nama_pelabuhan} - {jadwal.pelabuhan_tujuan.nama_pelabuhan}",
+                        Route = $"{jadwal.pelabuhan_asal?.nama_pelabuhan ?? "Unknown"} - {jadwal.pelabuhan_tujuan?.nama_pelabuhan ?? "Unknown"}",
                         Status = status,
                         StatusColor = statusColor,
-                        ShipName = jadwal.kapal.nama_kapal,
+                        ShipName = jadwal.kapal?.nama_kapal ?? "Unknown",
                         Date = dateText,
                         Time = $"{waktuBerangkatLocal:HH:mm} - {waktuTibaLocal:HH:mm}",  // ✅ Gunakan waktu lokal
                         ShowWarning = showWarning,

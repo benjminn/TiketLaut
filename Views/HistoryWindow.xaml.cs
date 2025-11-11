@@ -78,10 +78,10 @@ namespace TiketLaut.Views
                     {
                         PembayaranId = riwayat.pembayaran_id,
                         TiketId = tiket.tiket_id,
-                        Route = $"{jadwal.pelabuhan_asal.nama_pelabuhan} - {jadwal.pelabuhan_tujuan.nama_pelabuhan}",
+                        Route = $"{jadwal.pelabuhan_asal?.nama_pelabuhan ?? "Unknown"} - {jadwal.pelabuhan_tujuan?.nama_pelabuhan ?? "Unknown"}",
                         Status = "Selesai", // ? Always "Selesai"
                         StatusColor = new SolidColorBrush(Color.FromRgb(0, 180, 181)), // ?? Cyan #00B4B5
-                        ShipName = jadwal.kapal.nama_kapal,
+                        ShipName = jadwal.kapal?.nama_kapal ?? "Unknown",
                         Date = dateText,
                         Time = $"{waktuBerangkatLocal:HH:mm} - {waktuTibaLocal:HH:mm}",  // ✅ Gunakan waktu lokal
                         KodeTiket = tiket.kode_tiket,

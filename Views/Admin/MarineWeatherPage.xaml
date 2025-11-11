@@ -320,7 +320,7 @@
                     <TabItem.Header>
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="📅" FontSize="16" Margin="0,0,8,0"/>
-                            <TextBlock Text="Forecasting 5 Hari" FontSize="14" FontWeight="SemiBold"/>
+                            <TextBlock Text="Forecasting by Jadwal" FontSize="14" FontWeight="SemiBold"/>
                         </StackPanel>
                     </TabItem.Header>
                     <Border Style="{StaticResource CardStyle}" Margin="0">
