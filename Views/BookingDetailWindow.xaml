@@ -245,7 +245,7 @@
             <!-- Left Section - Scrollable Content -->
             <ScrollViewer x:Name="scrollViewerMain"
                          Grid.Column="0" 
-                         VerticalScrollBarVisibility="Auto"
+                         VerticalScrollBarVisibility="Hidden"
                          HorizontalScrollBarVisibility="Disabled"
                          Padding="0,0,10,0">
                 <StackPanel>

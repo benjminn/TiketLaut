@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using TiketLaut.Services;
 using TiketLaut.Views;
 using TiketLaut.Views.Components;
+using TiketLaut.Helpers;
 
 using QRCoder; 
 using System.IO; 
@@ -44,6 +45,9 @@ namespace TiketLaut.Views
             InitializeComponent();
             _pembayaranService = new PembayaranService();
             _bookingService = new BookingService();
+            
+            // Enable zoom functionality
+            ZoomHelper.EnableZoom(this);
 
             ApplyResponsiveLayout();
             GenerateKodeUnik();

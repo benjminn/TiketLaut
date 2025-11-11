@@ -4,10 +4,16 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
+using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
+using System.Windows.Media.Effects;
+using System.Windows.Media.Imaging;
+using System.Windows.Threading;
 using TiketLaut.Services;
 using TiketLaut.Models;
 using TiketLaut.Views.Components;
+using TiketLaut.Helpers;
 
 namespace TiketLaut.Views
 {
@@ -21,6 +27,17 @@ namespace TiketLaut.Views
         private readonly JadwalService _jadwalService;
         private Button? _selectedVehicleButtonHome; // Track selected vehicle button for highlight
         private List<Pelabuhan> _pelabuhans = new List<Pelabuhan>(); // Store pelabuhan data
+        
+        // Carousel background images
+        private readonly List<string> _backgroundImages = new List<string>
+        {
+            "/Views/Assets/Images/bekgron.png",
+            "/Views/Assets/Images/bekgron.png", // Tambahkan gambar lain jika ada
+            "/Views/Assets/Images/bekgron.png"  // Tambahkan gambar lain jika ada
+        };
+        private int _currentImageIndex = 0;
+        private DispatcherTimer? _carouselTimer;
+        private DispatcherTimer? _clockTimer;
 
         // Constructor default (untuk pertama kali buka app)
         public HomePage()
@@ -28,11 +45,18 @@ namespace TiketLaut.Views
             InitializeComponent();
             _jadwalService = new JadwalService();
             
+            // Enable zoom functionality
+            ZoomHelper.EnableZoom(this);
+            
             // Set default penumpang value after controls are initialized
             txtPenumpang.Text = "1";
             
             SetNavbarVisibility();
             LoadDataAsync();
+            
+            // Initialize carousel and clock
+            InitializeCarousel();
+            InitializeClock();
         }
 
         // Constructor dengan parameter (untuk setelah login/logout)
@@ -1153,6 +1177,411 @@ namespace TiketLaut.Views
                 
                 popupJam.IsOpen = false;
             }
+        }
+        
+        // ========================================
+        // BACKGROUND CAROUSEL FUNCTIONS
+        // ========================================
+        
+        private void InitializeCarousel()
+        {
+            _carouselTimer = new DispatcherTimer
+            {
+                Interval = TimeSpan.FromSeconds(5) // Ganti gambar setiap 5 detik
+            };
+            _carouselTimer.Tick += CarouselTimer_Tick;
+            _carouselTimer.Start();
+        }
+        
+        private void CarouselTimer_Tick(object? sender, EventArgs e)
+        {
+            // Fade out current image
+            var fadeOut = (Storyboard)Resources["FadeOutStoryboard"];
+            fadeOut.Completed += (s, args) =>
+            {
+                // Change image source
+                _currentImageIndex = (_currentImageIndex + 1) % _backgroundImages.Count;
+                backgroundImage.Source = new BitmapImage(new Uri(_backgroundImages[_currentImageIndex], UriKind.Relative));
+                
+                // Fade in new image
+                var fadeIn = (Storyboard)Resources["FadeInStoryboard"];
+                fadeIn.Begin();
+            };
+            fadeOut.Begin();
+        }
+        
+        // ========================================
+        // DATE TIME DISPLAY FUNCTIONS
+        // ========================================
+        
+        private void InitializeClock()
+        {
+            UpdateDateTime();
+            
+            _clockTimer = new DispatcherTimer
+            {
+                Interval = TimeSpan.FromSeconds(1) // Update setiap 1 detik
+            };
+            _clockTimer.Tick += ClockTimer_Tick;
+            _clockTimer.Start();
+        }
+        
+        private void ClockTimer_Tick(object? sender, EventArgs e)
+        {
+            UpdateDateTime();
+        }
+        
+        private void UpdateDateTime()
+        {
+            var now = DateTime.Now;
+            
+            // Format: Hari, DD MMMM YYYY
+            var culture = new System.Globalization.CultureInfo("id-ID");
+            txtCurrentDate.Text = now.ToString("dddd, dd MMMM yyyy", culture);
+            
+            // Format: HH:mm:ss WIB
+            txtCurrentTime.Text = now.ToString("HH:mm:ss") + " WIB";
+        }
+        
+        // ========================================
+        // HELP BUTTON FUNCTIONS
+        // ========================================
+        
+        private void HelpButton_Click(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            ShowHelpDialog();
+        }
+        
+        private void HelpButton_MouseEnter(object sender, System.Windows.Input.MouseEventArgs e)
+        {
+            // Hover effect: scale up slightly and change shadow
+            if (sender is Border border)
+            {
+                var scaleTransform = new ScaleTransform(1.05, 1.05);
+                border.RenderTransform = scaleTransform;
+                border.RenderTransformOrigin = new Point(0.5, 0.5);
+                
+                // Animate scale
+                var scaleAnimation = new System.Windows.Media.Animation.DoubleAnimation
+                {
+                    To = 1.05,
+                    Duration = TimeSpan.FromMilliseconds(200),
+                    EasingFunction = new System.Windows.Media.Animation.CubicEase { EasingMode = System.Windows.Media.Animation.EasingMode.EaseOut }
+                };
+                
+                scaleTransform.BeginAnimation(ScaleTransform.ScaleXProperty, scaleAnimation);
+                scaleTransform.BeginAnimation(ScaleTransform.ScaleYProperty, scaleAnimation);
+                
+                // Change shadow to be more prominent
+                var shadow = new DropShadowEffect
+                {
+                    BlurRadius = 25,
+                    ShadowDepth = 8,
+                    Opacity = 0.3,
+                    Color = Colors.Black
+                };
+                border.Effect = shadow;
+            }
+        }
+        
+        private void HelpButton_MouseLeave(object sender, System.Windows.Input.MouseEventArgs e)
+        {
+            // Reset to normal state
+            if (sender is Border border)
+            {
+                var scaleTransform = border.RenderTransform as ScaleTransform;
+                if (scaleTransform != null)
+                {
+                    var scaleAnimation = new System.Windows.Media.Animation.DoubleAnimation
+                    {
+                        To = 1.0,
+                        Duration = TimeSpan.FromMilliseconds(200),
+                        EasingFunction = new System.Windows.Media.Animation.CubicEase { EasingMode = System.Windows.Media.Animation.EasingMode.EaseOut }
+                    };
+                    
+                    scaleTransform.BeginAnimation(ScaleTransform.ScaleXProperty, scaleAnimation);
+                    scaleTransform.BeginAnimation(ScaleTransform.ScaleYProperty, scaleAnimation);
+                }
+                
+                // Reset shadow to original
+                var shadow = (DropShadowEffect)Resources["CardShadow"];
+                border.Effect = shadow;
+            }
+        }
+        
+        private void ShowHelpDialog()
+        {
+            var dialog = new Window
+            {
+                Width = 550,
+                Height = 550,
+                WindowStartupLocation = WindowStartupLocation.CenterOwner,
+                Owner = this,
+                ResizeMode = ResizeMode.NoResize,
+                Background = Brushes.White,
+                FontFamily = new FontFamily("Plus Jakarta Sans"),
+                WindowStyle = WindowStyle.None,
+                AllowsTransparency = true
+            };
+            
+            // Add shadow effect to entire dialog
+            var dialogShadow = new DropShadowEffect
+            {
+                BlurRadius = 30,
+                ShadowDepth = 0,
+                Opacity = 0.3,
+                Color = Colors.Black
+            };
+            dialog.Effect = dialogShadow;
+            
+            var mainGrid = new Grid();
+            mainGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+            mainGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+            mainGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+            
+            // Header
+            var headerBorder = new Border
+            {
+                Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#00658D")),
+                Padding = new Thickness(25, 20, 25, 20),
+                CornerRadius = new CornerRadius(16, 16, 0, 0)
+            };
+            
+            var headerGrid = new Grid();
+            headerGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            headerGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+            
+            var headerStack = new StackPanel();
+            
+            var headerTitle = new TextBlock
+            {
+                Text = "📞 Hubungi Kami",
+                FontSize = 24,
+                FontWeight = FontWeights.Bold,
+                Foreground = Brushes.White
+            };
+            
+            var headerSubtitle = new TextBlock
+            {
+                Text = "Kami siap membantu Anda 24/7",
+                FontSize = 14,
+                Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#E0E0E0")),
+                Margin = new Thickness(0, 5, 0, 0)
+            };
+            
+            headerStack.Children.Add(headerTitle);
+            headerStack.Children.Add(headerSubtitle);
+            Grid.SetColumn(headerStack, 0);
+            
+            // Close button in header
+            var closeHeaderButton = new Button
+            {
+                Content = "✕",
+                FontSize = 24,
+                FontWeight = FontWeights.Bold,
+                Foreground = Brushes.White,
+                Background = Brushes.Transparent,
+                BorderThickness = new Thickness(0),
+                Cursor = System.Windows.Input.Cursors.Hand,
+                Width = 40,
+                Height = 40,
+                VerticalAlignment = VerticalAlignment.Top,
+                Padding = new Thickness(0)
+            };
+            
+            closeHeaderButton.Click += (s, e) => dialog.Close();
+            
+            // Style for close button
+            var closeButtonTemplate = new ControlTemplate(typeof(Button));
+            var closeBorder = new FrameworkElementFactory(typeof(Border));
+            closeBorder.SetValue(Border.BackgroundProperty, new TemplateBindingExtension(Button.BackgroundProperty));
+            closeBorder.SetValue(Border.CornerRadiusProperty, new CornerRadius(20));
+            closeBorder.SetValue(Border.WidthProperty, 40.0);
+            closeBorder.SetValue(Border.HeightProperty, 40.0);
+            
+            var closeContentPresenter = new FrameworkElementFactory(typeof(ContentPresenter));
+            closeContentPresenter.SetValue(ContentPresenter.HorizontalAlignmentProperty, HorizontalAlignment.Center);
+            closeContentPresenter.SetValue(ContentPresenter.VerticalAlignmentProperty, VerticalAlignment.Center);
+            
+            closeBorder.AppendChild(closeContentPresenter);
+            closeButtonTemplate.VisualTree = closeBorder;
+            closeHeaderButton.Template = closeButtonTemplate;
+            
+            var closeButtonStyle = new Style(typeof(Button));
+            var closeHoverTrigger = new Trigger { Property = Button.IsMouseOverProperty, Value = true };
+            closeHoverTrigger.Setters.Add(new Setter(Button.BackgroundProperty, new SolidColorBrush(Color.FromArgb(50, 255, 255, 255))));
+            closeButtonStyle.Triggers.Add(closeHoverTrigger);
+            closeHeaderButton.Style = closeButtonStyle;
+            
+            Grid.SetColumn(closeHeaderButton, 1);
+            
+            headerGrid.Children.Add(headerStack);
+            headerGrid.Children.Add(closeHeaderButton);
+            headerBorder.Child = headerGrid;
+            Grid.SetRow(headerBorder, 0);
+            
+            // Content
+            var contentScroll = new ScrollViewer
+            {
+                VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
+                Padding = new Thickness(25, 20, 25, 20)
+            };
+            
+            var contentStack = new StackPanel();
+            
+            // Customer Service
+            var csTitle = new TextBlock
+            {
+                Text = "🎧 Customer Service",
+                FontSize = 16,
+                FontWeight = FontWeights.SemiBold,
+                Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#011C4B")),
+                Margin = new Thickness(0, 0, 0, 10)
+            };
+            contentStack.Children.Add(csTitle);
+            
+            AddContactInfo(contentStack, "☎️", "Telepon", "+62 812-3456-7890");
+            AddContactInfo(contentStack, "📱", "WhatsApp", "+62 812-3456-7890");
+            AddContactInfo(contentStack, "📧", "Email", "support@tiketlaut.com");
+            AddContactInfo(contentStack, "🏢", "Email Bisnis", "business@tiketlaut.com");
+            
+            // Office
+            var officeTitle = new TextBlock
+            {
+                Text = "🏢 Kantor Pusat",
+                FontSize = 16,
+                FontWeight = FontWeights.SemiBold,
+                Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#011C4B")),
+                Margin = new Thickness(0, 20, 0, 10)
+            };
+            contentStack.Children.Add(officeTitle);
+            
+            var addressText = new TextBlock
+            {
+                Text = "Jl. Pelabuhan Raya No. 123\nKota Pelabuhan, Indonesia 12345",
+                FontSize = 14,
+                Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#495057")),
+                TextWrapping = TextWrapping.Wrap,
+                Margin = new Thickness(0, 0, 0, 5)
+            };
+            contentStack.Children.Add(addressText);
+            
+            var operatingHours = new TextBlock
+            {
+                Text = "⏰ Senin - Minggu: 08:00 - 20:00 WIB",
+                FontSize = 13,
+                Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#6C757D")),
+                FontStyle = FontStyles.Italic
+            };
+            contentStack.Children.Add(operatingHours);
+            
+            contentScroll.Content = contentStack;
+            Grid.SetRow(contentScroll, 1);
+            
+            // Footer Button
+            var footerBorder = new Border
+            {
+                Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#F8F9FA")),
+                Padding = new Thickness(25, 15, 25, 15),
+                BorderBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#DEE2E6")),
+                BorderThickness = new Thickness(0, 1, 0, 0)
+            };
+            
+            var closeButton = new Button
+            {
+                Content = "Tutup",
+                Padding = new Thickness(30, 10, 30, 10),
+                FontSize = 14,
+                FontWeight = FontWeights.SemiBold,
+                Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#00658D")),
+                Foreground = Brushes.White,
+                BorderThickness = new Thickness(0),
+                Cursor = System.Windows.Input.Cursors.Hand,
+                HorizontalAlignment = HorizontalAlignment.Center
+            };
+            
+            closeButton.Click += (s, e) => dialog.Close();
+            
+            var buttonTemplate = new ControlTemplate(typeof(Button));
+            var buttonBorder = new FrameworkElementFactory(typeof(Border));
+            buttonBorder.SetValue(Border.BackgroundProperty, new TemplateBindingExtension(Button.BackgroundProperty));
+            buttonBorder.SetValue(Border.CornerRadiusProperty, new CornerRadius(8));
+            buttonBorder.SetValue(Border.PaddingProperty, new TemplateBindingExtension(Button.PaddingProperty));
+            
+            var contentPresenter = new FrameworkElementFactory(typeof(ContentPresenter));
+            contentPresenter.SetValue(ContentPresenter.HorizontalAlignmentProperty, HorizontalAlignment.Center);
+            contentPresenter.SetValue(ContentPresenter.VerticalAlignmentProperty, VerticalAlignment.Center);
+            
+            buttonBorder.AppendChild(contentPresenter);
+            buttonTemplate.VisualTree = buttonBorder;
+            closeButton.Template = buttonTemplate;
+            
+            var buttonStyle = new Style(typeof(Button));
+            var hoverTrigger = new Trigger { Property = Button.IsMouseOverProperty, Value = true };
+            hoverTrigger.Setters.Add(new Setter(Button.BackgroundProperty, new SolidColorBrush((Color)ColorConverter.ConvertFromString("#267DAE"))));
+            buttonStyle.Triggers.Add(hoverTrigger);
+            closeButton.Style = buttonStyle;
+            
+            footerBorder.Child = closeButton;
+            Grid.SetRow(footerBorder, 2);
+            
+            mainGrid.Children.Add(headerBorder);
+            mainGrid.Children.Add(contentScroll);
+            mainGrid.Children.Add(footerBorder);
+            
+            // Wrap in border for rounded corners
+            var outerBorder = new Border
+            {
+                CornerRadius = new CornerRadius(16),
+                Background = Brushes.White,
+                Child = mainGrid
+            };
+            
+            dialog.Content = outerBorder;
+            dialog.ShowDialog();
+        }
+        
+        private void AddContactInfo(StackPanel parent, string icon, string label, string value)
+        {
+            var itemStack = new StackPanel
+            {
+                Orientation = Orientation.Horizontal,
+                Margin = new Thickness(0, 0, 0, 8)
+            };
+            
+            var iconText = new TextBlock
+            {
+                Text = icon,
+                FontSize = 16,
+                Margin = new Thickness(0, 0, 10, 0),
+                VerticalAlignment = VerticalAlignment.Center
+            };
+            
+            var infoStack = new StackPanel();
+            
+            var labelText = new TextBlock
+            {
+                Text = label,
+                FontSize = 12,
+                Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#6C757D")),
+                FontWeight = FontWeights.Medium
+            };
+            
+            var valueText = new TextBlock
+            {
+                Text = value,
+                FontSize = 14,
+                Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#011C4B")),
+                FontWeight = FontWeights.SemiBold
+            };
+            
+            infoStack.Children.Add(labelText);
+            infoStack.Children.Add(valueText);
+            
+            itemStack.Children.Add(iconText);
+            itemStack.Children.Add(infoStack);
+            
+            parent.Children.Add(itemStack);
         }
     }
 }

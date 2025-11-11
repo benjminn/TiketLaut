@@ -4,6 +4,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using TiketLaut.Services;
+using TiketLaut.Helpers;
 using AdminModel = TiketLaut.Admin;
 using ClosedXML.Excel;
 using Microsoft.Win32;
@@ -23,6 +24,9 @@ namespace TiketLaut.Views
             _adminService = new AdminService();
             _riwayatService = new RiwayatService();
             _currentAdmin = SessionManager.CurrentAdmin;
+            
+            // Enable zoom functionality
+            ZoomHelper.EnableZoom(this);
 
             if (_currentAdmin == null)
             {

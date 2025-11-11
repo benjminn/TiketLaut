@@ -9,6 +9,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using TiketLaut.Services;
 using TiketLaut.Views.Components;
+using TiketLaut.Helpers;
 
 namespace TiketLaut.Views
 {
@@ -26,6 +27,9 @@ namespace TiketLaut.Views
             _pembayaranService = new PembayaranService();
             _riwayatService = new RiwayatService();
             _tiketService = new TiketService();
+            
+            // Enable zoom functionality
+            ZoomHelper.EnableZoom(this);
 
             // Set user info di navbar
             if (SessionManager.CurrentUser != null)

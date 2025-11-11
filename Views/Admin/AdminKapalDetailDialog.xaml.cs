@@ -6,6 +6,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using TiketLaut.Services;
+using TiketLaut.Helpers;
 
 namespace TiketLaut.Views
 {
@@ -21,6 +22,9 @@ namespace TiketLaut.Views
             _kapalService = new KapalService();
             _jadwalService = new JadwalService();
             _kapalId = kapalId;
+            
+            // Enable zoom functionality
+            ZoomHelper.EnableZoom(this);
 
             LoadKapalDetail();
         }

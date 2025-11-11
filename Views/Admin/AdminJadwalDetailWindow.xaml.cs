@@ -24,6 +24,10 @@ namespace TiketLaut.Views
             InitializeComponent();
             _jadwalService = new JadwalService();
             _jadwalId = jadwalId;
+            
+            // Enable zoom functionality
+            ZoomHelper.EnableZoom(this);
+            
             LoadData();
         }
 

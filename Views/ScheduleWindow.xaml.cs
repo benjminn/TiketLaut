@@ -12,6 +12,7 @@ using TiketLaut.Models;
 using TiketLaut.Services;
 using TiketLaut.Views;
 using TiketLaut.Views.Components;
+using TiketLaut.Helpers;
 
 namespace TiketLaut.Views
 {
@@ -28,6 +29,9 @@ namespace TiketLaut.Views
         {
             InitializeComponent();
             _jadwalService = new JadwalService();
+            
+            // Enable zoom functionality
+            ZoomHelper.EnableZoom(this);
 
             SetNavbarVisibility();
 
