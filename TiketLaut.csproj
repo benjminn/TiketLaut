@@ -63,6 +63,9 @@
 	  <None Remove="Views\Assets\Images\background.png" />
 	  <None Remove="Views\Assets\Images\BCA.png" />
 	  <None Remove="Views\Assets\Images\bekgron.png" />
+	  <None Remove="Views\Assets\Images\bg2.png" />
+	  <None Remove="Views\Assets\Images\bg3.jpg" />
+	  <None Remove="Views\Assets\Images\bg4.jpg" />
 	  <None Remove="Views\Assets\Images\iconlokasi.png" />
 	  <None Remove="Views\Assets\Images\iconorang.png" />
 	  <None Remove="Views\Assets\Images\icontanggal.png" />
@@ -177,6 +180,9 @@
 	  </Resource>
 	  <Resource Include="Views\Assets\Images\BCA.png" />
 	  <Resource Include="Views\Assets\Images\bekgron.png" />
+	  <Resource Include="Views\Assets\Images\bg2.png" />
+	  <Resource Include="Views\Assets\Images\bg3.jpg" />
+	  <Resource Include="Views\Assets\Images\bg4.jpg" />
 	  <Resource Include="Views\Assets\Images\iconlokasi.png" />
 	  <Resource Include="Views\Assets\Images\iconorang.png" />
 	  <Resource Include="Views\Assets\Images\icontanggal.png" />

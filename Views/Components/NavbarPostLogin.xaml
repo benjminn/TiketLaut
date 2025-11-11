@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              FontFamily="Plus Jakarta Sans">
 
-    <Border Background="#4AFFFFFF"
+    <Border Background="Transparent"
             BorderBrush="Transparent"
             BorderThickness="0"
             MinHeight="70"
