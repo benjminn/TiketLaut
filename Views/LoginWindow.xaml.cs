@@ -51,9 +51,6 @@ namespace TiketLaut.Views
         {
             InitializeComponent();
             _loginSource = source; // ✅ Now this will work
-
-            System.Diagnostics.Debug.WriteLine($"[LoginWindow] Constructor called with source: {source}");
-
             _penggunaService = new PenggunaService();
             _adminService = new AdminService();
 
@@ -123,12 +120,9 @@ namespace TiketLaut.Views
         {
             try
             {
-                System.Diagnostics.Debug.WriteLine($"[LoginWindow] BtnKembali_Click - Source: {_loginSource}"); // ✅ Debug log
-
                 switch (_loginSource)
                 {
                     case LoginSource.HomePage:
-                        System.Diagnostics.Debug.WriteLine("[LoginWindow] Navigating back to HomePage");
                         // Kembali ke HomePage sebagai guest
                         var homePage = new HomePage(isLoggedIn: false, username: "");
                         CopyWindowProperties(homePage);
@@ -137,7 +131,6 @@ namespace TiketLaut.Views
                         break;
 
                     case LoginSource.ScheduleWindow:
-                        System.Diagnostics.Debug.WriteLine("[LoginWindow] Navigating back to ScheduleWindow");
                         // Kembali ke ScheduleWindow dengan data session yang tersimpan
                         var scheduleWindow = new ScheduleWindow(); // Constructor akan auto-load dari session
                         CopyWindowProperties(scheduleWindow);
@@ -146,7 +139,6 @@ namespace TiketLaut.Views
                         break;
 
                     default:
-                        System.Diagnostics.Debug.WriteLine("[LoginWindow] Using default fallback to HomePage");
                         // Fallback ke HomePage
                         var defaultHomePage = new HomePage(isLoggedIn: false, username: "");
                         CopyWindowProperties(defaultHomePage);
@@ -246,12 +238,10 @@ namespace TiketLaut.Views
             {
                 // Panggil "mesin" pengecek HANYA untuk user ini
                 await new NotifikasiService().CekDanKirimNotifikasiJadwalOtomatisAsync(pengguna.pengguna_id);
-                System.Diagnostics.Debug.WriteLine($"[LoginWindow] Pengecekan notifikasi otomatis untuk user {pengguna.pengguna_id} selesai.");
             }
-            catch (Exception exNotif)
+            catch (Exception _)
             {
                 // Jangan gagalkan login jika pengecekan notif gagal
-                System.Diagnostics.Debug.WriteLine($"[LoginWindow] GAGAL cek notif otomatis: {exNotif.Message}");
             }
             try
             {

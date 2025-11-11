@@ -702,7 +702,6 @@ namespace TiketLaut.Views
         /// </summary>
         private void DpTanggal_CalendarOpened(object sender, RoutedEventArgs e)
         {
-            System.Diagnostics.Debug.WriteLine("[HomePage] Calendar opened");
         }
 
         /// <summary>
@@ -710,7 +709,6 @@ namespace TiketLaut.Views
         /// </summary>
         private void DpTanggal_CalendarClosed(object sender, RoutedEventArgs e)
         {
-            System.Diagnostics.Debug.WriteLine("[HomePage] Calendar closed");
             
             // Sembunyikan DatePicker lagi setelah calendar ditutup
             if (dpTanggal != null)
@@ -826,7 +824,6 @@ namespace TiketLaut.Views
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Error loading jam: {ex.Message}");
             }
         }
 
@@ -888,8 +885,6 @@ namespace TiketLaut.Views
 
                     // Get max passengers for this vehicle
                     int maksimalPenumpang = DetailKendaraan.GetMaksimalPenumpangByIndex(jenisKendaraanId);
-                    
-                    System.Diagnostics.Debug.WriteLine($"[HomePage] Kendaraan dipilih: {vehicleName} (ID: {jenisKendaraanId}), Maks penumpang: {maksimalPenumpang}");
                     
                     // Check current passenger count
                     if (int.TryParse(txtPenumpang.Text, out int currentPenumpang))

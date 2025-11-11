@@ -13,7 +13,6 @@
         FontFamily="Plus Jakarta Sans">
 
     <Window.Resources>
-        <!-- ✅ DROP SHADOW untuk Card -->
         <DropShadowEffect x:Key="CardShadow" 
                          BlurRadius="20" 
                          ShadowDepth="5" 

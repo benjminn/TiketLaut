@@ -48,11 +48,9 @@ namespace TiketLaut.Views
             try
             {
                 // Auto-update status tiket dan jadwal yang sudah selesai
-                System.Diagnostics.Debug.WriteLine("[AdminTiketPage] Calling AutoUpdate...");
                 try
                 {
                     var updateCount = await _riwayatService.AutoUpdatePembayaranSelesaiAsync();
-                    System.Diagnostics.Debug.WriteLine($"[AdminTiketPage] AutoUpdate completed: {updateCount} records updated");
                     
                     // Show result with CustomDialog
                     if (updateCount > 0)
@@ -78,8 +76,6 @@ namespace TiketLaut.Views
                 }
                 catch (Exception exAuto)
                 {
-                    System.Diagnostics.Debug.WriteLine($"[AdminTiketPage] AutoUpdate ERROR: {exAuto.Message}");
-                    System.Diagnostics.Debug.WriteLine($"[AdminTiketPage] StackTrace: {exAuto.StackTrace}");
                     
                     var dialog = new CustomDialog(
                         "Auto-Update Error",

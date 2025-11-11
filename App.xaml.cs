@@ -14,7 +14,6 @@ namespace TiketLaut
         {
             base.OnStartup(e);
 
-            // ✅ Enable binding error logging
             PresentationTraceSources.DataBindingSource.Listeners.Add(new ConsoleTraceListener());
             PresentationTraceSources.DataBindingSource.Switch.Level = SourceLevels.Error;
         }
