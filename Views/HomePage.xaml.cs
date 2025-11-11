@@ -1318,21 +1318,31 @@ namespace TiketLaut.Views
                 WindowStartupLocation = WindowStartupLocation.CenterOwner,
                 Owner = this,
                 ResizeMode = ResizeMode.NoResize,
-                Background = Brushes.White,
+                Background = Brushes.Transparent,
                 FontFamily = new FontFamily("Plus Jakarta Sans"),
                 WindowStyle = WindowStyle.None,
                 AllowsTransparency = true
             };
             
-            // Add shadow effect to entire dialog
-            var dialogShadow = new DropShadowEffect
+            // Outer border for shadow effect
+            var shadowBorder = new Border
             {
-                BlurRadius = 30,
-                ShadowDepth = 0,
-                Opacity = 0.3,
-                Color = Colors.Black
+                Margin = new Thickness(30), // Space for shadow
+                Effect = new DropShadowEffect
+                {
+                    BlurRadius = 30,
+                    ShadowDepth = 0,
+                    Opacity = 0.3,
+                    Color = Colors.Black
+                }
             };
-            dialog.Effect = dialogShadow;
+            
+            // Inner border with rounded corners
+            var mainBorder = new Border
+            {
+                Background = Brushes.White,
+                CornerRadius = new CornerRadius(30)
+            };
             
             var mainGrid = new Grid();
             mainGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
@@ -1344,7 +1354,7 @@ namespace TiketLaut.Views
             {
                 Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#00658D")),
                 Padding = new Thickness(25, 20, 25, 20),
-                CornerRadius = new CornerRadius(16, 16, 0, 0)
+                CornerRadius = new CornerRadius(30, 30, 0, 0)
             };
             
             var headerGrid = new Grid();
@@ -1484,7 +1494,8 @@ namespace TiketLaut.Views
                 Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#F8F9FA")),
                 Padding = new Thickness(25, 15, 25, 15),
                 BorderBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#DEE2E6")),
-                BorderThickness = new Thickness(0, 1, 0, 0)
+                BorderThickness = new Thickness(0, 1, 0, 0),
+                CornerRadius = new CornerRadius(0, 0, 30, 30)
             };
             
             var closeButton = new Button
@@ -1529,15 +1540,13 @@ namespace TiketLaut.Views
             mainGrid.Children.Add(contentScroll);
             mainGrid.Children.Add(footerBorder);
             
-            // Wrap in border for rounded corners
-            var outerBorder = new Border
-            {
-                CornerRadius = new CornerRadius(16),
-                Background = Brushes.White,
-                Child = mainGrid
-            };
+            // Set mainGrid as child of mainBorder
+            mainBorder.Child = mainGrid;
             
-            dialog.Content = outerBorder;
+            // Set mainBorder as child of shadowBorder
+            shadowBorder.Child = mainBorder;
+            
+            dialog.Content = shadowBorder;
             dialog.ShowDialog();
         }
         
