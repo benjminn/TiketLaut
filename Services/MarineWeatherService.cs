@@ -16,8 +16,6 @@ namespace TiketLaut.Services
     public class MarineWeatherService
     {
         private static readonly HttpClient _httpClient = new HttpClient();
-        
-        // ⚠️ IMPORTANT: Ganti dengan API Key kamu dari https://openweathermap.org/api
         private const string API_KEY = "9b9d5aaaab12674bcc8eb09a05b9aa3e";
         private const string CURRENT_WEATHER_URL = "https://api.openweathermap.org/data/2.5/weather";
         private const string FORECAST_URL = "https://api.openweathermap.org/data/2.5/forecast";
