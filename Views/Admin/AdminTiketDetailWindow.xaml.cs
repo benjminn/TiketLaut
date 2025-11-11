@@ -19,8 +19,6 @@ namespace TiketLaut.Views
             InitializeComponent();
             _tiketId = tiketId;
             _tiketService = new TiketService();
-            
-            // Enable zoom functionality
             ZoomHelper.EnableZoom(this);
             
             LoadTiketDetail();
@@ -47,8 +45,6 @@ namespace TiketLaut.Views
                     SetStatusColor(_tiket.status_tiket ?? "Unknown");
                     txtTanggalPemesanan.Text = _tiket.tanggal_pemesanan.ToString("dd MMMM yyyy HH:mm");
                     txtTotalHarga.Text = $"Rp {_tiket.total_harga:N0}";
-
-                    // Get metode pembayaran from Pembayaran table (latest payment)
                     var pembayaran = _tiket.Pembayarans?.OrderByDescending(p => p.tanggal_bayar).FirstOrDefault();
                     txtMetodePembayaran.Text = pembayaran?.metode_pembayaran ?? "Belum dibayar";
 
@@ -72,7 +68,6 @@ namespace TiketLaut.Views
                     txtJumlahPenumpang.Text = $"{_tiket.jumlah_penumpang} orang";
 
                     // Golongan Kendaraan dengan keterangan
-                    // Parse enum dari string
                     if (Enum.TryParse<JenisKendaraan>(_tiket.jenis_kendaraan_enum, out var jenisKendaraanEnum))
                     {
                         var golongan = jenisKendaraanEnum.ToString().Replace("_", " ");
@@ -156,7 +151,6 @@ namespace TiketLaut.Views
 
             try
             {
-                // Check if payment exists
                 var pembayaran = _tiket.Pembayarans?.OrderByDescending(p => p.tanggal_bayar).FirstOrDefault();
 
                 if (pembayaran == null)

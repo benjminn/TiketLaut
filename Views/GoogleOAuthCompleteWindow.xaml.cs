@@ -24,8 +24,6 @@ namespace TiketLaut.Views
             // Set maksimal tanggal lahir (17 tahun yang lalu dari hari ini)
             MaxDate = DateTime.Today.AddYears(-17);
             dpTanggalLahir.DisplayDateEnd = MaxDate;
-            
-            // Event handler untuk update display ketika tanggal dipilih
             dpTanggalLahir.SelectedDateChanged += (s, e) =>
             {
                 if (dpTanggalLahir.SelectedDate.HasValue)
@@ -45,16 +43,12 @@ namespace TiketLaut.Views
                 txtWelcome.Text = $"Selamat datang, {googleName}!";
             }
         }
-
-        // Event handler untuk validasi input NIK (hanya angka)
         private void TxtNIK_PreviewTextInput(object sender, TextCompositionEventArgs e)
         {
             // Hanya izinkan angka 0-9
             Regex regex = new Regex("[^0-9]+");
             e.Handled = regex.IsMatch(e.Text);
         }
-
-        // Event handler untuk membuka kalender
         private void BtnCalendar_Click(object sender, RoutedEventArgs e)
         {
             dpTanggalLahir.IsDropDownOpen = true;
@@ -62,7 +56,6 @@ namespace TiketLaut.Views
 
         private void BtnSimpan_Click(object sender, RoutedEventArgs e)
         {
-            // Validasi input
             string namaLengkap = txtNamaLengkap.Text.Trim();
             string nik = txtNIK.Text.Trim();
 
@@ -79,8 +72,6 @@ namespace TiketLaut.Views
                 txtNIK.Focus();
                 return;
             }
-
-            // Validasi NIK harus 16 digit angka
             if (nik.Length != 16 || !long.TryParse(nik, out _))
             {
                 CustomDialog.ShowWarning("Validasi Error", "NIK harus berupa 16 digit angka!");
@@ -94,8 +85,6 @@ namespace TiketLaut.Views
                 dpTanggalLahir.Focus();
                 return;
             }
-
-            // Validasi umur minimal 17 tahun
             var tanggalLahir = dpTanggalLahir.SelectedDate.Value;
             var umur = DateTime.Today.Year - tanggalLahir.Year;
             if (DateTime.Today < tanggalLahir.AddYears(umur))

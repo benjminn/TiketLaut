@@ -62,15 +62,12 @@ namespace TiketLaut.Views
                 Environment.GetEnvironmentVariable("GOOGLE_REDIRECT_PORT") 
                 ?? _configuration["GoogleOAuth:RedirectPort"], 
                 out int port) ? port : 8080;
-
-            // Set default values
             cmbJenisKelamin.SelectedIndex = -1;
             dpTanggalLahir.SelectedDate = null;
         }
 
         private async void BtnRegister_Click(object sender, RoutedEventArgs e)
         {
-            // Validasi input
             if (!ValidateInput())
                 return;
 
@@ -87,8 +84,6 @@ namespace TiketLaut.Views
                 alamat = null,
                 tanggal_daftar = DateTime.UtcNow
             };
-
-            // Show loading
             btnRegister.IsEnabled = false;
             btnRegister.Content = "Memproses...";
 
@@ -128,31 +123,24 @@ namespace TiketLaut.Views
 
         private bool ValidateInput()
         {
-            // Validasi Nama Lengkap
             if (string.IsNullOrWhiteSpace(txtNamaLengkap.Text))
             {
                 CustomDialog.ShowWarning("Peringatan", "Nama lengkap tidak boleh kosong!");
                 txtNamaLengkap.Focus();
                 return false;
             }
-
-            // Validasi Jenis Kelamin
             if (cmbJenisKelamin.SelectedIndex == -1)
             {
                 CustomDialog.ShowWarning("Peringatan", "Silakan pilih jenis kelamin!");
                 cmbJenisKelamin.Focus();
                 return false;
             }
-
-            // Validasi Tanggal Lahir
             if (!dpTanggalLahir.SelectedDate.HasValue)
             {
                 CustomDialog.ShowWarning("Peringatan", "Silakan pilih tanggal lahir!");
                 dpTanggalLahir.Focus();
                 return false;
             }
-
-            // Validasi umur minimal 17 tahun
             if (dpTanggalLahir.SelectedDate.HasValue)
             {
                 var age = DateTime.Now.Year - dpTanggalLahir.SelectedDate.Value.Year;
@@ -166,8 +154,6 @@ namespace TiketLaut.Views
                     return false;
                 }
             }
-
-            // Validasi NIK
             if (string.IsNullOrWhiteSpace(txtNIK.Text))
             {
                 CustomDialog.ShowWarning("Peringatan", "NIK tidak boleh kosong!");
@@ -181,8 +167,6 @@ namespace TiketLaut.Views
                 txtNIK.Focus();
                 return false;
             }
-
-            // Validasi Email
             if (string.IsNullOrWhiteSpace(txtEmail.Text))
             {
                 CustomDialog.ShowWarning("Peringatan", "Email tidak boleh kosong!");
@@ -196,8 +180,6 @@ namespace TiketLaut.Views
                 txtEmail.Focus();
                 return false;
             }
-
-            // Validasi Password
             if (string.IsNullOrEmpty(txtPassword.Password))
             {
                 CustomDialog.ShowWarning("Peringatan", "Password tidak boleh kosong!");
@@ -218,8 +200,6 @@ namespace TiketLaut.Views
                 txtPassword.Focus();
                 return false;
             }
-
-            // Validasi Konfirmasi Password
             if (txtPassword.Password != txtKonfirmasiPassword.Password)
             {
                 CustomDialog.ShowWarning("Peringatan", "Konfirmasi password tidak cocok!");
@@ -298,10 +278,6 @@ namespace TiketLaut.Views
                 btnGoogleRegister.Content = "Daftar dengan Google";
             }
         }
-
-        /// <summary>
-        /// Real Google OAuth flow - membuka browser untuk login
-        /// </summary>
         private async Task PerformRealGoogleOAuthAsync()
         {
             HttpListener? listener = null;
@@ -965,10 +941,6 @@ namespace TiketLaut.Views
                 listener?.Close();
             }
         }
-
-        /// <summary>
-        /// Exchange authorization code untuk access token
-        /// </summary>
         private async Task<GoogleTokenResponse> ExchangeCodeForTokenAsync(string code)
         {
             using var httpClient = new HttpClient();
@@ -1002,10 +974,6 @@ namespace TiketLaut.Views
                 id_token = root.TryGetProperty("id_token", out var idToken) ? idToken.GetString() : null
             };
         }
-
-        /// <summary>
-        /// Dapatkan user info dari Google menggunakan access token
-        /// </summary>
         private async Task<GoogleUserInfo> GetGoogleUserInfoAsync(string accessToken)
         {
             using var httpClient = new HttpClient();
@@ -1060,11 +1028,6 @@ namespace TiketLaut.Views
             public string? picture { get; set; }
             public bool verified_email { get; set; }
         }
-
-        /// <summary>
-        /// Process Google Register - sama seperti login, cek email dulu
-        /// Jika sudah terdaftar, langsung login. Jika belum, register baru
-        /// </summary>
         private async Task ProcessGoogleRegisterAsync(string googleEmail, string googleName)
         {
             try
@@ -1080,8 +1043,6 @@ namespace TiketLaut.Views
                     CustomDialog.ShowSuccess(
                         "Login Berhasil",
                         $"Selamat datang kembali, {existingUser.nama}!\n\nEmail {googleEmail} sudah terdaftar.\nAnda akan langsung masuk ke aplikasi.");
-
-                    // Buka HomePage
                     var homePage = new HomePage(isLoggedIn: true, username: existingUser.nama);
                     homePage.Show();
                     this.Close();
@@ -1109,8 +1070,6 @@ namespace TiketLaut.Views
                             CustomDialog.ShowSuccess(
                                 "Registrasi Berhasil",
                                 $"Selamat datang, {pengguna.nama}!\n\nAkun Anda telah berhasil dibuat.");
-
-                            // Buka HomePage
                             var homePage = new HomePage(isLoggedIn: true, username: pengguna.nama);
                             homePage.Show();
                             this.Close();

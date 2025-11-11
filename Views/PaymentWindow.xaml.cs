@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
@@ -45,8 +45,6 @@ namespace TiketLaut.Views
             InitializeComponent();
             _pembayaranService = new PembayaranService();
             _bookingService = new BookingService();
-            
-            // Enable zoom functionality
             ZoomHelper.EnableZoom(this);
 
             ApplyResponsiveLayout();
@@ -547,8 +545,6 @@ namespace TiketLaut.Views
                     txtAccountNumber.Text = "-";
                     break;
             }
-
-            // Handle tampilan kode unik di sidebar
             if (pnlDetailPembayaran != null && pnlDetailPembayaran.Visibility == Visibility.Visible)
             {
                 if (txtKodeUnik != null)
@@ -569,8 +565,7 @@ namespace TiketLaut.Views
             {
                 var jadwal = _tiket.Jadwal;
                 
-                // ✅ TIMEZONE FIX: Convert UTC to pelabuhan timezone
-                var offsetAsalHours = jadwal.pelabuhan_asal?.TimezoneOffsetHours ?? 7;  // Default WIB
+                                var offsetAsalHours = jadwal.pelabuhan_asal?.TimezoneOffsetHours ?? 7;  // Default WIB
                 var waktuBerangkatLocal = jadwal.waktu_berangkat.AddHours(offsetAsalHours);
                 
                 if (txtOrderId != null) { txtOrderId.Text = $"Order ID: {_tiket.kode_tiket}"; }
@@ -591,8 +586,7 @@ namespace TiketLaut.Views
                     {
                         dateFormatted = _tiket.tanggal_pemesanan.ToString("ddd, dd MMM yyyy", culture);
                     }
-                    var timeFormatted = waktuBerangkatLocal.ToString("HH:mm");  // ✅ Gunakan waktu lokal
-                    txtDateTime.Text = $"{dateFormatted} - {timeFormatted}";
+                    var timeFormatted = waktuBerangkatLocal.ToString("HH:mm");                      txtDateTime.Text = $"{dateFormatted} - {timeFormatted}";
                 }
                 UpdatePaymentDetails();
             }
@@ -1020,10 +1014,6 @@ namespace TiketLaut.Views
         }
 
         // --- TAMBAHAN BARU: Input Filtering Kartu Kredit ---
-
-        /// <summary>
-        /// (FIX BARU) Hanya mengizinkan input angka (untuk Nomor Kartu dan CVV).
-        /// </summary>
         private void NumbersOnly_PreviewTextInput(object sender, TextCompositionEventArgs e)
         {
             // Kita cek satu per satu karakternya
@@ -1038,10 +1028,6 @@ namespace TiketLaut.Views
                 }
             }
         }
-
-        /// <summary>
-        /// (FIX BARU) Hanya mengizinkan input angka dan / (untuk Tanggal Kedaluwarsa).
-        /// </summary>
         private void ExpiryDate_PreviewTextInput(object sender, TextCompositionEventArgs e)
         {
             // Kita cek satu per satu karakternya
@@ -1056,10 +1042,6 @@ namespace TiketLaut.Views
                 }
             }
         }
-
-        /// <summary>
-        /// (FIXED) Menambahkan '/' secara otomatis setelah 2 digit bulan (MM) diketik.
-        /// </summary>
         private void ExpiryDate_TextChanged(object sender, TextChangedEventArgs e)
         {
             // Panggil logic floating label dulu
@@ -1099,8 +1081,6 @@ namespace TiketLaut.Views
                 textBox.CaretIndex = 5;
             }
             // --- AKHIR PERBAIKAN CS1503 ---
-
-            // Tambahkan kembali handler
             textBox.TextChanged += ExpiryDate_TextChanged;
             textBox.TextChanged += FloatingTextBox_TextChanged;
         }

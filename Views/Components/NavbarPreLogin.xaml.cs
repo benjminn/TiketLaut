@@ -50,8 +50,7 @@ namespace TiketLaut.Views.Components
                 {
                     var currentWindow = Window.GetWindow(this);
 
-                    // ? UPDATED: Tentukan LoginSource berdasarkan window yang aktif
-                    LoginSource source = LoginSource.HomePage; // Default
+                                        LoginSource source = LoginSource.HomePage; // Default
 
                     if (currentWindow is ScheduleWindow)
                     {
@@ -64,9 +63,7 @@ namespace TiketLaut.Views.Components
                         System.Diagnostics.Debug.WriteLine("[NavbarPreLogin] BtnCekBooking_Click from HomePage");
                     }
 
-                    var loginWindow = new LoginWindow(source); // ? Pass source yang sesuai
-
-                    // Preserve window size and position for login window
+                    var loginWindow = new LoginWindow(source);                     // Preserve window size and position for login window
                     if (currentWindow != null)
                     {
                         loginWindow.Left = currentWindow.Left;
@@ -104,8 +101,7 @@ namespace TiketLaut.Views.Components
                 {
                     var currentWindow = Window.GetWindow(this);
 
-                    // ? UPDATED: Tentukan LoginSource berdasarkan window yang aktif
-                    LoginSource source = LoginSource.HomePage; // Default
+                                        LoginSource source = LoginSource.HomePage; // Default
 
                     if (currentWindow is ScheduleWindow)
                     {
@@ -118,9 +114,7 @@ namespace TiketLaut.Views.Components
                         System.Diagnostics.Debug.WriteLine("[NavbarPreLogin] BtnNotifikasi_Click from HomePage");
                     }
 
-                    var loginWindow = new LoginWindow(source); // ? Pass source yang sesuai
-
-                    // Preserve window size and position for login window
+                    var loginWindow = new LoginWindow(source);                     // Preserve window size and position for login window
                     if (currentWindow != null)
                     {
                         loginWindow.Left = currentWindow.Left;
@@ -148,8 +142,7 @@ namespace TiketLaut.Views.Components
         {
             var currentWindow = Window.GetWindow(this);
 
-            // ? UPDATED: Tentukan LoginSource berdasarkan window yang aktif
-            LoginSource source = LoginSource.HomePage; // Default
+                        LoginSource source = LoginSource.HomePage; // Default
 
             if (currentWindow is ScheduleWindow)
             {
@@ -168,9 +161,7 @@ namespace TiketLaut.Views.Components
                 System.Diagnostics.Debug.WriteLine($"[NavbarPreLogin] BtnMasuk_Click from {currentWindow?.GetType().Name ?? "Unknown"}");
             }
 
-            var loginWindow = new LoginWindow(source); // ? Pass source yang sesuai
-
-            // Preserve window size and position for login window
+            var loginWindow = new LoginWindow(source);             // Preserve window size and position for login window
             if (currentWindow != null)
             {
                 loginWindow.Left = currentWindow.Left;

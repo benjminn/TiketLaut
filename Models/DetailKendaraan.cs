@@ -70,11 +70,6 @@ namespace TiketLaut
                 _ => (1, "Kendaraan tidak dikenal", "Tidak diketahui")
             };
         }
-
-        /// <summary>
-        /// Mendapatkan kapasitas maksimal penumpang berdasarkan jenis kendaraan
-        /// Sesuai dengan standar ASDP Indonesia Ferry
-        /// </summary>
         public static int GetMaksimalPenumpang(JenisKendaraan jenis)
         {
             return jenis switch
@@ -95,10 +90,6 @@ namespace TiketLaut
                 _ => 1
             };
         }
-
-        /// <summary>
-        /// Mendapatkan kapasitas maksimal penumpang berdasarkan index (untuk backward compatibility)
-        /// </summary>
         public static int GetMaksimalPenumpangByIndex(int jenisKendaraanIndex)
         {
             if (jenisKendaraanIndex < 0 || jenisKendaraanIndex > 12)

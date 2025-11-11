@@ -19,7 +19,6 @@ namespace TiketLaut.Services
         {
             CurrentUser = null;
             CurrentAdmin = null;
-            // Clear search data saat logout
             LastSearchCriteria = null;
             LastSearchResults = null;
         }

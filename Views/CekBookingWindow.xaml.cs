@@ -27,8 +27,6 @@ namespace TiketLaut.Views
             _pembayaranService = new PembayaranService();
             _riwayatService = new RiwayatService();
             _tiketService = new TiketService();
-            
-            // Enable zoom functionality
             ZoomHelper.EnableZoom(this);
 
             // Set user info di navbar
@@ -52,10 +50,6 @@ namespace TiketLaut.Views
                 _ => statusString
             };
         }
-
-        /// <summary>
-        /// Load booking data real dari database
-        /// </summary>
         private async void LoadBookingDataFromDatabaseAsync()
         {
             try
@@ -69,8 +63,7 @@ namespace TiketLaut.Views
                 System.Diagnostics.Debug.WriteLine($"[CekBookingWindow] ========== START LOADING ==========");
                 System.Diagnostics.Debug.WriteLine($"[CekBookingWindow] User ID: {SessionManager.CurrentUser.pengguna_id}");
 
-                // ? AUTO-UPDATE: Pindahkan tiket yang sudah selesai ke riwayat
-                System.Diagnostics.Debug.WriteLine($"[CekBookingWindow] Calling AutoUpdatePembayaranSelesaiAsync...");
+                                System.Diagnostics.Debug.WriteLine($"[CekBookingWindow] Calling AutoUpdatePembayaranSelesaiAsync...");
                 var updatedCount = await _riwayatService.AutoUpdatePembayaranSelesaiAsync();
                 System.Diagnostics.Debug.WriteLine($"[CekBookingWindow] AutoUpdate completed. Updated {updatedCount} records.");
 
@@ -81,21 +74,18 @@ namespace TiketLaut.Views
 
                 System.Diagnostics.Debug.WriteLine($"[CekBookingWindow] Total pembayarans fetched: {pembayarans.Count}");
 
-                // ? DEBUG: Log semua status sebelum filter
-                foreach (var p in pembayarans)
+                                foreach (var p in pembayarans)
                 {
                     System.Diagnostics.Debug.WriteLine($"  - Pembayaran #{p.pembayaran_id}: status_bayar = '{p.status_bayar}', tiket = {p.tiket.kode_tiket}");
                 }
 
-                // ? FILTER: Jangan tampilkan tiket dengan status "Selesai" (sudah di riwayat)
-                pembayarans = pembayarans
+                                pembayarans = pembayarans
                     .Where(p => p.status_bayar != "Selesai")
                     .ToList();
 
                 System.Diagnostics.Debug.WriteLine($"[CekBookingWindow] After filter (exclude 'Selesai'): {pembayarans.Count} records");
 
-                // ? DEBUG: Log semua status setelah filter
-                foreach (var p in pembayarans)
+                                foreach (var p in pembayarans)
                 {
                     System.Diagnostics.Debug.WriteLine($"  - After Filter #{p.pembayaran_id}: status_bayar = '{p.status_bayar}'");
                 }
@@ -111,8 +101,7 @@ namespace TiketLaut.Views
                     System.Diagnostics.Debug.WriteLine($"  - status_bayar: '{pembayaran.status_bayar}'");
                     System.Diagnostics.Debug.WriteLine($"  - tiket: {tiket.kode_tiket}");
 
-                    // ? Tentukan status dan warna berdasarkan status_bayar
-                    string status = GetStatusDisplayText(pembayaran.status_bayar);
+                                        string status = GetStatusDisplayText(pembayaran.status_bayar);
                     SolidColorBrush statusColor;
                     Visibility showWarning;
 
@@ -145,8 +134,7 @@ namespace TiketLaut.Views
                             break;
                     }
 
-                    // ✅ TIMEZONE FIX: Convert UTC to pelabuhan timezone
-                    var offsetAsalHours = jadwal.pelabuhan_asal?.TimezoneOffsetHours ?? 7;  // Default WIB
+                                        var offsetAsalHours = jadwal.pelabuhan_asal?.TimezoneOffsetHours ?? 7;  // Default WIB
                     var offsetTujuanHours = jadwal.pelabuhan_tujuan?.TimezoneOffsetHours ?? 7;
                     
                     var waktuBerangkatLocal = jadwal.waktu_berangkat.AddHours(offsetAsalHours);
@@ -170,8 +158,7 @@ namespace TiketLaut.Views
                         StatusColor = statusColor,
                         ShipName = jadwal.kapal?.nama_kapal ?? "Unknown",
                         Date = dateText,
-                        Time = $"{waktuBerangkatLocal:HH:mm} - {waktuTibaLocal:HH:mm}",  // ✅ Gunakan waktu lokal
-                        ShowWarning = showWarning,
+                        Time = $"{waktuBerangkatLocal:HH:mm} - {waktuTibaLocal:HH:mm}",                          ShowWarning = showWarning,
                         WarningText = warningText
                     };
 
@@ -317,8 +304,6 @@ namespace TiketLaut.Views
             {
                 chkSemua.IsChecked = false;
             }
-
-            // Check if all are unchecked, then check "Semua"
             if (chkMenungguPembayaran?.IsChecked != true && 
                 chkMenungguValidasi?.IsChecked != true && 
                 chkSukses?.IsChecked != true && 
@@ -335,8 +320,6 @@ namespace TiketLaut.Views
             if (BookingItems == null || icBookingList == null) return;
 
             var filtered = BookingItems.AsEnumerable();
-
-            // Apply status filter
             if (chkSemua?.IsChecked != true)
             {
                 var statusFilters = new List<string>();
@@ -358,13 +341,9 @@ namespace TiketLaut.Views
                     filtered = filtered.Where(b => statusFilters.Contains(b.Status));
                 }
             }
-
-            // Apply sort
             filtered = ApplySort(filtered);
 
             icBookingList.ItemsSource = filtered.ToList();
-
-            // Update filter text
             UpdateFilterText();
         }
 
@@ -402,7 +381,6 @@ namespace TiketLaut.Views
                 var buttonWidth = btnSort.ActualWidth;
                 var popupWidth = child.ActualWidth > 0 ? child.ActualWidth : 300; // fallback to MinWidth
                 var offset = (buttonWidth - popupWidth) / 2;
-                // Prevent the popup from sliding left under the Filter button and keep a small gap
                 popupSort.HorizontalOffset = offset < 10 ? 10 : offset;
             }
         }

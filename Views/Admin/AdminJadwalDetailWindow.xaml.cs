@@ -24,8 +24,6 @@ namespace TiketLaut.Views
             InitializeComponent();
             _jadwalService = new JadwalService();
             _jadwalId = jadwalId;
-            
-            // Enable zoom functionality
             ZoomHelper.EnableZoom(this);
             
             LoadData();
@@ -118,8 +116,6 @@ namespace TiketLaut.Views
 
             // Load all tickets for this jadwal
             _allTikets = await _jadwalService.GetTiketsByJadwalIdAsync(_jadwalId);
-            
-            // Apply filter (default: all)
             ApplyTiketFilter("All");
         }
 
@@ -148,11 +144,8 @@ namespace TiketLaut.Views
                         t.status_tiket == "Gagal");
                     break;
             }
-
-            // Map to display items with KeteranganGolongan
             var displayItems = filteredTikets.Select(t =>
             {
-                // Parse enum dari string
                 var jenisKendaraanEnum = Enum.TryParse<JenisKendaraan>(t.jenis_kendaraan_enum, out var parsedEnum)
                     ? parsedEnum
                     : JenisKendaraan.Jalan_Kaki;
@@ -173,8 +166,6 @@ namespace TiketLaut.Views
             }).ToList();
 
             dgTikets.ItemsSource = displayItems;
-
-            // Update summary
             txtTotalTiket.Text = filteredTikets.Count().ToString();
             var totalPendapatan = filteredTikets
                 .Where(t => t.status_tiket == "Paid" || t.status_tiket == "Aktif")

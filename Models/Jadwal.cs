@@ -38,8 +38,7 @@ namespace TiketLaut
         [StringLength(50)]
         public string status { get; set; } = "Active";
 
-        // ✅ FIELD INI WAJIB ADA
-        [Required]
+                [Required]
         [StringLength(50)]
         public string kelas_layanan { get; set; } = "Reguler";
 
@@ -57,10 +56,6 @@ namespace TiketLaut
         
         public List<Tiket> Tikets { get; set; } = new List<Tiket>();
         public List<Notifikasi> Notifikasis { get; set; } = new List<Notifikasi>();
-
-        /// <summary>
-        /// Convert UTC time to pelabuhan asal timezone
-        /// </summary>
         [NotMapped]
         public DateTime WaktuBerangkatLokal
         {
@@ -71,10 +66,6 @@ namespace TiketLaut
                 return waktu_berangkat.AddHours(offsetHours);
             }
         }
-
-        /// <summary>
-        /// Convert UTC time to pelabuhan tujuan timezone
-        /// </summary>
         [NotMapped]
         public DateTime WaktuTibaLokal
         {
@@ -85,10 +76,6 @@ namespace TiketLaut
                 return waktu_tiba.AddHours(offsetHours);
             }
         }
-
-        /// <summary>
-        /// Get duration text with timezone consideration
-        /// </summary>
         [NotMapped]
         public string DurasiWithTimezone
         {

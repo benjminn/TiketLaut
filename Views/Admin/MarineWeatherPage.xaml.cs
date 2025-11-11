@@ -28,7 +28,6 @@ namespace TiketLaut.Views.Admin
         {
             try
             {
-                // Create new context for this operation
                 using var context = DatabaseService.GetContext();
                 
                 // Load pelabuhan dengan koordinat

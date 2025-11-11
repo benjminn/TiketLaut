@@ -60,8 +60,6 @@ namespace TiketLaut.Views
         {
             try
             {
-                // Validasi
-                if (cmbStatus.SelectedItem == null)
                 {
                     MessageBox.Show("Status pembayaran harus dipilih!", "Validasi",
                         MessageBoxButton.OK, MessageBoxImage.Warning);
@@ -82,16 +80,12 @@ namespace TiketLaut.Views
 
                 // Disable tombol untuk mencegah double-click
                 btnSimpan.IsEnabled = false;
-
-                // Update data
                 var newStatus = (cmbStatus.SelectedItem as ComboBoxItem)?.Tag?.ToString();
                 var newMetode = (cmbMetode.SelectedItem as ComboBoxItem)?.Tag?.ToString();
 
                 // Cek perubahan status
                 bool statusChanged = newStatus != _pembayaran.status_bayar;
                 string oldStatus = _pembayaran.status_bayar;
-
-                // Update pembayaran
                 _pembayaran.status_bayar = newStatus ?? _pembayaran.status_bayar;
                 _pembayaran.metode_pembayaran = newMetode ?? _pembayaran.metode_pembayaran;
 

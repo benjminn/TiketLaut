@@ -44,7 +44,6 @@ namespace TiketLaut.Views
                 
                 await Dispatcher.InvokeAsync(() =>
                 {
-                    // Store ALL data for pagination
                     _allPembayaranData = pembayaranList.OrderByDescending(p => p.pembayaran_id).ToList();
                     _totalRecords = _allPembayaranData.Count;
                     

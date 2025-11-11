@@ -15,10 +15,6 @@ namespace TiketLaut.Services
         {
             _context = DatabaseService.GetContext();
         }
-
-        /// <summary>
-        /// Get all pelabuhan untuk dropdown
-        /// </summary>
         public async Task<List<Pelabuhan>> GetAllPelabuhanAsync()
         {
             try
@@ -33,10 +29,6 @@ namespace TiketLaut.Services
                 return new List<Pelabuhan>();
             }
         }
-
-        /// <summary>
-        /// Search jadwal dengan kriteria lengkap (UPDATED - WITH DateTime and Hour)
-        /// </summary>
         public async Task<List<Jadwal>> SearchJadwalAsync(
             int pelabuhanAsalId,
             int pelabuhanTujuanId,
@@ -47,8 +39,7 @@ namespace TiketLaut.Services
         {
             try
             {
-                // ? DEBUG: Log input parameters
-                System.Diagnostics.Debug.WriteLine($"[JadwalService.SearchJadwal] INPUT:");
+                                System.Diagnostics.Debug.WriteLine($"[JadwalService.SearchJadwal] INPUT:");
                 System.Diagnostics.Debug.WriteLine($"  - Pelabuhan Asal ID: {pelabuhanAsalId}");
                 System.Diagnostics.Debug.WriteLine($"  - Pelabuhan Tujuan ID: {pelabuhanTujuanId}");
                 System.Diagnostics.Debug.WriteLine($"  - Kelas Layanan: {kelasLayanan}");
@@ -56,37 +47,27 @@ namespace TiketLaut.Services
                 System.Diagnostics.Debug.WriteLine($"  - Jam: {jamKeberangkatan?.ToString() ?? "NULL"}");
                 System.Diagnostics.Debug.WriteLine($"  - Jenis Kendaraan ID: {jenisKendaraanId}");
 
-                // ? PASTIKAN .Include() untuk navigation properties
-                var query = _context.Jadwals
-                    .Include(j => j.pelabuhan_asal)        // ? WAJIB!
-                    .Include(j => j.pelabuhan_tujuan)      // ? WAJIB!
-                    .Include(j => j.kapal)                 // ? WAJIB!
-                    .Include(j => j.GrupKendaraan!)         // Include grup kendaraan
-                        .ThenInclude(g => g.DetailKendaraans)  // Include all detail kendaraan in grup
+                                var query = _context.Jadwals
+                    .Include(j => j.pelabuhan_asal)                            .Include(j => j.pelabuhan_tujuan)                          .Include(j => j.kapal)                                     .Include(j => j.GrupKendaraan!)
+                        .ThenInclude(g => g.DetailKendaraans)
                     .Where(j => j.pelabuhan_asal_id == pelabuhanAsalId &&
                                j.pelabuhan_tujuan_id == pelabuhanTujuanId &&
                                j.kelas_layanan == kelasLayanan &&
                                j.status == "Active" &&
                                j.sisa_kapasitas_penumpang > 0);
 
-                // ? DEBUG: Check total jadwal before date filter
-                var countBeforeDate = await query.CountAsync();
+                                var countBeforeDate = await query.CountAsync();
                 System.Diagnostics.Debug.WriteLine($"[JadwalService] Found {countBeforeDate} jadwal(s) before date filter");
 
                 if (tanggalKeberangkatan.HasValue)
                 {
-                    // ? FIX: Convert local date to UTC range properly
-                    // User memilih tanggal dalam local timezone, kita perlu convert ke UTC range
-                    // Contoh: User pilih 01/11/2025 (WIB) → cari 31/10/2025 17:00 UTC sampai 01/11/2025 17:00 UTC
                     var localDate = tanggalKeberangkatan.Value.Date;
                     
-                    // Jika jam dipilih, tampilkan jadwal >= jam tersebut (sampai akhir hari)
                     if (jamKeberangkatan.HasValue)
                     {
                         var localStartDateTime = DateTime.SpecifyKind(localDate.AddHours(jamKeberangkatan.Value), DateTimeKind.Local);
-                        var localEndDateTime = localStartDateTime.Date.AddDays(1); // Sampai akhir hari (23:59:59)
+                        var localEndDateTime = localStartDateTime.Date.AddDays(1);
                         
-                        // Convert to UTC
                         var startDateUtc = localStartDateTime.ToUniversalTime();
                         var endDateUtc = localEndDateTime.ToUniversalTime();
                         
@@ -98,11 +79,9 @@ namespace TiketLaut.Services
                     }
                     else
                     {
-                        // Hanya filter tanggal (semua jam di hari itu)
                         var localStartDateTime = DateTime.SpecifyKind(localDate, DateTimeKind.Local);
                         var localEndDateTime = localStartDateTime.AddDays(1);
                         
-                        // Convert to UTC
                         var startDateUtc = localStartDateTime.ToUniversalTime();
                         var endDateUtc = localEndDateTime.ToUniversalTime();
                         
@@ -134,8 +113,7 @@ namespace TiketLaut.Services
                     System.Diagnostics.Debug.WriteLine($"[JadwalService] Found {jadwals.Count} jadwal(s) after vehicle filter");
                 }
 
-                // ? DEBUG: Cek apakah navigation property ter-load
-                foreach (var jadwal in jadwals)
+                                foreach (var jadwal in jadwals)
                 {
                     System.Diagnostics.Debug.WriteLine($"[JadwalService] Jadwal {jadwal.jadwal_id}:");
                     System.Diagnostics.Debug.WriteLine($"  - Asal: {jadwal.pelabuhan_asal?.nama_pelabuhan ?? "NULL"}");
@@ -159,10 +137,6 @@ namespace TiketLaut.Services
                 return new List<Jadwal>();
             }
         }
-
-        /// <summary>
-        /// Get jadwal by ID
-        /// </summary>
         public async Task<Jadwal?> GetJadwalByIdAsync(int jadwalId)
         {
             try
@@ -188,11 +162,6 @@ namespace TiketLaut.Services
                                         .Include(j => j.pelabuhan_tujuan)
                                         .ToListAsync();
         }
-
-
-        /// <summary>
-        /// Get all detail kendaraan untuk jadwal tertentu (returns all 13 DetailKendaraan in grup)
-        /// </summary>
         public async Task<List<DetailKendaraan>> GetDetailKendaraanByJadwalAsync(int jadwalId)
         {
             try
@@ -211,10 +180,6 @@ namespace TiketLaut.Services
                 return new List<DetailKendaraan>();
             }
         }
-
-        /// <summary>
-        /// Get specific detail kendaraan by jenis from jadwal's grup
-        /// </summary>
         public async Task<DetailKendaraan?> GetDetailKendaraanByJenisAsync(int jadwalId, JenisKendaraan jenis)
         {
             try
@@ -233,25 +198,16 @@ namespace TiketLaut.Services
                 return null;
             }
         }
-
-        /// <summary>
-        /// Check ketersediaan kapasitas
-        /// </summary>
         public async Task<bool> CheckAvailabilityAsync(int jadwalId, int jumlahPenumpang, int jenisKendaraanId)
         {
             try
             {
                 var jadwal = await GetJadwalByIdAsync(jadwalId);
                 if (jadwal == null) return false;
-
-                // Check kapasitas penumpang
                 if (jadwal.sisa_kapasitas_penumpang < jumlahPenumpang)
                     return false;
-
-                // Check kapasitas kendaraan jika bukan jalan kaki
                 if (jenisKendaraanId > 0)
                 {
-                    // Get detail kendaraan from grup by jenis
                     var detailKendaraan = jadwal.GrupKendaraan?.DetailKendaraans
                         .FirstOrDefault(dk => dk.jenis_kendaraan == jenisKendaraanId);
 
@@ -271,10 +227,6 @@ namespace TiketLaut.Services
                 return false;
             }
         }
-
-        /// <summary>
-        /// Get all jadwal by kapal ID untuk detail kapal
-        /// </summary>
         public async Task<List<Jadwal>> GetJadwalByKapalIdAsync(int kapalId)
         {
             try
@@ -293,10 +245,6 @@ namespace TiketLaut.Services
                 return new List<Jadwal>();
             }
         }
-
-        /// <summary>
-        /// Get all jadwal by pelabuhan ID (asal atau tujuan) untuk detail pelabuhan
-        /// </summary>
         public async Task<List<Jadwal>> GetJadwalByPelabuhanIdAsync(int pelabuhanId)
         {
             try
@@ -315,10 +263,6 @@ namespace TiketLaut.Services
                 return new List<Jadwal>();
             }
         }
-
-        /// <summary>
-        /// Get all jadwal untuk admin management (FIXED - filter NULL timestamps)
-        /// </summary>
         public async Task<List<Jadwal>> GetAllJadwalAsync()
         {
             try
@@ -351,10 +295,6 @@ namespace TiketLaut.Services
                 return new List<Jadwal>();
             }
         }
-
-        /// <summary>
-        /// Get all kapal untuk dropdown
-        /// </summary>
         public async Task<List<Kapal>> GetAllKapalAsync()
         {
             try
@@ -369,28 +309,19 @@ namespace TiketLaut.Services
                 return new List<Kapal>();
             }
         }
-
-        /// <summary>
-        /// Create single jadwal with time conflict validation
-        /// </summary>
         public async Task<(bool success, string message)> CreateJadwalAsync(Jadwal jadwal)
         {
             try
             {
-                // Validasi kapal capacity
                 var kapal = await _context.Kapals.FindAsync(jadwal.kapal_id);
                 if (kapal == null)
                 {
                     return (false, "Kapal tidak ditemukan!");
                 }
-
-                // Validasi waktu tiba harus setelah waktu berangkat
                 if (jadwal.waktu_tiba <= jadwal.waktu_berangkat)
                 {
                     return (false, "Waktu tiba harus setelah waktu berangkat!");
                 }
-
-                // Validasi time conflict untuk kapal yang sama
                 var hasConflict = await CheckTimeConflictAsync(
                     jadwal.kapal_id,
                     jadwal.waktu_berangkat,
@@ -419,10 +350,6 @@ namespace TiketLaut.Services
                 return (false, $"Error: {ex.Message}");
             }
         }
-
-        /// <summary>
-        /// Check time conflict untuk kapal tertentu
-        /// </summary>
         private async Task<bool> CheckTimeConflictAsync(
             int kapalId,
             DateTime waktuBerangkat,
@@ -441,25 +368,16 @@ namespace TiketLaut.Services
 
             foreach (var existing in existingJadwals)
             {
-                // Check overlap: new schedule starts during existing schedule
                 if (waktuBerangkat >= existing.waktu_berangkat && waktuBerangkat < existing.waktu_tiba)
                     return true;
-
-                // Check overlap: new schedule ends during existing schedule
                 if (waktuTiba > existing.waktu_berangkat && waktuTiba <= existing.waktu_tiba)
                     return true;
-
-                // Check overlap: new schedule completely covers existing schedule
                 if (waktuBerangkat <= existing.waktu_berangkat && waktuTiba >= existing.waktu_tiba)
                     return true;
             }
 
             return false;
         }
-
-        /// <summary>
-        /// Bulk create jadwal - untuk multiple waktu dan tanggal dengan conflict validation
-        /// </summary>
         public async Task<(bool success, string message, int count)> BulkCreateJadwalAsync(List<Jadwal> jadwals)
         {
             try
@@ -468,8 +386,6 @@ namespace TiketLaut.Services
                 {
                     return (false, "Tidak ada jadwal untuk ditambahkan!", 0);
                 }
-
-                // Validasi kapal untuk semua jadwal
                 var kapalIds = jadwals.Select(j => j.kapal_id).Distinct().ToList();
                 var kapals = await _context.Kapals
                     .Where(k => kapalIds.Contains(k.kapal_id))
@@ -477,23 +393,17 @@ namespace TiketLaut.Services
 
                 var validJadwals = new List<Jadwal>();
                 var conflictCount = 0;
-
-                // Validasi setiap jadwal
                 foreach (var jadwal in jadwals)
                 {
                     if (!kapals.ContainsKey(jadwal.kapal_id))
                     {
                         return (false, $"Kapal dengan ID {jadwal.kapal_id} tidak ditemukan!", 0);
                     }
-
-                    // Validasi waktu tiba harus setelah waktu berangkat
                     if (jadwal.waktu_tiba <= jadwal.waktu_berangkat)
                     {
                         conflictCount++;
                         continue; // Skip jadwal ini
                     }
-
-                    // Check time conflict
                     var hasConflict = await CheckTimeConflictAsync(
                         jadwal.kapal_id,
                         jadwal.waktu_berangkat,
@@ -505,14 +415,11 @@ namespace TiketLaut.Services
                         conflictCount++;
                         continue; // Skip jadwal yang conflict
                     }
-
-                    // Check conflict dengan jadwal lain dalam batch ini
                     bool batchConflict = false;
                     foreach (var validJadwal in validJadwals)
                     {
                         if (validJadwal.kapal_id == jadwal.kapal_id)
                         {
-                            // Check overlap
                             if ((jadwal.waktu_berangkat >= validJadwal.waktu_berangkat && jadwal.waktu_berangkat < validJadwal.waktu_tiba) ||
                                 (jadwal.waktu_tiba > validJadwal.waktu_berangkat && jadwal.waktu_tiba <= validJadwal.waktu_tiba) ||
                                 (jadwal.waktu_berangkat <= validJadwal.waktu_berangkat && jadwal.waktu_tiba >= validJadwal.waktu_tiba))
@@ -561,10 +468,6 @@ namespace TiketLaut.Services
                 return (false, $"Error: {ex.Message}", 0);
             }
         }
-
-        /// <summary>
-        /// Update jadwal with time conflict validation
-        /// </summary>
         public async Task<(bool success, string message)> UpdateJadwalAsync(Jadwal jadwal)
         {
             try
@@ -574,14 +477,10 @@ namespace TiketLaut.Services
                 {
                     return (false, "Jadwal tidak ditemukan!");
                 }
-
-                // Validasi waktu tiba harus setelah waktu berangkat
                 if (jadwal.waktu_tiba <= jadwal.waktu_berangkat)
                 {
                     return (false, "Waktu tiba harus setelah waktu berangkat!");
                 }
-
-                // Check time conflict dengan jadwal lain (exclude jadwal ini)
                 var hasConflict = await CheckTimeConflictAsync(
                     jadwal.kapal_id,
                     jadwal.waktu_berangkat,
@@ -609,10 +508,6 @@ namespace TiketLaut.Services
                 return (false, $"Error: {ex.Message}");
             }
         }
-
-        /// <summary>
-        /// Delete single jadwal
-        /// </summary>
         public async Task<(bool success, string message)> DeleteJadwalAsync(int jadwalId)
         {
             try
@@ -640,10 +535,6 @@ namespace TiketLaut.Services
                 return (false, $"Error: {ex.Message}");
             }
         }
-
-        /// <summary>
-        /// Bulk delete jadwal
-        /// </summary>
         public async Task<(bool success, string message, int count)> BulkDeleteJadwalAsync(List<int> jadwalIds)
         {
             try
@@ -683,10 +574,6 @@ namespace TiketLaut.Services
                 return (false, $"Error: {ex.Message}", 0);
             }
         }
-
-        /// <summary>
-        /// Get all tikets for a specific jadwal
-        /// </summary>
         public async Task<List<Tiket>> GetTiketsByJadwalIdAsync(int jadwalId)
         {
             try

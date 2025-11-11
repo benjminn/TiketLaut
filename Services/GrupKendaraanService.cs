@@ -8,20 +8,8 @@ using TiketLaut.Services;
 
 namespace TiketLaut
 {
-    /// <summary>
-    /// Service untuk mengelola GrupKendaraan
-    /// CATATAN PENTING: DatabaseService.GetContext() mengembalikan singleton AppDbContext.
-    /// Jangan gunakan 'using' statement untuk dispose context karena akan menyebabkan
-    /// "Cannot access a disposed context instance" error saat window dibuka berulang kali.
-    /// </summary>
     public class GrupKendaraanService
     {
-        /// <summary>
-        /// Create grup kendaraan dengan 13 detail kendaraan (1 per golongan)
-        /// </summary>
-        /// <param name="namaGrup">Nama grup, e.g., "Set Harga November 2025"</param>
-        /// <param name="hargaPerGolongan">Dictionary: JenisKendaraan -> Harga</param>
-        /// <returns>grup_kendaraan_id yang baru dibuat</returns>
         public async Task<(bool success, string message, GrupKendaraan? grup)> 
             CreateGrupWithDetailAsync(string namaGrup, Dictionary<JenisKendaraan, decimal> hargaPerGolongan)
         {
@@ -45,16 +33,12 @@ namespace TiketLaut
                     var missingNames = string.Join(", ", missingGolongan);
                     return (false, $"Golongan hilang: {missingNames}", null);
                 }
-
-                // Check if exact same grup already exists (reusability)
                 var existingGrup = await FindExistingGrupAsync(context, hargaPerGolongan);
                 if (existingGrup != null)
                 {
                     await transaction.CommitAsync();
                     return (true, $"Grup sudah ada (reused): {existingGrup.nama_grup_kendaraan}", existingGrup);
                 }
-
-                // Create new grup
                 var newGrup = new GrupKendaraan
                 {
                     nama_grup_kendaraan = namaGrup,
@@ -63,8 +47,6 @@ namespace TiketLaut
 
                 context.GrupKendaraans.Add(newGrup);
                 await context.SaveChangesAsync();
-
-                // Create 13 detail kendaraan
                 foreach (var (jenis, harga) in hargaPerGolongan)
                 {
                     var detailKendaraan = DetailKendaraan.Create(jenis, harga);
@@ -83,10 +65,6 @@ namespace TiketLaut
                 return (false, $"Error: {ex.Message}", null);
             }
         }
-
-        /// <summary>
-        /// Find existing grup with exact same harga configuration (for reusability)
-        /// </summary>
         private async Task<GrupKendaraan?> FindExistingGrupAsync(
             AppDbContext context, 
             Dictionary<JenisKendaraan, decimal> hargaPerGolongan)
@@ -98,7 +76,6 @@ namespace TiketLaut
 
             foreach (var grup in allGrups)
             {
-                // Check if all 13 details match exactly
                 var allMatch = grup.DetailKendaraans.All(dk =>
                 {
                     var jenis = (JenisKendaraan)dk.jenis_kendaraan;
@@ -114,10 +91,6 @@ namespace TiketLaut
 
             return null;
         }
-
-        /// <summary>
-        /// Get grup kendaraan by ID with all detail kendaraan
-        /// </summary>
         public async Task<GrupKendaraan?> GetGrupByIdAsync(int grupKendaraanId)
         {
             // Gunakan context tanpa using statement karena DatabaseService mengembalikan singleton
@@ -136,10 +109,6 @@ namespace TiketLaut
 
             return grup;
         }
-
-        /// <summary>
-        /// Get all grup kendaraan with usage count
-        /// </summary>
         public async Task<List<GrupKendaraanWithUsage>> GetAllGrupWithUsageAsync()
         {
             // Gunakan context tanpa using statement karena DatabaseService mengembalikan singleton
@@ -172,11 +141,6 @@ namespace TiketLaut
 
             return grups;
         }
-
-        /// <summary>
-        /// Delete grup kendaraan (akan cascade delete detail kendaraan)
-        /// WARNING: Tidak bisa delete jika masih dipakai oleh jadwal
-        /// </summary>
         public async Task<(bool success, string message)> DeleteGrupAsync(int grupKendaraanId)
         {
             // Gunakan context tanpa using statement karena DatabaseService mengembalikan singleton
@@ -208,10 +172,6 @@ namespace TiketLaut
             }
         }
     }
-
-    /// <summary>
-    /// Helper class untuk menampilkan grup dengan usage info
-    /// </summary>
     public class GrupKendaraanWithUsage
     {
         public int grup_kendaraan_id { get; set; }

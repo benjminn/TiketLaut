@@ -121,7 +121,6 @@ namespace TiketLaut.Views
         {
             try
             {
-                // Null checks untuk controls
                 if (cmbFilterPelabuhanAsal == null || cmbFilterPelabuhanTujuan == null)
                     return;
 
@@ -143,7 +142,6 @@ namespace TiketLaut.Views
         {
             try
             {
-                // Null check untuk control
                 if (cmbUser == null)
                 {
                     System.Diagnostics.Debug.WriteLine("[LoadUsersAsync] cmbUser is null");
@@ -180,8 +178,6 @@ namespace TiketLaut.Views
                 _allJadwals = await _jadwalService.GetAllJadwalAsync();
                 
                 System.Diagnostics.Debug.WriteLine($"[AdminNotifikasiPage] Total jadwal from service: {_allJadwals.Count}");
-                
-                // Apply filter
                 ApplyJadwalFilter();
                 
                 // Debug: Show success if jadwal loaded
@@ -259,8 +255,6 @@ namespace TiketLaut.Views
             }
             
             System.Diagnostics.Debug.WriteLine($"[ApplyJadwalFilter] Final result: {_filteredJadwals.Count} jadwal");
-
-            // Update DataGrid
             if (dgJadwal != null)
             {
                 var jadwalList = _filteredJadwals
@@ -383,7 +377,6 @@ namespace TiketLaut.Views
 
         private void CmbPenerima_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            // Null check - event dipanggil saat XAML loading sebelum controls initialized
             if (pnlSelectUser == null || pnlSelectJadwal == null) return;
             
             // Gunakan sender untuk ambil ComboBox yang trigger event
@@ -471,7 +464,6 @@ namespace TiketLaut.Views
         {
             try
             {
-                // Validasi input
                 if (string.IsNullOrWhiteSpace(txtJudul.Text))
                 {
                     MessageBox.Show("Judul notifikasi tidak boleh kosong!", "Validasi", 
@@ -650,7 +642,6 @@ namespace TiketLaut.Views
         {
             try
             {
-                // Null check untuk control
                 if (dgOtomatis == null)
                 {
                     System.Diagnostics.Debug.WriteLine("[LoadOtomatisNotifikasi] dgOtomatis is null");
@@ -690,8 +681,6 @@ namespace TiketLaut.Views
                     })
                     .OrderByDescending(x => x.WaktuKirim)
                     .ToList();
-
-                // Store all data for pagination
                 _allOtomatisData = grouped.Cast<dynamic>().ToList();
                 _totalRecordsOtomatis = _allOtomatisData.Count;
                 _currentPageOtomatis = 1;
@@ -751,7 +740,6 @@ namespace TiketLaut.Views
 
         private void ApplyOtomatisFilter(object groupedData)
         {
-            // Null check untuk control
             if (dgOtomatis == null)
             {
                 System.Diagnostics.Debug.WriteLine("[ApplyOtomatisFilter] dgOtomatis is null");
