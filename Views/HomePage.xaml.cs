@@ -32,8 +32,9 @@ namespace TiketLaut.Views
         private readonly List<string> _backgroundImages = new List<string>
         {
             "/Views/Assets/Images/bekgron.png",
-            "/Views/Assets/Images/bekgron.png", // Tambahkan gambar lain jika ada
-            "/Views/Assets/Images/bekgron.png"  // Tambahkan gambar lain jika ada
+            "/Views/Assets/Images/bg2.png",    // Ganti dengan nama file gambar Anda
+            "/Views/Assets/Images/bg3.jpg",    // Ganti dengan nama file gambar Anda
+            "/Views/Assets/Images/bg4.jpg"     // Tambahkan sebanyak yang diinginkan
         };
         private int _currentImageIndex = 0;
         private DispatcherTimer? _carouselTimer;
@@ -1195,19 +1196,50 @@ namespace TiketLaut.Views
         
         private void CarouselTimer_Tick(object? sender, EventArgs e)
         {
-            // Fade out current image
-            var fadeOut = (Storyboard)Resources["FadeOutStoryboard"];
-            fadeOut.Completed += (s, args) =>
+            // Set next image index
+            _currentImageIndex = (_currentImageIndex + 1) % _backgroundImages.Count;
+            
+            // Set next image source
+            nextImage.Source = new BitmapImage(new Uri(_backgroundImages[_currentImageIndex], UriKind.Relative));
+            
+            // Get window width for animation
+            double windowWidth = this.ActualWidth;
+            if (windowWidth <= 0) windowWidth = 1920; // Fallback width
+            
+            // Position next image off-screen to the right
+            var nextTransform = (TranslateTransform)nextImage.RenderTransform;
+            nextTransform.X = windowWidth;
+            
+            // Animate current image sliding out to the left
+            var currentTransform = (TranslateTransform)currentImage.RenderTransform;
+            var slideOutAnim = new DoubleAnimation
             {
-                // Change image source
-                _currentImageIndex = (_currentImageIndex + 1) % _backgroundImages.Count;
-                backgroundImage.Source = new BitmapImage(new Uri(_backgroundImages[_currentImageIndex], UriKind.Relative));
-                
-                // Fade in new image
-                var fadeIn = (Storyboard)Resources["FadeInStoryboard"];
-                fadeIn.Begin();
+                From = 0,
+                To = -windowWidth,
+                Duration = TimeSpan.FromSeconds(0.8),
+                EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseOut }
             };
-            fadeOut.Begin();
+            
+            // Animate next image sliding in from the right
+            var slideInAnim = new DoubleAnimation
+            {
+                From = windowWidth,
+                To = 0,
+                Duration = TimeSpan.FromSeconds(0.8),
+                EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseOut }
+            };
+            
+            slideInAnim.Completed += (s, args) =>
+            {
+                // After animation completes, swap the images
+                currentImage.Source = nextImage.Source;
+                currentTransform.X = 0;
+                nextTransform.X = windowWidth;
+            };
+            
+            // Start animations
+            currentTransform.BeginAnimation(TranslateTransform.XProperty, slideOutAnim);
+            nextTransform.BeginAnimation(TranslateTransform.XProperty, slideInAnim);
         }
         
         // ========================================

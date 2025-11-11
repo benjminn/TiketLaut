@@ -9,7 +9,7 @@
         WindowState="Maximized"
         WindowStartupLocation="CenterScreen"
         ResizeMode="CanResize"
-        Background="White"
+        Background="#F3F3F3"
         FontFamily="Plus Jakarta Sans">
 
     <Window.Resources>
@@ -20,56 +20,74 @@
                          Opacity="0.2" 
                          Color="#000000"/>
         
-        <!-- Storyboard untuk Fade Out Animation -->
-        <Storyboard x:Key="FadeOutStoryboard">
-            <DoubleAnimation Storyboard.TargetName="backgroundImage" 
-                           Storyboard.TargetProperty="Opacity"
-                           From="0.7" 
-                           To="0" 
-                           Duration="0:0:1"/>
+        <!-- Easing Function -->
+        <QuadraticEase x:Key="EaseOut" EasingMode="EaseOut"/>
+        
+        <!-- Storyboard untuk Slide Animation -->
+        <Storyboard x:Key="SlideOutStoryboard">
+            <DoubleAnimation Storyboard.TargetName="currentImage" 
+                           Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.X)"
+                           To="-1920" 
+                           Duration="0:0:0.8"
+                           EasingFunction="{StaticResource EaseOut}"/>
         </Storyboard>
         
-        <!-- Storyboard untuk Fade In Animation -->
-        <Storyboard x:Key="FadeInStoryboard">
-            <DoubleAnimation Storyboard.TargetName="backgroundImage" 
-                           Storyboard.TargetProperty="Opacity"
-                           From="0" 
-                           To="0.7" 
-                           Duration="0:0:1"/>
+        <Storyboard x:Key="SlideInStoryboard">
+            <DoubleAnimation Storyboard.TargetName="nextImage" 
+                           Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.X)"
+                           From="1920"
+                           To="0" 
+                           Duration="0:0:0.8"
+                           EasingFunction="{StaticResource EaseOut}"/>
         </Storyboard>
     </Window.Resources>
 
     <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
-
         <!-- Main Content Area -->
-        <Grid Grid.Row="1" Panel.ZIndex="0">
+        <Grid Panel.ZIndex="0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="707*"/>
                 <ColumnDefinition Width="489*"/>
                 <ColumnDefinition Width="217*"/>
             </Grid.ColumnDefinitions>
 
-            <!-- Background Image with Carousel -->
-            <Image x:Name="backgroundImage"
-                   Source="/Views/Assets/Images/bekgron.png" 
-                   Stretch="UniformToFill" 
-                   Opacity="0.7" 
-                   VerticalAlignment="Top"
-                   MinHeight="450"
-                   MaxHeight="550"
-                   Grid.ColumnSpan="3"/>
+            <!-- Background Image Carousel dengan Sliding -->
+            <Canvas Grid.ColumnSpan="3" 
+                    x:Name="carouselCanvas"
+                    ClipToBounds="True"
+                    VerticalAlignment="Top"
+                    Height="550"
+                    Panel.ZIndex="0">
+                
+                <Image x:Name="currentImage"
+                       Source="/Views/Assets/Images/bekgron.png" 
+                       Stretch="UniformToFill" 
+                       Width="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=Grid}}"
+                       Height="550"
+                       Panel.ZIndex="0">
+                    <Image.RenderTransform>
+                        <TranslateTransform X="0" Y="0"/>
+                    </Image.RenderTransform>
+                </Image>
+                
+                <Image x:Name="nextImage"
+                       Stretch="UniformToFill"
+                       Width="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=Grid}}"
+                       Height="550"
+                       Panel.ZIndex="1">
+                    <Image.RenderTransform>
+                        <TranslateTransform X="1920" Y="0"/>
+                    </Image.RenderTransform>
+                </Image>
+            </Canvas>
 
             <!-- Overlay -->
             <Rectangle Fill="#011C4B" 
-                       Opacity="0.2"
+                       Opacity="0.15"
                        VerticalAlignment="Top"
-                       MinHeight="450"
-                       MaxHeight="550"
-                       Grid.ColumnSpan="3" Height="520" Margin="0,-70,0,0"/>
+                       Height="550"
+                       Grid.ColumnSpan="3"
+                       Panel.ZIndex="1"/>
 
             <!-- ScrollViewer -->
             <ScrollViewer VerticalScrollBarVisibility="Auto" 
@@ -78,7 +96,8 @@
                          MaxHeight="710"
                          VerticalAlignment="Center" 
                          ClipToBounds="False"
-                         Grid.ColumnSpan="3">
+                         Grid.ColumnSpan="3"
+                         Panel.ZIndex="2">
                 <!-- Content -->
                 <StackPanel VerticalAlignment="Center" 
                            HorizontalAlignment="Center"
@@ -1563,24 +1582,24 @@
                     </Border>
                 </StackPanel>
             </ScrollViewer>
+            <!-- Navbar Component (Pre-Login) - Overlay on Carousel -->
+            <components:NavbarPreLogin Grid.ColumnSpan="3"
+                                       x:Name="navbarPreLogin"
+                                       Visibility="Visible"
+                                       VerticalAlignment="Top"
+                                       Panel.ZIndex="999" 
+                                       Loaded="navbarPreLogin_Loaded"/>
+
+            <!-- Navbar Component (Post-Login) - Overlay on Carousel -->
+            <components:NavbarPostLogin Grid.ColumnSpan="3"
+                                        x:Name="navbarPostLogin"
+                                        Visibility="Collapsed"
+                                        VerticalAlignment="Top"
+                                        Panel.ZIndex="999"/>
         </Grid>
-
-        <!-- Navbar Component (Pre-Login) -->
-        <components:NavbarPreLogin Grid.Row="0" 
-                                   x:Name="navbarPreLogin"
-                                   Visibility="Visible"
-                                   Panel.ZIndex="999" 
-                                   Loaded="navbarPreLogin_Loaded"/>
-
-        <!-- Navbar Component (Post-Login) -->
-        <components:NavbarPostLogin Grid.Row="0" 
-                                    x:Name="navbarPostLogin"
-                                    Visibility="Collapsed"
-                                    Panel.ZIndex="999"/>
         
         <!-- Date Display - Floating Card at Bottom Left -->
-        <Border Grid.Row="1" 
-                Background="White"
+        <Border Background="White"
                 CornerRadius="12"
                 Padding="20,15"
                 HorizontalAlignment="Left"
