@@ -165,7 +165,7 @@ namespace TiketLaut.Views
                     {
                         TiketId = tiket.tiket_id,
                         PembayaranId = pembayaran.pembayaran_id,
-                        Route = $"{jadwal.pelabuhan_asal.nama_pelabuhan} - {jadwal.pelabuhan_tujuan.nama_pelabuhan}",
+                        Route = $"{jadwal.pelabuhan_asal?.nama_pelabuhan ?? "N/A"} - {jadwal.pelabuhan_tujuan?.nama_pelabuhan ?? "N/A"}",
                         Status = status,
                         StatusColor = statusColor,
                         ShipName = jadwal.kapal.nama_kapal,

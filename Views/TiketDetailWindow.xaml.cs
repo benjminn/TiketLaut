@@ -59,8 +59,8 @@ namespace TiketLaut.Views
 
                 // Set data ke UI
                 txtKodeTiket.Text = _tiket.kode_tiket;
-                txtPelabuhanAsal.Text = pelabuhan_asal.nama_pelabuhan;
-                txtPelabuhanTujuan.Text = pelabuhan_tujuan.nama_pelabuhan;
+                txtPelabuhanAsal.Text = pelabuhan_asal?.nama_pelabuhan ?? "N/A";
+                txtPelabuhanTujuan.Text = pelabuhan_tujuan?.nama_pelabuhan ?? "N/A";
                 txtWaktuBerangkat.Text = waktuBerangkatLocal.ToString("HH:mm");  // ✅ Gunakan waktu lokal
                 txtWaktuTiba.Text = waktuTibaLocal.ToString("HH:mm");  // ✅ Gunakan waktu lokal
                 
@@ -77,7 +77,7 @@ namespace TiketLaut.Views
 
                 // Warning check-in time (15 menit sebelum, gunakan waktu lokal pelabuhan asal)
                 var checkInTime = waktuBerangkatLocal.AddMinutes(-15);
-                txtCheckInTime.Text = $"Harap tiba di pelabuhan {pelabuhan_asal.nama_pelabuhan} sebelum {checkInTime:HH:mm} untuk proses check-in.";
+                txtCheckInTime.Text = $"Harap tiba di pelabuhan {pelabuhan_asal?.nama_pelabuhan ?? "N/A"} sebelum {checkInTime:HH:mm} untuk proses check-in.";
 
                 // Load penumpang
                 await LoadPenumpangData();

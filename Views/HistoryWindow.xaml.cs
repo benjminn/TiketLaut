@@ -76,7 +76,7 @@ namespace TiketLaut.Views
                     {
                         PembayaranId = riwayat.pembayaran_id,
                         TiketId = tiket.tiket_id,
-                        Route = $"{jadwal.pelabuhan_asal.nama_pelabuhan} - {jadwal.pelabuhan_tujuan.nama_pelabuhan}",
+                        Route = $"{jadwal.pelabuhan_asal?.nama_pelabuhan ?? "N/A"} - {jadwal.pelabuhan_tujuan?.nama_pelabuhan ?? "N/A"}",
                         Status = "Selesai", // ? Always "Selesai"
                         StatusColor = new SolidColorBrush(Color.FromRgb(0, 180, 181)), // ?? Cyan #00B4B5
                         ShipName = jadwal.kapal.nama_kapal,
