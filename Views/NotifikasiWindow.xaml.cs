@@ -73,8 +73,6 @@ namespace TiketLaut.Views
                         notificationList.Children.Add(new Rectangle { Style = (Style)FindResource("SeparatorStyle") });
                     }
                 }
-
-                System.Diagnostics.Debug.WriteLine($"[LOAD DATA] Total notifikasi yang di-render: {notificationList.Children.Count / 2 + 1}");
             }
             catch (Exception ex)
             {
@@ -165,7 +163,6 @@ namespace TiketLaut.Views
                 if (!n.status_baca)
                 {
                     var success = await _service.MarkAsReadAsync(n.notifikasi_id);
-                    System.Diagnostics.Debug.WriteLine($"Mark as read {n.notifikasi_id}: {success}");
                 }
 
                 await HandleNotificationClick(n);

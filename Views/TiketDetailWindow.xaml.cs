@@ -85,23 +85,19 @@ namespace TiketLaut.Views
                     panelKendaraan.Visibility = Visibility.Visible;
                     
                     // DEBUG: Log nilai asli dari database
-                    System.Diagnostics.Debug.WriteLine($"[TiketDetail] jenis_kendaraan_enum dari DB: '{_tiket.jenis_kendaraan_enum}'");
                     
                     // Convert string dari DB ke ID, lalu ke display name
                     int jenisKendaraanId = GetJenisKendaraanIdFromString(_tiket.jenis_kendaraan_enum);
-                    System.Diagnostics.Debug.WriteLine($"[TiketDetail] Converted to ID: {jenisKendaraanId}");
                     
                     string displayName;
                     if (jenisKendaraanId == -1)
                     {
                         // Tidak match dengan mapping baru, tampilkan apa adanya (tiket lama)
                         displayName = _tiket.jenis_kendaraan_enum;
-                        System.Diagnostics.Debug.WriteLine($"[TiketDetail] Using raw value (old format): '{displayName}'");
                     }
                     else
                     {
                         displayName = GetJenisKendaraanDisplayNameById(jenisKendaraanId);
-                        System.Diagnostics.Debug.WriteLine($"[TiketDetail] Display name: '{displayName}'");
                     }
                     
                     txtJenisKendaraan.Text = displayName;
@@ -169,16 +165,11 @@ namespace TiketLaut.Views
             try
             {
                 var penumpangs = await _rincianPenumpangService.GetByTiketIdAsync(_tiketId);
-
-                System.Diagnostics.Debug.WriteLine($"Loading {penumpangs.Count} penumpang for tiket {_tiketId}");
-
                 panelPenumpang.Children.Clear();
 
                 int no = 1;
                 foreach (var rincian in penumpangs)
                 {
-                    System.Diagnostics.Debug.WriteLine($"Penumpang {no}: ID={rincian.penumpang_id}, Nama={rincian.penumpang?.nama ?? "NULL"}");
-
                     var penumpangCard = new Border
                     {
                         Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#F9FAFB")),
@@ -245,9 +236,8 @@ namespace TiketLaut.Views
                     no++;
                 }
             }
-            catch (Exception ex)
+            catch (Exception _)
             {
-                System.Diagnostics.Debug.WriteLine($"Error loading penumpang: {ex.Message}");
             }
         }
 
