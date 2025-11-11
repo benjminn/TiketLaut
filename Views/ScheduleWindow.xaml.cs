@@ -38,6 +38,8 @@ namespace TiketLaut.Views
             // Check data pencarian ada di session ga
             if (SessionManager.LastSearchCriteria != null && SessionManager.LastSearchResults != null)
             {
+                System.Diagnostics.Debug.WriteLine("[ScheduleWindow] Loading from saved search session");
+
                 // pake data dari session
                 _searchCriteria = SessionManager.LastSearchCriteria;
                 _jadwals = SessionManager.LastSearchResults;
@@ -50,6 +52,8 @@ namespace TiketLaut.Views
             }
             else
             {
+                System.Diagnostics.Debug.WriteLine("[ScheduleWindow] No saved search session");
+
                 // Load dropdown saja, user perlu cari manual
                 LoadFilterDropdownsAsync();
                 
@@ -89,12 +93,16 @@ namespace TiketLaut.Views
                 navbarPreLogin.Visibility = Visibility.Collapsed;
                 navbarPostLogin.Visibility = Visibility.Visible;
                 navbarPostLogin.SetUserInfo(SessionManager.CurrentUser.nama);
+
+                System.Diagnostics.Debug.WriteLine($"[ScheduleWindow] Logged in user: {SessionManager.CurrentUser.nama}");
             }
             else
             {
                 // User belum login pake NavbarPreLogin
                 navbarPreLogin.Visibility = Visibility.Visible;
                 navbarPostLogin.Visibility = Visibility.Collapsed;
+
+                System.Diagnostics.Debug.WriteLine("[ScheduleWindow] Guest user - showing NavbarPreLogin");
             }
         }
 
@@ -198,6 +206,7 @@ namespace TiketLaut.Views
             catch (Exception ex)
             {
                 CustomDialog.ShowError("Error", $"Terjadi kesalahan saat memuat data filter:\n\n{ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"[ScheduleWindow] Error loading filter dropdowns: {ex.Message}");
             }
         }
 
@@ -315,6 +324,8 @@ namespace TiketLaut.Views
             txtFilterPenumpangDisplay.Inlines.Add(new Run(count.ToString()));
             txtFilterPenumpangDisplay.Inlines.Add(new Run(" "));
             txtFilterPenumpangDisplay.Inlines.Add(new Run("Penumpang"));
+            
+            System.Diagnostics.Debug.WriteLine($"[ScheduleWindow] UpdateFilterPenumpangDisplay: count={count}");
         }
 
         /// <summary>
@@ -434,6 +445,7 @@ namespace TiketLaut.Views
         /// </summary>
         private void DpFilterDate_CalendarOpened(object sender, RoutedEventArgs e)
         {
+            System.Diagnostics.Debug.WriteLine("[ScheduleWindow] Calendar opened");
         }
 
         /// <summary>
@@ -441,6 +453,7 @@ namespace TiketLaut.Views
         /// </summary>
         private void DpFilterDate_CalendarClosed(object sender, RoutedEventArgs e)
         {
+            System.Diagnostics.Debug.WriteLine("[ScheduleWindow] Calendar closed");
             
             // Sembunyikan DatePicker lagi setelah calendar ditutup
             if (dpFilterDate != null)
@@ -625,6 +638,8 @@ namespace TiketLaut.Views
                     // Get max passengers for this vehicle
                     int maksimalPenumpang = DetailKendaraan.GetMaksimalPenumpangByIndex(jenisKendaraanId);
                     
+                    System.Diagnostics.Debug.WriteLine($"[ScheduleWindow] Kendaraan filter dipilih: {vehicleName} (ID: {jenisKendaraanId}), Maks penumpang: {maksimalPenumpang}");
+                    
                     // Check current passenger count
                     if (int.TryParse(txtFilterPenumpang.Text, out int currentPenumpang))
                     {
@@ -792,6 +807,7 @@ namespace TiketLaut.Views
                     if (detailKendaraan == null)
                     {
                         // Jadwal ini tidak support jenis kendaraan yang dicari
+                        System.Diagnostics.Debug.WriteLine($"[LoadSchedule] Skip jadwal {jadwal.jadwal_id} - jenis kendaraan tidak tersedia dalam grup");
                         continue;
                     }
 
@@ -806,11 +822,13 @@ namespace TiketLaut.Views
                     {
                         // Kalikan dengan jumlah penumpang
                         totalHarga = harga * jumlahPenumpang;
+                        System.Diagnostics.Debug.WriteLine($"[LoadSchedule] Pejalan kaki - Harga: {harga} x {jumlahPenumpang} = {totalHarga}");
                     }
                     else // Menggunakan kendaraan
                     {
                         // Tidak dikali dengan jumlah penumpang
                         totalHarga = harga;
+                        System.Diagnostics.Debug.WriteLine($"[LoadSchedule] Kendaraan - Harga: {harga} (tidak dikali penumpang)");
                     }
 
                     var priceText = $"IDR {totalHarga:N0}";
@@ -818,6 +836,11 @@ namespace TiketLaut.Views
                     // FIX: Pastikan nama pelabuhan ter-load dengan benar
                     string departurePort = jadwal.pelabuhan_asal?.nama_pelabuhan ?? "N/A";
                     string arrivalPort = jadwal.pelabuhan_tujuan?.nama_pelabuhan ?? "N/A";
+
+                    System.Diagnostics.Debug.WriteLine($"[LoadSchedule] Jadwal {jadwal.jadwal_id}:");
+                    System.Diagnostics.Debug.WriteLine($"  departurePort: {departurePort}");
+                    System.Diagnostics.Debug.WriteLine($"  arrivalPort: {arrivalPort}");
+
                     var scheduleItem = new ScheduleItem
                     {
                         FerryType = jadwal.kelas_layanan ?? "Reguler",
@@ -838,15 +861,22 @@ namespace TiketLaut.Views
                     };
 
                     ScheduleItems.Add(scheduleItem);
+
+                    System.Diagnostics.Debug.WriteLine($"[LoadSchedule] Added item:");
+                    System.Diagnostics.Debug.WriteLine($"  DeparturePort: {scheduleItem.DeparturePort}");
+                    System.Diagnostics.Debug.WriteLine($"  ArrivalPort: {scheduleItem.ArrivalPort}");
                 }
                 catch (Exception ex)
                 {
+                    System.Diagnostics.Debug.WriteLine($"[ScheduleWindow] Error processing jadwal {jadwal.jadwal_id}: {ex.Message}");
                     // Skip jadwal yang error
                     continue;
                 }
             }
 
             icScheduleList.ItemsSource = ScheduleItems;
+
+            System.Diagnostics.Debug.WriteLine($"[ScheduleWindow] Total loaded: {ScheduleItems.Count} schedules");
         }
 
         /// <summary>
@@ -1020,6 +1050,7 @@ namespace TiketLaut.Views
             catch (Exception ex)
             {
                 CustomDialog.ShowError("Error", $"Terjadi kesalahan saat mencari jadwal:\n\n{ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"[ScheduleWindow] Error searching schedules: {ex.Message}");
             }
         }
 
@@ -1045,6 +1076,8 @@ namespace TiketLaut.Views
                         // ? FIX: Pastikan menggunakan LoginSource.ScheduleWindow
                         try
                         {
+                            System.Diagnostics.Debug.WriteLine("[ScheduleWindow] Navigating to LoginWindow with ScheduleWindow source");
+
                             var loginWindow = new LoginWindow(LoginSource.ScheduleWindow); // ? PENTING: Gunakan ScheduleWindow bukan HomePage!
 
                             // Preserve window size and position for login window
@@ -1072,9 +1105,15 @@ namespace TiketLaut.Views
                     // Debug log untuk memastikan _searchCriteria ada
                     if (_searchCriteria != null)
                     {
+                        System.Diagnostics.Debug.WriteLine($"[ScheduleWindow] SearchCriteria found:");
+                        System.Diagnostics.Debug.WriteLine($"  JenisKendaraanId: {_searchCriteria.JenisKendaraanId}");
+                        System.Diagnostics.Debug.WriteLine($"  JumlahPenumpang: {_searchCriteria.JumlahPenumpang}");
+                        System.Diagnostics.Debug.WriteLine($"  PelabuhanAsalId: {_searchCriteria.PelabuhanAsalId}");
+                        System.Diagnostics.Debug.WriteLine($"  PelabuhanTujuanId: {_searchCriteria.PelabuhanTujuanId}");
                     }
                     else
                     {
+                        System.Diagnostics.Debug.WriteLine("[ScheduleWindow] WARNING: _searchCriteria is null!");
                     }
 
                     // Buat instance BookingDetailWindow
@@ -1099,10 +1138,14 @@ namespace TiketLaut.Views
                     // Show new window and close current
                     bookingDetailWindow.Show();
                     this.Close();
+
+                    System.Diagnostics.Debug.WriteLine($"[ScheduleWindow] User {TiketLaut.Services.SessionManager.CurrentUser?.nama} proceeding to booking for schedule {schedule.JadwalId}");
                 }
                 catch (Exception ex)
                 {
                     CustomDialog.ShowError("Error", $"Terjadi kesalahan saat membuka halaman pemesanan:\n\n{ex.Message}");
+
+                    System.Diagnostics.Debug.WriteLine($"[ScheduleWindow] Error opening booking window: {ex.Message}");
                 }
             }
         }
@@ -1248,6 +1291,7 @@ namespace TiketLaut.Views
             {
                 _departurePort = value;
                 OnPropertyChanged(nameof(DeparturePort));
+                System.Diagnostics.Debug.WriteLine($"[ScheduleItem] DeparturePort set to: {value}");
             }
         }
 
@@ -1264,6 +1308,7 @@ namespace TiketLaut.Views
             {
                 _arrivalPort = value;
                 OnPropertyChanged(nameof(ArrivalPort));
+                System.Diagnostics.Debug.WriteLine($"[ScheduleItem] ArrivalPort set to: {value}");
             }
         }
 

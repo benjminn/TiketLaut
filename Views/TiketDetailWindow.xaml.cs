@@ -50,7 +50,8 @@ namespace TiketLaut.Views
                 var pelabuhan_tujuan = jadwal.pelabuhan_tujuan;
                 var kapal = jadwal.kapal;
 
-                var offsetAsalHours = pelabuhan_asal?.TimezoneOffsetHours ?? 7;
+                // ✅ TIMEZONE FIX: Convert UTC to pelabuhan timezone
+                var offsetAsalHours = pelabuhan_asal?.TimezoneOffsetHours ?? 7;  // Default WIB
                 var offsetTujuanHours = pelabuhan_tujuan?.TimezoneOffsetHours ?? 7;
                 
                 var waktuBerangkatLocal = jadwal.waktu_berangkat.AddHours(offsetAsalHours);
@@ -58,23 +59,25 @@ namespace TiketLaut.Views
 
                 // Set data ke UI
                 txtKodeTiket.Text = _tiket.kode_tiket;
-                txtPelabuhanAsal.Text = pelabuhan_asal?.nama_pelabuhan ?? "N/A";
-                txtPelabuhanTujuan.Text = pelabuhan_tujuan?.nama_pelabuhan ?? "N/A";
-                txtWaktuBerangkat.Text = waktuBerangkatLocal.ToString("HH:mm");
-                txtWaktuTiba.Text = waktuTibaLocal.ToString("HH:mm");
+                txtPelabuhanAsal.Text = pelabuhan_asal.nama_pelabuhan;
+                txtPelabuhanTujuan.Text = pelabuhan_tujuan.nama_pelabuhan;
+                txtWaktuBerangkat.Text = waktuBerangkatLocal.ToString("HH:mm");  // ✅ Gunakan waktu lokal
+                txtWaktuTiba.Text = waktuTibaLocal.ToString("HH:mm");  // ✅ Gunakan waktu lokal
                 
                 // Hitung durasi (actual duration dari UTC)
                 var durasi = jadwal.waktu_tiba - jadwal.waktu_berangkat;
                 txtDurasi.Text = $"{durasi.Hours}j {durasi.Minutes}m";
 
+                // Format tanggal Indonesia (gunakan waktu lokal pelabuhan asal)
                 var culture = new System.Globalization.CultureInfo("id-ID");
                 txtTanggalBerangkat.Text = waktuBerangkatLocal.ToString("dddd, dd MMMM yyyy", culture);
                 
                 txtNamaKapal.Text = kapal.nama_kapal;
                 txtTotalHarga.Text = $"Rp {_tiket.total_harga:N0}";
 
+                // Warning check-in time (15 menit sebelum, gunakan waktu lokal pelabuhan asal)
                 var checkInTime = waktuBerangkatLocal.AddMinutes(-15);
-                txtCheckInTime.Text = $"Harap tiba di pelabuhan {pelabuhan_asal?.nama_pelabuhan ?? "N/A"} sebelum {checkInTime:HH:mm} untuk proses check-in.";
+                txtCheckInTime.Text = $"Harap tiba di pelabuhan {pelabuhan_asal.nama_pelabuhan} sebelum {checkInTime:HH:mm} untuk proses check-in.";
 
                 // Load penumpang
                 await LoadPenumpangData();
@@ -85,19 +88,23 @@ namespace TiketLaut.Views
                     panelKendaraan.Visibility = Visibility.Visible;
                     
                     // DEBUG: Log nilai asli dari database
+                    System.Diagnostics.Debug.WriteLine($"[TiketDetail] jenis_kendaraan_enum dari DB: '{_tiket.jenis_kendaraan_enum}'");
                     
                     // Convert string dari DB ke ID, lalu ke display name
                     int jenisKendaraanId = GetJenisKendaraanIdFromString(_tiket.jenis_kendaraan_enum);
+                    System.Diagnostics.Debug.WriteLine($"[TiketDetail] Converted to ID: {jenisKendaraanId}");
                     
                     string displayName;
                     if (jenisKendaraanId == -1)
                     {
                         // Tidak match dengan mapping baru, tampilkan apa adanya (tiket lama)
                         displayName = _tiket.jenis_kendaraan_enum;
+                        System.Diagnostics.Debug.WriteLine($"[TiketDetail] Using raw value (old format): '{displayName}'");
                     }
                     else
                     {
                         displayName = GetJenisKendaraanDisplayNameById(jenisKendaraanId);
+                        System.Diagnostics.Debug.WriteLine($"[TiketDetail] Display name: '{displayName}'");
                     }
                     
                     txtJenisKendaraan.Text = displayName;
@@ -165,11 +172,16 @@ namespace TiketLaut.Views
             try
             {
                 var penumpangs = await _rincianPenumpangService.GetByTiketIdAsync(_tiketId);
+
+                System.Diagnostics.Debug.WriteLine($"Loading {penumpangs.Count} penumpang for tiket {_tiketId}");
+
                 panelPenumpang.Children.Clear();
 
                 int no = 1;
                 foreach (var rincian in penumpangs)
                 {
+                    System.Diagnostics.Debug.WriteLine($"Penumpang {no}: ID={rincian.penumpang_id}, Nama={rincian.penumpang?.nama ?? "NULL"}");
+
                     var penumpangCard = new Border
                     {
                         Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#F9FAFB")),
@@ -236,8 +248,9 @@ namespace TiketLaut.Views
                     no++;
                 }
             }
-            catch (Exception _)
+            catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine($"Error loading penumpang: {ex.Message}");
             }
         }
 
