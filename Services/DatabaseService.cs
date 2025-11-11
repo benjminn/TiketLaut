@@ -54,5 +54,31 @@ namespace TiketLaut.Services
                 return false;
             }
         }
+
+        /// <summary>
+        /// Clear cached DbContext and force refresh from database.
+        /// Call this after external changes or when you need fresh data.
+        /// </summary>
+        public static void RefreshContext()
+        {
+            lock (_lock)
+            {
+                if (_context != null)
+                {
+                    _context.Dispose();
+                    _context = null;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Clear all tracked entities to prevent stale data issues.
+        /// Call this after bulk SQL updates that bypass EF tracking.
+        /// </summary>
+        public static void ClearTrackedEntities()
+        {
+            var context = GetContext();
+            context.ChangeTracker.Clear();
+        }
     }
 }

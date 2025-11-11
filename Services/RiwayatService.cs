@@ -33,7 +33,6 @@ namespace TiketLaut.Services
                 System.Diagnostics.Debug.WriteLine("==============================================");
                 
                 var nowUtc = DateTime.UtcNow;
-                var nowLocal = DateTime.Now;
                 int totalUpdated = 0;
 
                 // ✅ BAGIAN 1: Update "Aktif" atau "Sukses" menjadi "Selesai" jika waktu tiba sudah lewat
@@ -58,19 +57,15 @@ namespace TiketLaut.Services
                 var idsToComplete = pembayaranAktif
                     .Where(p =>
                     {
-                        // Try both UTC and Local time comparison
+                        // Use UTC comparison since database stores UTC
                         var waktuTibaUtc = DateTime.SpecifyKind(p.waktu_tiba, DateTimeKind.Utc);
-                        var waktuTibaLocal = DateTime.SpecifyKind(p.waktu_tiba, DateTimeKind.Local);
                         var shouldCompleteUtc = waktuTibaUtc < nowUtc;
-                        var shouldCompleteLocal = waktuTibaLocal < nowLocal;
                         
                         System.Diagnostics.Debug.WriteLine($"  - Tiket {p.kode_tiket}:");
                         System.Diagnostics.Debug.WriteLine($"    DB waktu_tiba: {p.waktu_tiba:yyyy-MM-dd HH:mm:ss}");
                         System.Diagnostics.Debug.WriteLine($"    As UTC: {waktuTibaUtc:yyyy-MM-dd HH:mm:ss}, should_complete={shouldCompleteUtc}");
-                        System.Diagnostics.Debug.WriteLine($"    As Local: {waktuTibaLocal:yyyy-MM-dd HH:mm:ss}, should_complete={shouldCompleteLocal}");
                         
-                        // Use local time comparison since database likely stores local time
-                        return shouldCompleteLocal;
+                        return shouldCompleteUtc;
                     })
                     .Select(p => p.pembayaran_id)
                     .ToList();
@@ -102,25 +97,38 @@ namespace TiketLaut.Services
                     await _context.Database.ExecuteSqlRawAsync(updateTiketSql);
 
                     System.Diagnostics.Debug.WriteLine($"[RiwayatService] Updated {completedRows} payments and tickets to Selesai");
+                    
+                    // ✅ Clear tracked entities to prevent stale data
+                    DatabaseService.ClearTrackedEntities();
                 }
                 else
                 {
                     System.Diagnostics.Debug.WriteLine($"[RiwayatService] No payments to update to Selesai");
                 }
 
-                // ✅ BAGIAN 1B: Update SEMUA jadwal yang waktu tiba sudah lewat menjadi "Inactive"
-                // (tidak peduli ada tiket atau tidak)
+                // ✅ BAGIAN 1B: Update jadwal menjadi "Inactive" jika:
+                // 1. Waktu tiba sudah lewat, ATAU
+                // 2. 15 menit sebelum keberangkatan, ATAU
+                // 3. Kapasitas penuh (penumpang = 0 OR kendaraan = 0)
                 string updateAllJadwalSql = @"
                 UPDATE ""Jadwal"" 
                 SET status = 'Inactive' 
                 WHERE status = 'Active' 
-                AND waktu_tiba < NOW()";
+                AND (
+                    waktu_tiba < NOW() 
+                    OR waktu_berangkat < NOW() + INTERVAL '15 minutes'
+                    OR sisa_kapasitas_penumpang <= 0 
+                    OR sisa_kapasitas_kendaraan <= 0
+                )";
 
                 int jadwalRows = await _context.Database.ExecuteSqlRawAsync(updateAllJadwalSql);
                 
                 if (jadwalRows > 0)
                 {
                     System.Diagnostics.Debug.WriteLine($"[RiwayatService] Updated {jadwalRows} jadwals from Active to Inactive");
+                    
+                    // ✅ Clear tracked entities to prevent stale data
+                    DatabaseService.ClearTrackedEntities();
                 }
                 else
                 {
@@ -131,11 +139,9 @@ namespace TiketLaut.Services
                 // - Timeout 24 jam dari tanggal pemesanan, ATAU
                 // - Jadwal keberangkatan sudah lewat
                 var timeoutCutoff = nowUtc.AddHours(-24); // 24 hours ago
-                var timeoutCutoffLocal = nowLocal.AddHours(-24);
 
                 System.Diagnostics.Debug.WriteLine($"[RiwayatService] Checking 'Menunggu Pembayaran' tikets...");
                 System.Diagnostics.Debug.WriteLine($"  Timeout cutoff (UTC): {timeoutCutoff:yyyy-MM-dd HH:mm:ss}");
-                System.Diagnostics.Debug.WriteLine($"  Timeout cutoff (Local): {timeoutCutoffLocal:yyyy-MM-dd HH:mm:ss}");
 
                 // Query TIKET table, not Pembayaran table (status is in status_tiket)
                 var tiketsTimeout = await _context.Tikets
@@ -159,18 +165,18 @@ namespace TiketLaut.Services
                 var tiketsToFail = tiketsTimeout
                     .Where(t =>
                     {
-                        var pemesananLocal = DateTime.SpecifyKind(t.tanggal_pemesanan, DateTimeKind.Local);
-                        var berangkatLocal = DateTime.SpecifyKind(t.waktu_berangkat, DateTimeKind.Local);
+                        var pemesananUtc = DateTime.SpecifyKind(t.tanggal_pemesanan, DateTimeKind.Utc);
+                        var berangkatUtc = DateTime.SpecifyKind(t.waktu_berangkat, DateTimeKind.Utc);
                         
-                        var isTimeout = pemesananLocal < timeoutCutoffLocal;
-                        var isDeparted = berangkatLocal < nowLocal;
+                        var isTimeout = pemesananUtc < timeoutCutoff;
+                        var isDeparted = berangkatUtc < nowUtc;
                         
                         if (isTimeout || isDeparted)
                         {
                             var reason = isTimeout ? "timeout 24 jam" : "jadwal sudah berangkat";
                             System.Diagnostics.Debug.WriteLine($"  - Tiket {t.kode_tiket}:");
-                            System.Diagnostics.Debug.WriteLine($"    Pemesanan: {pemesananLocal:yyyy-MM-dd HH:mm:ss}, isTimeout={isTimeout}");
-                            System.Diagnostics.Debug.WriteLine($"    Berangkat: {berangkatLocal:yyyy-MM-dd HH:mm:ss}, isDeparted={isDeparted}");
+                            System.Diagnostics.Debug.WriteLine($"    Pemesanan UTC: {pemesananUtc:yyyy-MM-dd HH:mm:ss}, isTimeout={isTimeout}");
+                            System.Diagnostics.Debug.WriteLine($"    Berangkat UTC: {berangkatUtc:yyyy-MM-dd HH:mm:ss}, isDeparted={isDeparted}");
                             System.Diagnostics.Debug.WriteLine($"    Reason: {reason}");
                             return true;
                         }
@@ -205,6 +211,9 @@ namespace TiketLaut.Services
 
                         await _context.Database.ExecuteSqlRawAsync(updatePembayaranSql);
                         System.Diagnostics.Debug.WriteLine($"[RiwayatService] Updated {pembayaranIds.Count} pembayaran records to Gagal");
+                        
+                        // ✅ Clear tracked entities to prevent stale data
+                        DatabaseService.ClearTrackedEntities();
                     }
                 }
                 else
@@ -212,27 +221,58 @@ namespace TiketLaut.Services
                     System.Diagnostics.Debug.WriteLine($"[RiwayatService] No payments to update");
                 }
 
-                // ✅ BAGIAN 3: Mark pembayaran "Menunggu Validasi" yang sudah 48 jam sebagai "Gagal"
-                var validationTimeoutCutoff = nowUtc.AddHours(-48); // 48 hours ago
+                // ✅ BAGIAN 3: Mark pembayaran "Menunggu Validasi" sebagai "Gagal" jika:
+                // - Timeout 24 jam dari tanggal bayar, ATAU
+                // - Jadwal keberangkatan sudah lewat
+                var validationTimeoutCutoff = nowUtc.AddHours(-24); // 24 hours ago
+
+                System.Diagnostics.Debug.WriteLine($"[RiwayatService] Checking 'Menunggu Validasi' payments...");
+                System.Diagnostics.Debug.WriteLine($"  Validation timeout cutoff (UTC): {validationTimeoutCutoff:yyyy-MM-dd HH:mm:ss}");
 
                 var pembayaranValidationTimeout = await _context.Pembayarans
                     .AsNoTracking()
                     .Include(p => p.tiket)
-                    .Where(p => p.status_bayar == "Menunggu Validasi" &&
-                               p.tanggal_bayar < validationTimeoutCutoff)
+                        .ThenInclude(t => t.Jadwal)
+                    .Where(p => p.status_bayar == "Menunggu Validasi")
                     .Select(p => new
                     {
                         p.pembayaran_id,
                         p.tiket.kode_tiket,
-                        p.tanggal_bayar
+                        p.tanggal_bayar,
+                        waktu_berangkat = p.tiket.Jadwal.waktu_berangkat
                     })
                     .ToListAsync();
 
-                if (pembayaranValidationTimeout.Any())
-                {
-                    System.Diagnostics.Debug.WriteLine($"[RiwayatService] Found {pembayaranValidationTimeout.Count} validation-timed-out payments to mark as Gagal");
+                System.Diagnostics.Debug.WriteLine($"[RiwayatService] Found {pembayaranValidationTimeout.Count} 'Menunggu Validasi' payments");
 
-                    string validationTimeoutIds = string.Join(",", pembayaranValidationTimeout.Select(p => p.pembayaran_id));
+                // Filter in memory with detailed logging
+                var validationToFail = pembayaranValidationTimeout
+                    .Where(p =>
+                    {
+                        var tanggalBayarUtc = DateTime.SpecifyKind(p.tanggal_bayar, DateTimeKind.Utc);
+                        var berangkatUtc = DateTime.SpecifyKind(p.waktu_berangkat, DateTimeKind.Utc);
+                        
+                        var isTimeout = tanggalBayarUtc < validationTimeoutCutoff;
+                        var isDeparted = berangkatUtc < nowUtc;
+                        
+                        if (isTimeout || isDeparted)
+                        {
+                            var reason = isTimeout ? "timeout 24 jam" : "jadwal sudah berangkat";
+                            System.Diagnostics.Debug.WriteLine($"  - Pembayaran untuk tiket {p.kode_tiket}:");
+                            System.Diagnostics.Debug.WriteLine($"    Tanggal Bayar UTC: {tanggalBayarUtc:yyyy-MM-dd HH:mm:ss}, isTimeout={isTimeout}");
+                            System.Diagnostics.Debug.WriteLine($"    Berangkat UTC: {berangkatUtc:yyyy-MM-dd HH:mm:ss}, isDeparted={isDeparted}");
+                            System.Diagnostics.Debug.WriteLine($"    Reason: {reason}");
+                            return true;
+                        }
+                        return false;
+                    })
+                    .ToList();
+
+                if (validationToFail.Any())
+                {
+                    System.Diagnostics.Debug.WriteLine($"[RiwayatService] Found {validationToFail.Count} validation-timed-out/expired payments to mark as Gagal");
+
+                    string validationTimeoutIds = string.Join(",", validationToFail.Select(p => p.pembayaran_id));
                     string validationTimeoutSql = $@"
                 UPDATE ""Pembayaran"" 
                 SET status_bayar = 'Gagal' 
@@ -241,7 +281,7 @@ namespace TiketLaut.Services
                     int validationTimeoutRows = await _context.Database.ExecuteSqlRawAsync(validationTimeoutSql);
                     totalUpdated += validationTimeoutRows;
 
-                    System.Diagnostics.Debug.WriteLine($"[RiwayatService] Marked {validationTimeoutRows} validation-timed-out payments as Gagal");
+                    System.Diagnostics.Debug.WriteLine($"[RiwayatService] Marked {validationTimeoutRows} validation payments as Gagal");
 
                     // Update corresponding tickets
                     string updateValidationTiketSql = $@"
@@ -253,6 +293,14 @@ namespace TiketLaut.Services
                 )";
 
                     await _context.Database.ExecuteSqlRawAsync(updateValidationTiketSql);
+                    System.Diagnostics.Debug.WriteLine($"[RiwayatService] Updated corresponding tikets to Gagal");
+                    
+                    // ✅ Clear tracked entities to prevent stale data
+                    DatabaseService.ClearTrackedEntities();
+                }
+                else
+                {
+                    System.Diagnostics.Debug.WriteLine($"[RiwayatService] No validation payments to update");
                 }
 
                 if (totalUpdated == 0)

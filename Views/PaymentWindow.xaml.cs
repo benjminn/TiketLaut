@@ -564,6 +564,11 @@ namespace TiketLaut.Views
             try
             {
                 var jadwal = _tiket.Jadwal;
+                
+                // ✅ TIMEZONE FIX: Convert UTC to pelabuhan timezone
+                var offsetAsalHours = jadwal.pelabuhan_asal?.TimezoneOffsetHours ?? 7;  // Default WIB
+                var waktuBerangkatLocal = jadwal.waktu_berangkat.AddHours(offsetAsalHours);
+                
                 if (txtOrderId != null) { txtOrderId.Text = $"Order ID: {_tiket.kode_tiket}"; }
                 if (txtFerryType != null) { txtFerryType.Text = jadwal.kelas_layanan ?? "Reguler"; }
                 if (txtDeparturePort != null && jadwal.pelabuhan_asal != null) { txtDeparturePort.Text = jadwal.pelabuhan_asal.nama_pelabuhan; }
@@ -582,7 +587,7 @@ namespace TiketLaut.Views
                     {
                         dateFormatted = _tiket.tanggal_pemesanan.ToString("ddd, dd MMM yyyy", culture);
                     }
-                    var timeFormatted = jadwal.waktu_berangkat.ToString("HH:mm");
+                    var timeFormatted = waktuBerangkatLocal.ToString("HH:mm");  // ✅ Gunakan waktu lokal
                     txtDateTime.Text = $"{dateFormatted} - {timeFormatted}";
                 }
                 UpdatePaymentDetails();

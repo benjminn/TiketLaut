@@ -141,13 +141,20 @@ namespace TiketLaut.Views
                             break;
                     }
 
+                    // ✅ TIMEZONE FIX: Convert UTC to pelabuhan timezone
+                    var offsetAsalHours = jadwal.pelabuhan_asal?.TimezoneOffsetHours ?? 7;  // Default WIB
+                    var offsetTujuanHours = jadwal.pelabuhan_tujuan?.TimezoneOffsetHours ?? 7;
+                    
+                    var waktuBerangkatLocal = jadwal.waktu_berangkat.AddHours(offsetAsalHours);
+                    var waktuTibaLocal = jadwal.waktu_tiba.AddHours(offsetTujuanHours);
+
                     // Format tanggal
                     var tanggal = tiket.tanggal_pemesanan;
                     var dateText = tanggal.ToString("dddd, dd MMMM yyyy",
                         new System.Globalization.CultureInfo("id-ID"));
 
-                    // Format warning text
-                    var checkInTime = jadwal.waktu_berangkat.AddMinutes(-15);
+                    // Format warning text (gunakan waktu lokal pelabuhan asal)
+                    var checkInTime = waktuBerangkatLocal.AddMinutes(-15);
                     var warningText = $"Masuk pelabuhan (check-in) sebelum {checkInTime:HH:mm}";
 
                     var bookingItem = new BookingItem
@@ -159,7 +166,7 @@ namespace TiketLaut.Views
                         StatusColor = statusColor,
                         ShipName = jadwal.kapal.nama_kapal,
                         Date = dateText,
-                        Time = $"{jadwal.waktu_berangkat:HH:mm} - {jadwal.waktu_tiba:HH:mm}",
+                        Time = $"{waktuBerangkatLocal:HH:mm} - {waktuTibaLocal:HH:mm}",  // ✅ Gunakan waktu lokal
                         ShowWarning = showWarning,
                         WarningText = warningText
                     };
