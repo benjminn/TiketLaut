@@ -157,6 +157,7 @@ namespace TiketLaut.Views
                     var dateText = tanggal.ToString("dddd, dd MMMM yyyy",
                         new System.Globalization.CultureInfo("id-ID"));
 
+                    // Format warning text (gunakan waktu lokal pelabuhan asal)
                     var checkInTime = waktuBerangkatLocal.AddMinutes(-15);
                     var warningText = $"Masuk pelabuhan (check-in) sebelum {checkInTime:HH:mm}";
 
@@ -164,12 +165,12 @@ namespace TiketLaut.Views
                     {
                         TiketId = tiket.tiket_id,
                         PembayaranId = pembayaran.pembayaran_id,
-                        Route = $"{jadwal.pelabuhan_asal?.nama_pelabuhan ?? "N/A"} - {jadwal.pelabuhan_tujuan?.nama_pelabuhan ?? "N/A"}",
+                        Route = $"{jadwal.pelabuhan_asal.nama_pelabuhan} - {jadwal.pelabuhan_tujuan.nama_pelabuhan}",
                         Status = status,
                         StatusColor = statusColor,
                         ShipName = jadwal.kapal.nama_kapal,
                         Date = dateText,
-                        Time = $"{waktuBerangkatLocal:HH:mm} - {waktuTibaLocal:HH:mm}",
+                        Time = $"{waktuBerangkatLocal:HH:mm} - {waktuTibaLocal:HH:mm}",  // ✅ Gunakan waktu lokal
                         ShowWarning = showWarning,
                         WarningText = warningText
                     };

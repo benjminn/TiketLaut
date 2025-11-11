@@ -60,7 +60,8 @@ namespace TiketLaut.Views
                     var tiket = riwayat.tiket;
                     var jadwal = tiket.Jadwal;
 
-                    var offsetAsalHours = jadwal.pelabuhan_asal?.TimezoneOffsetHours ?? 7;
+                    // ✅ TIMEZONE FIX: Convert UTC to pelabuhan timezone
+                    var offsetAsalHours = jadwal.pelabuhan_asal?.TimezoneOffsetHours ?? 7;  // Default WIB
                     var offsetTujuanHours = jadwal.pelabuhan_tujuan?.TimezoneOffsetHours ?? 7;
                     
                     var waktuBerangkatLocal = jadwal.waktu_berangkat.AddHours(offsetAsalHours);
@@ -75,12 +76,12 @@ namespace TiketLaut.Views
                     {
                         PembayaranId = riwayat.pembayaran_id,
                         TiketId = tiket.tiket_id,
-                        Route = $"{jadwal.pelabuhan_asal?.nama_pelabuhan ?? "N/A"} - {jadwal.pelabuhan_tujuan?.nama_pelabuhan ?? "N/A"}",
-                        Status = "Selesai",
-                        StatusColor = new SolidColorBrush(Color.FromRgb(0, 180, 181)),
+                        Route = $"{jadwal.pelabuhan_asal.nama_pelabuhan} - {jadwal.pelabuhan_tujuan.nama_pelabuhan}",
+                        Status = "Selesai", // ? Always "Selesai"
+                        StatusColor = new SolidColorBrush(Color.FromRgb(0, 180, 181)), // ?? Cyan #00B4B5
                         ShipName = jadwal.kapal.nama_kapal,
                         Date = dateText,
-                        Time = $"{waktuBerangkatLocal:HH:mm} - {waktuTibaLocal:HH:mm}",
+                        Time = $"{waktuBerangkatLocal:HH:mm} - {waktuTibaLocal:HH:mm}",  // ✅ Gunakan waktu lokal
                         KodeTiket = tiket.kode_tiket,
                         TotalHarga = riwayat.jumlah_bayar
                     };

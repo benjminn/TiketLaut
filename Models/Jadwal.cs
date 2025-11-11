@@ -38,10 +38,12 @@ namespace TiketLaut
         [StringLength(50)]
         public string status { get; set; } = "Active";
 
+        // ✅ FIELD INI WAJIB ADA
         [Required]
         [StringLength(50)]
         public string kelas_layanan { get; set; } = "Reguler";
 
+        // FK to GrupKendaraan (required - every jadwal must have vehicle pricing group)
         [Required]
         public int grup_kendaraan_id { get; set; }
 

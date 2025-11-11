@@ -53,6 +53,9 @@ namespace TiketLaut.Views
 
                 var data = await _service.GetNotifikasiByPenggunaIdAsync(_userId);
 
+                // ✅ DEBUGGING: Cek jumlah data yang di-fetch
+                System.Diagnostics.Debug.WriteLine($"[LOAD DATA] Total notifikasi dari database: {data?.Count ?? 0}");
+
                 if (data == null || !data.Any())
                 {
                     ShowEmpty();
@@ -61,8 +64,15 @@ namespace TiketLaut.Views
 
                 var sorted = data.OrderByDescending(n => n.waktu_kirim).ToList();
 
+                // ✅ DEBUGGING: Tampilkan semua notifikasi yang akan di-render
+                foreach (var notif in sorted)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[LOAD DATA] ID: {notif.notifikasi_id}, Judul: {notif.judul_notifikasi}, Status Baca: {notif.status_baca}, Jenis: {notif.jenis_notifikasi}");
+                }
+
                 for (int i = 0; i < sorted.Count; i++)
                 {
+                    // ✅ Pass index untuk menentukan corner radius
                     bool isFirst = (i == 0);
                     bool isLast = (i == sorted.Count - 1);
 
@@ -73,6 +83,8 @@ namespace TiketLaut.Views
                         notificationList.Children.Add(new Rectangle { Style = (Style)FindResource("SeparatorStyle") });
                     }
                 }
+
+                System.Diagnostics.Debug.WriteLine($"[LOAD DATA] Total notifikasi yang di-render: {notificationList.Children.Count / 2 + 1}");
             }
             catch (Exception ex)
             {
@@ -88,8 +100,12 @@ namespace TiketLaut.Views
             notificationList.Children.Add(panel);
         }
 
+        // ✅ Update method signature untuk terima parameter isFirst & isLast
         private void AddItem(Notifikasi n, bool isFirst = false, bool isLast = false)
         {
+            System.Diagnostics.Debug.WriteLine($"Notifikasi ID: {n.notifikasi_id}, Status Baca: {n.status_baca}");
+
+            // ✅ Tentukan corner radius berdasarkan posisi
             CornerRadius cornerRadius;
             if (isFirst && isLast)
             {
@@ -117,7 +133,7 @@ namespace TiketLaut.Views
                 Background = n.status_baca
                     ? Brushes.White
                     : new SolidColorBrush(Color.FromRgb(226, 247, 255)),
-                CornerRadius = cornerRadius,
+                CornerRadius = cornerRadius, // ✅ Apply corner radius
                 Padding = new Thickness(40, 25, 40, 25),
                 Margin = new Thickness(0),
                 Cursor = System.Windows.Input.Cursors.Hand,
@@ -163,6 +179,7 @@ namespace TiketLaut.Views
                 if (!n.status_baca)
                 {
                     var success = await _service.MarkAsReadAsync(n.notifikasi_id);
+                    System.Diagnostics.Debug.WriteLine($"Mark as read {n.notifikasi_id}: {success}");
                 }
 
                 await HandleNotificationClick(n);
@@ -171,14 +188,18 @@ namespace TiketLaut.Views
             notificationList.Children.Add(cardBorder);
         }
 
+        // ✅ GANTI MessageBox jadi CustomDialog
+        // ✅ LOGIC BARU: Redirect berdasarkan status pembayaran yang spesifik
         private async System.Threading.Tasks.Task HandleNotificationClick(Notifikasi n)
         {
             string redirectMessage = "";
             Action? redirectAction = null;
 
+            // Cek judul notifikasi untuk menentukan status
             string judulLower = n.judul_notifikasi?.ToLower() ?? "";
             string jenisLower = n.jenis_notifikasi?.ToLower() ?? "";
 
+            // ✅ PRIORITAS 1: Cek berdasarkan JENIS dulu, baru judul
             if (jenisLower == "pengingat")
             {
                 // Semua notifikasi dengan jenis "pengingat" -> Redirect ke TiketDetailWindow
@@ -307,6 +328,7 @@ namespace TiketLaut.Views
                 LineHeight = 26
             };
 
+            // ✅ UPDATE PATTERN: Sesuai dengan design Figma
             string pattern = @"(" +
                     @"#[A-Z0-9-]+" +                                          // Kode tiket/booking (cth: #TKT-20251107-001)
                     @"|\b\s+[A-Z][A-Za-z]+\s*-\s*[A-Z][A-Za-z]+" +    // Rute dengan "jurusan" (cth: jurusan Merak - Bakauheni)

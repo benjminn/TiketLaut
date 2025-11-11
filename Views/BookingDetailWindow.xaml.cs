@@ -50,6 +50,7 @@ namespace TiketLaut.Views
         public void SetScheduleData(ScheduleItem scheduleItem)
         {
             _selectedSchedule = scheduleItem;
+            System.Diagnostics.Debug.WriteLine($"[BookingDetailWindow] SetScheduleData called with: {scheduleItem?.FerryType}");
 
             // Update UI dengan data schedule
             UpdateUIWithScheduleData();
@@ -58,6 +59,9 @@ namespace TiketLaut.Views
         public void SetSearchCriteria(SearchCriteria searchCriteria)
         {
             _searchCriteria = searchCriteria;
+            System.Diagnostics.Debug.WriteLine($"[BookingDetailWindow] SetSearchCriteria called");
+            System.Diagnostics.Debug.WriteLine($"  JenisKendaraanId: {searchCriteria.JenisKendaraanId}");
+            System.Diagnostics.Debug.WriteLine($"  JumlahPenumpang: {searchCriteria.JumlahPenumpang}");
 
             // Generate form penumpang sesuai jumlah
             GeneratePassengerForms();
@@ -78,6 +82,10 @@ namespace TiketLaut.Views
 
             string jenisKendaraanText = GetJenisKendaraanText(_searchCriteria.JenisKendaraanId);
             string penumpangText = $"Dewasa ({_searchCriteria.JumlahPenumpang}x)";
+
+            System.Diagnostics.Debug.WriteLine($"[BookingDetailWindow] UpdateVehicleAndPassengerDisplay:");
+            System.Diagnostics.Debug.WriteLine($"  jenisKendaraanText: {jenisKendaraanText}");
+            System.Diagnostics.Debug.WriteLine($"  penumpangText: {penumpangText}");
 
             // Update all vehicle type displays
             UpdateVehicleTypeDisplays(jenisKendaraanText);
@@ -100,6 +108,8 @@ namespace TiketLaut.Views
             {
                 txtSidebarPassengerCount.Text = penumpangText;
             }
+
+            System.Diagnostics.Debug.WriteLine($"Updated all passenger count displays to: {penumpangText}");
         }
 
         private void UpdateVehicleTypeDisplays(string jenisKendaraanText)
@@ -127,6 +137,8 @@ namespace TiketLaut.Views
             {
                 txtSidebarVehicleType.Text = jenisKendaraanText;
             }
+
+            System.Diagnostics.Debug.WriteLine($"Updated all vehicle type displays to: {jenisKendaraanText}");
         }
 
         private void UpdateUIWithScheduleData()
@@ -135,21 +147,26 @@ namespace TiketLaut.Views
 
             try
             {
+                System.Diagnostics.Debug.WriteLine("[BookingDetailWindow] UpdateUIWithScheduleData started");
+
                 // Update Right Section - Ferry Info
                 if (txtFerryType != null)
                 {
                     txtFerryType.Text = _selectedSchedule.FerryType;
+                    System.Diagnostics.Debug.WriteLine($"Updated txtFerryType: {_selectedSchedule.FerryType}");
                 }
 
                 // Update pelabuhan asal dan tujuan
                 if (txtDeparture != null)
                 {
                     txtDeparture.Text = _selectedSchedule.DeparturePort;
+                    System.Diagnostics.Debug.WriteLine($"Updated txtDeparture: {_selectedSchedule.DeparturePort}");
                 }
 
                 if (txtArrival != null)
                 {
                     txtArrival.Text = _selectedSchedule.ArrivalPort;
+                    System.Diagnostics.Debug.WriteLine($"Updated txtArrival: {_selectedSchedule.ArrivalPort}");
                 }
 
                 // Update check-in time dan warning message
@@ -178,6 +195,7 @@ namespace TiketLaut.Views
                             txtWarningMessage.Text = $"E-Tiket akan hangus bila anda belum masuk ke pelabuhan setelah {_selectedSchedule.DepartureTime}";
                         }
                     }
+                    System.Diagnostics.Debug.WriteLine($"Updated txtCheckInTime: {txtCheckInTime.Text}");
                 }
 
                 // Update price displays immediately
@@ -188,26 +206,33 @@ namespace TiketLaut.Views
                 {
                     UpdateVehicleAndPassengerDisplay();
                 }
+
+                System.Diagnostics.Debug.WriteLine($"[BookingDetailWindow] UpdateUIWithScheduleData completed successfully");
             }
             catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine($"[BookingDetailWindow] Error updating UI: {ex.Message}");
             }
         }
 
         private void UpdateAllPriceDisplays(string price)
         {
+            System.Diagnostics.Debug.WriteLine($"[BookingDetailWindow] UpdateAllPriceDisplays called with: {price}");
+
             try
             {
                 // Update main collapsed price display
                 if (txtTotalHargaCollapsed != null)
                 {
                     txtTotalHargaCollapsed.Text = price;
+                    System.Diagnostics.Debug.WriteLine($"Updated txtTotalHargaCollapsed: {price}");
                 }
 
                 // Update expanded detail prices in main section
                 if (txtSidebarPrice != null)
                 {
                     txtSidebarPrice.Text = price;
+                    System.Diagnostics.Debug.WriteLine($"Updated txtSidebarPrice: {price}");
                 }
 
                 // Update all specific named TextBlocks for prices
@@ -219,6 +244,7 @@ namespace TiketLaut.Views
             }
             catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine($"[BookingDetailWindow] Error updating prices: {ex.Message}");
             }
         }
 
@@ -229,6 +255,7 @@ namespace TiketLaut.Views
             if (txtTotalHargaExpanded != null)
             {
                 txtTotalHargaExpanded.Text = price;
+                System.Diagnostics.Debug.WriteLine($"Updated txtTotalHargaExpanded: {price}");
             }
 
             // Update sidebar total price (collapsed state)
@@ -236,6 +263,7 @@ namespace TiketLaut.Views
             if (txtSidebarTotalPrice != null)
             {
                 txtSidebarTotalPrice.Text = price;
+                System.Diagnostics.Debug.WriteLine($"Updated txtSidebarTotalPrice: {price}");
             }
 
             // Update sidebar detail price (expanded state)
@@ -243,6 +271,7 @@ namespace TiketLaut.Views
             if (txtSidebarDetailPrice != null)
             {
                 txtSidebarDetailPrice.Text = price;
+                System.Diagnostics.Debug.WriteLine($"Updated txtSidebarDetailPrice: {price}");
             }
 
             // Update sidebar final price (expanded state)
@@ -250,6 +279,7 @@ namespace TiketLaut.Views
             if (txtSidebarFinalPrice != null)
             {
                 txtSidebarFinalPrice.Text = price;
+                System.Diagnostics.Debug.WriteLine($"Updated txtSidebarFinalPrice: {price}");
             }
         }
 
@@ -264,6 +294,7 @@ namespace TiketLaut.Views
                     (textBlock.Text.Contains("487") || textBlock.Text.Contains("487.853")))
                 {
                     textBlock.Text = price;
+                    System.Diagnostics.Debug.WriteLine($"Updated price TextBlock via FindVisual: {price}");
                 }
             }
         }
@@ -286,11 +317,13 @@ namespace TiketLaut.Views
                     !textBlock.Text.Equals(jenisKendaraanText))
                 {
                     textBlock.Text = jenisKendaraanText;
+                    System.Diagnostics.Debug.WriteLine($"Updated vehicle text via fallback: {jenisKendaraanText}");
                 }
                 else if (textBlock.Text.Contains("Dewasa") && textBlock.Text.Contains("x") &&
                          !textBlock.Text.Equals(penumpangText))
                 {
                     textBlock.Text = penumpangText;
+                    System.Diagnostics.Debug.WriteLine($"Updated passenger text via fallback: {penumpangText}");
                 }
             }
         }
@@ -300,6 +333,8 @@ namespace TiketLaut.Views
             if (_searchCriteria == null) return;
 
             int jumlahPenumpang = _searchCriteria.JumlahPenumpang;
+            System.Diagnostics.Debug.WriteLine($"[BookingDetailWindow] GeneratePassengerForms for {jumlahPenumpang} passengers");
+
             // 1. Show/Hide first 3 passenger forms based on count
             for (int i = 1; i <= 3; i++)
             {
@@ -308,9 +343,11 @@ namespace TiketLaut.Views
                 {
                     bool shouldShow = i <= jumlahPenumpang;
                     passengerBorder.Visibility = shouldShow ? Visibility.Visible : Visibility.Collapsed;
+                    System.Diagnostics.Debug.WriteLine($"Passenger {i} border visibility: {passengerBorder.Visibility}");
                 }
                 else
                 {
+                    System.Diagnostics.Debug.WriteLine($"borderPassenger{i} not found!");
                 }
             }
 
@@ -329,10 +366,12 @@ namespace TiketLaut.Views
                         Border passengerForm = CreatePassengerForm(i);
                         additionalContainer.Children.Add(passengerForm);
                     }
+                    System.Diagnostics.Debug.WriteLine($"Generated {jumlahPenumpang - 3} additional passenger forms");
                 }
             }
             else
             {
+                System.Diagnostics.Debug.WriteLine("additionalPassengerFormsContainer not found!");
             }
         }
 
@@ -776,20 +815,28 @@ namespace TiketLaut.Views
 
             string jenisKendaraanText = GetJenisKendaraanText(_searchCriteria.JenisKendaraanId);
             string kapasitasText = GetKapasitasText(_searchCriteria.JenisKendaraanId, _searchCriteria.JumlahPenumpang);
+
+            System.Diagnostics.Debug.WriteLine($"[BookingDetailWindow] UpdateVehicleDetails:");
+            System.Diagnostics.Debug.WriteLine($"  jenisKendaraanText: {jenisKendaraanText}");
+            System.Diagnostics.Debug.WriteLine($"  kapasitasText: {kapasitasText}");
+
             // Update vehicle type display
             if (txtVehicleType != null)
             {
                 txtVehicleType.Text = jenisKendaraanText;
+                System.Diagnostics.Debug.WriteLine($"Updated txtVehicleType: {jenisKendaraanText}");
             }
 
             if (txtVehicleCapacity != null)
             {
                 txtVehicleCapacity.Text = kapasitasText;
+                System.Diagnostics.Debug.WriteLine($"Updated txtVehicleCapacity: {kapasitasText}");
             }
 
             if (txtVehicleInfo != null)
             {
                 txtVehicleInfo.Text = jenisKendaraanText;
+                System.Diagnostics.Debug.WriteLine($"Updated txtVehicleInfo: {jenisKendaraanText}");
             }
 
             // Show/Hide vehicle section berdasarkan jenis kendaraan
@@ -798,9 +845,11 @@ namespace TiketLaut.Views
                 // Hide jika pejalan kaki (0) atau sepeda (1) - tidak perlu plat nomor
                 bool shouldShow = _searchCriteria.JenisKendaraanId > 1;
                 vehicleSection.Visibility = shouldShow ? Visibility.Visible : Visibility.Collapsed;
+                System.Diagnostics.Debug.WriteLine($"Vehicle section visibility: {vehicleSection.Visibility} (JenisKendaraanId: {_searchCriteria.JenisKendaraanId})");
             }
             else
             {
+                System.Diagnostics.Debug.WriteLine("vehicleSection not found!");
             }
 
             // Update price breakdown texts
@@ -815,6 +864,8 @@ namespace TiketLaut.Views
             {
                 // Parse harga dari schedule
                 string priceText = _selectedSchedule.Price;
+                System.Diagnostics.Debug.WriteLine($"[BookingDetailWindow] UpdatePriceDetails with price: {priceText}");
+
                 // Update semua tampilan harga
                 UpdateAllPriceDisplays(priceText);
 
@@ -824,6 +875,7 @@ namespace TiketLaut.Views
             }
             catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine($"[BookingDetailWindow] Error updating price: {ex.Message}");
             }
         }
 
@@ -1579,6 +1631,11 @@ namespace TiketLaut.Views
                         };
 
                         bookingData.DataPenumpang.Add(penumpangData);
+                        
+                        System.Diagnostics.Debug.WriteLine($"[BookingDetailWindow] Penumpang {i}:");
+                        System.Diagnostics.Debug.WriteLine($"  Nama: {penumpangData.Nama}");
+                        System.Diagnostics.Debug.WriteLine($"  Jenis Kelamin: {penumpangData.JenisKelamin}");
+                        System.Diagnostics.Debug.WriteLine($"  Jenis Identitas: {penumpangData.JenisIdentitas}");
                     }
                 }
 
@@ -1654,12 +1711,17 @@ namespace TiketLaut.Views
                                         };
 
                                         bookingData.DataPenumpang.Add(penumpangData);
+                                        
+                                        System.Diagnostics.Debug.WriteLine($"[BookingDetailWindow] Penumpang tambahan {passengerIndex}:");
+                                        System.Diagnostics.Debug.WriteLine($"  Nama: {penumpangData.Nama}");
+                                        System.Diagnostics.Debug.WriteLine($"  Jenis Kelamin: {penumpangData.JenisKelamin}");
                                     }
                                 }
                             }
                         }
                         catch (Exception ex)
                         {
+                            System.Diagnostics.Debug.WriteLine($"[BookingDetailWindow] Error reading dynamic passenger form: {ex.Message}");
                         }
                     }
                 }
@@ -1694,10 +1756,12 @@ namespace TiketLaut.Views
                         jadwalId: tiket.jadwal_id,
                         tiketId: tiket.tiket_id
                     );
+                    System.Diagnostics.Debug.WriteLine("[BookingDetailWindow] Notifikasi 'Segera Bayar' terkirim.");
                 }
-                catch (Exception ex)
+                catch (Exception exNotif)
                 {
                     // Jangan gagalkan booking hanya karena notif gagal
+                    System.Diagnostics.Debug.WriteLine($"[BookingDetailWindow] GAGAL kirim notifikasi: {exNotif.Message}");
                 }
 
                 CustomDialog.ShowSuccess(
@@ -1719,6 +1783,8 @@ namespace TiketLaut.Views
                 CustomDialog.ShowError(
                     "Error",
                     $"❌ Terjadi kesalahan saat memproses booking:\n\n{ex.Message}");
+
+                System.Diagnostics.Debug.WriteLine($"[BookingDetailWindow] Error: {ex.Message}\n{ex.StackTrace}");
             }
             finally
             {
@@ -1732,14 +1798,18 @@ namespace TiketLaut.Views
         /// </summary>
         private void ChkSamaDenganPemesan_Checked(object sender, RoutedEventArgs e)
         {
+            System.Diagnostics.Debug.WriteLine($"[CHECKED] IsTogglingProgrammatically: {_isTogglingProgrammatically}");
+
             if (_isTogglingProgrammatically)
             {
+                System.Diagnostics.Debug.WriteLine("[CHECKED] SKIP - Programmatic");
                 return;
             }
 
             // Validasi 1: Pastikan detail pemesan sudah diisi
             if (string.IsNullOrWhiteSpace(txtNamaPemesan?.Text) || IsPlaceholderText(txtNamaPemesan))
             {
+                System.Diagnostics.Debug.WriteLine("[CHECKED] Validation FAILED - Nama kosong");
                 CustomDialog.ShowWarning("Perhatian", "Silakan isi Detail Pemesan terlebih dahulu!");
 
                 Dispatcher.BeginInvoke(new Action(() =>
@@ -1760,6 +1830,7 @@ namespace TiketLaut.Views
 
             if (rbTuan?.IsChecked != true && rbNyonya?.IsChecked != true && rbNona?.IsChecked != true)
             {
+                System.Diagnostics.Debug.WriteLine("[CHECKED] Validation FAILED - Gender not selected");
                 CustomDialog.ShowWarning("Perhatian", "Silakan pilih jenis kelamin (Tuan/Nyonya/Nona) pada Detail Pemesan terlebih dahulu!");
 
                 Dispatcher.BeginInvoke(new Action(() =>
@@ -1771,6 +1842,9 @@ namespace TiketLaut.Views
 
                 return;
             }
+
+            System.Diagnostics.Debug.WriteLine("[CHECKED] Validation PASSED - will auto-fill");
+
             // --- Proses Auto-Fill (Kode Anda sudah benar) ---
             // Copy NAMA
             if (txtNamaPassenger1 != null && !string.IsNullOrWhiteSpace(txtNamaPemesan?.Text))
@@ -1826,6 +1900,7 @@ namespace TiketLaut.Views
                     Dispatcher.BeginInvoke(new Action(() =>
                     {
                         txtIdPassenger1.Focus();
+                        System.Diagnostics.Debug.WriteLine("[CHECKED] Scrolled and focused to NIK field");
                     }), System.Windows.Threading.DispatcherPriority.Input);
                 }
             }), System.Windows.Threading.DispatcherPriority.Background);
@@ -1837,14 +1912,18 @@ namespace TiketLaut.Views
         /// </summary>
         private void ChkSamaDenganPemesan_Unchecked(object sender, RoutedEventArgs e)
         {
+            System.Diagnostics.Debug.WriteLine($"[UNCHECKED] IsTogglingProgrammatically: {_isTogglingProgrammatically}, IsChecked: {chkSamaDenganPemesan?.IsChecked}");
             
             // Skip HANYA jika ini adalah programmatic toggle dari validasi gagal
             if (_isTogglingProgrammatically)
             {
+                System.Diagnostics.Debug.WriteLine("[UNCHECKED] SKIP - Programmatic");
                 return;
             }
 
             // User manually unchecked - clear semua auto-filled data
+            System.Diagnostics.Debug.WriteLine("[UNCHECKED] User manual uncheck - CLEARING DATA");
+
             // Clear dan enable kembali field nama penumpang 1
             if (txtNamaPassenger1 != null)
             {
