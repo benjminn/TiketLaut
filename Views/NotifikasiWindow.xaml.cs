@@ -8,8 +8,8 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using TiketLaut.Services;
 using TiketLaut.Views.Components;
-using System.Text.RegularExpressions; // Diperlukan untuk teks bold
-using TiketLaut.Models; // Diperlukan untuk referensi class Notifikasi
+using System.Text.RegularExpressions;
+using TiketLaut.Models;
 
 namespace TiketLaut.Views
 {
@@ -49,6 +49,9 @@ namespace TiketLaut.Views
 
                 var data = await _service.GetNotifikasiByPenggunaIdAsync(_userId);
 
+                // ✅ DEBUGGING: Cek jumlah data yang di-fetch
+                System.Diagnostics.Debug.WriteLine($"[LOAD DATA] Total notifikasi dari database: {data?.Count ?? 0}");
+
                 if (data == null || !data.Any())
                 {
                     ShowEmpty();
@@ -56,17 +59,23 @@ namespace TiketLaut.Views
                 }
 
                 var sorted = data.OrderByDescending(n => n.waktu_kirim).ToList();
+
+                // ✅ DEBUGGING: Tampilkan semua notifikasi yang akan di-render
+                foreach (var notif in sorted)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[LOAD DATA] ID: {notif.notifikasi_id}, Judul: {notif.judul_notifikasi}, Status Baca: {notif.status_baca}, Jenis: {notif.jenis_notifikasi}");
+                }
+
                 for (int i = 0; i < sorted.Count; i++)
                 {
                     AddItem(sorted[i]);
                     if (i < sorted.Count - 1)
                     {
-                        // Menggunakan style separator dari XAML
                         notificationList.Children.Add(new Rectangle { Style = (Style)FindResource("SeparatorStyle") });
                     }
                 }
 
-                await _service.MarkAllAsReadAsync(_userId);
+                System.Diagnostics.Debug.WriteLine($"[LOAD DATA] Total notifikasi yang di-render: {notificationList.Children.Count / 2 + 1}"); // Dibagi 2 karena ada separator
             }
             catch (Exception ex)
             {
@@ -82,16 +91,30 @@ namespace TiketLaut.Views
             notificationList.Children.Add(panel);
         }
 
-        // --- INI ADALAH AddItem DARI KODE ASLI ANDA ---
-        // (Layout ini sudah benar sesuai keinginan Anda)
         private void AddItem(Notifikasi n)
         {
-            var grid = new Grid();
+            System.Diagnostics.Debug.WriteLine($"Notifikasi ID: {n.notifikasi_id}, Status Baca: {n.status_baca}");
+
+            var cardBorder = new Border
+            {
+                Background = n.status_baca
+                    ? Brushes.White
+                    : new SolidColorBrush(Color.FromRgb(226, 247, 255)),
+                CornerRadius = new CornerRadius(0),
+                Padding = new Thickness(40, 20, 40, 20),
+                Margin = new Thickness(0),
+                Cursor = System.Windows.Input.Cursors.Hand,
+                HorizontalAlignment = HorizontalAlignment.Stretch
+            };
+
+            var grid = new Grid
+            {
+                Margin = new Thickness(0)
+            };
             grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
             grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(15) });
             grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
 
-            // Ikon generik kiri
             var icon = new Image { Source = new BitmapImage(new Uri("pack://application:,,,/Views/Assets/Icons/iconNotifikasi.png")), Width = 24, Height = 24, VerticalAlignment = VerticalAlignment.Top };
             Grid.SetColumn(icon, 0);
             grid.Children.Add(icon);
@@ -101,32 +124,167 @@ namespace TiketLaut.Views
 
             var titlePanel = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 0, 0, 4) };
 
-            // Ikon kategori
             var catIcon = new Image { Source = new BitmapImage(new Uri($"pack://application:,,,/Views/Assets/Icons/{GetIcon(n.jenis_notifikasi)}")), Width = 22, Height = 22, Margin = new Thickness(0, 0, 8, 0) };
             titlePanel.Children.Add(catIcon);
 
-            // Judul dan Timestamp
             var title = new TextBlock { FontSize = 18, FontWeight = FontWeights.SemiBold, Foreground = Brushes.Black, TextWrapping = TextWrapping.Wrap };
             title.Inlines.Add(new Run(n.judul_notifikasi));
-            title.Inlines.Add(new Run(" · ") { Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#00B4B5")) }); // Warna disesuaikan
-            title.Inlines.Add(new Run(n.waktu_kirim.ToString("d MMMM")) { Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#00B4B5")) }); // Warna disesuaikan
+            title.Inlines.Add(new Run(" · ") { Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#00B4B5")) });
+            title.Inlines.Add(new Run(n.waktu_kirim.ToString("d MMMM")) { Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#00B4B5")) });
             titlePanel.Children.Add(title);
             stack.Children.Add(titlePanel);
 
-            // --- [INI BAGIAN YANG DIPERBAIKI] ---
-            // Kita ganti TextBlock biasa dengan helper baru untuk teks bold
             string bodyText = GetDetail(n.pesan);
             TextBlock detail = BuildFormattedDetail(bodyText);
-            // --- AKHIR PERBAIKAN ---
-
             stack.Children.Add(detail);
 
             grid.Children.Add(stack);
-            notificationList.Children.Add(grid);
+            cardBorder.Child = grid;
+
+            cardBorder.MouseLeftButtonDown += async (s, e) =>
+            {
+                if (!n.status_baca)
+                {
+                    var success = await _service.MarkAsReadAsync(n.notifikasi_id);
+                    System.Diagnostics.Debug.WriteLine($"Mark as read {n.notifikasi_id}: {success}");
+                }
+
+                await HandleNotificationClick(n);
+            };
+
+            notificationList.Children.Add(cardBorder);
         }
 
-        // --- [MODIFIKASI TOTAL PADA BuildFormattedDetail] ---
-        // Mengganti Regex.Split dengan Regex.Matches untuk memperbaiki bug duplikasi
+        // ✅ GANTI MessageBox jadi CustomDialog
+        // ✅ LOGIC BARU: Redirect berdasarkan status pembayaran yang spesifik
+        private async System.Threading.Tasks.Task HandleNotificationClick(Notifikasi n)
+        {
+            string redirectMessage = "";
+            Action redirectAction = null;
+
+            // Cek judul notifikasi untuk menentukan status
+            string judulLower = n.judul_notifikasi?.ToLower() ?? "";
+            string jenisLower = n.jenis_notifikasi?.ToLower() ?? "";
+
+            // ✅ PRIORITAS 1: Cek berdasarkan JENIS dulu, baru judul
+            if (jenisLower == "pengingat")
+            {
+                // Semua notifikasi dengan jenis "pengingat" -> Redirect ke TiketDetailWindow
+                redirectMessage = "Lihat detail tiket Anda?";
+                redirectAction = () =>
+                {
+                    if (n.tiket_id.HasValue && n.tiket_id.Value > 0)
+                    {
+                        try
+                        {
+                            var tiketDetailWindow = new TiketDetailWindow(n.tiket_id.Value);
+                            tiketDetailWindow.Show();
+                            this.Close();
+                        }
+                        catch (Exception ex)
+                        {
+                            CustomDialog.ShowError("Error", $"Gagal membuka detail tiket: {ex.Message}");
+                        }
+                    }
+                    else
+                    {
+                        CustomDialog.ShowError("Error", "Data tiket tidak ditemukan.");
+                    }
+                };
+            }
+            else if (judulLower.Contains("konfirmasi pembayaran") || judulLower.Contains("segera melakukan"))
+            {
+                // 1. Menunggu pembayaran -> Redirect ke PaymentWindow
+                redirectMessage = "Menuju halaman pembayaran?";
+                redirectAction = () =>
+                {
+                    var paymentWindow = new PaymentWindow();
+                    paymentWindow.Show();
+                    this.Close();
+                };
+            }
+            else if (judulLower.Contains("menunggu validasi") || judulLower.Contains("diverifikasi"))
+            {
+                // 2. Menunggu validasi -> Redirect ke Cek Booking
+                redirectMessage = "Menuju halaman Cek Booking?";
+                redirectAction = () =>
+                {
+                    var cekBookingWindow = new CekBookingWindow();
+                    cekBookingWindow.Show();
+                    this.Close();
+                };
+            }
+            else if (judulLower.Contains("berhasil dikonfirmasi") || judulLower.Contains("berhasil divalidasi") || judulLower.Contains("tiket anda sudah aktif"))
+            {
+                // 3. Pembayaran berhasil divalidasi -> Redirect ke TiketDetailWindow
+                redirectMessage = "Lihat detail tiket Anda?";
+                redirectAction = () =>
+                {
+                    if (n.tiket_id.HasValue && n.tiket_id.Value > 0)
+                    {
+                        try
+                        {
+                            var tiketDetailWindow = new TiketDetailWindow(n.tiket_id.Value);
+                            tiketDetailWindow.Show();
+                            this.Close();
+                        }
+                        catch (Exception ex)
+                        {
+                            CustomDialog.ShowError("Error", $"Gagal membuka detail tiket: {ex.Message}");
+                        }
+                    }
+                    else
+                    {
+                        CustomDialog.ShowError("Error", "Data tiket tidak ditemukan.");
+                    }
+                };
+            }
+            else if (judulLower.Contains("pembatalan") || judulLower.Contains("dibatalkan") || jenisLower == "pembatalan")
+            {
+                // 5. Pembatalan -> Redirect ke History
+                redirectMessage = "Lihat riwayat pemesanan?";
+                redirectAction = () =>
+                {
+                    var historyWindow = new HistoryWindow();
+                    historyWindow.Show();
+                    this.Close();
+                };
+            }
+            else if (jenisLower == "pemberitahuan" || jenisLower == "pembayaran")
+            {
+                // 6. Pemberitahuan/Pembayaran lainnya -> Redirect ke Cek Booking
+                redirectMessage = "Menuju halaman Cek Booking?";
+                redirectAction = () =>
+                {
+                    var cekBookingWindow = new CekBookingWindow();
+                    cekBookingWindow.Show();
+                    this.Close();
+                };
+            }
+            else
+            {
+                // Default: Hanya mark as read, tidak redirect
+                await LoadData();
+                return;
+            }
+
+            // Show confirmation dialog
+            if (redirectAction != null)
+            {
+                var result = CustomDialog.ShowQuestion("Konfirmasi", redirectMessage, CustomDialog.DialogButtons.YesNo);
+
+                if (result == true)
+                {
+                    redirectAction.Invoke();
+                }
+                else
+                {
+                    // Tetap reload untuk update warna
+                    await LoadData();
+                }
+            }
+        }
+
         private TextBlock BuildFormattedDetail(string bodyText)
         {
             var textBlock = new TextBlock
@@ -134,41 +292,33 @@ namespace TiketLaut.Views
                 FontSize = 18,
                 Foreground = Brushes.Black,
                 TextWrapping = TextWrapping.Wrap,
-                LineHeight = 26 // Memberi sedikit spasi antar baris
+                LineHeight = 26
             };
 
-            // Pola regex untuk menemukan kata-kata yang ingin di-bold
-            string pattern = @"(#[A-Z0-9-]+" + // Kode Tiket/Booking (cth: #TKT-123)
-                             @"|\b[A-Za-z ]+ - [A-Za-z ]+\b" + // Rute (cth: Merak - Bakauheni)
-                             @"|\b\d{1,2} \w+ \d{4} pukul \d{2}:\d{2}\b" + // Tgl & Jam (cth: 8 November 2025 pukul 08:00)
-                             @"|\b\d{2}:\d{2} WIB \([^)]+\)\b" + // Jam & Delay (cth: 10:30 WIB (delay 1.5 jam))
-                             @"|\b\d{2}:\d{2} WIB\b" + // Jam saja (cth: 14:00 WIB)
-                             @"|\b1x24 jam\b" + // Teks spesifik
-                             @"|\b2 jam\b" + // Teks spesifik
-                             @"|\b24 jam\b" + // Teks spesifik
+            string pattern = @"(#[A-Z0-9-]+" +
+                             @"|\b[A-Za-z ]+ - [A-Za-z ]+\b" +
+                             @"|\b\d{1,2} \w+ \d{4} pukul \d{2}:\d{2}\b" +
+                             @"|\b\d{2}:\d{2} WIB \([^)]+\)\b" +
+                             @"|\b\d{2}:\d{2} WIB\b" +
+                             @"|\b1x24 jam\b" +
+                             @"|\b2 jam\b" +
+                             @"|\b24 jam\b" +
                              @")";
 
-            // Menggunakan Regex.Matches untuk menemukan semua kecocokan
             var matches = Regex.Matches(bodyText, pattern, RegexOptions.IgnoreCase);
-
             int lastIndex = 0;
 
             foreach (Match match in matches)
             {
-                // 1. Tambahkan teks BIASA sebelum kata kunci
                 if (match.Index > lastIndex)
                 {
                     textBlock.Inlines.Add(new Run(bodyText.Substring(lastIndex, match.Index - lastIndex)));
                 }
 
-                // 2. Tambahkan teks BOLD (kata kunci)
                 textBlock.Inlines.Add(new Run(match.Value) { FontWeight = FontWeights.Bold });
-
-                // 3. Update indeks terakhir
                 lastIndex = match.Index + match.Length;
             }
 
-            // 4. Tambahkan sisa teks BIASA setelah kata kunci terakhir
             if (lastIndex < bodyText.Length)
             {
                 textBlock.Inlines.Add(new Run(bodyText.Substring(lastIndex)));
@@ -177,66 +327,27 @@ namespace TiketLaut.Views
             return textBlock;
         }
 
-
-        // --- [KODE ASLI ANDA] ---
-        // (Tidak diubah, sudah benar)
         private string GetIcon(string jenisNotifikasi)
         {
-            // Deteksi icon berdasarkan jenis_notifikasi field
             return jenisNotifikasi.ToLower() switch
             {
-                "pembayaran" => "iconPaymentNotif.png",    // pembayaran
-                "pengingat" => "iconTimerNotif.png",        // countdown/pengingat
-                "pemberitahuan" => "iconDangerNotif.png",   // warning/pemberitahuan
-                "pembatalan" => "iconGagalNotif.png",      // pembatalan
-                "umum" => "iconTaskNotif.png",           // tips/pengumuman
-                _ => "iconNotifikasi.png"                 // default
+                "pembayaran" => "iconPaymentNotif.png",
+                "pengingat" => "iconTimerNotif.png",
+                "pemberitahuan" => "iconDangerNotif.png",
+                "pembatalan" => "iconGagalNotif.png",
+                "umum" => "iconTaskNotif.png",
+                _ => "iconNotifikasi.png"
             };
         }
 
-        // --- [KODE ASLI ANDA] ---
-        // Method GetTitle tidak terpakai tapi kita biarkan saja
-        private string GetTitle(Notifikasi n)
-        {
-            var lines = n.pesan.Split(new[] { "\n\n" }, StringSplitOptions.None);
-            if (lines.Length > 0)
-            {
-                var first = lines[0].Trim();
-                var parts = first.Split(new[] { "  " }, StringSplitOptions.RemoveEmptyEntries);
-                return parts.Length > 1 ? parts[1].Trim() : first;
-            }
-            return "Notifikasi";
-        }
-
-        // --- [KODE ASLI ANDA] ---
-        // (Sudah benar)
         private string GetDetail(string pesan)
         {
             var lines = pesan.Split(new[] { "\n\n" }, StringSplitOptions.None);
-
-            // Jika formatnya benar (Judul\n\nIsi), ambil bagian Isi
             if (lines.Length >= 2)
             {
                 return lines[1].Trim();
             }
-
-            // Fallback jika tidak ada format \n\n (cth: notif manual lama)
             return pesan;
         }
-
-        // Method GetTitle sudah tidak diperlukan lagi, Anda bisa menghapusnya
-        /*
-        private string GetTitle(Notifikasi n)
-        {
-            var lines = n.pesan.Split(new[] { "\n\n" }, StringSplitOptions.None);
-            if (lines.Length > 0)
-            {
-                var first = lines[0].Trim();
-                var parts = first.Split(new[] { "  " }, StringSplitOptions.RemoveEmptyEntries);
-                return parts.Length > 1 ? parts[1].Trim() : first;
-            }
-            return "Notifikasi";
-        }
-        */
     }
 }

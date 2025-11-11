@@ -2,7 +2,7 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:components="clr-namespace:TiketLaut.Views.Components"
-        Title="Pilih Metode Pembayaran - Tiket Laut" 
+        Title="Pilih Metode Pembayaran - Tiket Laut"
         MinHeight="800"
         MinWidth="1400"
         WindowState="Maximized"
@@ -13,31 +13,42 @@
 
     <Window.Resources>
         <!-- Custom RadioButton Style -->
-        <Style x:Key="CustomRadioButton" TargetType="RadioButton">
-            <Setter Property="FontSize" Value="16"/>
-            <Setter Property="FontWeight" Value="Medium"/>
-            <Setter Property="Foreground" Value="#042769"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Style x:Key="CustomRadioButton"
+               TargetType="RadioButton">
+            <Setter Property="FontSize"
+                    Value="16"/>
+            <Setter Property="FontWeight"
+                    Value="Medium"/>
+            <Setter Property="Foreground"
+                    Value="#042769"/>
+            <Setter Property="VerticalContentAlignment"
+                    Value="Center"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="RadioButton">
                         <StackPanel Orientation="Horizontal">
-                            <Grid Width="20" Height="20" VerticalAlignment="Top" Margin="0,2,8,0">
-                                <Ellipse x:Name="OuterCircle" 
-                                         Stroke="#00658D" 
-                                         StrokeThickness="2" 
+                            <Grid Width="20"
+                                  Height="20"
+                                  VerticalAlignment="Top"
+                                  Margin="0,2,8,0">
+                                <Ellipse x:Name="OuterCircle"
+                                         Stroke="#00658D"
+                                         StrokeThickness="2"
                                          Fill="Transparent"/>
-                                <Ellipse x:Name="InnerCircle" 
-                                         Width="10" 
-                                         Height="10" 
-                                         Fill="#00658D" 
+                                <Ellipse x:Name="InnerCircle"
+                                         Width="10"
+                                         Height="10"
+                                         Fill="#00658D"
                                          Visibility="Collapsed"/>
                             </Grid>
                             <ContentPresenter VerticalAlignment="Top"/>
                         </StackPanel>
                         <ControlTemplate.Triggers>
-                            <Trigger Property="IsChecked" Value="True">
-                                <Setter TargetName="InnerCircle" Property="Visibility" Value="Visible"/>
+                            <Trigger Property="IsChecked"
+                                     Value="True">
+                                <Setter TargetName="InnerCircle"
+                                        Property="Visibility"
+                                        Value="Visible"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -46,29 +57,41 @@
         </Style>
 
         <!-- Custom RadioButton Style untuk Header -->
-        <Style x:Key="HeaderRadioButton" TargetType="RadioButton" BasedOn="{StaticResource CustomRadioButton}">
+        <Style x:Key="HeaderRadioButton"
+               TargetType="RadioButton"
+               BasedOn="{StaticResource CustomRadioButton}">
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="RadioButton">
                         <StackPanel Orientation="Horizontal">
-                            <Grid Width="20" Height="20" VerticalAlignment="Top" Margin="0,2,8,0">
-                                <Ellipse x:Name="OuterCircle" 
-                                         Stroke="#00658D" 
-                                         StrokeThickness="2" 
+                            <Grid Width="20"
+                                  Height="20"
+                                  VerticalAlignment="Top"
+                                  Margin="0,2,8,0">
+                                <Ellipse x:Name="OuterCircle"
+                                         Stroke="#00658D"
+                                         StrokeThickness="2"
                                          Fill="Transparent"/>
-                                <Ellipse x:Name="InnerCircle" 
-                                         Width="10" 
-                                         Height="10" 
-                                         Fill="#00658D" 
+                                <Ellipse x:Name="InnerCircle"
+                                         Width="10"
+                                         Height="10"
+                                         Fill="#00658D"
                                          Visibility="Collapsed"/>
                             </Grid>
                             <ContentPresenter VerticalAlignment="Top"/>
                         </StackPanel>
                         <ControlTemplate.Triggers>
-                            <Trigger Property="IsChecked" Value="True">
-                                <Setter TargetName="InnerCircle" Property="Visibility" Value="Visible"/>
-                                <Setter TargetName="OuterCircle" Property="Stroke" Value="#267DAE"/>
-                                <Setter TargetName="OuterCircle" Property="StrokeThickness" Value="3"/>
+                            <Trigger Property="IsChecked"
+                                     Value="True">
+                                <Setter TargetName="InnerCircle"
+                                        Property="Visibility"
+                                        Value="Visible"/>
+                                <Setter TargetName="OuterCircle"
+                                        Property="Stroke"
+                                        Value="#267DAE"/>
+                                <Setter TargetName="OuterCircle"
+                                        Property="StrokeThickness"
+                                        Value="3"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -77,19 +100,25 @@
         </Style>
 
         <!-- Button Style (Rounded) -->
-        <Style x:Key="RoundedButtonStyle" TargetType="Button">
-            <Setter Property="Background" Value="#2563EB"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="FontSize" Value="16"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Cursor" Value="Hand"/>
+        <Style x:Key="RoundedButtonStyle"
+               TargetType="Button">
+            <Setter Property="Background"
+                    Value="#2563EB"/>
+            <Setter Property="Foreground"
+                    Value="White"/>
+            <Setter Property="FontSize"
+                    Value="16"/>
+            <Setter Property="FontWeight"
+                    Value="Bold"/>
+            <Setter Property="Cursor"
+                    Value="Hand"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}" 
-                                CornerRadius="15" 
+                        <Border Background="{TemplateBinding Background}"
+                                CornerRadius="15"
                                 BorderThickness="0">
-                            <ContentPresenter HorizontalAlignment="Center" 
+                            <ContentPresenter HorizontalAlignment="Center"
                                               VerticalAlignment="Center"
                                               Margin="8"/>
                         </Border>
@@ -97,26 +126,34 @@
                 </Setter.Value>
             </Setter>
             <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#1d4ed8"/>
+                <Trigger Property="IsMouseOver"
+                         Value="True">
+                    <Setter Property="Background"
+                            Value="#1d4ed8"/>
                 </Trigger>
             </Style.Triggers>
         </Style>
 
         <!-- Secondary Button Style (Grey) -->
-        <Style x:Key="SecondaryButtonStyle" TargetType="Button">
-            <Setter Property="Background" Value="#E5E7EB"/>
-            <Setter Property="Foreground" Value="#267DAE"/>
-            <Setter Property="FontSize" Value="16"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Cursor" Value="Hand"/>
+        <Style x:Key="SecondaryButtonStyle"
+               TargetType="Button">
+            <Setter Property="Background"
+                    Value="#E5E7EB"/>
+            <Setter Property="Foreground"
+                    Value="#267DAE"/>
+            <Setter Property="FontSize"
+                    Value="16"/>
+            <Setter Property="FontWeight"
+                    Value="Bold"/>
+            <Setter Property="Cursor"
+                    Value="Hand"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}" 
-                                CornerRadius="15" 
+                        <Border Background="{TemplateBinding Background}"
+                                CornerRadius="15"
                                 BorderThickness="0">
-                            <ContentPresenter HorizontalAlignment="Center" 
+                            <ContentPresenter HorizontalAlignment="Center"
                                               VerticalAlignment="Center"
                                               Margin="8"/>
                         </Border>
@@ -124,37 +161,57 @@
                 </Setter.Value>
             </Setter>
             <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#D1D5DB"/>
+                <Trigger Property="IsMouseOver"
+                         Value="True">
+                    <Setter Property="Background"
+                            Value="#D1D5DB"/>
                 </Trigger>
             </Style.Triggers>
         </Style>
 
         <!-- Copy Button Style -->
-        <Style x:Key="CopyButtonStyle" TargetType="Button">
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Cursor" Value="Hand"/>
+        <Style x:Key="CopyButtonStyle"
+               TargetType="Button">
+            <Setter Property="Background"
+                    Value="Transparent"/>
+            <Setter Property="BorderThickness"
+                    Value="0"/>
+            <Setter Property="Cursor"
+                    Value="Hand"/>
+            <Setter Property="Padding"
+                    Value="5"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}" 
+                        <Border Background="{TemplateBinding Background}"
                                 BorderThickness="0"
-                                Padding="5">
-                            <ContentPresenter HorizontalAlignment="Center" 
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center"
                                               VerticalAlignment="Center"/>
                         </Border>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver"
+                         Value="True">
+                    <Setter Property="Opacity"
+                            Value="0.7"/>
+                </Trigger>
+            </Style.Triggers>
         </Style>
-        
+
         <!-- Style untuk Floating Label (dari BookingDetailWindow) -->
-        <Style x:Key="FloatingLabelTextBox" TargetType="Border">
-            <Setter Property="BorderBrush" Value="#E2E8F0"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="CornerRadius" Value="12"/>
-            <Setter Property="Background" Value="White"/>
+        <Style x:Key="FloatingLabelTextBox"
+               TargetType="Border">
+            <Setter Property="BorderBrush"
+                    Value="#E2E8F0"/>
+            <Setter Property="BorderThickness"
+                    Value="1"/>
+            <Setter Property="CornerRadius"
+                    Value="12"/>
+            <Setter Property="Background"
+                    Value="White"/>
         </Style>
 
     </Window.Resources>
@@ -169,7 +226,7 @@
         <components:NavbarSelainHomepage Grid.Row="0"/>
 
         <!-- Main Content -->
-        <ScrollViewer Grid.Row="1" 
+        <ScrollViewer Grid.Row="1"
                       VerticalScrollBarVisibility="Auto"
                       HorizontalScrollBarVisibility="Disabled">
             <StackPanel Margin="55,30,55,30">
@@ -196,9 +253,12 @@
 
                 <Grid x:Name="MainContentGrid">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="1.9*" MinWidth="500"/>
-                        <ColumnDefinition Width="0.1*" MinWidth="20"/>
-                        <ColumnDefinition Width="1*" MinWidth="350"/>
+                        <ColumnDefinition Width="1.9*"
+                                          MinWidth="500"/>
+                        <ColumnDefinition Width="0.1*"
+                                          MinWidth="20"/>
+                        <ColumnDefinition Width="1*"
+                                          MinWidth="350"/>
                     </Grid.ColumnDefinitions>
 
                     <!-- Left Section - Payment Methods/Instructions -->
@@ -206,18 +266,18 @@
 
                         <!-- Deadline Card -->
                         <Border x:Name="DeadlineCard"
-                            Background="White" 
-                            CornerRadius="20" 
-                            Padding="25,20"
-                            BorderBrush="#267DAE" 
-                            BorderThickness="2"
-                            Margin="0,0,0,20">
+                                Background="White"
+                                CornerRadius="20"
+                                Padding="25,20"
+                                BorderBrush="#267DAE"
+                                BorderThickness="2"
+                                Margin="0,0,0,20">
                             <Border.Effect>
-                                <DropShadowEffect Color="#000000" 
-                                    Direction="270" 
-                                    ShadowDepth="9" 
-                                    BlurRadius="10.9" 
-                                    Opacity="0.06"/>
+                                <DropShadowEffect Color="#000000"
+                                                  Direction="270"
+                                                  ShadowDepth="9"
+                                                  BlurRadius="10.9"
+                                                  Opacity="0.06"/>
                             </Border.Effect>
                             <Grid>
                                 <Grid.ColumnDefinitions>
@@ -226,37 +286,37 @@
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
                                 <TextBlock Grid.Column="0"
-                                   Text="Selesaikan pembayaran sebelum"
-                                   FontSize="16"
-                                   FontWeight="Medium"
-                                   Foreground="#042769"
-                                   VerticalAlignment="Center"
-                                   TextWrapping="Wrap"
-                                   Margin="0,0,10,0"/>
+                                           Text="Selesaikan pembayaran sebelum"
+                                           FontSize="16"
+                                           FontWeight="Medium"
+                                           Foreground="#042769"
+                                           VerticalAlignment="Center"
+                                           TextWrapping="Wrap"
+                                           Margin="0,0,10,0"/>
                                 <TextBlock Grid.Column="2"
-                                   x:Name="txtDeadlineTime"
-                                   Text=" "
-                                   FontSize="16"
-                                   FontWeight="Bold"
-                                   Foreground="#042769"
-                                   VerticalAlignment="Center"
-                                   TextWrapping="Wrap"/>
+                                           x:Name="txtDeadlineTime"
+                                           Text=" "
+                                           FontSize="16"
+                                           FontWeight="Bold"
+                                           Foreground="#042769"
+                                           VerticalAlignment="Center"
+                                           TextWrapping="Wrap"/>
                             </Grid>
                         </Border>
 
                         <!-- Payment Methods Card (Initially Visible) -->
                         <Border x:Name="PaymentMethodsCard"
-                                Background="White" 
-                                CornerRadius="20" 
+                                Background="White"
+                                CornerRadius="20"
                                 Padding="25,20"
-                                BorderBrush="#267DAE" 
+                                BorderBrush="#267DAE"
                                 BorderThickness="2">
                             <Border.Effect>
-                                <DropShadowEffect Color="#000000" 
-                                    Direction="270" 
-                                    ShadowDepth="9" 
-                                    BlurRadius="10.9" 
-                                    Opacity="0.06"/>
+                                <DropShadowEffect Color="#000000"
+                                                  Direction="270"
+                                                  ShadowDepth="9"
+                                                  BlurRadius="10.9"
+                                                  Opacity="0.06"/>
                             </Border.Effect>
                             <StackPanel>
                                 <!-- Title -->
@@ -268,75 +328,125 @@
 
                                 <!-- Transfer Bank Section -->
                                 <StackPanel Margin="0,0,0,20">
-                                    <RadioButton x:Name="rbTransferBank" 
-                                               GroupName="PaymentMethodHeader"
-                                               IsHitTestVisible="False"
-                                               Style="{StaticResource HeaderRadioButton}"
-                                               Focusable="False"
-                                               Margin="0,0,0,12">
+                                    <RadioButton x:Name="rbTransferBank"
+                                                 GroupName="PaymentMethodHeader"
+                                                 IsHitTestVisible="False"
+                                                 Style="{StaticResource HeaderRadioButton}"
+                                                 Focusable="False"
+                                                 Margin="0,0,0,12">
                                         <TextBlock Text="Transfer Bank"
                                                    FontSize="20"
                                                    FontWeight="Medium"
                                                    Foreground="#042769"
                                                    TextWrapping="Wrap"/>
                                     </RadioButton>
-                                    <RadioButton x:Name="rbBCA" 
-                                               GroupName="PaymentMethod"
-                                               Tag="Transfer BCA"
-                                               Checked="PaymentMethod_Checked"
-                                               Unchecked="PaymentMethod_Unchecked"
-                                               Cursor="Hand"
-                                               Margin="32,0,0,12">
+                                    <RadioButton x:Name="rbBCA"
+                                                 GroupName="PaymentMethod"
+                                                 Tag="Transfer BCA"
+                                                 Checked="PaymentMethod_Checked"
+                                                 Unchecked="PaymentMethod_Unchecked"
+                                                 Cursor="Hand"
+                                                 Margin="32,0,0,12">
                                         <RadioButton.Template>
                                             <ControlTemplate TargetType="RadioButton">
-                                                <Border x:Name="PaymentBorder" Background="Transparent" BorderBrush="#E2E8F0" BorderThickness="2" CornerRadius="12" Padding="12,8">
+                                                <Border x:Name="PaymentBorder"
+                                                        Background="Transparent"
+                                                        BorderBrush="#E2E8F0"
+                                                        BorderThickness="2"
+                                                        CornerRadius="12"
+                                                        Padding="12,8">
                                                     <Grid>
                                                         <Grid.ColumnDefinitions>
                                                             <ColumnDefinition Width="Auto"/>
                                                             <ColumnDefinition Width="*"/>
                                                         </Grid.ColumnDefinitions>
-                                                        <Border Grid.Column="0" Width="70" Height="30" CornerRadius="8" BorderBrush="#E2E8F0" BorderThickness="0.5" Margin="0,0,12,0">
-                                                            <Image Source="/Views/Assets/Images/BCA.png" Stretch="Uniform"/>
+                                                        <Border Grid.Column="0"
+                                                                Width="70"
+                                                                Height="30"
+                                                                CornerRadius="8"
+                                                                BorderBrush="#E2E8F0"
+                                                                BorderThickness="0.5"
+                                                                Margin="0,0,12,0">
+                                                            <Image Source="/Views/Assets/Images/BCA.png"
+                                                                   Stretch="Uniform"/>
                                                         </Border>
-                                                        <TextBlock Grid.Column="1" Text="BCA Transfer" FontSize="16" FontWeight="Medium" Foreground="#042769" VerticalAlignment="Center" TextWrapping="Wrap"/>
+                                                        <TextBlock Grid.Column="1"
+                                                                   Text="BCA Transfer"
+                                                                   FontSize="16"
+                                                                   FontWeight="Medium"
+                                                                   Foreground="#042769"
+                                                                   VerticalAlignment="Center"
+                                                                   TextWrapping="Wrap"/>
                                                     </Grid>
                                                 </Border>
                                                 <ControlTemplate.Triggers>
-                                                    <Trigger Property="IsChecked" Value="True">
-                                                        <Setter TargetName="PaymentBorder" Property="BorderBrush" Value="#267DAE"/>
-                                                        <Setter TargetName="PaymentBorder" Property="BorderThickness" Value="3"/>
-                                                        <Setter TargetName="PaymentBorder" Property="Background" Value="#EFF6FF"/>
+                                                    <Trigger Property="IsChecked"
+                                                             Value="True">
+                                                        <Setter TargetName="PaymentBorder"
+                                                                Property="BorderBrush"
+                                                                Value="#267DAE"/>
+                                                        <Setter TargetName="PaymentBorder"
+                                                                Property="BorderThickness"
+                                                                Value="3"/>
+                                                        <Setter TargetName="PaymentBorder"
+                                                                Property="Background"
+                                                                Value="#EFF6FF"/>
                                                     </Trigger>
                                                 </ControlTemplate.Triggers>
                                             </ControlTemplate>
                                         </RadioButton.Template>
                                     </RadioButton>
-                                    <RadioButton x:Name="rbMandiri" 
-                                               GroupName="PaymentMethod"
-                                               Tag="Transfer Mandiri"
-                                               Checked="PaymentMethod_Checked"
-                                               Unchecked="PaymentMethod_Unchecked"
-                                               Cursor="Hand"
-                                               Margin="32,0,0,0">
+                                    <RadioButton x:Name="rbMandiri"
+                                                 GroupName="PaymentMethod"
+                                                 Tag="Transfer Mandiri"
+                                                 Checked="PaymentMethod_Checked"
+                                                 Unchecked="PaymentMethod_Unchecked"
+                                                 Cursor="Hand"
+                                                 Margin="32,0,0,0">
                                         <RadioButton.Template>
                                             <ControlTemplate TargetType="RadioButton">
-                                                <Border x:Name="PaymentBorder" Background="Transparent" BorderBrush="#E2E8F0" BorderThickness="2" CornerRadius="12" Padding="12,8">
+                                                <Border x:Name="PaymentBorder"
+                                                        Background="Transparent"
+                                                        BorderBrush="#E2E8F0"
+                                                        BorderThickness="2"
+                                                        CornerRadius="12"
+                                                        Padding="12,8">
                                                     <Grid>
                                                         <Grid.ColumnDefinitions>
                                                             <ColumnDefinition Width="Auto"/>
                                                             <ColumnDefinition Width="*"/>
                                                         </Grid.ColumnDefinitions>
-                                                        <Border Grid.Column="0" Width="70" Height="30" CornerRadius="8" BorderBrush="#E2E8F0" BorderThickness="0.5" Margin="0,0,12,0">
-                                                            <Image Source="/Views/Assets/Images/Mandiri.png" Stretch="Uniform"/>
+                                                        <Border Grid.Column="0"
+                                                                Width="70"
+                                                                Height="30"
+                                                                CornerRadius="8"
+                                                                BorderBrush="#E2E8F0"
+                                                                BorderThickness="0.5"
+                                                                Margin="0,0,12,0">
+                                                            <Image Source="/Views/Assets/Images/Mandiri.png"
+                                                                   Stretch="Uniform"/>
                                                         </Border>
-                                                        <TextBlock Grid.Column="1" Text="Mandiri Transfer" FontSize="16" FontWeight="Medium" Foreground="#042769" VerticalAlignment="Center" TextWrapping="Wrap"/>
+                                                        <TextBlock Grid.Column="1"
+                                                                   Text="Mandiri Transfer"
+                                                                   FontSize="16"
+                                                                   FontWeight="Medium"
+                                                                   Foreground="#042769"
+                                                                   VerticalAlignment="Center"
+                                                                   TextWrapping="Wrap"/>
                                                     </Grid>
                                                 </Border>
                                                 <ControlTemplate.Triggers>
-                                                    <Trigger Property="IsChecked" Value="True">
-                                                        <Setter TargetName="PaymentBorder" Property="BorderBrush" Value="#267DAE"/>
-                                                        <Setter TargetName="PaymentBorder" Property="BorderThickness" Value="3"/>
-                                                        <Setter TargetName="PaymentBorder" Property="Background" Value="#EFF6FF"/>
+                                                    <Trigger Property="IsChecked"
+                                                             Value="True">
+                                                        <Setter TargetName="PaymentBorder"
+                                                                Property="BorderBrush"
+                                                                Value="#267DAE"/>
+                                                        <Setter TargetName="PaymentBorder"
+                                                                Property="BorderThickness"
+                                                                Value="3"/>
+                                                        <Setter TargetName="PaymentBorder"
+                                                                Property="Background"
+                                                                Value="#EFF6FF"/>
                                                     </Trigger>
                                                 </ControlTemplate.Triggers>
                                             </ControlTemplate>
@@ -345,104 +455,170 @@
                                 </StackPanel>
 
                                 <!-- QRIS Section -->
-                                <RadioButton x:Name="rbQRIS" 
-                                           GroupName="PaymentMethod"
-                                           Tag="QRIS"
-                                           Checked="PaymentMethod_Checked"
-                                           Unchecked="PaymentMethod_Unchecked"
-                                           Cursor="Hand"
-                                           Margin="0,0,0,20">
-                                    <TextBlock Text="QRIS" FontSize="20" FontWeight="Medium" Foreground="#042769" TextWrapping="Wrap"/>
+                                <RadioButton x:Name="rbQRIS"
+                                             GroupName="PaymentMethod"
+                                             Tag="QRIS"
+                                             Checked="PaymentMethod_Checked"
+                                             Unchecked="PaymentMethod_Unchecked"
+                                             Cursor="Hand"
+                                             Margin="0,0,0,20">
+                                    <TextBlock Text="QRIS"
+                                               FontSize="20"
+                                               FontWeight="Medium"
+                                               Foreground="#042769"
+                                               TextWrapping="Wrap"/>
                                     <RadioButton.Style>
-                                        <Style TargetType="RadioButton" BasedOn="{StaticResource CustomRadioButton}">
-                                            <Setter Property="FontSize" Value="20"/>
+                                        <Style TargetType="RadioButton"
+                                               BasedOn="{StaticResource CustomRadioButton}">
+                                            <Setter Property="FontSize"
+                                                    Value="20"/>
                                         </Style>
                                     </RadioButton.Style>
                                 </RadioButton>
 
                                 <!-- Kartu Kredit/Debit Section -->
-                                <RadioButton x:Name="rbKartuKredit" 
-                                           GroupName="PaymentMethod"
-                                           Tag="Kartu Kredit"
-                                           Checked="PaymentMethod_Checked"
-                                           Unchecked="PaymentMethod_Unchecked"
-                                           Cursor="Hand"
-                                           Margin="0,0,0,20">
-                                    <TextBlock Text="Kartu Kredit/Debit" FontSize="20" FontWeight="Medium" Foreground="#042769" TextWrapping="Wrap"/>
+                                <RadioButton x:Name="rbKartuKredit"
+                                             GroupName="PaymentMethod"
+                                             Tag="Kartu Kredit"
+                                             Checked="PaymentMethod_Checked"
+                                             Unchecked="PaymentMethod_Unchecked"
+                                             Cursor="Hand"
+                                             Margin="0,0,0,20">
+                                    <TextBlock Text="Kartu Kredit/Debit"
+                                               FontSize="20"
+                                               FontWeight="Medium"
+                                               Foreground="#042769"
+                                               TextWrapping="Wrap"/>
                                     <RadioButton.Style>
-                                        <Style TargetType="RadioButton" BasedOn="{StaticResource CustomRadioButton}">
-                                            <Setter Property="FontSize" Value="20"/>
+                                        <Style TargetType="RadioButton"
+                                               BasedOn="{StaticResource CustomRadioButton}">
+                                            <Setter Property="FontSize"
+                                                    Value="20"/>
                                         </Style>
                                     </RadioButton.Style>
                                 </RadioButton>
 
                                 <!-- Gerai Retail Section -->
                                 <StackPanel>
-                                    <RadioButton x:Name="rbGeraiRetail" 
-                                               GroupName="PaymentMethodHeader"
-                                               IsHitTestVisible="False"
-                                               Style="{StaticResource HeaderRadioButton}"
-                                               Focusable="False"
-                                               Margin="0,0,0,12">
-                                        <TextBlock Text="Gerai Retail" FontSize="20" FontWeight="Medium" Foreground="#042769" TextWrapping="Wrap"/>
+                                    <RadioButton x:Name="rbGeraiRetail"
+                                                 GroupName="PaymentMethodHeader"
+                                                 IsHitTestVisible="False"
+                                                 Style="{StaticResource HeaderRadioButton}"
+                                                 Focusable="False"
+                                                 Margin="0,0,0,12">
+                                        <TextBlock Text="Gerai Retail"
+                                                   FontSize="20"
+                                                   FontWeight="Medium"
+                                                   Foreground="#042769"
+                                                   TextWrapping="Wrap"/>
                                     </RadioButton>
-                                    <RadioButton x:Name="rbIndomaret" 
-                                               GroupName="PaymentMethod"
-                                               Tag="Retail Indomaret"
-                                               Checked="PaymentMethod_Checked"
-                                               Unchecked="PaymentMethod_Unchecked"
-                                               Cursor="Hand"
-                                               Margin="32,0,0,12">
+                                    <RadioButton x:Name="rbIndomaret"
+                                                 GroupName="PaymentMethod"
+                                                 Tag="Retail Indomaret"
+                                                 Checked="PaymentMethod_Checked"
+                                                 Unchecked="PaymentMethod_Unchecked"
+                                                 Cursor="Hand"
+                                                 Margin="32,0,0,12">
                                         <RadioButton.Template>
                                             <ControlTemplate TargetType="RadioButton">
-                                                <Border x:Name="PaymentBorder" Background="Transparent" BorderBrush="#E2E8F0" BorderThickness="2" CornerRadius="12" Padding="12,8">
+                                                <Border x:Name="PaymentBorder"
+                                                        Background="Transparent"
+                                                        BorderBrush="#E2E8F0"
+                                                        BorderThickness="2"
+                                                        CornerRadius="12"
+                                                        Padding="12,8">
                                                     <Grid>
                                                         <Grid.ColumnDefinitions>
                                                             <ColumnDefinition Width="Auto"/>
                                                             <ColumnDefinition Width="*"/>
                                                         </Grid.ColumnDefinitions>
-                                                        <Border Grid.Column="0" Width="70" Height="30" CornerRadius="8" BorderBrush="#E2E8F0" BorderThickness="0.5" Margin="0,0,12,0">
-                                                            <Image Source="/Views/Assets/Images/Indomaret.png" Stretch="Uniform"/>
+                                                        <Border Grid.Column="0"
+                                                                Width="70"
+                                                                Height="30"
+                                                                CornerRadius="8"
+                                                                BorderBrush="#E2E8F0"
+                                                                BorderThickness="0.5"
+                                                                Margin="0,0,12,0">
+                                                            <Image Source="/Views/Assets/Images/Indomaret.png"
+                                                                   Stretch="Uniform"/>
                                                         </Border>
-                                                        <TextBlock Grid.Column="1" Text="Retail Indomaret" FontSize="16" FontWeight="Medium" Foreground="#042769" VerticalAlignment="Center" TextWrapping="Wrap"/>
+                                                        <TextBlock Grid.Column="1"
+                                                                   Text="Retail Indomaret"
+                                                                   FontSize="16"
+                                                                   FontWeight="Medium"
+                                                                   Foreground="#042769"
+                                                                   VerticalAlignment="Center"
+                                                                   TextWrapping="Wrap"/>
                                                     </Grid>
                                                 </Border>
                                                 <ControlTemplate.Triggers>
-                                                    <Trigger Property="IsChecked" Value="True">
-                                                        <Setter TargetName="PaymentBorder" Property="BorderBrush" Value="#267DAE"/>
-                                                        <Setter TargetName="PaymentBorder" Property="BorderThickness" Value="3"/>
-                                                        <Setter TargetName="PaymentBorder" Property="Background" Value="#EFF6FF"/>
+                                                    <Trigger Property="IsChecked"
+                                                             Value="True">
+                                                        <Setter TargetName="PaymentBorder"
+                                                                Property="BorderBrush"
+                                                                Value="#267DAE"/>
+                                                        <Setter TargetName="PaymentBorder"
+                                                                Property="BorderThickness"
+                                                                Value="3"/>
+                                                        <Setter TargetName="PaymentBorder"
+                                                                Property="Background"
+                                                                Value="#EFF6FF"/>
                                                     </Trigger>
                                                 </ControlTemplate.Triggers>
                                             </ControlTemplate>
                                         </RadioButton.Template>
                                     </RadioButton>
-                                    <RadioButton x:Name="rbAlfamart" 
-                                               GroupName="PaymentMethod"
-                                               Tag="Retail Alfamart"
-                                               Checked="PaymentMethod_Checked"
-                                               Unchecked="PaymentMethod_Unchecked"
-                                               Cursor="Hand"
-                                               Margin="32,0,0,0">
+                                    <RadioButton x:Name="rbAlfamart"
+                                                 GroupName="PaymentMethod"
+                                                 Tag="Retail Alfamart"
+                                                 Checked="PaymentMethod_Checked"
+                                                 Unchecked="PaymentMethod_Unchecked"
+                                                 Cursor="Hand"
+                                                 Margin="32,0,0,0">
                                         <RadioButton.Template>
                                             <ControlTemplate TargetType="RadioButton">
-                                                <Border x:Name="PaymentBorder" Background="Transparent" BorderBrush="#E2E8F0" BorderThickness="2" CornerRadius="12" Padding="12,8">
+                                                <Border x:Name="PaymentBorder"
+                                                        Background="Transparent"
+                                                        BorderBrush="#E2E8F0"
+                                                        BorderThickness="2"
+                                                        CornerRadius="12"
+                                                        Padding="12,8">
                                                     <Grid>
                                                         <Grid.ColumnDefinitions>
                                                             <ColumnDefinition Width="Auto"/>
                                                             <ColumnDefinition Width="*"/>
                                                         </Grid.ColumnDefinitions>
-                                                        <Border Grid.Column="0" Width="70" Height="30" CornerRadius="8" BorderBrush="#E2E8F0" BorderThickness="0.5" Margin="0,0,12,0">
-                                                            <Image Source="/Views/Assets/Images/Alfamart.png" Stretch="Uniform"/>
+                                                        <Border Grid.Column="0"
+                                                                Width="70"
+                                                                Height="30"
+                                                                CornerRadius="8"
+                                                                BorderBrush="#E2E8F0"
+                                                                BorderThickness="0.5"
+                                                                Margin="0,0,12,0">
+                                                            <Image Source="/Views/Assets/Images/Alfamart.png"
+                                                                   Stretch="Uniform"/>
                                                         </Border>
-                                                        <TextBlock Grid.Column="1" Text="Retail Alfamart" FontSize="16" FontWeight="Medium" Foreground="#042769" VerticalAlignment="Center" TextWrapping="Wrap"/>
+                                                        <TextBlock Grid.Column="1"
+                                                                   Text="Retail Alfamart"
+                                                                   FontSize="16"
+                                                                   FontWeight="Medium"
+                                                                   Foreground="#042769"
+                                                                   VerticalAlignment="Center"
+                                                                   TextWrapping="Wrap"/>
                                                     </Grid>
                                                 </Border>
                                                 <ControlTemplate.Triggers>
-                                                    <Trigger Property="IsChecked" Value="True">
-                                                        <Setter TargetName="PaymentBorder" Property="BorderBrush" Value="#267DAE"/>
-                                                        <Setter TargetName="PaymentBorder" Property="BorderThickness" Value="3"/>
-                                                        <Setter TargetName="PaymentBorder" Property="Background" Value="#EFF6FF"/>
+                                                    <Trigger Property="IsChecked"
+                                                             Value="True">
+                                                        <Setter TargetName="PaymentBorder"
+                                                                Property="BorderBrush"
+                                                                Value="#267DAE"/>
+                                                        <Setter TargetName="PaymentBorder"
+                                                                Property="BorderThickness"
+                                                                Value="3"/>
+                                                        <Setter TargetName="PaymentBorder"
+                                                                Property="Background"
+                                                                Value="#EFF6FF"/>
                                                     </Trigger>
                                                 </ControlTemplate.Triggers>
                                             </ControlTemplate>
@@ -455,17 +631,17 @@
                         <!-- Payment Instructions Card (Initially Hidden) -->
                         <Border x:Name="PaymentInstructionsCard"
                                 Visibility="Collapsed"
-                                Background="White" 
-                                CornerRadius="20" 
+                                Background="White"
+                                CornerRadius="20"
                                 Padding="25,20"
-                                BorderBrush="#267DAE" 
+                                BorderBrush="#267DAE"
                                 BorderThickness="2">
                             <Border.Effect>
-                                <DropShadowEffect Color="#000000" 
-                                      Direction="270" 
-                                      ShadowDepth="9" 
-                                      BlurRadius="10.9" 
-                                      Opacity="0.06"/>
+                                <DropShadowEffect Color="#000000"
+                                                  Direction="270"
+                                                  ShadowDepth="9"
+                                                  BlurRadius="10.9"
+                                                  Opacity="0.06"/>
                             </Border.Effect>
 
                             <StackPanel>
@@ -477,22 +653,24 @@
                                            Margin="0,0,0,20"/>
 
                                 <!-- 1. PANEL INFO TRANSFER (DIBERI NAMA) -->
-                                <StackPanel x:Name="pnlTransferInfo" Margin="0,0,0,16">
+                                <StackPanel x:Name="pnlTransferInfo"
+                                            Margin="0,0,0,16">
                                     <TextBlock Text="Lakukan Transfer ke"
                                                FontSize="20"
                                                FontWeight="Medium"
                                                Foreground="#042769"
                                                Margin="0,0,0,12"/>
-                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                                    <StackPanel Orientation="Horizontal"
+                                                Margin="0,0,0,12">
                                         <Border x:Name="imgBankBorder"
-                                                Width="100" 
-                                                Height="45" 
-                                                CornerRadius="12" 
-                                                BorderBrush="#E2E8F0" 
+                                                Width="100"
+                                                Height="45"
+                                                CornerRadius="12"
+                                                BorderBrush="#E2E8F0"
                                                 BorderThickness="1"
                                                 Margin="0,0,12,0">
                                             <Image x:Name="imgSelectedBank"
-                                                   Source="/Views/Assets/Images/BCA.png" 
+                                                   Source="/Views/Assets/Images/BCA.png"
                                                    Stretch="Uniform"/>
                                         </Border>
                                         <StackPanel VerticalAlignment="Center">
@@ -510,9 +688,9 @@
                                                        TextWrapping="Wrap"/>
                                         </StackPanel>
                                     </StackPanel>
-                                    <Border x:Name="pnlAccountNumber" 
-                                            Background="#F1F5F9" 
-                                            CornerRadius="12" 
+                                    <Border x:Name="pnlAccountNumber"
+                                            Background="#F1F5F9"
+                                            CornerRadius="12"
                                             Padding="16,12"
                                             Margin="0,0,0,12">
                                         <Grid>
@@ -532,18 +710,18 @@
                                                     Click="BtnCopyAccount_Click"
                                                     Style="{StaticResource CopyButtonStyle}"
                                                     ToolTip="Copy Account Number">
-                                                <Border Width="24" Height="24" 
-                                                        BorderBrush="#267DAE" 
-                                                        BorderThickness="2"
-                                                        CornerRadius="4"/>
+                                                <Image Source="pack://application:,,,/Views/Assets/Icons/iconcopy.png"
+                                                       Width="24"
+                                                       Height="24"
+                                                       Stretch="Uniform"/>
                                             </Button>
                                         </Grid>
                                     </Border>
                                 </StackPanel>
-                                
+
                                 <!-- 2. UI: TAMPILAN QRIS -->
-                                <StackPanel x:Name="pnlQrCode" 
-                                            Visibility="Collapsed" 
+                                <StackPanel x:Name="pnlQrCode"
+                                            Visibility="Collapsed"
                                             Margin="0,0,0,16">
                                     <TextBlock x:Name="txtPindai"
                                                Text="Pindai Kode QR di Bawah Ini"
@@ -552,7 +730,7 @@
                                                Foreground="#042769"
                                                HorizontalAlignment="Center"
                                                Margin="0,0,0,15"/>
-                                    <Border BorderBrush="#E2E8F0" 
+                                    <Border BorderBrush="#E2E8F0"
                                             BorderThickness="2"
                                             CornerRadius="12"
                                             Background="White"
@@ -580,10 +758,10 @@
                                 == 3. UI BARU: FORM KARTU KREDIT ==
                                 ======================================
                                 -->
-                                <StackPanel x:Name="pnlCreditCard" 
-                                            Visibility="Collapsed" 
+                                <StackPanel x:Name="pnlCreditCard"
+                                            Visibility="Collapsed"
                                             Margin="0,0,0,16">
-                
+
                                     <TextBlock Text="Masukkan Detail Kartu Kredit/Debit Anda"
                                                FontSize="20"
                                                FontWeight="Medium"
@@ -743,7 +921,7 @@
                                 </StackPanel>
                                 <!-- == AKHIR UI KARTU KREDIT == -->
 
-                                
+
                                 <!-- Total Amount -->
                                 <TextBlock Text="Total Nominal"
                                            FontSize="20"
@@ -752,8 +930,8 @@
                                            Margin="0,0,0,12"/>
 
                                 <Border x:Name="pnlTotalAmount"
-                                        Background="#F1F5F9" 
-                                        CornerRadius="12" 
+                                        Background="#F1F5F9"
+                                        CornerRadius="12"
                                         Padding="16,12"
                                         Margin="0,0,0,16">
                                     <Grid>
@@ -761,8 +939,8 @@
                                             <ColumnDefinition Width="*"/>
                                             <ColumnDefinition Width="Auto"/>
                                         </Grid.ColumnDefinitions>
-                                        <StackPanel Grid.Column="0" 
-                                                    Orientation="Horizontal" 
+                                        <StackPanel Grid.Column="0"
+                                                    Orientation="Horizontal"
                                                     VerticalAlignment="Center">
                                             <TextBlock x:Name="txtInstructionTotalPembayaran"
                                                        Text=" "
@@ -779,18 +957,18 @@
                                                 Click="BtnCopyAmount_Click"
                                                 Style="{StaticResource CopyButtonStyle}"
                                                 ToolTip="Copy Amount">
-                                            <Border Width="24" Height="24" 
-                                                    BorderBrush="#267DAE" 
-                                                    BorderThickness="2"
-                                                    CornerRadius="4"/>
+                                            <Image Source="pack://application:,,,/Views/Assets/Icons/iconcopy.png"
+                                                   Width="24"
+                                                   Height="24"
+                                                   Stretch="Uniform"/>
                                         </Button>
                                     </Grid>
                                 </Border>
 
                                 <!-- Warning Message -->
                                 <Border x:Name="pnlWarningMessage"
-                                        Background="#FEE2E2" 
-                                        CornerRadius="12" 
+                                        Background="#FEE2E2"
+                                        CornerRadius="12"
                                         Padding="12,10">
                                     <Grid>
                                         <Grid.ColumnDefinitions>
@@ -798,10 +976,10 @@
                                             <ColumnDefinition Width="*"/>
                                         </Grid.ColumnDefinitions>
                                         <Border Grid.Column="0"
-                                                Width="16" 
-                                                Height="16" 
-                                                Background="#267DAE" 
-                                                BorderBrush="#DC2626" 
+                                                Width="16"
+                                                Height="16"
+                                                Background="#267DAE"
+                                                BorderBrush="#DC2626"
                                                 BorderThickness="2"
                                                 CornerRadius="8"
                                                 Margin="0,0,8,0"
@@ -817,7 +995,7 @@
                                 </Border>
 
                                 <!-- Action Buttons -->
-                                <WrapPanel Orientation="Horizontal" 
+                                <WrapPanel Orientation="Horizontal"
                                            HorizontalAlignment="Right"
                                            Margin="0,16,0,0">
                                     <Button x:Name="btnGantiMetode"
@@ -840,19 +1018,19 @@
                     </StackPanel>
 
                     <!-- Right Section - Order Summary -->
-                    <Border Grid.Column="2" 
-                            Background="White" 
-                            CornerRadius="20" 
+                    <Border Grid.Column="2"
+                            Background="White"
+                            CornerRadius="20"
                             Padding="25,20"
-                            BorderBrush="#267DAE" 
+                            BorderBrush="#267DAE"
                             BorderThickness="2"
                             VerticalAlignment="Top">
                         <Border.Effect>
-                            <DropShadowEffect Color="#000000" 
-                                Direction="270" 
-                                ShadowDepth="9" 
-                                BlurRadius="10.9" 
-                                Opacity="0.06"/>
+                            <DropShadowEffect Color="#000000"
+                                              Direction="270"
+                                              ShadowDepth="9"
+                                              BlurRadius="10.9"
+                                              Opacity="0.06"/>
                         </Border.Effect>
 
                         <StackPanel>
@@ -875,7 +1053,7 @@
                                                TextWrapping="Wrap"
                                                Margin="0,0,0,8"/>
 
-                                    <StackPanel Orientation="Horizontal" 
+                                    <StackPanel Orientation="Horizontal"
                                                 HorizontalAlignment="Left"
                                                 Margin="0,0,0,8">
                                         <TextBlock x:Name="txtDeparturePort"
@@ -887,10 +1065,10 @@
                                                    TextWrapping="Wrap"
                                                    Margin="0,0,8,0"/>
 
-                                        <Path Data="M 20 4 L 14.444444444444445 0 M 20 4 L 14.444444444444445 8 M 20 4 L 0 4" 
-                                              Stroke="#267DAE" 
+                                        <Path Data="M 20 4 L 14.444444444444445 0 M 20 4 L 14.444444444444445 8 M 20 4 L 0 4"
+                                              Stroke="#267DAE"
                                               StrokeThickness="2"
-                                              Width="16" 
+                                              Width="16"
                                               Height="6"
                                               Stretch="Fill"
                                               VerticalAlignment="Center"
@@ -905,7 +1083,7 @@
                                                    TextWrapping="Wrap"/>
                                     </StackPanel>
 
-                                    <TextBlock x:Name="txtDateTime" 
+                                    <TextBlock x:Name="txtDateTime"
                                                Text=" "
                                                FontSize="16"
                                                FontWeight="Medium"
@@ -915,7 +1093,7 @@
                             </StackPanel>
 
                             <!-- Divider -->
-                            <Border Height="2" 
+                            <Border Height="2"
                                     Background="#E2E8F0"
                                     Margin="0,0,0,20"/>
 
@@ -935,8 +1113,10 @@
                                                Foreground="#042769"
                                                HorizontalAlignment="Left"
                                                VerticalAlignment="Center"/>
-                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                                        <StackPanel Orientation="Horizontal" Margin="0,0,8,0">
+                                    <StackPanel Orientation="Horizontal"
+                                                HorizontalAlignment="Right">
+                                        <StackPanel Orientation="Horizontal"
+                                                    Margin="0,0,8,0">
                                             <TextBlock x:Name="txtTotalPembayaran"
                                                        Text=" "
                                                        FontSize="16"
@@ -952,7 +1132,7 @@
                                         </StackPanel>
                                         <Image x:Name="imgToggleDetailPembayaran"
                                                Source="/Views/Assets/Icons/icondropdowngelap.png"
-                                               Width="16" 
+                                               Width="16"
                                                Height="16"
                                                Stretch="Uniform"
                                                VerticalAlignment="Center"
@@ -966,7 +1146,7 @@
                             </Button>
 
                             <!-- Detail Pembayaran Panel (Hidden by default) -->
-                            <StackPanel x:Name="pnlDetailPembayaran" 
+                            <StackPanel x:Name="pnlDetailPembayaran"
                                         Visibility="Collapsed"
                                         Margin="0,0,0,16">
                                 <!-- Item Kendaraan -->
@@ -1020,7 +1200,8 @@
                                 </Grid>
 
                                 <!-- Keterangan Pajak dan Kode Unik -->
-                                <StackPanel x:Name="pnlKeteranganPembayaran" Margin="0,0,0,12">
+                                <StackPanel x:Name="pnlKeteranganPembayaran"
+                                            Margin="0,0,0,12">
                                     <TextBlock Text="Harga sudah termasuk pajak"
                                                FontSize="12"
                                                FontWeight="Medium"
@@ -1035,7 +1216,9 @@
                                                Visibility="Collapsed"/>
                                 </StackPanel>
 
-                                <Border Height="1" Background="#E2E8F0" Margin="0,0,0,12"/>
+                                <Border Height="1"
+                                        Background="#E2E8F0"
+                                        Margin="0,0,0,12"/>
 
                                 <Grid>
                                     <TextBlock Text="Total Pembayaran"
@@ -1043,7 +1226,8 @@
                                                FontWeight="Medium"
                                                Foreground="#042769"
                                                HorizontalAlignment="Left"/>
-                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                    <StackPanel Orientation="Horizontal"
+                                                HorizontalAlignment="Right">
                                         <TextBlock x:Name="txtDetailTotalPembayaran"
                                                    Text=" "
                                                    FontSize="16"
@@ -1065,7 +1249,7 @@
                                     Click="BtnMainAction_Click"
                                     Style="{StaticResource RoundedButtonStyle}">
                                 <TextBlock x:Name="txtMainActionButton"
-                                           Text="Pilih Metode Pembayaran" 
+                                           Text="Pilih Metode Pembayaran"
                                            TextAlignment="Center"
                                            TextWrapping="Wrap"
                                            FontSize="16"/>

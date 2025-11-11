@@ -5,6 +5,7 @@
         Title="Tiket Laut - Cek Booking" 
         Height="900" 
         Width="1400"
+        WindowState="Maximized"
         WindowStartupLocation="CenterScreen"
         Background="#F2F5FC"
         FontFamily="Plus Jakarta Sans">

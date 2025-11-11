@@ -26,6 +26,7 @@
 	  <None Remove="Views\Assets\Icons\iconbolakbalik.png" />
 	  <None Remove="Views\Assets\Icons\iconbooking.png" />
 	  <None Remove="Views\Assets\Icons\iconcar.png" />
+	  <None Remove="Views\Assets\Icons\iconcopy.png" />
 	  <None Remove="Views\Assets\Icons\icondropdown.png" />
 	  <None Remove="Views\Assets\Icons\icondropdowngelap.png" />
 	  <None Remove="Views\Assets\Icons\iconDangerNotif.png" />
@@ -90,6 +91,9 @@
 	  <Resource Include="Views\Assets\Icons\iconbolakbalik.png" />
 	  <Resource Include="Views\Assets\Icons\iconbooking.png" />
 	  <Resource Include="Views\Assets\Icons\iconcar.png" />
+	  <Resource Include="Views\Assets\Icons\iconcopy.png">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Resource>
 	  <Resource Include="Views\Assets\Icons\icondropdown.png">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Resource>
