@@ -192,10 +192,10 @@
                                BorderThickness="1">
                             <StackPanel>
                                 <StackPanel Orientation="Horizontal" Margin="0,0,0,15">
-                                    <TextBlock Text="🔍" FontSize="18" Margin="0,0,8,0" VerticalAlignment="Center"/>
                                     <TextBlock Text="Filter Jadwal" 
                                               FontSize="16" 
-                                              FontWeight="SemiBold" 
+                                              FontWeight="Bold" 
+                                              Foreground="#042769"
                                               VerticalAlignment="Center"/>
                                 </StackPanel>
                                 
@@ -212,7 +212,11 @@
                                     
                                     <!-- Pelabuhan Asal -->
                                     <StackPanel Grid.Column="0">
-                                        <TextBlock Text="Pelabuhan Asal" FontSize="12" Margin="0,0,0,4"/>
+                                        <TextBlock Text="Pelabuhan Asal" 
+                                                  FontSize="12" 
+                                                  FontWeight="SemiBold"
+                                                  Foreground="#042769"
+                                                  Margin="0,0,0,4"/>
                                         <ComboBox x:Name="cmbFilterPelabuhanAsal" 
                                                  Style="{StaticResource InputComboBox}"
                                                  SelectionChanged="FilterJadwal_Changed">
@@ -222,7 +226,11 @@
                                     
                                     <!-- Pelabuhan Tujuan -->
                                     <StackPanel Grid.Column="2">
-                                        <TextBlock Text="Pelabuhan Tujuan" FontSize="12" Margin="0,0,0,4"/>
+                                        <TextBlock Text="Pelabuhan Tujuan" 
+                                                  FontSize="12" 
+                                                  FontWeight="SemiBold"
+                                                  Foreground="#042769"
+                                                  Margin="0,0,0,4"/>
                                         <ComboBox x:Name="cmbFilterPelabuhanTujuan" 
                                                  Style="{StaticResource InputComboBox}"
                                                  SelectionChanged="FilterJadwal_Changed">
@@ -232,7 +240,11 @@
                                     
                                     <!-- Tanggal -->
                                     <StackPanel Grid.Column="4">
-                                        <TextBlock Text="Tanggal Keberangkatan" FontSize="12" Margin="0,0,0,4"/>
+                                        <TextBlock Text="Tanggal Keberangkatan" 
+                                                  FontSize="12" 
+                                                  FontWeight="SemiBold"
+                                                  Foreground="#042769"
+                                                  Margin="0,0,0,4"/>
                                         <DatePicker x:Name="dpFilterTanggal" 
                                                    SelectedDateChanged="FilterJadwal_Changed"
                                                    Padding="10,8"
@@ -244,7 +256,11 @@
                                     
                                     <!-- Jam -->
                                     <StackPanel Grid.Column="6">
-                                        <TextBlock Text="Waktu Keberangkatan" FontSize="12" Margin="0,0,0,4"/>
+                                        <TextBlock Text="Waktu Keberangkatan" 
+                                                  FontSize="12" 
+                                                  FontWeight="SemiBold"
+                                                  Foreground="#042769"
+                                                  Margin="0,0,0,4"/>
                                         <ComboBox x:Name="cmbFilterJam" 
                                                  Style="{StaticResource InputComboBox}"
                                                  SelectionChanged="FilterJadwal_Changed">
@@ -269,7 +285,11 @@
                             <!-- Left Column -->
                             <StackPanel Grid.Column="0">
                                 <!-- Pilih Penerima -->
-                                <TextBlock Text="Pilih Penerima" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                                <TextBlock Text="Tujuan Notifikasi" 
+                                          FontSize="14" 
+                                          FontWeight="SemiBold" 
+                                          Foreground="#042769"
+                                          Margin="0,0,0,8"/>
                                 <ComboBox x:Name="cmbPenerima" 
                                          Style="{StaticResource InputComboBox}"
                                          SelectionChanged="CmbPenerima_SelectionChanged"
@@ -554,14 +574,22 @@
 
                                 <!-- User Dropdown (hidden by default) -->
                                 <StackPanel x:Name="pnlSelectUser" Visibility="Collapsed" Margin="0,0,0,16">
-                                    <TextBlock Text="Pilih Pengguna" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                                    <TextBlock Text="Pilih Pengguna" 
+                                              FontSize="14" 
+                                              FontWeight="SemiBold" 
+                                              Foreground="#042769"
+                                              Margin="0,0,0,8"/>
                                     <ComboBox x:Name="cmbUser" 
                                              Style="{StaticResource InputComboBox}"
                                              DisplayMemberPath="DisplayText"/>
                                 </StackPanel>
 
                                 <!-- Jenis Notifikasi dengan Icon -->
-                                <TextBlock Text="Jenis Notifikasi" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                                <TextBlock Text="Jenis Notifikasi" 
+                                          FontSize="14" 
+                                          FontWeight="SemiBold" 
+                                          Foreground="#042769"
+                                          Margin="0,0,0,8"/>
                                 <ComboBox x:Name="cmbJenisNotifikasi" 
                                          Style="{StaticResource InputComboBox}"
                                          Margin="0,0,0,16">
@@ -598,24 +626,71 @@
                                 </ComboBox>
 
                                 <!-- Judul -->
-                                <TextBlock Text="Judul Notifikasi" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,8"/>
-                                <TextBox x:Name="txtJudul" 
-                                        Style="{StaticResource InputTextBox}"
-                                        Margin="0,0,0,16"
-                                        MaxLength="100"/>
+                                <TextBlock Text="Judul Notifikasi" 
+                                          FontSize="14" 
+                                          FontWeight="SemiBold" 
+                                          Foreground="#042769"
+                                          Margin="0,0,0,8"/>
+                                <Grid Margin="0,0,0,16">
+                                    <TextBox x:Name="txtJudul" 
+                                            Style="{StaticResource InputTextBox}"
+                                            MaxLength="100"/>
+                                    <TextBlock Text="Contoh: Pemberitahuan Delay"
+                                              Foreground="#999"
+                                              FontStyle="Italic"
+                                              FontSize="14"
+                                              IsHitTestVisible="False"
+                                              Padding="12"
+                                              VerticalAlignment="Top">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Text, ElementName=txtJudul}" Value="">
+                                                        <Setter Property="Visibility" Value="Visible"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                                <Setter Property="Visibility" Value="Hidden"/>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </Grid>
                             </StackPanel>
 
                             <!-- Right Column -->
                             <StackPanel Grid.Column="2">
                                 <!-- Pesan -->
-                                <TextBlock Text="Isi Pesan" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,8"/>
-                                <TextBox x:Name="txtPesan" 
-                                        Style="{StaticResource InputTextBox}"
-                                        TextWrapping="Wrap"
-                                        AcceptsReturn="True"
-                                        Height="250"
-                                        VerticalScrollBarVisibility="Auto"
-                                        Margin="0,0,0,16"/>
+                                <TextBlock Text="Isi Notifikasi" 
+                                          FontSize="14" 
+                                          FontWeight="SemiBold" 
+                                          Foreground="#042769"
+                                          Margin="0,0,0,8"/>
+                                <Grid Margin="0,0,0,16">
+                                    <TextBox x:Name="txtPesan" 
+                                            Style="{StaticResource InputTextBox}"
+                                            TextWrapping="Wrap"
+                                            AcceptsReturn="True"
+                                            Height="250"
+                                            VerticalScrollBarVisibility="Auto"/>
+                                    <TextBlock Text="Tuliskan isi pesan notifikasi di sini..."
+                                              Foreground="#999"
+                                              FontStyle="Italic"
+                                              FontSize="14"
+                                              IsHitTestVisible="False"
+                                              Padding="12"
+                                              TextWrapping="Wrap"
+                                              VerticalAlignment="Top">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Text, ElementName=txtPesan}" Value="">
+                                                        <Setter Property="Visibility" Value="Visible"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                                <Setter Property="Visibility" Value="Hidden"/>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </Grid>
 
                                 <!-- Buttons -->
                                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
@@ -708,7 +783,11 @@
                                 
                                 <!-- Kategori -->
                                 <StackPanel Grid.Column="0">
-                                    <TextBlock Text="Kategori Notifikasi" FontSize="12" Margin="0,0,0,4"/>
+                                    <TextBlock Text="Kategori Notifikasi" 
+                                              FontSize="12" 
+                                              FontWeight="SemiBold"
+                                              Foreground="#042769"
+                                              Margin="0,0,0,4"/>
                                     <ComboBox x:Name="cmbFilterKategori" 
                                              Style="{StaticResource InputComboBox}"
                                              SelectionChanged="FilterOtomatis_Changed">
@@ -721,7 +800,11 @@
                                 
                                 <!-- Periode -->
                                 <StackPanel Grid.Column="2">
-                                    <TextBlock Text="Periode Waktu" FontSize="12" Margin="0,0,0,4"/>
+                                    <TextBlock Text="Periode Waktu" 
+                                              FontSize="12" 
+                                              FontWeight="SemiBold"
+                                              Foreground="#042769"
+                                              Margin="0,0,0,4"/>
                                     <ComboBox x:Name="cmbFilterPeriode" 
                                              Style="{StaticResource InputComboBox}"
                                              SelectionChanged="FilterOtomatis_Changed">
@@ -1071,8 +1154,8 @@
 
                         <!-- Filter Section -->
                         <Border Background="#F8F9FA" 
-                               BorderBrush="#042769"
-                               BorderThickness="2"
+                               BorderBrush="#DEE2E6"
+                               BorderThickness="1"
                                CornerRadius="8" 
                                Padding="20" 
                                Margin="0,0,0,20">
@@ -1138,8 +1221,8 @@
                         </Border>
 
                         <!-- Data Table -->
-                        <Border BorderBrush="#042769"
-                               BorderThickness="2"
+                        <Border BorderBrush="#DEE2E6"
+                               BorderThickness="1"
                                CornerRadius="8"
                                Background="White">
                             <StackPanel>

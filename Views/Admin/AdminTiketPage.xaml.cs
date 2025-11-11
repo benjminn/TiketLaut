@@ -101,7 +101,7 @@ namespace TiketLaut.Views
 
                 // Load schedules for filter
                 var jadwals = await _jadwalService.GetAllAsync();
-                cmbJadwal.Items.Add(new { Id = 0, Text = "Semua Jadwal" });
+                cmbJadwal.Items.Add(new { Id = 0, Text = "-- Semua Jadwal --" });
                 foreach (var jadwal in jadwals)
                 {
                     cmbJadwal.Items.Add(new
@@ -110,6 +110,10 @@ namespace TiketLaut.Views
                         Text = $"{jadwal.pelabuhan_asal?.nama_pelabuhan} → {jadwal.pelabuhan_tujuan?.nama_pelabuhan} ({jadwal.waktu_berangkat:dd/MM HH:mm})"
                     });
                 }
+                
+                // Set default selections
+                cmbJadwal.SelectedIndex = 0;
+                cmbStatus.SelectedIndex = 0;
             }
             catch (Exception ex)
             {
@@ -192,7 +196,7 @@ namespace TiketLaut.Views
 
             // Filter by Status
             var selectedStatus = cmbStatus.SelectedItem as ComboBoxItem;
-            if (selectedStatus != null && selectedStatus.Content.ToString() != "Semua Status")
+            if (selectedStatus != null && selectedStatus.Content.ToString() != "-- Semua Status --")
             {
                 filtered = filtered.Where(t => t.Tiket.status_tiket == selectedStatus.Content.ToString());
             }

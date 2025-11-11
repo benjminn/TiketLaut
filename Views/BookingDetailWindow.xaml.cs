@@ -1481,21 +1481,21 @@ namespace TiketLaut.Views
             // ============ VALIDASI PLAT NOMOR KENDARAAN ============
             // Validasi wajib untuk kendaraan bermotor (ID > 1)
             // Pejalan Kaki (0) dan Sepeda (1) tidak perlu plat nomor
-            if (_searchCriteria.JenisKendaraanId > 1)
+            if (_searchCriteria?.JenisKendaraanId > 1 && txtPlatNomor != null)
             {
                 if (vehicleSection?.Visibility == Visibility.Visible &&
-                    (IsPlaceholderText(txtPlatNomor) || string.IsNullOrWhiteSpace(txtPlatNomor?.Text)))
+                    (IsPlaceholderText(txtPlatNomor) || string.IsNullOrWhiteSpace(txtPlatNomor.Text)))
                 {
                     CustomDialog.ShowWarning("Plat Nomor Wajib", "Plat nomor kendaraan harus diisi untuk kendaraan bermotor!");
-                    if (txtPlatNomor != null) txtPlatNomor.Focus();
+                    txtPlatNomor.Focus();
                     return;
                 }
                 
                 // Validasi format plat nomor (tidak boleh hanya "-")
-                if (txtPlatNomor?.Text.Trim() == "-")
+                if (txtPlatNomor.Text.Trim() == "-")
                 {
                     CustomDialog.ShowWarning("Plat Nomor Tidak Valid", "Silakan isi plat nomor kendaraan yang valid!");
-                    txtPlatNomor?.Focus();
+                    txtPlatNomor.Focus();
                     return;
                 }
             }

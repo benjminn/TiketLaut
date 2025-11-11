@@ -53,16 +53,16 @@
         <!-- Label Styles for Dropdown -->
         <Style x:Key="DropdownLabel" TargetType="TextBlock">
             <Setter Property="FontSize" Value="14"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground" Value="#1E293B"/>
-            <Setter Property="Margin" Value="0,0,0,3"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="#042769"/>
+            <Setter Property="Margin" Value="0,0,0,4"/>
         </Style>
 
         <Style x:Key="DropdownSubLabel" TargetType="TextBlock">
             <Setter Property="FontSize" Value="12"/>
             <Setter Property="FontWeight" Value="Normal"/>
-            <Setter Property="Foreground" Value="#64748B"/>
-            <Setter Property="Margin" Value="0,-3,0,3"/>
+            <Setter Property="Foreground" Value="#6C757D"/>
+            <Setter Property="Margin" Value="0,0,0,8"/>
         </Style>
     </UserControl.Resources>
 
@@ -147,16 +147,16 @@
                                               Text="Pilih pelabuhan untuk melihat cuaca saat ini"/>
                                 </StackPanel>
                                 
-                                <ComboBox x:Name="cbPelabuhan"
+                <ComboBox x:Name="cbPelabuhan"
                                          Height="45"
-                                         FontSize="13"
+                                         FontSize="14"
                                          Padding="10"
                                          Margin="0,0,0,15">
                                     <ComboBox.ItemTemplate>
                                         <DataTemplate>
                                             <TextBlock Margin="5">
                                                 <Run Text="📍 " FontSize="14"/>
-                                                <Run Text="{Binding NamaPelabuhan, Mode=OneWay}" FontWeight="SemiBold"/>
+                                                <Run Text="{Binding NamaPelabuhan, Mode=OneWay}" FontWeight="SemiBold" FontSize="14"/>
                                             </TextBlock>
                                         </DataTemplate>
                                     </ComboBox.ItemTemplate>
@@ -168,7 +168,7 @@
                                        HorizontalAlignment="Stretch"
                                        Margin="0">
                                     <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="Cek Cuaca saat Ini" FontSize="14"/>
+                                        <TextBlock Text="Cek Cuaca saat Ini" FontSize="14" FontWeight="SemiBold"/>
                                     </StackPanel>
                                 </Button>
 
@@ -198,7 +198,7 @@
                                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                                     <TextBlock x:Name="txtPelabuhanResult"
                                               Text="Pilih pelabuhan dan klik 'Cek Cuaca Sekarang' untuk melihat data cuaca."
-                                              FontSize="13"
+                                              FontSize="14"
                                               Foreground="#495057"
                                               TextWrapping="Wrap"/>
                                 </ScrollViewer>
@@ -234,14 +234,14 @@
                                 
                                 <ComboBox x:Name="cbPelabuhanAsal"
                                          Height="45"
-                                         FontSize="13"
+                                         FontSize="14"
                                          Padding="10"
                                          Margin="0,0,0,15">
                                     <ComboBox.ItemTemplate>
                                         <DataTemplate>
                                             <TextBlock Margin="5">
                                                 <Run Text="🚢 " FontSize="14"/>
-                                                <Run Text="{Binding NamaPelabuhan, Mode=OneWay}" FontWeight="SemiBold"/>
+                                                <Run Text="{Binding NamaPelabuhan, Mode=OneWay}" FontWeight="SemiBold" FontSize="14"/>
                                             </TextBlock>
                                         </DataTemplate>
                                     </ComboBox.ItemTemplate>
@@ -257,14 +257,14 @@
                                 
                                 <ComboBox x:Name="cbPelabuhanTujuan"
                                          Height="45"
-                                         FontSize="13"
+                                         FontSize="14"
                                          Padding="10"
                                          Margin="0,0,0,15">
                                     <ComboBox.ItemTemplate>
                                         <DataTemplate>
                                             <TextBlock Margin="5">
                                                 <Run Text="🏁 " FontSize="14"/>
-                                                <Run Text="{Binding NamaPelabuhan, Mode=OneWay}" FontWeight="SemiBold"/>
+                                                <Run Text="{Binding NamaPelabuhan, Mode=OneWay}" FontWeight="SemiBold" FontSize="14"/>
                                             </TextBlock>
                                         </DataTemplate>
                                     </ComboBox.ItemTemplate>
@@ -276,7 +276,7 @@
                                        HorizontalAlignment="Stretch"
                                        Margin="0">
                                     <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="Cek Keamanan Rute" FontSize="14"/>
+                                        <TextBlock Text="Cek Keamanan Rute" FontSize="14" FontWeight="SemiBold"/>
                                     </StackPanel>
                                 </Button>
 
@@ -306,7 +306,7 @@
                                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                                     <TextBlock x:Name="txtRouteResult"
                                               Text="Pilih pelabuhan asal dan tujuan, lalu klik 'Cek Keamanan Rute' untuk analisis cuaca sepanjang jalur pelayaran."
-                                              FontSize="13"
+                                              FontSize="14"
                                               Foreground="#495057"
                                               TextWrapping="Wrap"/>
                                 </ScrollViewer>
@@ -341,25 +341,25 @@
                                 </StackPanel>
                                 
                                 <ComboBox x:Name="cbJadwal"
-                                         Height="45"
-                                         FontSize="13"
+                                         MinHeight="45"
+                                         MaxHeight="120"
+                                         FontSize="14"
                                          Padding="10"
                                          Margin="0,0,0,10"
                                          SelectionChanged="CbJadwal_SelectionChanged">
                                     <ComboBox.ItemTemplate>
                                         <DataTemplate>
                                             <StackPanel Margin="5,8,5,8">
-                                                <TextBlock FontWeight="SemiBold" FontSize="13">
-                                                    <Run Text="🚢 "/>
+                                                <TextBlock FontWeight="SemiBold" FontSize="14" TextWrapping="Wrap">
                                                     <Run Text="{Binding pelabuhan_asal.nama_pelabuhan, Mode=OneWay}"/>
                                                     <Run Text=" → "/>
                                                     <Run Text="{Binding pelabuhan_tujuan.nama_pelabuhan, Mode=OneWay}"/>
                                                 </TextBlock>
-                                                <TextBlock FontSize="11" Foreground="#64748B" Margin="0,3,0,0">
+                                                <TextBlock FontSize="12" Foreground="#6C757D" Margin="0,3,0,0" TextWrapping="Wrap">
                                                     <Run Text="Kapal: "/>
                                                     <Run Text="{Binding kapal.nama_kapal, Mode=OneWay}"/>
                                                 </TextBlock>
-                                                <TextBlock FontSize="11" Foreground="#64748B">
+                                                <TextBlock FontSize="12" Foreground="#6C757D" TextWrapping="Wrap">
                                                     <Run Text="📅 "/>
                                                     <Run Text="{Binding waktu_berangkat, StringFormat='dd MMM yyyy HH:mm', Mode=OneWay}"/>
                                                     <Run Text=" WIB"/>
@@ -376,7 +376,7 @@
 
                                 <TextBlock x:Name="txtJadwalInfo"
                                           Text=""
-                                          FontSize="12"
+                                          FontSize="13"
                                           Foreground="#00658D"
                                           TextWrapping="Wrap"
                                           Margin="0,0,0,15"/>
@@ -388,7 +388,7 @@
                                        Margin="0"
                                        IsEnabled="False">
                                     <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="Cek Prakiraan Cuaca" FontSize="14"/>
+                                        <TextBlock Text="Cek Prakiraan Cuaca" FontSize="14" FontWeight="SemiBold"/>
                                     </StackPanel>
                                 </Button>
 
@@ -418,7 +418,7 @@
                                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                                     <TextBlock x:Name="txtForecastResult"
                                               Text="Pilih jadwal pelayaran untuk melihat prakiraan cuaca saat keberangkatan dan tiba."
-                                              FontSize="13"
+                                              FontSize="14"
                                               Foreground="#495057"
                                               TextWrapping="Wrap"/>
                                 </ScrollViewer>

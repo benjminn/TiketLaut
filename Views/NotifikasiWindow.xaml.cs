@@ -160,7 +160,7 @@ namespace TiketLaut.Views
         private async System.Threading.Tasks.Task HandleNotificationClick(Notifikasi n)
         {
             string redirectMessage = "";
-            Action redirectAction = null;
+            Action? redirectAction = null;
 
             // Cek judul notifikasi untuk menentukan status
             string judulLower = n.judul_notifikasi?.ToLower() ?? "";
