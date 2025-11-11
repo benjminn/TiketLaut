@@ -264,7 +264,7 @@ namespace TiketLaut.Views
                 isPaymentMethodSelected = true;
 
                 if (txtMainActionButton != null)
-                    txtMainActionButton.Text = "Konfirmasi Pembayaran";
+                    txtMainActionButton.Text = "Konfirmasi Metode Pembayaran";
 
                 if (IsTransferBankMethod())
                 {
@@ -683,7 +683,7 @@ namespace TiketLaut.Views
             var normalized = jenisKendaraanEnum.ToLower().Trim();
             var result = normalized switch
             {
-                "pejalan kaki" => 0,
+                "Pejalan kaki tanpa kendaraan" => 0,
                 "sepeda" => 1,
                 "sepeda motor (<500cc)" => 2,
                 "sepeda motor (>500cc)" => 3,
@@ -800,7 +800,7 @@ namespace TiketLaut.Views
         {
             PaymentInstructionsCard.Visibility = Visibility.Collapsed;
             PaymentMethodsCard.Visibility = Visibility.Visible;
-            txtMainActionButton.Text = "Konfirmasi Pembayaran";
+            txtMainActionButton.Text = "Konfirmasi Metode Pembayaran";
 
             // --- TAMBAHAN: Reset UI Instruksi ---
             if (pnlQrCode != null) pnlQrCode.Visibility = Visibility.Collapsed;
