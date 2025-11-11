@@ -140,6 +140,7 @@
                                        VerticalAlignment="Center"
                                        Width="0"
                                        Height="0"
+                                       DisplayDateStart="{x:Static System:DateTime.Today}"
                                        SelectedDateChanged="DpFilterDate_SelectedDateChanged"
                                        CalendarOpened="DpFilterDate_CalendarOpened"
                                        CalendarClosed="DpFilterDate_CalendarClosed">
