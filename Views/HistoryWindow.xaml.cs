@@ -56,6 +56,13 @@ namespace TiketLaut.Views
                     var tiket = riwayat.tiket;
                     var jadwal = tiket.Jadwal;
 
+                    // ✅ TIMEZONE FIX: Convert UTC to pelabuhan timezone
+                    var offsetAsalHours = jadwal.pelabuhan_asal?.TimezoneOffsetHours ?? 7;  // Default WIB
+                    var offsetTujuanHours = jadwal.pelabuhan_tujuan?.TimezoneOffsetHours ?? 7;
+                    
+                    var waktuBerangkatLocal = jadwal.waktu_berangkat.AddHours(offsetAsalHours);
+                    var waktuTibaLocal = jadwal.waktu_tiba.AddHours(offsetTujuanHours);
+
                     // Format tanggal
                     var dateText = tiket.tanggal_pemesanan.ToString("dddd, dd MMMM yyyy",
                         new System.Globalization.CultureInfo("id-ID"));
@@ -70,7 +77,7 @@ namespace TiketLaut.Views
                         StatusColor = new SolidColorBrush(Color.FromRgb(0, 180, 181)), // ?? Cyan #00B4B5
                         ShipName = jadwal.kapal.nama_kapal,
                         Date = dateText,
-                        Time = $"{jadwal.waktu_berangkat:HH:mm} - {jadwal.waktu_tiba:HH:mm}",
+                        Time = $"{waktuBerangkatLocal:HH:mm} - {waktuTibaLocal:HH:mm}",  // ✅ Gunakan waktu lokal
                         KodeTiket = tiket.kode_tiket,
                         TotalHarga = riwayat.jumlah_bayar
                     };

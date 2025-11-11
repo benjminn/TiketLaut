@@ -50,26 +50,33 @@ namespace TiketLaut.Views
                 var pelabuhan_tujuan = jadwal.pelabuhan_tujuan;
                 var kapal = jadwal.kapal;
 
+                // ✅ TIMEZONE FIX: Convert UTC to pelabuhan timezone
+                var offsetAsalHours = pelabuhan_asal?.TimezoneOffsetHours ?? 7;  // Default WIB
+                var offsetTujuanHours = pelabuhan_tujuan?.TimezoneOffsetHours ?? 7;
+                
+                var waktuBerangkatLocal = jadwal.waktu_berangkat.AddHours(offsetAsalHours);
+                var waktuTibaLocal = jadwal.waktu_tiba.AddHours(offsetTujuanHours);
+
                 // Set data ke UI
                 txtKodeTiket.Text = _tiket.kode_tiket;
                 txtPelabuhanAsal.Text = pelabuhan_asal.nama_pelabuhan;
                 txtPelabuhanTujuan.Text = pelabuhan_tujuan.nama_pelabuhan;
-                txtWaktuBerangkat.Text = jadwal.waktu_berangkat.ToString("HH:mm");
-                txtWaktuTiba.Text = jadwal.waktu_tiba.ToString("HH:mm");
+                txtWaktuBerangkat.Text = waktuBerangkatLocal.ToString("HH:mm");  // ✅ Gunakan waktu lokal
+                txtWaktuTiba.Text = waktuTibaLocal.ToString("HH:mm");  // ✅ Gunakan waktu lokal
                 
-                // Hitung durasi
+                // Hitung durasi (actual duration dari UTC)
                 var durasi = jadwal.waktu_tiba - jadwal.waktu_berangkat;
                 txtDurasi.Text = $"{durasi.Hours}j {durasi.Minutes}m";
 
-                // Format tanggal Indonesia
+                // Format tanggal Indonesia (gunakan waktu lokal pelabuhan asal)
                 var culture = new System.Globalization.CultureInfo("id-ID");
-                txtTanggalBerangkat.Text = jadwal.waktu_berangkat.ToString("dddd, dd MMMM yyyy", culture);
+                txtTanggalBerangkat.Text = waktuBerangkatLocal.ToString("dddd, dd MMMM yyyy", culture);
                 
                 txtNamaKapal.Text = kapal.nama_kapal;
                 txtTotalHarga.Text = $"Rp {_tiket.total_harga:N0}";
 
-                // Warning check-in time (30 menit sebelum)
-                var checkInTime = jadwal.waktu_berangkat.AddMinutes(-30);
+                // Warning check-in time (15 menit sebelum, gunakan waktu lokal pelabuhan asal)
+                var checkInTime = waktuBerangkatLocal.AddMinutes(-15);
                 txtCheckInTime.Text = $"Harap tiba di pelabuhan {pelabuhan_asal.nama_pelabuhan} sebelum {checkInTime:HH:mm} untuk proses check-in.";
 
                 // Load penumpang
