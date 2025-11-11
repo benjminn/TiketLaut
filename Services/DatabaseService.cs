@@ -63,17 +63,12 @@ namespace TiketLaut.Services
         /// <summary>
         /// Clear cached DbContext and force refresh from database.
         /// Call this after external changes or when you need fresh data.
+        /// Note: Since we use per-call context instances, this is now a no-op.
         /// </summary>
         public static void RefreshContext()
         {
-            lock (_lock)
-            {
-                if (_context != null)
-                {
-                    _context.Dispose();
-                    _context = null;
-                }
-            }
+            // No-op: Context instances are created per-call, so no cached context to clear
+            // This method is kept for backward compatibility
         }
 
         /// <summary>
