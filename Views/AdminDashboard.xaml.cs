@@ -305,6 +305,7 @@ namespace TiketLaut.Views
             btnMenuPembayaran.Style = (Style)FindResource("SidebarButtonStyle");
             btnMenuNotifikasi.Style = (Style)FindResource("SidebarButtonStyle");
             btnMenuAdmin.Style = (Style)FindResource("SidebarButtonStyle");
+            btnTestWeather.Style = (Style)FindResource("SidebarButtonStyle");
 
             // Set active
             activeButton.Style = (Style)FindResource("ActiveSidebarButton");
@@ -537,6 +538,23 @@ namespace TiketLaut.Views
                 var loginWindow = new LoginWindow();
                 loginWindow.Show();
                 this.Close();
+            }
+        }
+
+        private void BtnTestWeather_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                SetActiveMenu(btnTestWeather);
+                txtPageTitle.Text = "";
+                
+                // Navigate to Marine Weather Page
+                var weatherPage = new Admin.MarineWeatherPage();
+                contentArea.Content = weatherPage;
+            }
+            catch (Exception ex)
+            {
+                CustomDialog.ShowError("Error", $"Tidak dapat membuka halaman cuaca:\n\n{ex.Message}");
             }
         }
     }

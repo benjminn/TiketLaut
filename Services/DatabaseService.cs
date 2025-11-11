@@ -8,16 +8,16 @@ namespace TiketLaut.Services
 {
     public class DatabaseService
     {
-        private static AppDbContext? _context;
+        private static string? _connectionString;
         private static readonly object _lock = new object();
 
-        public static AppDbContext GetContext()
+        private static string GetConnectionString()
         {
-            if (_context == null)
+            if (_connectionString == null)
             {
                 lock (_lock)
                 {
-                    if (_context == null)
+                    if (_connectionString == null)
                     {
                         var configuration = new ConfigurationBuilder()
                             .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
@@ -26,19 +26,24 @@ namespace TiketLaut.Services
                             .Build();
 
                         // Prioritas: Environment Variables → appsettings.json
-                        var connectionString = Environment.GetEnvironmentVariable("SUPABASE_CONNECTION") 
+                        _connectionString = Environment.GetEnvironmentVariable("SUPABASE_CONNECTION") 
                             ?? configuration.GetConnectionString("SupabaseConnection")
                             ?? throw new InvalidOperationException("SUPABASE_CONNECTION not configured in environment variables or appsettings.json");
-
-                        var optionsBuilder = new DbContextOptionsBuilder<AppDbContext>();
-                        optionsBuilder.UseNpgsql(connectionString);
-
-                        _context = new AppDbContext(optionsBuilder.Options);
                     }
                 }
             }
 
-            return _context;
+            return _connectionString;
+        }
+
+        public static AppDbContext GetContext()
+        {
+            // Create NEW context instance every time (not singleton)
+            // This allows using var context pattern safely
+            var connectionString = GetConnectionString();
+            var optionsBuilder = new DbContextOptionsBuilder<AppDbContext>();
+            optionsBuilder.UseNpgsql(connectionString);
+            return new AppDbContext(optionsBuilder.Options);
         }
 
         public static async Task<bool> TestConnectionAsync()

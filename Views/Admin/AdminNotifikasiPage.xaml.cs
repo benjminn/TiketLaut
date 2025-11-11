@@ -101,38 +101,16 @@ namespace TiketLaut.Views
 
         #region Tab Navigation
 
-        private void TabKirim_Click(object sender, RoutedEventArgs e)
+        private void NotifikasiTabs_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            ActivateTab(tabKirimContent, btnTabKirim);
-        }
-
-        private void TabOtomatis_Click(object sender, RoutedEventArgs e)
-        {
-            ActivateTab(tabOtomatisContent, btnTabOtomatis);
-            _ = LoadOtomatisNotifikasi();
-        }
-
-        private void TabSemua_Click(object sender, RoutedEventArgs e)
-        {
-            ActivateTab(tabSemuaContent, btnTabSemua);
-            _ = LoadSemuaNotifikasi();
-        }
-
-        private void ActivateTab(UIElement contentToShow, Button activeButton)
-        {
-            // Hide all tabs
-            tabKirimContent.Visibility = Visibility.Collapsed;
-            tabOtomatisContent.Visibility = Visibility.Collapsed;
-            tabSemuaContent.Visibility = Visibility.Collapsed;
-
-            // Reset all button styles
-            btnTabKirim.Style = (Style)FindResource("TabButtonStyle");
-            btnTabOtomatis.Style = (Style)FindResource("TabButtonStyle");
-            btnTabSemua.Style = (Style)FindResource("TabButtonStyle");
-
-            // Show selected tab and activate button
-            contentToShow.Visibility = Visibility.Visible;
-            activeButton.Style = (Style)FindResource("ActiveTabButtonStyle");
+            if (NotifikasiTabs.SelectedIndex == 1) // Tab Notifikasi Otomatis
+            {
+                _ = LoadOtomatisNotifikasi();
+            }
+            else if (NotifikasiTabs.SelectedIndex == 2) // Tab Semua Notifikasi
+            {
+                _ = LoadSemuaNotifikasi();
+            }
         }
 
         #endregion
