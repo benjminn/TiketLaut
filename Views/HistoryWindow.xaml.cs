@@ -7,6 +7,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using TiketLaut.Services;
 using TiketLaut.Views.Components;
+using TiketLaut.Helpers;
 
 namespace TiketLaut.Views
 {
@@ -20,6 +21,9 @@ namespace TiketLaut.Views
         {
             InitializeComponent();
             _riwayatService = new RiwayatService();
+            
+            // Enable zoom functionality
+            ZoomHelper.EnableZoom(this);
 
             // Set user info di navbar
             if (SessionManager.CurrentUser != null)

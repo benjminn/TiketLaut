@@ -19,6 +19,24 @@
                          ShadowDepth="5" 
                          Opacity="0.2" 
                          Color="#000000"/>
+        
+        <!-- Storyboard untuk Fade Out Animation -->
+        <Storyboard x:Key="FadeOutStoryboard">
+            <DoubleAnimation Storyboard.TargetName="backgroundImage" 
+                           Storyboard.TargetProperty="Opacity"
+                           From="0.7" 
+                           To="0" 
+                           Duration="0:0:1"/>
+        </Storyboard>
+        
+        <!-- Storyboard untuk Fade In Animation -->
+        <Storyboard x:Key="FadeInStoryboard">
+            <DoubleAnimation Storyboard.TargetName="backgroundImage" 
+                           Storyboard.TargetProperty="Opacity"
+                           From="0" 
+                           To="0.7" 
+                           Duration="0:0:1"/>
+        </Storyboard>
     </Window.Resources>
 
     <Grid>
@@ -35,8 +53,9 @@
                 <ColumnDefinition Width="217*"/>
             </Grid.ColumnDefinitions>
 
-            <!-- Background Image -->
-            <Image Source="/Views/Assets/Images/bekgron.png" 
+            <!-- Background Image with Carousel -->
+            <Image x:Name="backgroundImage"
+                   Source="/Views/Assets/Images/bekgron.png" 
                    Stretch="UniformToFill" 
                    Opacity="0.7" 
                    VerticalAlignment="Top"
@@ -1558,5 +1577,67 @@
                                     x:Name="navbarPostLogin"
                                     Visibility="Collapsed"
                                     Panel.ZIndex="999"/>
+        
+        <!-- Date Display - Floating Card at Bottom Left -->
+        <Border Grid.Row="1" 
+                Background="White"
+                CornerRadius="12"
+                Padding="20,15"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Bottom"
+                Margin="20,0,0,20"
+                Panel.ZIndex="1000"
+                Effect="{StaticResource CardShadow}">
+            <StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
+                    <TextBlock x:Name="txtCurrentDate" 
+                              Text="Senin, 11 November 2025"
+                              FontSize="14"
+                              FontWeight="SemiBold"
+                              Foreground="#011C4B"
+                              FontFamily="Plus Jakarta Sans"
+                              VerticalAlignment="Center"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock x:Name="txtCurrentTime" 
+                              Text="00:00:00 WIB"
+                              FontSize="13"
+                              Foreground="#6C757D"
+                              FontFamily="Plus Jakarta Sans"
+                              VerticalAlignment="Center"/>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+        
+        <!-- Help Button - Floating at Bottom Right -->
+        <Border x:Name="helpButton"
+                Grid.Row="1" 
+                Background="White"
+                CornerRadius="30"
+                Padding="18,12"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Bottom"
+                Margin="0,0,20,20"
+                Panel.ZIndex="1000"
+                Effect="{StaticResource CardShadow}"
+                Cursor="Hand"
+                MouseLeftButtonDown="HelpButton_Click"
+                MouseEnter="HelpButton_MouseEnter"
+                MouseLeave="HelpButton_MouseLeave">
+            <StackPanel Orientation="Horizontal">
+                <Image Source="/Views/Assets/Icons/iconHelp.png" 
+                       Width="24" 
+                       Height="24" 
+                       Margin="0,0,10,0" 
+                       VerticalAlignment="Center"/>
+                <TextBlock x:Name="txtHelp"
+                          Text="Help" 
+                          FontSize="16"
+                          FontWeight="SemiBold"
+                          Foreground="#00658D"
+                          FontFamily="Plus Jakarta Sans"
+                          VerticalAlignment="Center"/>
+            </StackPanel>
+        </Border>
     </Grid>
 </Window>

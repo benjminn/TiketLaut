@@ -6,6 +6,7 @@ using System.Windows.Documents;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using TiketLaut.Helpers;
 using TiketLaut.Services;
 using TiketLaut.Views.Components;
 using System.Text.RegularExpressions;
@@ -22,6 +23,9 @@ namespace TiketLaut.Views
         {
             InitializeComponent();
             _service = new NotifikasiService();
+            
+            // Enable zoom functionality
+            ZoomHelper.EnableZoom(this);
 
             // Ambil user ID dari SessionManager
             if (SessionManager.IsLoggedIn && SessionManager.CurrentUser != null)

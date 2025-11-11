@@ -14,6 +14,7 @@ using System.Windows.Shapes;
 using TiketLaut.Models;
 using TiketLaut.Views.Components;
 using TiketLaut.Services;
+using TiketLaut.Helpers;
 
 namespace TiketLaut.Views
 {
@@ -29,6 +30,9 @@ namespace TiketLaut.Views
         {
             InitializeComponent();
             ApplyResponsiveLayout();
+            
+            // Enable zoom functionality
+            ZoomHelper.EnableZoom(this);
 
             // NavbarSelainHomepage tidak memerlukan SetUserInfo karena hanya menampilkan logo
         }

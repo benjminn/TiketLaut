@@ -19,6 +19,10 @@ namespace TiketLaut.Views
             InitializeComponent();
             _tiketId = tiketId;
             _tiketService = new TiketService();
+            
+            // Enable zoom functionality
+            ZoomHelper.EnableZoom(this);
+            
             LoadTiketDetail();
         }
 

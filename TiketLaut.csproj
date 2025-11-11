@@ -46,6 +46,7 @@
 	  <None Remove="Views\Assets\Icons\iconfacebook.png" />
 	  <None Remove="Views\Assets\Icons\iconfilter.png" />
 	  <None Remove="Views\Assets\Icons\icongoogle.png" />
+	  <None Remove="Views\Assets\Icons\iconHelp.png" />
 	  <None Remove="Views\Assets\Icons\iconhistory.png" />
 	  <None Remove="Views\Assets\Icons\iconhome.png" />
 	  <None Remove="Views\Assets\Icons\iconinfo.png" />
@@ -141,6 +142,9 @@
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Resource>
 	  <Resource Include="Views\Assets\Icons\icongoogle.png">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Resource>
+	  <Resource Include="Views\Assets\Icons\iconHelp.png">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Resource>
 	  <Resource Include="Views\Assets\Icons\iconhistory.png">
