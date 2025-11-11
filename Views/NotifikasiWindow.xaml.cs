@@ -68,14 +68,19 @@ namespace TiketLaut.Views
 
                 for (int i = 0; i < sorted.Count; i++)
                 {
-                    AddItem(sorted[i]);
+                    // ✅ Pass index untuk menentukan corner radius
+                    bool isFirst = (i == 0);
+                    bool isLast = (i == sorted.Count - 1);
+
+                    AddItem(sorted[i], isFirst, isLast);
+
                     if (i < sorted.Count - 1)
                     {
                         notificationList.Children.Add(new Rectangle { Style = (Style)FindResource("SeparatorStyle") });
                     }
                 }
 
-                System.Diagnostics.Debug.WriteLine($"[LOAD DATA] Total notifikasi yang di-render: {notificationList.Children.Count / 2 + 1}"); // Dibagi 2 karena ada separator
+                System.Diagnostics.Debug.WriteLine($"[LOAD DATA] Total notifikasi yang di-render: {notificationList.Children.Count / 2 + 1}");
             }
             catch (Exception ex)
             {
@@ -91,17 +96,41 @@ namespace TiketLaut.Views
             notificationList.Children.Add(panel);
         }
 
-        private void AddItem(Notifikasi n)
+        // ✅ Update method signature untuk terima parameter isFirst & isLast
+        private void AddItem(Notifikasi n, bool isFirst = false, bool isLast = false)
         {
             System.Diagnostics.Debug.WriteLine($"Notifikasi ID: {n.notifikasi_id}, Status Baca: {n.status_baca}");
+
+            // ✅ Tentukan corner radius berdasarkan posisi
+            CornerRadius cornerRadius;
+            if (isFirst && isLast)
+            {
+                // Jika hanya 1 notifikasi: rounded semua corner
+                cornerRadius = new CornerRadius(0, 0, 41, 41);
+            }
+            else if (isFirst)
+            {
+                // Notifikasi pertama: tidak ada rounding (sudah ada rounding di header)
+                cornerRadius = new CornerRadius(0);
+            }
+            else if (isLast)
+            {
+                // Notifikasi terakhir: rounded bottom
+                cornerRadius = new CornerRadius(0, 0, 41, 41);
+            }
+            else
+            {
+                // Notifikasi tengah: tidak ada rounding
+                cornerRadius = new CornerRadius(0);
+            }
 
             var cardBorder = new Border
             {
                 Background = n.status_baca
                     ? Brushes.White
                     : new SolidColorBrush(Color.FromRgb(226, 247, 255)),
-                CornerRadius = new CornerRadius(0),
-                Padding = new Thickness(40, 20, 40, 20),
+                CornerRadius = cornerRadius, // ✅ Apply corner radius
+                Padding = new Thickness(40, 25, 40, 25),
                 Margin = new Thickness(0),
                 Cursor = System.Windows.Input.Cursors.Hand,
                 HorizontalAlignment = HorizontalAlignment.Stretch
@@ -295,15 +324,15 @@ namespace TiketLaut.Views
                 LineHeight = 26
             };
 
-            string pattern = @"(#[A-Z0-9-]+" +
-                             @"|\b[A-Za-z ]+ - [A-Za-z ]+\b" +
-                             @"|\b\d{1,2} \w+ \d{4} pukul \d{2}:\d{2}\b" +
-                             @"|\b\d{2}:\d{2} WIB \([^)]+\)\b" +
-                             @"|\b\d{2}:\d{2} WIB\b" +
-                             @"|\b1x24 jam\b" +
-                             @"|\b2 jam\b" +
-                             @"|\b24 jam\b" +
-                             @")";
+            // ✅ UPDATE PATTERN: Sesuai dengan design Figma
+            string pattern = @"(" +
+                    @"#[A-Z0-9-]+" +                                          // Kode tiket/booking (cth: #TKT-20251107-001)
+                    @"|\b\s+[A-Z][A-Za-z]+\s*-\s*[A-Z][A-Za-z]+" +    // Rute dengan "jurusan" (cth: jurusan Merak - Bakauheni)
+                    @"|\d{1,2}\s+\w+\s+\d{4}\s+\s+\d{2}:\d{2}" +        // Tanggal lengkap dengan waktu (cth: 8 November 2025 pukul 08:00)
+                    @"|\d{1,2}\s+\w+\s+\d{4}" +                              // Tanggal (cth: 8 November 2025)
+                    @"|\d{2}:\d{2}\s+WIB\s*\([^)]+\)" +                      // Waktu dengan info tambahan (cth: 10:30 WIB (delay 1.5 jam))
+                    @"|\d{2}:\d{2}\s+WIB" +                                  // Waktu biasa (cth: 08:00 WIB, 14:00 WIB)
+                    @")";
 
             var matches = Regex.Matches(bodyText, pattern, RegexOptions.IgnoreCase);
             int lastIndex = 0;
