@@ -53,6 +53,7 @@ namespace TiketLaut.Views.Admin
         {
             try
             {
+                if (string.IsNullOrWhiteSpace(txtNama.Text))
                 {
                     MessageBox.Show("Nama tidak boleh kosong!", "Validasi", MessageBoxButton.OK, MessageBoxImage.Warning);
                     txtNama.Focus();
