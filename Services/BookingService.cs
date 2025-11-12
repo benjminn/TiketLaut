@@ -15,6 +15,10 @@ namespace TiketLaut.Services
         {
             _context = DatabaseService.GetContext();
         }
+
+        /// <summary>
+        /// Simpan booking lengkap ke database (Tiket + Penumpang + RincianPenumpang)
+        /// </summary>
         public async Task<Tiket> CreateBookingAsync(BookingData bookingData)
         {
             using var transaction = await _context.Database.BeginTransactionAsync();
@@ -124,6 +128,10 @@ namespace TiketLaut.Services
                 throw;
             }
         }
+
+        /// <summary>
+        /// Generate kode tiket unik dengan format: TKT-YYYYMMDD-XXXXXX
+        /// </summary>
         private string GenerateKodeTiket()
         {
             var datePrefix = DateTime.Now.ToString("yyyyMMdd");
@@ -131,6 +139,10 @@ namespace TiketLaut.Services
             var randomNumber = random.Next(100000, 999999);
             return $"TKT-{datePrefix}-{randomNumber}";
         }
+
+        /// <summary>
+        /// Hitung total harga berdasarkan jadwal dan jenis kendaraan
+        /// </summary>
         private async Task<decimal> CalculateTotalHargaAsync(int jadwalId, int jenisKendaraanId, int jumlahPenumpang)
         {
             // Get jadwal with its GrupKendaraan and DetailKendaraans
@@ -164,6 +176,10 @@ namespace TiketLaut.Services
             // Jika menggunakan kendaraan, harga tidak dikali penumpang
             return harga;
         }
+
+        /// <summary>
+        /// Update kapasitas jadwal setelah booking
+        /// </summary>
         private async Task UpdateKapasitasJadwalAsync(int jadwalId, int jumlahPenumpang, int jenisKendaraanId)
         {
             var jadwal = await _context.Jadwals.FindAsync(jadwalId);
@@ -180,6 +196,8 @@ namespace TiketLaut.Services
             {
                 jadwal.sisa_kapasitas_kendaraan -= 1;
             }
+
+            // Validasi kapasitas tidak minus
             if (jadwal.sisa_kapasitas_penumpang < 0 || jadwal.sisa_kapasitas_kendaraan < 0)
             {
                 throw new Exception("Kapasitas tidak mencukupi!");
@@ -187,6 +205,11 @@ namespace TiketLaut.Services
 
             await _context.SaveChangesAsync();
         }
+
+        /// <summary>
+        /// Helper: Convert jenis kendaraan ID ke text
+        /// HARUS SAMA PERSIS dengan Tag di ScheduleWindow & HomePage popup!
+        /// </summary>
         private string GetJenisKendaraanText(int jenisKendaraanId)
         {
             return jenisKendaraanId switch
@@ -207,6 +230,10 @@ namespace TiketLaut.Services
                 _ => "Tidak Diketahui"
             };
         }
+
+        /// <summary>
+        /// Get tiket by ID dengan relasi lengkap
+        /// </summary>
         public async Task<Tiket?> GetTiketByIdAsync(int tiketId)
         {
             return await _context.Tikets
@@ -222,6 +249,10 @@ namespace TiketLaut.Services
                 .FirstOrDefaultAsync(t => t.tiket_id == tiketId);
         }
     }
+
+    /// <summary>
+    /// Data transfer object untuk booking
+    /// </summary>
     public class BookingData
     {
         public int PenggunaId { get; set; }

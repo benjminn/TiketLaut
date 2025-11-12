@@ -16,6 +16,8 @@ namespace TiketLaut.Views
         {
             InitializeComponent();
             _pembayaran = pembayaran;
+            
+            // Enable zoom functionality
             ZoomHelper.EnableZoom(this);
             
             LoadData();

@@ -5,8 +5,12 @@ using System.Windows.Media;
 
 namespace TiketLaut.Helpers
 {
+    /// <summary>
+    /// Helper class untuk menambahkan fungsi zoom (Ctrl+, Ctrl-, Ctrl+0) ke Window
+    /// </summary>
     public static class ZoomHelper
     {
+        // Attached property untuk track zoom level
         private static readonly DependencyProperty ZoomLevelProperty =
             DependencyProperty.RegisterAttached(
                 "ZoomLevel",
@@ -14,34 +18,42 @@ namespace TiketLaut.Helpers
                 typeof(ZoomHelper),
                 new PropertyMetadata(1.0));
 
-        private const double MinZoom = 0.5;
-        private const double MaxZoom = 2.0;
-        private const double ZoomStep = 0.1;
+        private const double MinZoom = 0.5;  // Minimum 50%
+        private const double MaxZoom = 2.0;  // Maximum 200%
+        private const double ZoomStep = 0.1; // Zoom increment/decrement
 
+        /// <summary>
+        /// Enable zoom functionality pada Window
+        /// Panggil method ini di constructor Window setelah InitializeComponent()
+        /// </summary>
+        /// <param name="window">Window yang akan diberi fungsi zoom</param>
         public static void EnableZoom(Window window)
         {
             if (window == null) return;
 
+            // Set initial zoom level
             window.SetValue(ZoomLevelProperty, 1.0);
 
+            // Add keyboard event handler
             window.PreviewKeyDown += (sender, e) => HandleKeyDown(window, e);
         }
 
         private static void HandleKeyDown(Window window, KeyEventArgs e)
         {
+            // Check if Ctrl is pressed
             if (Keyboard.Modifiers == ModifierKeys.Control)
             {
-                if (e.Key == Key.OemPlus || e.Key == Key.Add)
+                if (e.Key == Key.OemPlus || e.Key == Key.Add) // Ctrl + (+)
                 {
                     ZoomIn(window);
                     e.Handled = true;
                 }
-                else if (e.Key == Key.OemMinus || e.Key == Key.Subtract)
+                else if (e.Key == Key.OemMinus || e.Key == Key.Subtract) // Ctrl + (-)
                 {
                     ZoomOut(window);
                     e.Handled = true;
                 }
-                else if (e.Key == Key.D0 || e.Key == Key.NumPad0)
+                else if (e.Key == Key.D0 || e.Key == Key.NumPad0) // Ctrl + 0 (reset)
                 {
                     ResetZoom(window);
                     e.Handled = true;
@@ -79,6 +91,7 @@ namespace TiketLaut.Helpers
 
         private static void ApplyZoom(Window window, double zoomLevel)
         {
+            // Apply ScaleTransform to the window content
             var content = window.Content as FrameworkElement;
             if (content != null)
             {
@@ -88,6 +101,7 @@ namespace TiketLaut.Helpers
                 
                 content.LayoutTransform = transformGroup;
                 
+                // Log zoom level for debugging
                 var zoomPercentage = (int)(zoomLevel * 100);
                 System.Diagnostics.Debug.WriteLine($"[{window.GetType().Name}] Zoom: {zoomPercentage}%");
             }

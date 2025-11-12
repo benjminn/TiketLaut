@@ -30,19 +30,29 @@ namespace TiketLaut.Views
         {
             InitializeComponent();
             ApplyResponsiveLayout();
+            
+            // Enable zoom functionality
             ZoomHelper.EnableZoom(this);
 
             // NavbarSelainHomepage tidak memerlukan SetUserInfo karena hanya menampilkan logo
         }
+
+        // Constructor dengan parent window parameter
         public BookingDetailWindow(bool isFromSchedule, Window? parentWindow = null) : this()
         {
             _isFromSchedule = isFromSchedule;
             _parentWindow = parentWindow;
         }
+
+        /// <summary>
+        /// Method untuk set data schedule yang dipilih dari ScheduleWindow
+        /// </summary>
         public void SetScheduleData(ScheduleItem scheduleItem)
         {
             _selectedSchedule = scheduleItem;
             System.Diagnostics.Debug.WriteLine($"[BookingDetailWindow] SetScheduleData called with: {scheduleItem?.FerryType}");
+
+            // Update UI dengan data schedule
             UpdateUIWithScheduleData();
         }
 
@@ -55,8 +65,14 @@ namespace TiketLaut.Views
 
             // Generate form penumpang sesuai jumlah
             GeneratePassengerForms();
+
+            // Update detail kendaraan
             UpdateVehicleDetails();
+
+            // Update vehicle and passenger display specifically
             UpdateVehicleAndPassengerDisplay();
+
+            // Update price details
             UpdatePriceDetails();
         }
 
@@ -70,12 +86,17 @@ namespace TiketLaut.Views
             System.Diagnostics.Debug.WriteLine($"[BookingDetailWindow] UpdateVehicleAndPassengerDisplay:");
             System.Diagnostics.Debug.WriteLine($"  jenisKendaraanText: {jenisKendaraanText}");
             System.Diagnostics.Debug.WriteLine($"  penumpangText: {penumpangText}");
+
+            // Update all vehicle type displays
             UpdateVehicleTypeDisplays(jenisKendaraanText);
+
+            // Update all passenger count displays
             UpdatePassengerCountDisplays(penumpangText);
         }
 
         private void UpdatePassengerCountDisplays(string penumpangText)
         {
+            // Update price breakdown sections
             var txtPassengerPrice = FindName("txtPassengerPrice") as TextBlock;
             if (txtPassengerPrice != null)
             {
@@ -93,6 +114,7 @@ namespace TiketLaut.Views
 
         private void UpdateVehicleTypeDisplays(string jenisKendaraanText)
         {
+            // Update main vehicle section
             if (txtVehicleType != null)
             {
                 txtVehicleType.Text = jenisKendaraanText;
@@ -102,6 +124,8 @@ namespace TiketLaut.Views
             {
                 txtVehicleInfo.Text = jenisKendaraanText;
             }
+
+            // Update price breakdown sections
             var txtVehicleTypePrice = FindName("txtVehicleTypePrice") as TextBlock;
             if (txtVehicleTypePrice != null)
             {
@@ -124,11 +148,15 @@ namespace TiketLaut.Views
             try
             {
                 System.Diagnostics.Debug.WriteLine("[BookingDetailWindow] UpdateUIWithScheduleData started");
+
+                // Update Right Section - Ferry Info
                 if (txtFerryType != null)
                 {
                     txtFerryType.Text = _selectedSchedule.FerryType;
                     System.Diagnostics.Debug.WriteLine($"Updated txtFerryType: {_selectedSchedule.FerryType}");
                 }
+
+                // Update pelabuhan asal dan tujuan
                 if (txtDeparture != null)
                 {
                     txtDeparture.Text = _selectedSchedule.DeparturePort;
@@ -140,12 +168,17 @@ namespace TiketLaut.Views
                     txtArrival.Text = _selectedSchedule.ArrivalPort;
                     System.Diagnostics.Debug.WriteLine($"Updated txtArrival: {_selectedSchedule.ArrivalPort}");
                 }
+
+                // Update check-in time dan warning message
                 if (txtCheckInTime != null)
                 {
+                    // Parse departure time dan kurangi 15 menit untuk check-in
                     if (TimeSpan.TryParse(_selectedSchedule.DepartureTime, out TimeSpan departureTime))
                     {
                         var checkInTime = departureTime.Subtract(TimeSpan.FromMinutes(15));
                         txtCheckInTime.Text = $"{_selectedSchedule.BoardingDate} - {checkInTime:hh\\:mm}";
+
+                        // Update warning message dengan waktu yang sama
                         var txtWarningMessage = FindName("txtWarningMessage") as TextBlock;
                         if (txtWarningMessage != null)
                         {
@@ -164,7 +197,11 @@ namespace TiketLaut.Views
                     }
                     System.Diagnostics.Debug.WriteLine($"Updated txtCheckInTime: {txtCheckInTime.Text}");
                 }
+
+                // Update price displays immediately
                 UpdateAllPriceDisplays(_selectedSchedule.Price);
+
+                // Update vehicle and passenger details if search criteria is available
                 if (_searchCriteria != null)
                 {
                     UpdateVehicleAndPassengerDisplay();
@@ -184,17 +221,24 @@ namespace TiketLaut.Views
 
             try
             {
+                // Update main collapsed price display
                 if (txtTotalHargaCollapsed != null)
                 {
                     txtTotalHargaCollapsed.Text = price;
                     System.Diagnostics.Debug.WriteLine($"Updated txtTotalHargaCollapsed: {price}");
                 }
+
+                // Update expanded detail prices in main section
                 if (txtSidebarPrice != null)
                 {
                     txtSidebarPrice.Text = price;
                     System.Diagnostics.Debug.WriteLine($"Updated txtSidebarPrice: {price}");
                 }
+
+                // Update all specific named TextBlocks for prices
                 UpdateNamedPriceElements(price);
+
+                // Update all other TextBlocks that contain hardcoded price
                 UpdateAllPriceTextBlocks(price);
 
             }
@@ -206,24 +250,31 @@ namespace TiketLaut.Views
 
         private void UpdateNamedPriceElements(string price)
         {
+            // Update expanded total price in main section
             var txtTotalHargaExpanded = FindName("txtTotalHargaExpanded") as TextBlock;
             if (txtTotalHargaExpanded != null)
             {
                 txtTotalHargaExpanded.Text = price;
                 System.Diagnostics.Debug.WriteLine($"Updated txtTotalHargaExpanded: {price}");
             }
+
+            // Update sidebar total price (collapsed state)
             var txtSidebarTotalPrice = FindName("txtSidebarTotalPrice") as TextBlock;
             if (txtSidebarTotalPrice != null)
             {
                 txtSidebarTotalPrice.Text = price;
                 System.Diagnostics.Debug.WriteLine($"Updated txtSidebarTotalPrice: {price}");
             }
+
+            // Update sidebar detail price (expanded state)
             var txtSidebarDetailPrice = FindName("txtSidebarDetailPrice") as TextBlock;
             if (txtSidebarDetailPrice != null)
             {
                 txtSidebarDetailPrice.Text = price;
                 System.Diagnostics.Debug.WriteLine($"Updated txtSidebarDetailPrice: {price}");
             }
+
+            // Update sidebar final price (expanded state)
             var txtSidebarFinalPrice = FindName("txtSidebarFinalPrice") as TextBlock;
             if (txtSidebarFinalPrice != null)
             {
@@ -304,6 +355,7 @@ namespace TiketLaut.Views
             var additionalContainer = FindName("additionalPassengerFormsContainer") as StackPanel;
             if (additionalContainer != null)
             {
+                // Clear existing additional forms
                 additionalContainer.Children.Clear();
 
                 // Generate forms for passengers 4 and beyond
@@ -325,6 +377,7 @@ namespace TiketLaut.Views
 
         private Border CreatePassengerForm(int passengerNumber)
         {
+            // Create main border
             Border borderPassenger = new Border
             {
                 Background = new SolidColorBrush(Colors.White),
@@ -334,7 +387,11 @@ namespace TiketLaut.Views
                 BorderThickness = new Thickness(2),
                 Margin = new Thickness(0, 0, 0, 16)
             };
+
+            // Create main StackPanel
             StackPanel mainStack = new StackPanel();
+
+            // Create toggle button header
             Button toggleButton = new Button
             {
                 Tag = passengerNumber.ToString(),
@@ -346,6 +403,8 @@ namespace TiketLaut.Views
                 Style = FindResource("TransparentButtonNoHover") as Style
             };
             toggleButton.Click += BtnTogglePassenger_Click;
+
+            // Create grid for toggle button content
             Grid toggleGrid = new Grid();
             toggleGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
             toggleGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
@@ -382,12 +441,16 @@ namespace TiketLaut.Views
 
             toggleButton.Content = toggleGrid;
             mainStack.Children.Add(toggleButton);
+
+            // Create expandable content panel
             StackPanel contentPanel = new StackPanel
             {
                 Visibility = Visibility.Collapsed
             };
             // Register the name so toggle button can find it
             this.RegisterName($"pnlPassenger{passengerNumber}", contentPanel);
+
+            // Add title
             TextBlock infoTitle = new TextBlock
             {
                 Text = "Info Identitas Penumpang",
@@ -398,6 +461,8 @@ namespace TiketLaut.Views
                 Margin = new Thickness(0, 0, 0, 16)
             };
             contentPanel.Children.Add(infoTitle);
+
+            // Add gender selection
             StackPanel genderPanel = new StackPanel
             {
                 Orientation = Orientation.Horizontal,
@@ -440,12 +505,16 @@ namespace TiketLaut.Views
             genderPanel.Children.Add(rbNona);
 
             contentPanel.Children.Add(genderPanel);
+
+            // Add name field with floating label
             StackPanel namePanel = CreateFloatingLabelField(
                 $"txtNamaPassenger{passengerNumber}",
                 "Nama lengkap sesuai KTP/Paspor/SIM",
                 "Sesuai KTP/Paspor/KK tanpa tanda baca dan gelar"
             );
             contentPanel.Children.Add(namePanel);
+
+            // Add identity section
             Grid identityGrid = new Grid
             {
                 Margin = new Thickness(0, 0, 0, 16)
@@ -572,6 +641,8 @@ namespace TiketLaut.Views
             textBox.GotFocus += FloatingTextBox_GotFocus;
             textBox.LostFocus += FloatingTextBox_LostFocus;
             textBox.TextChanged += FloatingTextBox_TextChanged;
+            
+            // Add specific handler for passenger name fields to update dynamic label
             if (fieldName.StartsWith("txtNamaPassenger"))
             {
                 // Extract passenger number from fieldName (e.g., txtNamaPassenger4 -> 4)
@@ -748,6 +819,8 @@ namespace TiketLaut.Views
             System.Diagnostics.Debug.WriteLine($"[BookingDetailWindow] UpdateVehicleDetails:");
             System.Diagnostics.Debug.WriteLine($"  jenisKendaraanText: {jenisKendaraanText}");
             System.Diagnostics.Debug.WriteLine($"  kapasitasText: {kapasitasText}");
+
+            // Update vehicle type display
             if (txtVehicleType != null)
             {
                 txtVehicleType.Text = jenisKendaraanText;
@@ -778,6 +851,8 @@ namespace TiketLaut.Views
             {
                 System.Diagnostics.Debug.WriteLine("vehicleSection not found!");
             }
+
+            // Update price breakdown texts
             UpdatePriceBreakdownTexts(jenisKendaraanText);
         }
 
@@ -787,9 +862,14 @@ namespace TiketLaut.Views
 
             try
             {
+                // Parse harga dari schedule
                 string priceText = _selectedSchedule.Price;
                 System.Diagnostics.Debug.WriteLine($"[BookingDetailWindow] UpdatePriceDetails with price: {priceText}");
+
+                // Update semua tampilan harga
                 UpdateAllPriceDisplays(priceText);
+
+                // Update breakdown text
                 string jenisKendaraanText = GetJenisKendaraanText(_searchCriteria.JenisKendaraanId);
                 UpdatePriceBreakdownTexts(jenisKendaraanText);
             }
@@ -1237,6 +1317,8 @@ namespace TiketLaut.Views
                         rotate.Angle = 0;
                     }
                 }
+
+                // Update semua harga setelah toggle untuk memastikan sinkronisasi
                 if (_selectedSchedule != null)
                 {
                     UpdateAllPriceDisplays(_selectedSchedule.Price);
@@ -1269,6 +1351,8 @@ namespace TiketLaut.Views
                         rotate.Angle = 0;
                     }
                 }
+
+                // Update semua harga setelah toggle untuk memastikan sinkronisasi
                 if (_selectedSchedule != null)
                 {
                     UpdateAllPriceDisplays(_selectedSchedule.Price);
@@ -1315,6 +1399,8 @@ namespace TiketLaut.Views
                 txtNomorPonsel.Focus();
                 return;
             }
+
+            // Validasi nomor ponsel harus angka saja
             if (!System.Text.RegularExpressions.Regex.IsMatch(txtNomorPonsel.Text.Trim(), @"^[0-9]+$"))
             {
                 CustomDialog.ShowWarning("Validasi", "Nomor ponsel harus berupa angka saja!");
@@ -1328,6 +1414,8 @@ namespace TiketLaut.Views
                 txtEmail.Focus();
                 return;
             }
+
+            // Validasi format email harus mengandung @ dan .
             string email = txtEmail.Text.Trim();
             if (!email.Contains("@") || !email.Contains("."))
             {
@@ -1368,6 +1456,8 @@ namespace TiketLaut.Views
                 txtIdPassenger1.Focus();
                 return;
             }
+
+            // Validasi NIK penumpang 1 - Jika jenis identitas adalah KTP, harus 16 digit angka
             if (cmbIdentitas1?.SelectedItem is ComboBoxItem selectedIdentitas1)
             {
                 string jenisIdentitas1 = selectedIdentitas1.Content.ToString() ?? "";
@@ -1393,6 +1483,7 @@ namespace TiketLaut.Views
             }
 
             // ============ VALIDASI PLAT NOMOR KENDARAAN ============
+            // Validasi wajib untuk kendaraan bermotor (ID > 1)
             // Pejalan Kaki (0) dan Sepeda (1) tidak perlu plat nomor
             if (_searchCriteria?.JenisKendaraanId > 1 && txtPlatNomor != null)
             {
@@ -1403,6 +1494,8 @@ namespace TiketLaut.Views
                     txtPlatNomor.Focus();
                     return;
                 }
+                
+                // Validasi format plat nomor (tidak boleh hanya "-")
                 if (txtPlatNomor.Text.Trim() == "-")
                 {
                     CustomDialog.ShowWarning("Plat Nomor Tidak Valid", "Silakan isi plat nomor kendaraan yang valid!");
@@ -1410,6 +1503,8 @@ namespace TiketLaut.Views
                     return;
                 }
             }
+            // ======================================================
+
             // ============ VALIDASI DETAIL PEMESAN ============
             if (string.IsNullOrWhiteSpace(txtNamaPemesan?.Text) || IsPlaceholderText(txtNamaPemesan))
             {
@@ -1431,16 +1526,23 @@ namespace TiketLaut.Views
                 txtEmail?.Focus();
                 return;
             }
+            // =================================================
+
             // ============ KODE BARU: SIMPAN KE DATABASE ============
             try
             {
+                // Show loading
                 btnLanjutPembayaran.IsEnabled = false;
                 btnLanjutPembayaran.Content = "Memproses...";
+
+                // Validasi session user
                 if (TiketLaut.Services.SessionManager.CurrentUser == null)
                 {
                     CustomDialog.ShowWarning("Session Expired", "Sesi login Anda telah berakhir. Silakan login kembali.");
                     return;
                 }
+
+                // Validasi data schedule dan search criteria
                 if (_selectedSchedule == null || _searchCriteria == null)
                 {
                     CustomDialog.ShowError("Data Error", "Data jadwal tidak lengkap. Silakan ulangi pemesanan dari awal.");
@@ -1469,6 +1571,8 @@ namespace TiketLaut.Views
                     var txtNama = FindName($"txtNamaPassenger{i}") as TextBox;
                     var txtId = FindName($"txtIdPassenger{i}") as TextBox;
                     var cmbIdentitas = FindName($"cmbIdentitas{i}") as ComboBox;
+                    
+                    // Get gender from RadioButtons
                     var rbTuan = FindName($"rbTuan{i}") as RadioButton;
                     var rbNyonya = FindName($"rbNyonya{i}") as RadioButton;
                     var rbNona = FindName($"rbNona{i}") as RadioButton;
@@ -1486,6 +1590,8 @@ namespace TiketLaut.Views
                         {
                             jenisIdentitas = selectedItem.Content.ToString() ?? "KTP";
                         }
+
+                        // Parse nomor identitas
                         string nomorIdentitasText = txtId.Text.Trim();
                         if (!long.TryParse(nomorIdentitasText, out long nomorIdentitas))
                         {
@@ -1493,6 +1599,8 @@ namespace TiketLaut.Views
                             txtId.Focus();
                             return;
                         }
+
+                        // Validasi NIK jika jenis identitas adalah KTP
                         if (jenisIdentitas == "KTP")
                         {
                             if (!System.Text.RegularExpressions.Regex.IsMatch(nomorIdentitasText, @"^[0-9]{16}$"))
@@ -1565,6 +1673,7 @@ namespace TiketLaut.Views
                                     string nomorIdentitasText = txtId.Text.Trim();
                                     if (long.TryParse(nomorIdentitasText, out long nomorIdentitas))
                                     {
+                                        // Validasi NIK jika jenis identitas adalah KTP
                                         if (jenisIdentitas == "KTP")
                                         {
                                             if (!System.Text.RegularExpressions.Regex.IsMatch(nomorIdentitasText, @"^[0-9]{16}$"))
@@ -1616,11 +1725,15 @@ namespace TiketLaut.Views
                         }
                     }
                 }
+
+                // Validasi minimal ada 1 penumpang
                 if (bookingData.DataPenumpang.Count == 0)
                 {
                     CustomDialog.ShowWarning("Validasi", "Data penumpang harus diisi minimal 1 orang!");
                     return;
                 }
+
+                // Validasi jumlah penumpang sesuai dengan yang dipilih
                 if (bookingData.DataPenumpang.Count < _searchCriteria.JumlahPenumpang)
                 {
                     CustomDialog.ShowWarning(
@@ -1679,6 +1792,10 @@ namespace TiketLaut.Views
                 btnLanjutPembayaran.Content = "Lanjut Pembayaran";
             }
         }
+
+        /// <summary>
+        /// Event handler ketika checkbox "Sama dengan Pemesan" dicentang
+        /// </summary>
         private void ChkSamaDenganPemesan_Checked(object sender, RoutedEventArgs e)
         {
             System.Diagnostics.Debug.WriteLine($"[CHECKED] IsTogglingProgrammatically: {_isTogglingProgrammatically}");
@@ -1688,6 +1805,8 @@ namespace TiketLaut.Views
                 System.Diagnostics.Debug.WriteLine("[CHECKED] SKIP - Programmatic");
                 return;
             }
+
+            // Validasi 1: Pastikan detail pemesan sudah diisi
             if (string.IsNullOrWhiteSpace(txtNamaPemesan?.Text) || IsPlaceholderText(txtNamaPemesan))
             {
                 System.Diagnostics.Debug.WriteLine("[CHECKED] Validation FAILED - Nama kosong");
@@ -1703,6 +1822,8 @@ namespace TiketLaut.Views
 
                 return;
             }
+
+            // Validasi 2: Pastikan gender pemesan sudah dipilih
             var rbTuan = this.FindName("rbTuan") as RadioButton;
             var rbNyonya = this.FindName("rbNyonya") as RadioButton;
             var rbNona = this.FindName("rbNona") as RadioButton;
@@ -1785,6 +1906,10 @@ namespace TiketLaut.Views
             }), System.Windows.Threading.DispatcherPriority.Background);
 
         }
+
+        /// <summary>
+        /// Event handler ketika checkbox "Sama dengan Pemesan" tidak dicentang
+        /// </summary>
         private void ChkSamaDenganPemesan_Unchecked(object sender, RoutedEventArgs e)
         {
             System.Diagnostics.Debug.WriteLine($"[UNCHECKED] IsTogglingProgrammatically: {_isTogglingProgrammatically}, IsChecked: {chkSamaDenganPemesan?.IsChecked}");
@@ -1798,6 +1923,8 @@ namespace TiketLaut.Views
 
             // User manually unchecked - clear semua auto-filled data
             System.Diagnostics.Debug.WriteLine("[UNCHECKED] User manual uncheck - CLEARING DATA");
+
+            // Clear dan enable kembali field nama penumpang 1
             if (txtNamaPassenger1 != null)
             {
                 txtNamaPassenger1.Text = "";
@@ -1818,6 +1945,8 @@ namespace TiketLaut.Views
                     lblNamaPassenger1.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#94A3B8"));
                 }
             }
+
+            // Clear dan enable kembali field nomor identitas
             if (txtIdPassenger1 != null)
             {
                 txtIdPassenger1.Text = "";
@@ -1838,6 +1967,8 @@ namespace TiketLaut.Views
                     lblIdPassenger1.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#94A3B8"));
                 }
             }
+
+            // Enable kembali combo identitas
             if (cmbIdentitas1 != null)
             {
                 cmbIdentitas1.SelectedIndex = -1;
@@ -1864,28 +1995,49 @@ namespace TiketLaut.Views
                 rbNona1.IsChecked = false;
                 rbNona1.IsEnabled = true;
             }
+
+            // Update label kembali ke default "Penumpang 1"
             UpdatePassengerLabel();
         }
+
+        /// <summary>
+        /// Event handler ketika radio button title berubah (Tuan/Nyonya/Nona)
+        /// </summary>
         private void TitleRadioButton_Changed(object sender, RoutedEventArgs e)
         {
             UpdatePassengerLabel();
         }
+
+        /// <summary>
+        /// Event handler ketika text nama penumpang 1 berubah
+        /// </summary>
         private void TxtNamaPassenger1_TextChanged(object sender, TextChangedEventArgs e)
         {
+            // Update floating label
             FloatingTextBox_TextChanged(sender, e);
+            
+            // Update label header
             UpdatePassengerLabel();
         }
+
+        /// <summary>
+        /// Update label header "Penumpang 1" menjadi "Title Nama" atau "Title"
+        /// </summary>
         private void UpdatePassengerLabel()
         {
             if (txtLabelPassenger1 == null) return;
 
             string title = "";
+            
+            // Dapatkan title yang dipilih
             if (rbTuan1?.IsChecked == true)
                 title = "Tuan";
             else if (rbNyonya1?.IsChecked == true)
                 title = "Nyonya";
             else if (rbNona1?.IsChecked == true)
                 title = "Nona";
+
+            // Dapatkan nama
             string nama = "";
             if (txtNamaPassenger1 != null && 
                 !string.IsNullOrWhiteSpace(txtNamaPassenger1.Text) && 
@@ -1893,6 +2045,8 @@ namespace TiketLaut.Views
             {
                 nama = txtNamaPassenger1.Text.Trim();
             }
+
+            // Update label
             if (!string.IsNullOrEmpty(title) && !string.IsNullOrEmpty(nama))
             {
                 txtLabelPassenger1.Text = $"{title} {nama}";
@@ -1906,18 +2060,27 @@ namespace TiketLaut.Views
                 txtLabelPassenger1.Text = "Penumpang 1";
             }
         }
+
+        /// <summary>
+        /// Helper method untuk update label penumpang lainnya (2-10)
+        /// Dapat dipanggil dari TextChanged event penumpang lainnya
+        /// </summary>
         private void UpdatePassengerLabelGeneric(int passengerNumber, TextBlock labelControl, 
             RadioButton rbTuan, RadioButton rbNyonya, RadioButton rbNona, TextBox txtNama)
         {
             if (labelControl == null) return;
 
             string title = "";
+            
+            // Dapatkan title yang dipilih
             if (rbTuan?.IsChecked == true)
                 title = "Tuan";
             else if (rbNyonya?.IsChecked == true)
                 title = "Nyonya";
             else if (rbNona?.IsChecked == true)
                 title = "Nona";
+
+            // Dapatkan nama
             string nama = "";
             if (txtNama != null && 
                 !string.IsNullOrWhiteSpace(txtNama.Text) && 
@@ -1925,6 +2088,8 @@ namespace TiketLaut.Views
             {
                 nama = txtNama.Text.Trim();
             }
+
+            // Update label
             if (!string.IsNullOrEmpty(title) && !string.IsNullOrEmpty(nama))
             {
                 labelControl.Text = $"{title} {nama}";
@@ -1940,6 +2105,10 @@ namespace TiketLaut.Views
         }
 
         // ========== Event Handlers untuk Penumpang 2 ==========
+        
+        /// <summary>
+        /// Event handler ketika radio button title penumpang 2 berubah
+        /// </summary>
         private void TitleRadioButton2_Changed(object sender, RoutedEventArgs e)
         {
             var txtLabel = this.FindName("txtLabelPassenger2") as TextBlock;
@@ -1953,9 +2122,16 @@ namespace TiketLaut.Views
                 UpdatePassengerLabelGeneric(2, txtLabel, rbTuan, rbNyonya, rbNona, txtNama);
             }
         }
+
+        /// <summary>
+        /// Event handler ketika text nama penumpang 2 berubah
+        /// </summary>
         private void TxtNamaPassenger2_TextChanged(object sender, TextChangedEventArgs e)
         {
+            // Update floating label
             FloatingTextBox_TextChanged(sender, e);
+            
+            // Update label header
             var txtLabel = this.FindName("txtLabelPassenger2") as TextBlock;
             var rbTuan = this.FindName("rbTuan2") as RadioButton;
             var rbNyonya = this.FindName("rbNyonya2") as RadioButton;
@@ -1969,6 +2145,10 @@ namespace TiketLaut.Views
         }
 
         // ========== Event Handlers untuk Penumpang 3 ==========
+        
+        /// <summary>
+        /// Event handler ketika radio button title penumpang 3 berubah
+        /// </summary>
         private void TitleRadioButton3_Changed(object sender, RoutedEventArgs e)
         {
             var txtLabel = this.FindName("txtLabelPassenger3") as TextBlock;
@@ -1982,9 +2162,16 @@ namespace TiketLaut.Views
                 UpdatePassengerLabelGeneric(3, txtLabel, rbTuan, rbNyonya, rbNona, txtNama);
             }
         }
+
+        /// <summary>
+        /// Event handler ketika text nama penumpang 3 berubah
+        /// </summary>
         private void TxtNamaPassenger3_TextChanged(object sender, TextChangedEventArgs e)
         {
+            // Update floating label
             FloatingTextBox_TextChanged(sender, e);
+            
+            // Update label header
             var txtLabel = this.FindName("txtLabelPassenger3") as TextBlock;
             var rbTuan = this.FindName("rbTuan3") as RadioButton;
             var rbNyonya = this.FindName("rbNyonya3") as RadioButton;
@@ -1998,6 +2185,12 @@ namespace TiketLaut.Views
         }
 
         // ========== Event Handlers untuk Penumpang 4-10 (Dynamic) ==========
+        
+        /// <summary>
+        /// Update label header untuk penumpang dinamis (4-10)
+        /// Mencari controls via FindName dan memanggil UpdatePassengerLabelGeneric
+        /// </summary>
+        /// <param name="passengerNumber">Nomor penumpang (4-10)</param>
         private void UpdateDynamicPassengerLabel(int passengerNumber)
         {
             var txtLabel = this.FindName($"txtLabelPassenger{passengerNumber}") as TextBlock;

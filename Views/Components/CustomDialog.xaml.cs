@@ -36,6 +36,8 @@ namespace TiketLaut.Views.Components
             this.ShowInTaskbar = false;
             this.ShowActivated = true;
             this.Focusable = true;
+            
+            // Prevent closing with Alt+F4 or clicking outside
             this.Closing += (s, e) =>
             {
                 // Only allow closing if DialogResult has been set (via button clicks)
@@ -52,6 +54,8 @@ namespace TiketLaut.Views.Components
                 this.Topmost = true;
                 this.Activate();
                 this.Focus();
+                
+                // Remove Topmost after a brief moment so dialog stays with parent
                 this.Dispatcher.BeginInvoke(new Action(() =>
                 {
                     this.Topmost = false;

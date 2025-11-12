@@ -23,13 +23,19 @@ namespace TiketLaut.Views
         private SearchCriteria? _searchCriteria;
         private readonly JadwalService _jadwalService;
         private Button? _selectedVehicleButton;
+        
+         // Constructor 1 (default)
         public ScheduleWindow()
         {
             InitializeComponent();
             _jadwalService = new JadwalService();
+            
+            // Enable zoom functionality
             ZoomHelper.EnableZoom(this);
 
             SetNavbarVisibility();
+
+            // Check data pencarian ada di session ga
             if (SessionManager.LastSearchCriteria != null && SessionManager.LastSearchResults != null)
             {
                 System.Diagnostics.Debug.WriteLine("[ScheduleWindow] Loading from saved search session");
@@ -57,6 +63,9 @@ namespace TiketLaut.Views
                     "Silakan gunakan form pencarian untuk menemukan jadwal keberangkatan.");
             }
         }
+
+
+        // Constructor baru dgn parameter dari DB
         public ScheduleWindow(List<Jadwal> jadwals, SearchCriteria searchCriteria)
         {
             InitializeComponent();
@@ -65,10 +74,17 @@ namespace TiketLaut.Views
             _searchCriteria = searchCriteria;
 
             SetNavbarVisibility();
+
+            // Populate filter dropdown dengan data user
             LoadFilterDropdownsAsync();
 
             LoadScheduleFromDatabase();
         }
+
+
+        /// <summary>
+        /// Set navbar visibility based on user login status
+        /// </summary>
         private void SetNavbarVisibility()
         {
             if (SessionManager.IsLoggedIn && SessionManager.CurrentUser != null)
@@ -89,6 +105,10 @@ namespace TiketLaut.Views
                 System.Diagnostics.Debug.WriteLine("[ScheduleWindow] Guest user - showing NavbarPreLogin");
             }
         }
+
+        /// <summary>
+        /// Load dan populate semua dropdown filter dengan data lengkap dari database
+        /// </summary>
         private async void LoadFilterDropdownsAsync()
         {
             try
@@ -98,6 +118,7 @@ namespace TiketLaut.Views
 
                 if (pelabuhans.Any())
                 {
+                    // Populate Pelabuhan Asal dengan semua pilihan
                     cmbFilterFrom.Items.Clear();
                     cmbFilterFrom.Items.Add(new PelabuhanComboBoxItem
                     {
@@ -132,6 +153,8 @@ namespace TiketLaut.Views
                     {
                         cmbFilterFrom.SelectedIndex = 0;
                     }
+
+                    // Populate Pelabuhan Tujuan dengan semua pilihan
                     cmbFilterTo.Items.Clear();
                     cmbFilterTo.Items.Add(new PelabuhanComboBoxItem
                     {
@@ -167,9 +190,17 @@ namespace TiketLaut.Views
                         cmbFilterTo.SelectedIndex = 0;
                     }
                 }
+
+                // Populate Tanggal
                 PopulateDateFilter();
+
+                // Populate Jam
                 PopulateTimeFilter();
+
+                // Populate Jenis Kendaraan
                 PopulateVehicleFilter();
+
+                // Populate Jumlah Penumpang
                 PopulatePassengerFilter();
             }
             catch (Exception ex)
@@ -178,6 +209,10 @@ namespace TiketLaut.Views
                 System.Diagnostics.Debug.WriteLine($"[ScheduleWindow] Error loading filter dropdowns: {ex.Message}");
             }
         }
+
+        /// <summary>
+        /// Set tanggal filter menggunakan DatePicker
+        /// </summary>
         private void PopulateDateFilter()
         {
             // Di ScheduleWindow, user bisa pilih tanggal apa saja (termasuk tanggal lampau)
@@ -194,6 +229,10 @@ namespace TiketLaut.Views
                 dpFilterDate.SelectedDate = DateTime.Today;
             }
         }
+
+        /// <summary>
+        /// Populate dropdown jam (00:00 - 23:00 seperti HomePage)
+        /// </summary>
         private void PopulateTimeFilter()
         {
             // Jam sudah di-define di XAML (00:00 - 23:00)
@@ -218,6 +257,10 @@ namespace TiketLaut.Views
             // Default ke "Pilih Jam"
             cmbFilterTime.SelectedIndex = 0;
         }
+
+        /// <summary>
+        /// Populate filter jenis kendaraan dengan data dari search criteria
+        /// </summary>
         private void PopulateVehicleFilter()
         {
             // Set selected berdasarkan search criteria
@@ -251,6 +294,10 @@ namespace TiketLaut.Views
                 txtFilterVehicle.Text = "3";
             }
         }
+
+        /// <summary>
+        /// Set initial value untuk filter penumpang dengan tombol +/-
+        /// </summary>
         private void PopulatePassengerFilter()
         {
             // Set initial value berdasarkan search criteria
@@ -263,10 +310,16 @@ namespace TiketLaut.Views
             txtFilterPenumpang.Text = initialValue.ToString();
             UpdateFilterPenumpangDisplay(initialValue);
         }
+
+        /// <summary>
+        /// Update display text untuk penumpang ("X Penumpang")
+        /// </summary>
         private void UpdateFilterPenumpangDisplay(int count)
         {
             if (txtFilterPenumpangDisplay == null)
                 return;
+
+            // Update menggunakan Inlines karena TextBlock menggunakan Run elements
             txtFilterPenumpangDisplay.Inlines.Clear();
             txtFilterPenumpangDisplay.Inlines.Add(new Run(count.ToString()));
             txtFilterPenumpangDisplay.Inlines.Add(new Run(" "));
@@ -274,6 +327,10 @@ namespace TiketLaut.Views
             
             System.Diagnostics.Debug.WriteLine($"[ScheduleWindow] UpdateFilterPenumpangDisplay: count={count}");
         }
+
+        /// <summary>
+        /// Mendapatkan maksimal penumpang berdasarkan kendaraan yang dipilih di filter
+        /// </summary>
         private int GetMaksimalPenumpangFromFilterKendaraan()
         {
             if (txtFilterVehicle == null || string.IsNullOrEmpty(txtFilterVehicle.Text))
@@ -287,10 +344,19 @@ namespace TiketLaut.Views
             
             return 100;
         }
+
+        /// <summary>
+        /// OBSOLETE: Method lama cmbFilterVehicle_SelectionChanged (removed, sekarang menggunakan popup)
+        /// </summary>
+
+        /// <summary>
+        /// Event handler untuk tombol plus penumpang
+        /// </summary>
         private void BtnFilterPlusPenumpang_Click(object sender, RoutedEventArgs e)
         {
             if (int.TryParse(txtFilterPenumpang.Text, out int current))
             {
+                // Dapatkan maksimal penumpang berdasarkan kendaraan yang dipilih
                 int maksimalPenumpang = GetMaksimalPenumpangFromFilterKendaraan();
                 
                 if (current < maksimalPenumpang)
@@ -299,6 +365,8 @@ namespace TiketLaut.Views
                     txtFilterPenumpang.Text = current.ToString();
                     txtPopupPenumpang.Text = current.ToString();
                     UpdateFilterPenumpangDisplay(current);
+                    
+                    // Update button states in popup
                     UpdatePopupButtonStates(current);
                 }
                 else
@@ -310,6 +378,10 @@ namespace TiketLaut.Views
                 }
             }
         }
+
+        /// <summary>
+        /// Event handler untuk tombol minus penumpang
+        /// </summary>
         private void BtnFilterMinusPenumpang_Click(object sender, RoutedEventArgs e)
         {
             if (int.TryParse(txtFilterPenumpang.Text, out int current))
@@ -323,6 +395,10 @@ namespace TiketLaut.Views
                 }
             }
         }
+
+        /// <summary>
+        /// Event handler ketika button tanggal diklik
+        /// </summary>
         private void BtnFilterDate_Click(object sender, RoutedEventArgs e)
         {
             if (dpFilterDate != null)
@@ -333,6 +409,10 @@ namespace TiketLaut.Views
                 // Akan di-collapsed lagi setelah calendar tertutup di event CalendarClosed
             }
         }
+
+        /// <summary>
+        /// Event handler ketika TextBlock tanggal diklik (deprecated, diganti dengan BtnFilterDate_Click)
+        /// </summary>
         private void TxtFilterDateDisplay_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             if (dpFilterDate != null)
@@ -340,6 +420,10 @@ namespace TiketLaut.Views
                 dpFilterDate.IsDropDownOpen = true;
             }
         }
+
+        /// <summary>
+        /// Event handler ketika tanggal dipilih dari DatePicker
+        /// </summary>
         private void DpFilterDate_SelectedDateChanged(object sender, SelectionChangedEventArgs e)
         {
             if (dpFilterDate.SelectedDate.HasValue && txtFilterDateDisplay != null)
@@ -355,10 +439,18 @@ namespace TiketLaut.Views
                 txtFilterDateDisplay.Text = formattedDate;
             }
         }
+
+        /// <summary>
+        /// Event handler ketika calendar dibuka
+        /// </summary>
         private void DpFilterDate_CalendarOpened(object sender, RoutedEventArgs e)
         {
             System.Diagnostics.Debug.WriteLine("[ScheduleWindow] Calendar opened");
         }
+
+        /// <summary>
+        /// Event handler ketika calendar ditutup
+        /// </summary>
         private void DpFilterDate_CalendarClosed(object sender, RoutedEventArgs e)
         {
             System.Diagnostics.Debug.WriteLine("[ScheduleWindow] Calendar closed");
@@ -369,10 +461,15 @@ namespace TiketLaut.Views
                 dpFilterDate.Visibility = Visibility.Collapsed;
             }
         }
+
+        /// <summary>
+        /// Event handler untuk button toggle popup penumpang
+        /// </summary>
         private void BtnFilterPenumpang_Click(object sender, RoutedEventArgs e)
         {
             if (popupPenumpang != null)
             {
+                // Sync nilai dari hidden textbox ke popup textbox
                 if (int.TryParse(txtFilterPenumpang.Text, out int current))
                 {
                     txtPopupPenumpang.Text = current.ToString();
@@ -382,11 +479,19 @@ namespace TiketLaut.Views
                 popupPenumpang.IsOpen = !popupPenumpang.IsOpen;
             }
         }
+
+        /// <summary>
+        /// Validasi input hanya angka untuk TextBox penumpang
+        /// </summary>
         private void TxtPopupPenumpang_PreviewTextInput(object sender, TextCompositionEventArgs e)
         {
             // Hanya terima angka
             e.Handled = !int.TryParse(e.Text, out _);
         }
+
+        /// <summary>
+        /// Event handler ketika text penumpang berubah (manual input)
+        /// </summary>
         private void TxtPopupPenumpang_TextChanged(object sender, TextChangedEventArgs e)
         {
             if (txtPopupPenumpang == null || txtFilterPenumpang == null)
@@ -401,6 +506,7 @@ namespace TiketLaut.Views
 
             if (int.TryParse(txtPopupPenumpang.Text, out int value))
             {
+                // Validasi tidak boleh 0
                 if (value == 0)
                 {
                     // Hapus angka 0, biarkan kosong
@@ -408,12 +514,16 @@ namespace TiketLaut.Views
                     txtPopupPenumpang.SelectionStart = 0;
                     return;
                 }
+
+                // Validasi minimal 1
                 if (value < 1)
                 {
                     value = 1;
                     txtPopupPenumpang.Text = "1";
                     txtPopupPenumpang.SelectionStart = 1;
                 }
+
+                // Validasi maksimal sesuai kendaraan
                 int maksimalPenumpang = GetMaksimalPenumpangFromFilterKendaraan();
                 if (value > maksimalPenumpang)
                 {
@@ -421,11 +531,17 @@ namespace TiketLaut.Views
                     txtPopupPenumpang.Text = maksimalPenumpang.ToString();
                     txtPopupPenumpang.SelectionStart = maksimalPenumpang.ToString().Length;
                 }
+
+                // Sync ke hidden textbox dan update display
                 txtFilterPenumpang.Text = value.ToString();
                 UpdateFilterPenumpangDisplay(value);
                 UpdatePopupButtonStates(value);
             }
         }
+
+        /// <summary>
+        /// Update state enabled/disabled untuk button +/- di popup
+        /// </summary>
         private void UpdatePopupButtonStates(int current)
         {
             int maksimalPenumpang = GetMaksimalPenumpangFromFilterKendaraan();
@@ -436,6 +552,10 @@ namespace TiketLaut.Views
             if (btnPopupPlusPenumpang != null)
                 btnPopupPlusPenumpang.IsEnabled = current < maksimalPenumpang;
         }
+
+        /// <summary>
+        /// Event handler ketika popup penumpang ditutup
+        /// </summary>
         private void PopupPenumpang_Closed(object sender, EventArgs e)
         {
             // Saat popup ditutup, jika TextBox kosong atau invalid, restore ke nilai terakhir yang valid
@@ -443,6 +563,7 @@ namespace TiketLaut.Views
             {
                 if (string.IsNullOrWhiteSpace(txtPopupPenumpang.Text))
                 {
+                    // Restore dari hidden textbox
                     if (int.TryParse(txtFilterPenumpang.Text, out int lastValue) && lastValue >= 1)
                     {
                         txtPopupPenumpang.Text = lastValue.ToString();
@@ -457,6 +578,10 @@ namespace TiketLaut.Views
                 }
             }
         }
+
+        /// <summary>
+        /// Event handler untuk button toggle popup kendaraan
+        /// </summary>
         private void BtnFilterVehicle_Click(object sender, RoutedEventArgs e)
         {
             if (popupVehicle != null)
@@ -464,8 +589,13 @@ namespace TiketLaut.Views
                 popupVehicle.IsOpen = !popupVehicle.IsOpen;
             }
         }
+
+        /// <summary>
+        /// Event handler ketika popup kendaraan dibuka - maintain highlight state
+        /// </summary>
         private void PopupVehicle_Opened(object sender, EventArgs e)
         {
+            // Maintain selected button highlight when popup reopens
             if (_selectedVehicleButton != null)
             {
                 var blueBrush = new SolidColorBrush(
@@ -473,10 +603,15 @@ namespace TiketLaut.Views
                 _selectedVehicleButton.SetValue(Button.BackgroundProperty, blueBrush);
             }
         }
+
+        /// <summary>
+        /// Event handler untuk memilih opsi kendaraan
+        /// </summary>
         private void BtnVehicleOption_Click(object sender, RoutedEventArgs e)
         {
             if (sender is Button button && button.Tag is string tagValue)
             {
+                // Parse tag format: "ID|Name"
                 var parts = tagValue.Split('|');
                 if (parts.Length == 2 && int.TryParse(parts[0], out int jenisKendaraanId))
                 {
@@ -492,7 +627,11 @@ namespace TiketLaut.Views
                     var blueBrush = new SolidColorBrush(
                         (Color)ColorConverter.ConvertFromString("#b7def8ff")); // Soft blue - same as hover
                     button.SetValue(Button.BackgroundProperty, blueBrush);
+                    
+                    // Save current selected button
                     _selectedVehicleButton = button;
+                    
+                    // Update display text with colored format
                     UpdateVehicleDisplay(jenisKendaraanId, vehicleName);
                     txtFilterVehicle.Text = jenisKendaraanId.ToString();
 
@@ -500,6 +639,8 @@ namespace TiketLaut.Views
                     int maksimalPenumpang = DetailKendaraan.GetMaksimalPenumpangByIndex(jenisKendaraanId);
                     
                     System.Diagnostics.Debug.WriteLine($"[ScheduleWindow] Kendaraan filter dipilih: {vehicleName} (ID: {jenisKendaraanId}), Maks penumpang: {maksimalPenumpang}");
+                    
+                    // Check current passenger count
                     if (int.TryParse(txtFilterPenumpang.Text, out int currentPenumpang))
                     {
                         // If current passengers exceed max, adjust to max
@@ -523,6 +664,10 @@ namespace TiketLaut.Views
                 }
             }
         }
+
+        /// <summary>
+        /// Helper method to find Border element inside button template
+        /// </summary>
         private Border? FindChildBorder(DependencyObject parent)
         {
             if (parent == null) return null;
@@ -536,6 +681,8 @@ namespace TiketLaut.Views
                 {
                     return border;
                 }
+                
+                // Recursively search in children
                 var result = FindChildBorder(child);
                 if (result != null)
                 {
@@ -545,6 +692,10 @@ namespace TiketLaut.Views
             
             return null;
         }
+
+        /// <summary>
+        /// Update vehicle display dengan format warna (nama hitam, golongan cyan)
+        /// </summary>
         private void UpdateVehicleDisplay(int jenisKendaraanId, string vehicleName)
         {
             txtFilterVehicleDisplay.Inlines.Clear();
@@ -566,8 +717,12 @@ namespace TiketLaut.Views
                 { 11, " (Golongan VIII)" },
                 { 12, " (Golongan IX)" }
             };
+            
+            // Add vehicle name in black
             var nameRun = new Run(vehicleName) { Foreground = Brushes.Black };
             txtFilterVehicleDisplay.Inlines.Add(nameRun);
+            
+            // Add golongan in cyan if exists
             if (golonganMap.ContainsKey(jenisKendaraanId) && !string.IsNullOrEmpty(golonganMap[jenisKendaraanId]))
             {
                 var golonganRun = new Run(golonganMap[jenisKendaraanId])
@@ -577,6 +732,14 @@ namespace TiketLaut.Views
                 txtFilterVehicleDisplay.Inlines.Add(golonganRun);
             }
         }
+
+        /// <summary>
+        /// OBSOLETE: Method lama untuk dropdown penumpang (removed)
+        /// </summary>
+
+        /// <summary>
+        /// Helper untuk convert jenis_kendaraan_id ke text
+        /// </summary>
         private string GetJenisKendaraanText(int jenisKendaraanId)
         {
             return jenisKendaraanId switch
@@ -597,6 +760,10 @@ namespace TiketLaut.Views
                 _ => "Kendaraan tidak diketahui"
             };
         }
+
+        /// <summary>
+        /// Load schedule data dari database (real data)
+        /// </summary>
         private void LoadScheduleFromDatabase()
         {
             if (_jadwals == null || !_jadwals.Any())
@@ -611,7 +778,8 @@ namespace TiketLaut.Views
             {
                 try
                 {
-                                        // Database menyimpan dalam UTC, convert ke timezone pelabuhan
+                    // ? FIX TIMEZONE: Convert UTC to pelabuhan timezone
+                    // Database menyimpan dalam UTC, convert ke timezone pelabuhan
                     var offsetAsalHours = jadwal.pelabuhan_asal?.TimezoneOffsetHours ?? 7;  // Default WIB
                     var offsetTujuanHours = jadwal.pelabuhan_tujuan?.TimezoneOffsetHours ?? 7;
                     
@@ -634,6 +802,8 @@ namespace TiketLaut.Views
                     // Cari harga kendaraan yang sesuai dari GrupKendaraan
                     var detailKendaraan = jadwal.GrupKendaraan?.DetailKendaraans?
                         .FirstOrDefault(d => d.jenis_kendaraan == _searchCriteria?.JenisKendaraanId);
+                    
+                    // Validasi jenis kendaraan tersedia
                     if (detailKendaraan == null)
                     {
                         // Jadwal ini tidak support jenis kendaraan yang dicari
@@ -708,6 +878,10 @@ namespace TiketLaut.Views
 
             System.Diagnostics.Debug.WriteLine($"[ScheduleWindow] Total loaded: {ScheduleItems.Count} schedules");
         }
+
+        /// <summary>
+        /// Parse fasilitas dari string (comma-separated) ke List
+        /// </summary>
         private List<string> ParseFacilities(string? fasilitasString)
         {
             if (string.IsNullOrEmpty(fasilitasString))
@@ -737,10 +911,15 @@ namespace TiketLaut.Views
             homePage.Show();
             this.Close();
         }
+
+        /// <summary>
+        /// Implementasi pencarian dengan filter yang dipilih (simplified version)
+        /// </summary>
         private async void BtnCari_Click(object sender, RoutedEventArgs e)
         {
             try
             {
+                // Validasi Pelabuhan Asal
                 if (cmbFilterFrom.SelectedIndex < 0 ||
                     !(cmbFilterFrom.SelectedItem is PelabuhanComboBoxItem pelabuhanAsal) ||
                     pelabuhanAsal.Id == 0)
@@ -748,6 +927,8 @@ namespace TiketLaut.Views
                     CustomDialog.ShowWarning("Peringatan", "Silakan pilih Pelabuhan Asal!");
                     return;
                 }
+
+                // Validasi Pelabuhan Tujuan
                 if (cmbFilterTo.SelectedIndex < 0 ||
                     !(cmbFilterTo.SelectedItem is PelabuhanComboBoxItem pelabuhanTujuan) ||
                     pelabuhanTujuan.Id == 0)
@@ -755,23 +936,33 @@ namespace TiketLaut.Views
                     CustomDialog.ShowWarning("Peringatan", "Silakan pilih Pelabuhan Tujuan!");
                     return;
                 }
+
+                // Validasi Tanggal (DatePicker)
                 if (!dpFilterDate.SelectedDate.HasValue)
                 {
                     CustomDialog.ShowWarning("Peringatan", "Silakan pilih Tanggal!");
                     return;
                 }
+
+                // Validasi Jenis Kendaraan (harus sebelum validasi penumpang)
                 if (txtFilterVehicle == null || string.IsNullOrEmpty(txtFilterVehicle.Text) ||
                     !int.TryParse(txtFilterVehicle.Text, out int jenisKendaraanId))
                 {
                     CustomDialog.ShowWarning("Peringatan", "Silakan pilih Jenis Kendaraan!");
                     return;
                 }
+                
+                // Dapatkan maksimal penumpang untuk jenis kendaraan yang dipilih
                 int maksimalPenumpang = DetailKendaraan.GetMaksimalPenumpangByIndex(jenisKendaraanId);
+
+                // Validasi Penumpang
                 if (!int.TryParse(txtFilterPenumpang.Text, out int jumlahPenumpang) || jumlahPenumpang < 1)
                 {
                     CustomDialog.ShowWarning("Peringatan", "Jumlah penumpang minimal adalah 1!");
                     return;
                 }
+
+                // Validasi penumpang tidak melebihi maksimal untuk jenis kendaraan
                 if (jumlahPenumpang > maksimalPenumpang)
                 {
                     var specs = DetailKendaraan.GetSpecificationByJenis((JenisKendaraan)jenisKendaraanId);
@@ -801,6 +992,8 @@ namespace TiketLaut.Views
 
                 // Use tanggal keberangkatan as DateTime (no separate time filter)
                 DateTime? tanggalKeberangkatanFilter = tanggalKeberangkatan;
+
+                // Validasi pelabuhan asal dan tujuan tidak sama
                 if (pelabuhanAsal.Id == pelabuhanTujuan.Id)
                 {
                     CustomDialog.ShowWarning(
@@ -829,6 +1022,8 @@ namespace TiketLaut.Views
                         "Tidak ditemukan jadwal yang sesuai dengan kriteria pencarian Anda.\n\nSilakan coba dengan kriteria lain atau pilih tanggal berbeda.");
                     return;
                 }
+
+                // Update search criteria dan jadwals
                 _searchCriteria = new SearchCriteria
                 {
                     PelabuhanAsalId = pelabuhanAsal.Id,
@@ -841,6 +1036,8 @@ namespace TiketLaut.Views
                 };
 
                 _jadwals = jadwals;
+
+                // SAVE TO SESSION - PENTING!
                 SessionManager.SaveSearchSession(_searchCriteria, _jadwals);
 
                 // Reload schedule dengan data baru
@@ -856,6 +1053,10 @@ namespace TiketLaut.Views
                 System.Diagnostics.Debug.WriteLine($"[ScheduleWindow] Error searching schedules: {ex.Message}");
             }
         }
+
+        /// <summary>
+        /// Session management untuk pilih tiket
+        /// </summary>
         private void BtnPilihTiket_Click(object sender, RoutedEventArgs e)
         {
             if (sender is Button button && button.Tag is ScheduleItem schedule)
@@ -872,11 +1073,14 @@ namespace TiketLaut.Views
 
                     if (result == true)
                     {
-                                                try
+                        // ? FIX: Pastikan menggunakan LoginSource.ScheduleWindow
+                        try
                         {
                             System.Diagnostics.Debug.WriteLine("[ScheduleWindow] Navigating to LoginWindow with ScheduleWindow source");
 
-                            var loginWindow = new LoginWindow(LoginSource.ScheduleWindow);                             // Preserve window size and position for login window
+                            var loginWindow = new LoginWindow(LoginSource.ScheduleWindow); // ? PENTING: Gunakan ScheduleWindow bukan HomePage!
+
+                            // Preserve window size and position for login window
                             loginWindow.Left = this.Left;
                             loginWindow.Top = this.Top;
                             loginWindow.Width = this.Width;
@@ -895,7 +1099,8 @@ namespace TiketLaut.Views
                     return; // Exit method - tidak lanjut ke booking
                 }
 
-                                try
+                // ? USER SUDAH LOGIN - Lanjut ke booking
+                try
                 {
                     // Debug log untuk memastikan _searchCriteria ada
                     if (_searchCriteria != null)
@@ -1021,6 +1226,10 @@ namespace TiketLaut.Views
             return null;
         }
     }
+
+    /// <summary>
+    /// Helper class untuk ComboBox Pelabuhan
+    /// </summary>
     public class PelabuhanComboBoxItem
     {
         public int Id { get; set; }

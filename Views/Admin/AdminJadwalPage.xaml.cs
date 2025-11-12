@@ -51,6 +51,8 @@ namespace TiketLaut.Views
                 await _riwayatService.AutoUpdatePembayaranSelesaiAsync();
                 
                 var jadwals = await _jadwalService.GetAllJadwalAsync();
+                
+                // Store ALL data for pagination
                 _allJadwalsData = jadwals.OrderByDescending(j => j.jadwal_id).ToList();
                 _totalRecords = _allJadwalsData.Count;
                 
@@ -356,6 +358,7 @@ namespace TiketLaut.Views
         // Filter Methods
         private void ApplyFilters()
         {
+            // Null check - return early if data not loaded yet or UI not initialized
             if (_allJadwals == null || _filteredJadwals == null || 
                 txtSearch == null || cmbPelabuhanAsal == null || 
                 cmbPelabuhanTujuan == null || cmbStatus == null || 

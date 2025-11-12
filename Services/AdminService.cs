@@ -13,6 +13,10 @@ namespace TiketLaut.Services
         {
             // No longer need to initialize _context field
         }
+
+        /// <summary>
+        /// Validate admin login (cek di tabel Admin)
+        /// </summary>
         public async Task<Admin?> ValidateAdminLoginAsync(string email, string password)
         {
             try
@@ -27,11 +31,19 @@ namespace TiketLaut.Services
                 return null;
             }
         }
+
+        /// <summary>
+        /// Get admin by ID
+        /// </summary>
         public async Task<Admin?> GetAdminByIdAsync(int adminId)
         {
             using var context = DatabaseService.GetContext();
             return await context.Admins.FirstOrDefaultAsync(a => a.admin_id == adminId);
         }
+
+        /// <summary>
+        /// Get all admins (untuk SuperAdmin)
+        /// </summary>
         public async Task<List<Admin>> GetAllAdminsAsync()
         {
             using var context = DatabaseService.GetContext();
@@ -39,6 +51,10 @@ namespace TiketLaut.Services
                 .OrderBy(a => a.nama)
                 .ToListAsync();
         }
+
+        /// <summary>
+        /// Create new admin - simplified version
+        /// </summary>
         public async Task<Admin?> CreateAdminAsync(Admin admin)
         {
             try
@@ -69,6 +85,8 @@ namespace TiketLaut.Services
                     counter++;
                     System.Diagnostics.Debug.WriteLine($"Username conflict, trying: {admin.username}");
                 }
+
+                // Set default values
                 admin.created_at = DateTime.Now;
                 admin.updated_at = DateTime.Now;
 
@@ -85,6 +103,10 @@ namespace TiketLaut.Services
                 return null;
             }
         }
+
+        /// <summary>
+        /// Update admin - simplified version
+        /// </summary>
         public async Task<bool> UpdateAdminAsync(Admin admin)
         {
             try
@@ -96,14 +118,20 @@ namespace TiketLaut.Services
                 {
                     return false;
                 }
+
+                // Update fields
                 existing.nama = admin.nama;
                 existing.email = admin.email;
                 existing.role = admin.role;
                 existing.updated_at = DateTime.Now;
+
+                // Update password hanya jika diisi
                 if (!string.IsNullOrEmpty(admin.password))
                 {
                     existing.password = admin.password;
                 }
+
+                // Update username jika ada
                 if (!string.IsNullOrWhiteSpace(admin.username))
                 {
                     existing.username = admin.username;
@@ -118,6 +146,10 @@ namespace TiketLaut.Services
                 return false;
             }
         }
+
+        /// <summary>
+        /// Delete admin - simplified version
+        /// </summary>
         public async Task<bool> DeleteAdminAsync(int adminId)
         {
             try
@@ -141,6 +173,10 @@ namespace TiketLaut.Services
                 return false;
             }
         }
+
+        /// <summary>
+        /// Create new admin (hanya SuperAdmin yang bisa) - with validation
+        /// </summary>
         public async Task<(bool success, string message)> CreateAdminWithValidationAsync(Admin admin, Admin currentAdmin)
         {
             try
@@ -176,6 +212,10 @@ namespace TiketLaut.Services
                 return (false, $"Error: {ex.Message}");
             }
         }
+
+        /// <summary>
+        /// Delete admin (hanya SuperAdmin yang bisa) - with validation
+        /// </summary>
         public async Task<(bool success, string message)> DeleteAdminWithValidationAsync(int adminId, Admin currentAdmin)
         {
             try
@@ -210,6 +250,10 @@ namespace TiketLaut.Services
                 return (false, $"Error: {ex.Message}");
             }
         }
+
+        /// <summary>
+        /// Get statistics untuk dashboard
+        /// </summary>
         public async Task<AdminDashboardStats> GetDashboardStatsAsync()
         {
             try
@@ -293,6 +337,10 @@ namespace TiketLaut.Services
                 return new AdminDashboardStats();
             }
         }
+
+        /// <summary>
+        /// Get detail pendapatan per rute & kapal untuk bulan tertentu
+        /// </summary>
         public async Task<List<PendapatanPerRuteKapal>> GetPendapatanPerRuteKapalAsync(int bulan, int tahun)
         {
             try
@@ -346,6 +394,10 @@ namespace TiketLaut.Services
                 return new List<PendapatanPerRuteKapal>();
             }
         }
+
+        /// <summary>
+        /// Get detail pendapatan per rute & kapal untuk bulan ini (default)
+        /// </summary>
         public async Task<List<PendapatanPerRuteKapal>> GetPendapatanPerRuteKapalAsync()
         {
             var currentMonth = DateTime.UtcNow.Month;
@@ -353,6 +405,10 @@ namespace TiketLaut.Services
             return await GetPendapatanPerRuteKapalAsync(currentMonth, currentYear);
         }
     }
+
+    /// <summary>
+    /// DTO untuk statistik dashboard
+    /// </summary>
     public class AdminDashboardStats
     {
         public int TotalPengguna { get; set; }
@@ -372,6 +428,10 @@ namespace TiketLaut.Services
         public int JadwalMingguDepan { get; set; }
         public decimal RataRataPendapatanPerHari { get; set; }
     }
+
+    /// <summary>
+    /// DTO untuk pendapatan per rute & kapal
+    /// </summary>
     public class PendapatanPerRuteKapal
     {
         public string PelabuhanAsal { get; set; } = string.Empty;

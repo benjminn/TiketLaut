@@ -26,6 +26,8 @@ namespace TiketLaut.Views
                 LoadKapalData(kapal);
             }
         }
+        
+        // Event handler untuk validasi input angka
         private void NumericTextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
         {
             // Hanya izinkan angka (0-9)
@@ -44,6 +46,8 @@ namespace TiketLaut.Views
 
         private async void BtnSave_Click(object sender, RoutedEventArgs e)
         {
+            // Validasi
+            if (string.IsNullOrWhiteSpace(txtNamaKapal.Text))
             {
                 MessageBox.Show("Nama kapal harus diisi!", "Validasi", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;

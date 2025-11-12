@@ -23,6 +23,8 @@ namespace TiketLaut.Views
         {
             InitializeComponent();
             _service = new NotifikasiService();
+            
+            // Enable zoom functionality
             ZoomHelper.EnableZoom(this);
 
             // Ambil user ID dari SessionManager
@@ -51,7 +53,8 @@ namespace TiketLaut.Views
 
                 var data = await _service.GetNotifikasiByPenggunaIdAsync(_userId);
 
-                                System.Diagnostics.Debug.WriteLine($"[LOAD DATA] Total notifikasi dari database: {data?.Count ?? 0}");
+                // ✅ DEBUGGING: Cek jumlah data yang di-fetch
+                System.Diagnostics.Debug.WriteLine($"[LOAD DATA] Total notifikasi dari database: {data?.Count ?? 0}");
 
                 if (data == null || !data.Any())
                 {
@@ -61,14 +64,16 @@ namespace TiketLaut.Views
 
                 var sorted = data.OrderByDescending(n => n.waktu_kirim).ToList();
 
-                                foreach (var notif in sorted)
+                // ✅ DEBUGGING: Tampilkan semua notifikasi yang akan di-render
+                foreach (var notif in sorted)
                 {
                     System.Diagnostics.Debug.WriteLine($"[LOAD DATA] ID: {notif.notifikasi_id}, Judul: {notif.judul_notifikasi}, Status Baca: {notif.status_baca}, Jenis: {notif.jenis_notifikasi}");
                 }
 
                 for (int i = 0; i < sorted.Count; i++)
                 {
-                                        bool isFirst = (i == 0);
+                    // ✅ Pass index untuk menentukan corner radius
+                    bool isFirst = (i == 0);
                     bool isLast = (i == sorted.Count - 1);
 
                     AddItem(sorted[i], isFirst, isLast);
@@ -95,11 +100,13 @@ namespace TiketLaut.Views
             notificationList.Children.Add(panel);
         }
 
-                private void AddItem(Notifikasi n, bool isFirst = false, bool isLast = false)
+        // ✅ Update method signature untuk terima parameter isFirst & isLast
+        private void AddItem(Notifikasi n, bool isFirst = false, bool isLast = false)
         {
             System.Diagnostics.Debug.WriteLine($"Notifikasi ID: {n.notifikasi_id}, Status Baca: {n.status_baca}");
 
-                        CornerRadius cornerRadius;
+            // ✅ Tentukan corner radius berdasarkan posisi
+            CornerRadius cornerRadius;
             if (isFirst && isLast)
             {
                 // Jika hanya 1 notifikasi: rounded semua corner
@@ -126,7 +133,8 @@ namespace TiketLaut.Views
                 Background = n.status_baca
                     ? Brushes.White
                     : new SolidColorBrush(Color.FromRgb(226, 247, 255)),
-                CornerRadius = cornerRadius,                 Padding = new Thickness(40, 25, 40, 25),
+                CornerRadius = cornerRadius, // ✅ Apply corner radius
+                Padding = new Thickness(40, 25, 40, 25),
                 Margin = new Thickness(0),
                 Cursor = System.Windows.Input.Cursors.Hand,
                 HorizontalAlignment = HorizontalAlignment.Stretch
@@ -180,7 +188,9 @@ namespace TiketLaut.Views
             notificationList.Children.Add(cardBorder);
         }
 
-                        private async System.Threading.Tasks.Task HandleNotificationClick(Notifikasi n)
+        // ✅ GANTI MessageBox jadi CustomDialog
+        // ✅ LOGIC BARU: Redirect berdasarkan status pembayaran yang spesifik
+        private async System.Threading.Tasks.Task HandleNotificationClick(Notifikasi n)
         {
             string redirectMessage = "";
             Action? redirectAction = null;
@@ -189,7 +199,8 @@ namespace TiketLaut.Views
             string judulLower = n.judul_notifikasi?.ToLower() ?? "";
             string jenisLower = n.jenis_notifikasi?.ToLower() ?? "";
 
-                        if (jenisLower == "pengingat")
+            // ✅ PRIORITAS 1: Cek berdasarkan JENIS dulu, baru judul
+            if (jenisLower == "pengingat")
             {
                 // Semua notifikasi dengan jenis "pengingat" -> Redirect ke TiketDetailWindow
                 redirectMessage = "Lihat detail tiket Anda?";
@@ -317,7 +328,8 @@ namespace TiketLaut.Views
                 LineHeight = 26
             };
 
-                        string pattern = @"(" +
+            // ✅ UPDATE PATTERN: Sesuai dengan design Figma
+            string pattern = @"(" +
                     @"#[A-Z0-9-]+" +                                          // Kode tiket/booking (cth: #TKT-20251107-001)
                     @"|\b\s+[A-Z][A-Za-z]+\s*-\s*[A-Z][A-Za-z]+" +    // Rute dengan "jurusan" (cth: jurusan Merak - Bakauheni)
                     @"|\d{1,2}\s+\w+\s+\d{4}\s+\s+\d{2}:\d{2}" +        // Tanggal lengkap dengan waktu (cth: 8 November 2025 pukul 08:00)

@@ -24,6 +24,8 @@ namespace TiketLaut.Views
             _adminService = new AdminService();
             _riwayatService = new RiwayatService();
             _currentAdmin = SessionManager.CurrentAdmin;
+            
+            // Enable zoom functionality
             ZoomHelper.EnableZoom(this);
 
             if (_currentAdmin == null)
@@ -47,6 +49,8 @@ namespace TiketLaut.Views
             // Auto-update status tiket dan jadwal yang sudah selesai
             System.Diagnostics.Debug.WriteLine("[AdminDashboard] Running auto-update...");
             await _riwayatService.AutoUpdatePembayaranSelesaiAsync();
+            
+            // Initialize month filter
             InitializeMonthFilter();
             
             // Load dashboard stats dan pendapatan table
@@ -60,6 +64,8 @@ namespace TiketLaut.Views
             {
                 var currentDate = DateTime.UtcNow;
                 var culture = System.Globalization.CultureInfo.GetCultureInfo("id-ID");
+                
+                // Clear existing items
                 cmbBulanFilter.Items.Clear();
                 
                 // Generate 12 bulan ke belakang dari bulan sekarang
@@ -123,6 +129,8 @@ namespace TiketLaut.Views
                 }
                 
                 var stats = await _adminService.GetDashboardStatsAsync();
+
+                // Update existing stats
                 txtTotalPengguna.Text = stats.TotalPengguna.ToString();
                 txtTotalTiket.Text = stats.TotalTiket.ToString();
                 txtTotalKapal.Text = stats.TotalKapal.ToString();
@@ -130,6 +138,8 @@ namespace TiketLaut.Views
                 txtPembayaranMenunggu.Text = stats.PembayaranMenungguKonfirmasi.ToString();
                 txtPendapatanHariIni.Text = $"Rp {stats.TotalPendapatanHariIni:N0}";
                 txtPendapatanBulanIni.Text = $"Rp {stats.TotalPendapatanBulanIni:N0}";
+                
+                // Update new insights
                 txtPenggunaBaru.Text = stats.PenggunaBaru7Hari.ToString();
                 txtTiketHariIni.Text = stats.TiketHariIni.ToString();
                 txtJadwalMingguDepan.Text = stats.JadwalMingguDepan.ToString();
@@ -165,6 +175,8 @@ namespace TiketLaut.Views
                     CustomDialog.ShowError("Error", "Service tidak tersedia. Silakan restart aplikasi.");
                     return;
                 }
+
+                // Get selected month and year from filter
                 int bulan, tahun;
                 
                 try
@@ -227,6 +239,8 @@ namespace TiketLaut.Views
                     // Set to empty list to show "no data" message
                     pendapatanList = new List<PendapatanPerRuteKapal>();
                 }
+                
+                // Check if there's data
                 if (pendapatanList == null || pendapatanList.Count == 0)
                 {
                     // Show message, hide table
@@ -235,6 +249,8 @@ namespace TiketLaut.Views
                     
                     // Set total to 0
                     txtTotalPendapatanTable.Text = "Rp 0";
+                    
+                    // Update footer label
                     var bulanNama = System.Globalization.CultureInfo.GetCultureInfo("id-ID").DateTimeFormat.GetMonthName(bulan);
                     txtPeriodePendapatan.Text = $"Total Pendapatan {bulanNama.ToUpper()} {tahun}";
                 }
@@ -243,6 +259,8 @@ namespace TiketLaut.Views
                     // Hide message, show table
                     txtNoPendapatan.Visibility = Visibility.Collapsed;
                     dgPendapatanDetail.Visibility = Visibility.Visible;
+                    
+                    // Add numbering - dengan null check untuk setiap property
                     var numberedList = pendapatanList.Select((item, index) => new PendapatanPerRuteKapalView
                     {
                         No = index + 1,
@@ -255,8 +273,12 @@ namespace TiketLaut.Views
                     }).ToList();
 
                     dgPendapatanDetail.ItemsSource = numberedList;
+
+                    // Update total
                     var total = pendapatanList.Sum(p => p?.TotalPendapatan ?? 0);
                     txtTotalPendapatanTable.Text = $"Rp {total:N0}";
+                    
+                    // Update footer label with selected period
                     var bulanNama = System.Globalization.CultureInfo.GetCultureInfo("id-ID").DateTimeFormat.GetMonthName(bulan);
                     txtPeriodePendapatan.Text = $"Total Pendapatan {bulanNama.ToUpper()} {tahun}";
                 }
@@ -380,6 +402,7 @@ namespace TiketLaut.Views
         {
             try
             {
+                // Get selected month and year from filter
                 int bulan, tahun;
                 string bulanNama;
                 if (cmbBulanFilter.SelectedItem is ComboBoxItem selectedItem && selectedItem.Tag != null)
@@ -417,6 +440,8 @@ namespace TiketLaut.Views
 
                 if (saveDialog.ShowDialog() != true)
                     return;
+
+                // Create Excel workbook
                 using (var workbook = new XLWorkbook())
                 {
                     var worksheet = workbook.Worksheets.Add("Pendapatan");
@@ -476,9 +501,14 @@ namespace TiketLaut.Views
 
                     // Auto-fit columns
                     worksheet.Columns().AdjustToContents();
+
+                    // Add borders
                     var dataRange = worksheet.Range(4, 1, totalRow, 6);
                     dataRange.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
                     dataRange.Style.Border.InsideBorder = XLBorderStyleValues.Thin;
+
+                    // Save
+                    workbook.SaveAs(saveDialog.FileName);
                 }
 
                 CustomDialog.ShowSuccess("Success", $"Data berhasil di-export ke:\n{saveDialog.FileName}");
@@ -532,6 +562,10 @@ namespace TiketLaut.Views
             }
         }
     }
+
+    /// <summary>
+    /// View model untuk DataGrid dengan numbering
+    /// </summary>
     public class PendapatanPerRuteKapalView
     {
         public int No { get; set; }

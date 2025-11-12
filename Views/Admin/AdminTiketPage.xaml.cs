@@ -89,6 +89,8 @@ namespace TiketLaut.Views
                     dialog.Owner = Window.GetWindow(this);
                     dialog.ShowDialog();
                 }
+
+                // Load ALL tickets from database
                 var tikets = await _tiketService.GetAllTiketsAsync();
                 _allTiketsData = tikets.OrderByDescending(t => t.tiket_id).ToList();
                 _totalRecords = _allTiketsData.Count;
@@ -108,6 +110,8 @@ namespace TiketLaut.Views
                         Text = $"{jadwal.pelabuhan_asal?.nama_pelabuhan} → {jadwal.pelabuhan_tujuan?.nama_pelabuhan} ({jadwal.waktu_berangkat:dd/MM HH:mm})"
                     });
                 }
+                
+                // Set default selections
                 cmbJadwal.SelectedIndex = 0;
                 cmbStatus.SelectedIndex = 0;
             }
