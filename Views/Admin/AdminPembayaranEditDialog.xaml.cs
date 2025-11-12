@@ -60,13 +60,13 @@ namespace TiketLaut.Views
         {
             try
             {
-                if (cmbStatus.SelectedItem == null)
                 {
                     MessageBox.Show("Status pembayaran harus dipilih!", "Validasi",
                         MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
 
+                // Konfirmasi
                 var result = MessageBox.Show(
                     "Simpan perubahan data pembayaran?\n\n" +
                     $"Status: {(cmbStatus.SelectedItem as ComboBoxItem)?.Content}\n" +
