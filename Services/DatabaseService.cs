@@ -38,6 +38,7 @@ namespace TiketLaut.Services
 
         public static AppDbContext GetContext()
         {
+            // Create NEW context instance every time (not singleton)
             // This allows using var context pattern safely
             var connectionString = GetConnectionString();
             var optionsBuilder = new DbContextOptionsBuilder<AppDbContext>();
@@ -58,11 +59,22 @@ namespace TiketLaut.Services
                 return false;
             }
         }
+
+        /// <summary>
+        /// Clear cached DbContext and force refresh from database.
+        /// Call this after external changes or when you need fresh data.
+        /// Note: Since we use per-call context instances, this is now a no-op.
+        /// </summary>
         public static void RefreshContext()
         {
             // No-op: Context instances are created per-call, so no cached context to clear
             // This method is kept for backward compatibility
         }
+
+        /// <summary>
+        /// Clear all tracked entities to prevent stale data issues.
+        /// Call this after bulk SQL updates that bypass EF tracking.
+        /// </summary>
         public static void ClearTrackedEntities()
         {
             var context = GetContext();

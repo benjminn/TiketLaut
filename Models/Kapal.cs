@@ -5,7 +5,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TiketLaut
 {
-    [Table("Kapal")]      public class Kapal
+    [Table("Kapal")]  // ? Fix: PascalCase
+    public class Kapal
     {
         [Key]
         public int kapal_id { get; set; }
@@ -24,7 +25,8 @@ namespace TiketLaut
         [StringLength(500)]
         public string fasilitas { get; set; } = string.Empty;
         
-                [StringLength(1000)]
+        // ? FIX: Ubah jadi nullable
+        [StringLength(1000)]
         public string? deskripsi { get; set; }  // NULLABLE!
 
         // Navigation properties
@@ -36,6 +38,7 @@ namespace TiketLaut
             Console.WriteLine($"Kapasitas Penumpang: {kapasitas_penumpang_max} orang");
             Console.WriteLine($"Kapasitas Kendaraan: {kapasitas_kendaraan_max} unit");
             Console.WriteLine($"Fasilitas: {fasilitas}");
-            Console.WriteLine($"Deskripsi: {deskripsi ?? "(Tidak ada deskripsi)"}");          }
+            Console.WriteLine($"Deskripsi: {deskripsi ?? "(Tidak ada deskripsi)"}");  // ? Handle null
+        }
     }
 }

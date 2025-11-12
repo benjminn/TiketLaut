@@ -52,6 +52,8 @@ namespace TiketLaut.Views
 
         private async void BtnSave_Click(object sender, RoutedEventArgs e)
         {
+            // Validasi
+            if (string.IsNullOrWhiteSpace(txtNamaPelabuhan.Text))
             {
                 MessageBox.Show("Nama pelabuhan harus diisi!", "Validasi", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;

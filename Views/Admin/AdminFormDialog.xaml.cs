@@ -10,6 +10,8 @@ namespace TiketLaut.Views.Admin
         private readonly AdminService _adminService;
         private readonly AdminModel? _existingAdmin;
         private readonly bool _isEditMode;
+
+        // Constructor untuk mode tambah
         public AdminFormDialog()
         {
             InitializeComponent();
@@ -20,6 +22,8 @@ namespace TiketLaut.Views.Admin
             txtTitle.Text = "Tambah Admin";
             cmbRole.SelectedIndex = 0; // Default: Admin Operasional
         }
+
+        // Constructor untuk mode edit
         public AdminFormDialog(AdminModel admin)
         {
             InitializeComponent();
@@ -53,6 +57,8 @@ namespace TiketLaut.Views.Admin
         {
             try
             {
+                // Validation
+                if (string.IsNullOrWhiteSpace(txtNama.Text))
                 {
                     MessageBox.Show("Nama tidak boleh kosong!", "Validasi", MessageBoxButton.OK, MessageBoxImage.Warning);
                     txtNama.Focus();
@@ -116,6 +122,7 @@ namespace TiketLaut.Views.Admin
 
                 if (_isEditMode && _existingAdmin != null)
                 {
+                    // Update admin
                     _existingAdmin.nama = txtNama.Text.Trim();
                     _existingAdmin.email = txtEmail.Text.Trim();
                     _existingAdmin.role = selectedRole;
@@ -140,6 +147,7 @@ namespace TiketLaut.Views.Admin
                 }
                 else
                 {
+                    // Create new admin
                     var newAdmin = new AdminModel
                     {
                         nama = txtNama.Text.Trim(),

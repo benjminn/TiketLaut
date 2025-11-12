@@ -56,6 +56,10 @@ namespace TiketLaut.Services
         {
             return await _context.Penggunas.FirstOrDefaultAsync(p => p.pengguna_id == penggunaId);
         }
+
+        /// <summary>
+        /// Cek apakah user dengan Google email sudah terdaftar
+        /// </summary>
         public async Task<Pengguna?> GetByGoogleEmailAsync(string googleEmail)
         {
             try
@@ -69,6 +73,13 @@ namespace TiketLaut.Services
                 return null;
             }
         }
+
+
+
+        /// <summary>
+        /// Register user baru dari Google OAuth dengan info tambahan
+        /// Password di-set sebagai "GOOGLE_OAUTH" karena login via Google tidak pakai password
+        /// </summary>
         public async Task<(bool success, string message, Pengguna? pengguna)> RegisterGoogleUserAsync(
             string googleEmail,
             string namaLengkap,
@@ -123,6 +134,10 @@ namespace TiketLaut.Services
                 return (false, $"Terjadi kesalahan: {ex.Message}", null);
             }
         }
+
+        /// <summary>
+        /// Ambil semua pengguna
+        /// </summary>
         public async Task<List<Pengguna>> GetAllAsync()
         {
             try
@@ -137,6 +152,10 @@ namespace TiketLaut.Services
                 return new List<Pengguna>();
             }
         }
+
+        /// <summary>
+        /// Update profil pengguna lengkap
+        /// </summary>
         public async Task<bool> UpdateProfile(
             int penggunaId,
             string nama,
@@ -183,12 +202,16 @@ namespace TiketLaut.Services
                         return false;
                     }
                 }
+
+                // Update data
                 pengguna.nama = nama;
                 pengguna.email = email;
                 pengguna.nomor_induk_kependudukan = nik;
                 pengguna.jenis_kelamin = jenisKelamin;
                 pengguna.tanggal_lahir = tanggalLahir;
                 pengguna.alamat = string.IsNullOrWhiteSpace(alamat) ? null : alamat;
+
+                // Update password jika diisi
                 if (!string.IsNullOrWhiteSpace(newPassword))
                 {
                     pengguna.password = newPassword;

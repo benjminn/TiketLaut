@@ -74,10 +74,11 @@ namespace TiketLaut.Data
                 .HasIndex(p => p.email)
                 .IsUnique();
 
+            // ? SIMPLE FIX: Store enum as string in text column
             modelBuilder.Entity<Pembayaran>()
                 .Property(p => p.status_bayar)
-                .HasConversion<string>()
-                .HasColumnType("text")
+                .HasConversion<string>()  // Simple enum-to-string conversion
+                .HasColumnType("text")    // Use text column instead of enum
                 .HasDefaultValue("MenungguPembayaran");
         }
     }

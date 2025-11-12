@@ -4,10 +4,12 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TiketLaut
 {
-    [Table("RincianPenumpang")]      public class RincianPenumpang
+    [Table("RincianPenumpang")]  // ? Fixed table name
+    public class RincianPenumpang
     {
         [Key]
-        public int rincian_id { get; set; }          
+        public int rincian_id { get; set; }  // ? Changed from rincian_penumpang_id
+        
         [Required]
         public int tiket_id { get; set; }
         

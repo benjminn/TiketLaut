@@ -5,7 +5,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TiketLaut
 {
-    [Table("Pelabuhan")]      public class Pelabuhan
+    [Table("Pelabuhan")]  // ? Fix: PascalCase
+    public class Pelabuhan
     {
         [Key]
         public int pelabuhan_id { get; set; }
@@ -26,16 +27,23 @@ namespace TiketLaut
         [StringLength(500)]
         public string fasilitas { get; set; } = string.Empty;
         
-                [StringLength(1000)]
+        // ? FIX: Ubah jadi nullable
+        [StringLength(1000)]
         public string? deskripsi { get; set; }  // NULLABLE!
 
         // Geographic coordinates for marine weather API
         public double? latitude { get; set; }   // Latitude koordinat pelabuhan
         public double? longitude { get; set; }  // Longitude koordinat pelabuhan
 
-                [Required]
+        // ? NEW: Timezone support (WIB, WITA, WIT)
+        [Required]
         [StringLength(10)]
         public string timezone { get; set; } = "WIB";  // Default WIB
+        
+        /// <summary>
+        /// Get timezone offset in hours from UTC
+        /// WIB = UTC+7, WITA = UTC+8, WIT = UTC+9
+        /// </summary>
         [NotMapped]
         public int TimezoneOffsetHours
         {
@@ -62,6 +70,7 @@ namespace TiketLaut
             Console.WriteLine($"Provinsi: {provinsi}");
             Console.WriteLine($"Timezone: {timezone} (UTC+{TimezoneOffsetHours})");
             Console.WriteLine($"Fasilitas: {fasilitas}");
-            Console.WriteLine($"Deskripsi: {deskripsi ?? "(Tidak ada deskripsi)"}");          }
+            Console.WriteLine($"Deskripsi: {deskripsi ?? "(Tidak ada deskripsi)"}");  // ? Handle null
+        }
     }
 }

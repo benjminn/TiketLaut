@@ -10,6 +10,11 @@ namespace TiketLaut.Views.Components
         {
             InitializeComponent();
         }
+
+        /// <summary>
+        /// Set nama user yang akan ditampilkan di navbar
+        /// </summary>
+        /// <param name="username">Nama user yang login</param>
         public void SetUserInfo(string username)
         {
             txtUserInfo.Text = username;
@@ -138,6 +143,7 @@ namespace TiketLaut.Views.Components
 
             if (result == true)
             {
+                // Clear session terlebih dahulu
                 SessionManager.Logout();
 
                 var homePage = new HomePage(isLoggedIn: false);

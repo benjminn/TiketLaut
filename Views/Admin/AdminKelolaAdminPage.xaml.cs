@@ -24,7 +24,11 @@ namespace TiketLaut.Views
             
             // Set placeholder text AFTER InitializeComponent
             txtSearch.Text = "Cari berdasarkan nama atau email...";
+            
+            // Add TextChanged event handler AFTER setting text
             txtSearch.TextChanged += TxtSearch_TextChanged;
+            
+            // Check if current user is super admin
             CheckSuperAdminAccess();
             LoadAdmins();
         }
@@ -236,12 +240,16 @@ namespace TiketLaut.Views
                     MessageBox.Show("Admin tidak ditemukan!", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
+
+                // Check if trying to delete super admin
                 if (admin.role == "0")
                 {
                     MessageBox.Show("Tidak dapat menghapus Super Admin!", "Peringatan", 
                         MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
+
+                // Check if trying to delete self
                 if (admin.admin_id == SessionManager.CurrentAdmin?.admin_id)
                 {
                     MessageBox.Show("Tidak dapat menghapus akun Anda sendiri!", "Peringatan", 

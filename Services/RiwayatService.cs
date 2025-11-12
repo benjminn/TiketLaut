@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -7,6 +7,9 @@ using TiketLaut.Data;
 
 namespace TiketLaut.Services
 {
+    /// <summary>
+    /// Service untuk menangani riwayat perjalanan yang sudah selesai
+    /// </summary>
     public class RiwayatService
     {
         private readonly AppDbContext _context;
@@ -15,6 +18,10 @@ namespace TiketLaut.Services
         {
             _context = DatabaseService.GetContext();
         }
+
+        /// <summary>
+        /// ✨ AUTO-UPDATE: Ubah status_bayar "Aktif" menjadi "Selesai" jika waktu keberangkatan sudah lewat
+        /// </summary>
         public async Task<int> AutoUpdatePembayaranSelesaiAsync()
         {
             try
@@ -28,7 +35,8 @@ namespace TiketLaut.Services
                 var nowUtc = DateTime.UtcNow;
                 int totalUpdated = 0;
 
-                                var pembayaranAktif = await _context.Pembayarans
+                // ✅ BAGIAN 1: Update "Aktif" atau "Sukses" menjadi "Selesai" jika waktu tiba sudah lewat
+                var pembayaranAktif = await _context.Pembayarans
                     .AsNoTracking()
                     .Include(p => p.tiket)
                         .ThenInclude(t => t.Jadwal)
@@ -67,6 +75,8 @@ namespace TiketLaut.Services
                     System.Diagnostics.Debug.WriteLine($"[RiwayatService] Found {idsToComplete.Count} payments to update to Selesai");
 
                     string completeIds = string.Join(",", idsToComplete);
+                    
+                    // Update status pembayaran menjadi "Selesai"
                     string completeSql = $@"
                 UPDATE ""Pembayaran"" 
                 SET status_bayar = 'Selesai' 
@@ -74,6 +84,8 @@ namespace TiketLaut.Services
 
                     int completedRows = await _context.Database.ExecuteSqlRawAsync(completeSql);
                     totalUpdated += completedRows;
+
+                    // Update status tiket menjadi "Selesai"
                     string updateTiketSql = $@"
                 UPDATE ""Tiket"" 
                 SET status_tiket = 'Selesai' 
@@ -86,14 +98,16 @@ namespace TiketLaut.Services
 
                     System.Diagnostics.Debug.WriteLine($"[RiwayatService] Updated {completedRows} payments and tickets to Selesai");
                     
-                                        DatabaseService.ClearTrackedEntities();
+                    // ✅ Clear tracked entities to prevent stale data
+                    DatabaseService.ClearTrackedEntities();
                 }
                 else
                 {
                     System.Diagnostics.Debug.WriteLine($"[RiwayatService] No payments to update to Selesai");
                 }
 
-                                // 1. Waktu tiba sudah lewat, ATAU
+                // ✅ BAGIAN 1B: Update jadwal menjadi "Inactive" jika:
+                // 1. Waktu tiba sudah lewat, ATAU
                 // 2. 15 menit sebelum keberangkatan, ATAU
                 // 3. Kapasitas penuh (penumpang = 0 OR kendaraan = 0)
                 string updateAllJadwalSql = @"
@@ -113,14 +127,16 @@ namespace TiketLaut.Services
                 {
                     System.Diagnostics.Debug.WriteLine($"[RiwayatService] Updated {jadwalRows} jadwals from Active to Inactive");
                     
-                                        DatabaseService.ClearTrackedEntities();
+                    // ✅ Clear tracked entities to prevent stale data
+                    DatabaseService.ClearTrackedEntities();
                 }
                 else
                 {
                     System.Diagnostics.Debug.WriteLine($"[RiwayatService] No jadwals to update to Inactive");
                 }
 
-                                // - Timeout 24 jam dari tanggal pemesanan, ATAU
+                // ✅ BAGIAN 2: Mark tiket "Menunggu Pembayaran" sebagai "Gagal" jika:
+                // - Timeout 24 jam dari tanggal pemesanan, ATAU
                 // - Jadwal keberangkatan sudah lewat
                 var timeoutCutoff = nowUtc.AddHours(-24); // 24 hours ago
 
@@ -171,6 +187,8 @@ namespace TiketLaut.Services
                 if (tiketsToFail.Any())
                 {
                     System.Diagnostics.Debug.WriteLine($"[RiwayatService] Found {tiketsToFail.Count} timed-out/expired tikets to mark as Gagal");
+
+                    // Update tiket status to "Gagal"
                     string tiketIds = string.Join(",", tiketsToFail.Select(t => t.tiket_id));
                     string updateTiketSql = $@"
                 UPDATE ""Tiket"" 
@@ -180,6 +198,8 @@ namespace TiketLaut.Services
                     int tiketRows = await _context.Database.ExecuteSqlRawAsync(updateTiketSql);
                     totalUpdated += tiketRows;
                     System.Diagnostics.Debug.WriteLine($"[RiwayatService] Marked {tiketRows} tikets as Gagal");
+
+                    // Update pembayaran status to "Gagal" for these tickets
                     var pembayaranIds = tiketsToFail.SelectMany(t => t.pembayaran_ids).Distinct().ToList();
                     if (pembayaranIds.Any())
                     {
@@ -192,7 +212,8 @@ namespace TiketLaut.Services
                         await _context.Database.ExecuteSqlRawAsync(updatePembayaranSql);
                         System.Diagnostics.Debug.WriteLine($"[RiwayatService] Updated {pembayaranIds.Count} pembayaran records to Gagal");
                         
-                                                DatabaseService.ClearTrackedEntities();
+                        // ✅ Clear tracked entities to prevent stale data
+                        DatabaseService.ClearTrackedEntities();
                     }
                 }
                 else
@@ -200,7 +221,8 @@ namespace TiketLaut.Services
                     System.Diagnostics.Debug.WriteLine($"[RiwayatService] No payments to update");
                 }
 
-                                // - Timeout 24 jam dari tanggal bayar, ATAU
+                // ✅ BAGIAN 3: Mark pembayaran "Menunggu Validasi" sebagai "Gagal" jika:
+                // - Timeout 24 jam dari tanggal bayar, ATAU
                 // - Jadwal keberangkatan sudah lewat
                 var validationTimeoutCutoff = nowUtc.AddHours(-24); // 24 hours ago
 
@@ -260,6 +282,8 @@ namespace TiketLaut.Services
                     totalUpdated += validationTimeoutRows;
 
                     System.Diagnostics.Debug.WriteLine($"[RiwayatService] Marked {validationTimeoutRows} validation payments as Gagal");
+
+                    // Update corresponding tickets
                     string updateValidationTiketSql = $@"
                 UPDATE ""Tiket"" 
                 SET status_tiket = 'Gagal' 
@@ -271,7 +295,8 @@ namespace TiketLaut.Services
                     await _context.Database.ExecuteSqlRawAsync(updateValidationTiketSql);
                     System.Diagnostics.Debug.WriteLine($"[RiwayatService] Updated corresponding tikets to Gagal");
                     
-                                        DatabaseService.ClearTrackedEntities();
+                    // ✅ Clear tracked entities to prevent stale data
+                    DatabaseService.ClearTrackedEntities();
                 }
                 else
                 {
@@ -296,13 +321,19 @@ namespace TiketLaut.Services
                 return 0;
             }
         }
+
+        /// <summary>
+        /// ✅ Get riwayat pembayaran user - HANYA yang "Selesai" (tidak termasuk "Gagal")
+        /// </summary>
         public async Task<List<Pembayaran>> GetRiwayatByPenggunaIdAsync(int penggunaId)
         {
             try
             {
-                                await AutoUpdatePembayaranSelesaiAsync();
+                // ✅ AUTO-UPDATE: Jalankan auto-update dulu
+                await AutoUpdatePembayaranSelesaiAsync();
 
-                                var riwayat = await _context.Pembayarans
+                // ✅ UPDATED: Include both "Selesai" and "Gagal" in history
+                var riwayat = await _context.Pembayarans
                     .Include(p => p.tiket)
                         .ThenInclude(t => t.Jadwal)
                             .ThenInclude(j => j.pelabuhan_asal)
@@ -330,6 +361,10 @@ namespace TiketLaut.Services
                 throw;
             }
         }
+
+        /// <summary>
+        /// Get detail lengkap riwayat termasuk data penumpang
+        /// </summary>
         public async Task<Pembayaran?> GetDetailRiwayatAsync(int pembayaranId)
         {
             try
@@ -359,6 +394,10 @@ namespace TiketLaut.Services
                 throw;
             }
         }
+
+        /// <summary>
+        /// Get statistik riwayat user (hanya yang "Selesai")
+        /// </summary>
         public async Task<RiwayatStats> GetRiwayatStatsAsync(int penggunaId)
         {
             try
@@ -392,6 +431,10 @@ namespace TiketLaut.Services
             }
         }
     }
+
+    /// <summary>
+    /// Model untuk statistik riwayat
+    /// </summary>
     public class RiwayatStats
     {
         public int TotalPerjalanan { get; set; }

@@ -38,10 +38,16 @@ namespace TiketLaut.Views
             _grupKendaraanService = new GrupKendaraanService();
             _existingJadwal = jadwal;
             _isEditMode = jadwal != null;
+
+            // Initialize bulk time DataGrid
             _bulkTimeRows = new ObservableCollection<BulkTimeRow>();
             dgBulkWaktu.ItemsSource = _bulkTimeRows;
+
+            // Initialize selected dates
             _selectedDates = new ObservableCollection<DateTime>();
             icSelectedDates.ItemsSource = _selectedDates;
+
+            // Initialize detail kendaraan grid
             _detailKendaraanRows = new ObservableCollection<DetailKendaraanInputRow>();
             dgDetailKendaraan.ItemsSource = _detailKendaraanRows;
 
@@ -155,6 +161,8 @@ namespace TiketLaut.Views
             {
                 // Load fresh data setiap kali dipanggil untuk menghindari stale data
                 var allGrups = await _grupKendaraanService.GetAllGrupWithUsageAsync();
+                
+                // Clear existing data source sebelum set yang baru
                 cbGrupKendaraan.ItemsSource = null;
                 cbGrupKendaraan.ItemsSource = allGrups;
                 
@@ -191,6 +199,8 @@ namespace TiketLaut.Views
                 txtNamaGrup.IsEnabled = true;
                 dgDetailKendaraan.IsReadOnly = false;
                 dgDetailKendaraan.Background = System.Windows.Media.Brushes.White;
+                
+                // Clear detail kendaraan rows
                 foreach (var row in _detailKendaraanRows)
                 {
                     row.Harga = 0;
@@ -239,9 +249,12 @@ namespace TiketLaut.Views
             var dayButtons = FindVisualChildren<System.Windows.Controls.Primitives.CalendarDayButton>(calendarMultiSelect);
             foreach (var button in dayButtons)
             {
+                // Remove old handlers if exist to prevent duplicates
                 button.PreviewMouseLeftButtonDown -= DayButton_PreviewMouseLeftButtonDown;
                 button.MouseEnter -= DayButton_MouseEnter;
                 button.PreviewMouseLeftButtonUp -= DayButton_PreviewMouseLeftButtonUp;
+                
+                // Add new handlers
                 button.PreviewMouseLeftButtonDown += DayButton_PreviewMouseLeftButtonDown;
                 button.MouseEnter += DayButton_MouseEnter;
                 button.PreviewMouseLeftButtonUp += DayButton_PreviewMouseLeftButtonUp;
@@ -323,8 +336,12 @@ namespace TiketLaut.Views
                         // Pilih SEMUA tanggal di antara _dragStartDate dan currentDate
                         var startDate = _dragStartDate.Value < date ? _dragStartDate.Value : date;
                         var endDate = _dragStartDate.Value > date ? _dragStartDate.Value : date;
+                        
+                        // Clear selection dulu, lalu isi ulang dengan range
                         var originalDates = _selectedDates.ToList();
                         _selectedDates.Clear();
+                        
+                        // Tambahkan tanggal yang tidak ada di range (untuk preserve selection lain)
                         foreach (var origDate in originalDates)
                         {
                             if (origDate < startDate || origDate > endDate)
@@ -332,6 +349,8 @@ namespace TiketLaut.Views
                                 _selectedDates.Add(origDate);
                             }
                         }
+                        
+                        // Tambahkan/hapus semua tanggal dalam range berdasarkan mode drag
                         if (_isDragSelecting)
                         {
                             // Mode select: tambahkan semua tanggal dalam range
@@ -458,6 +477,7 @@ namespace TiketLaut.Views
             var button = sender as System.Windows.Controls.Button;
             if (button?.Tag is DateTime dateToRemove)
             {
+                // Remove from collection
                 _selectedDates.Remove(dateToRemove);
                 UpdateSelectedCountText();
                 UpdateDayButtonStyles(); // Update visual
@@ -531,21 +551,26 @@ namespace TiketLaut.Views
                 var kapal_id = (int)cbKapal.SelectedValue;
                 var kelas_layanan = ((System.Windows.Controls.ComboBoxItem)cbKelasLayanan.SelectedItem).Content.ToString()!;
                 var status = ((System.Windows.Controls.ComboBoxItem)cbStatus.SelectedItem).Content.ToString()!;
+
+                // Parse time
                 var jam = int.Parse(txtJamBerangkat.Text);
                 var menit = int.Parse(txtMenitBerangkat.Text);
                 var durasiJam = int.Parse(txtDurasiJam.Text);
                 var durasiMenit = int.Parse(txtDurasiMenit.Text);
 
-                                var pelabuhanAsal = await _pelabuhanService.GetPelabuhanByIdAsync(pelabuhan_asal_id);
+                // ? NEW: Get timezone info from pelabuhan asal
+                var pelabuhanAsal = await _pelabuhanService.GetPelabuhanByIdAsync(pelabuhan_asal_id);
                 var timezoneOffsetHours = pelabuhanAsal?.TimezoneOffsetHours ?? 7;  // Default WIB
 
                 if (_isEditMode && _existingJadwal != null)
                 {
+                    // Update mode - use existing date
                     var tanggal = _existingJadwal.waktu_berangkat.Date;
                     
-                                        // Admin input waktu dalam timezone pelabuhan, convert ke UTC untuk database
+                    // ? FIX: Convert timezone pelabuhan to UTC
+                    // Admin input waktu dalam timezone pelabuhan, convert ke UTC untuk database
                     var waktuLokal = new DateTime(tanggal.Year, tanggal.Month, tanggal.Day, jam, menit, 0);
-                    var waktu_berangkat = waktuLokal.AddHours(-timezoneOffsetHours);
+                    var waktu_berangkat = waktuLokal.AddHours(-timezoneOffsetHours);  // Convert to UTC
                     var waktu_tiba = waktu_berangkat.AddHours(durasiJam).AddMinutes(durasiMenit);
                     
                     _existingJadwal.pelabuhan_asal_id = pelabuhan_asal_id;
@@ -568,6 +593,7 @@ namespace TiketLaut.Views
                 }
                 else
                 {
+                    // Create mode - use selected dates
                     if (_selectedDates.Count == 0)
                     {
                         MessageBox.Show("Pilih minimal satu tanggal terlebih dahulu!", "Validasi", 
@@ -579,6 +605,8 @@ namespace TiketLaut.Views
 
                     int grupKendaraanId;
                     string grupNama;
+
+                    // Check mode: Gunakan Grup Lama atau Buat Baru
                     if (rbGunakanGrupLama.IsChecked == true)
                     {
                         // Mode: Gunakan Grup Lama
@@ -625,6 +653,8 @@ namespace TiketLaut.Views
                         {
                             prices[row.JenisKendaraanEnum] = row.Harga;
                         }
+
+                        // Create GrupKendaraan with 13 DetailKendaraan
                         var grupResult = await _grupKendaraanService.CreateGrupWithDetailAsync(
                             txtNamaGrup.Text.Trim(), prices);
                         
@@ -642,13 +672,16 @@ namespace TiketLaut.Views
                     }
                     
                     var jadwals = new List<Jadwal>();
+                    
+                    // Create jadwal for each selected date (all sharing the same grup_kendaraan_id)
                     foreach (var dateToCreate in _selectedDates)
                     {
-                                                // Admin input waktu dalam timezone pelabuhan, convert ke UTC untuk database
+                        // ? FIX: Convert timezone pelabuhan to UTC
+                        // Admin input waktu dalam timezone pelabuhan, convert ke UTC untuk database
                         var waktuLokal = new DateTime(
                             dateToCreate.Year, dateToCreate.Month, dateToCreate.Day, 
                             jam, menit, 0);
-                        var waktu_berangkat_for_date = waktuLokal.AddHours(-timezoneOffsetHours);
+                        var waktu_berangkat_for_date = waktuLokal.AddHours(-timezoneOffsetHours);  // Convert to UTC
                         var waktu_tiba_for_date = waktu_berangkat_for_date.AddHours(durasiJam).AddMinutes(durasiMenit);
                         
                         jadwals.Add(new Jadwal
@@ -736,11 +769,14 @@ namespace TiketLaut.Views
                 var durasiJam = int.Parse(txtDurasiJam.Text);
                 var durasiMenit = int.Parse(txtDurasiMenit.Text);
 
-                                var pelabuhanAsal = await _pelabuhanService.GetPelabuhanByIdAsync(pelabuhan_asal_id);
+                // ? NEW: Get timezone info from pelabuhan asal for bulk save
+                var pelabuhanAsal = await _pelabuhanService.GetPelabuhanByIdAsync(pelabuhan_asal_id);
                 var timezoneOffsetHours = pelabuhanAsal?.TimezoneOffsetHours ?? 7;  // Default WIB
 
                 int grupKendaraanId;
                 string grupNama;
+
+                // Check mode: Gunakan Grup Lama atau Buat Baru
                 if (rbGunakanGrupLama.IsChecked == true)
                 {
                     // Mode: Gunakan Grup Lama
@@ -787,6 +823,8 @@ namespace TiketLaut.Views
                     {
                         prices[row.JenisKendaraanEnum] = row.Harga;
                     }
+
+                    // Create GrupKendaraan with 13 DetailKendaraan
                     var grupResult = await _grupKendaraanService.CreateGrupWithDetailAsync(
                         txtNamaGrup.Text.Trim(), prices);
                     
@@ -826,10 +864,13 @@ namespace TiketLaut.Views
                             int.TryParse(parts[0], out int jam) && jam >= 0 && jam <= 23 &&
                             int.TryParse(parts[1], out int menit) && menit >= 0 && menit <= 59)
                         {
-                                                        // Admin input waktu dalam timezone pelabuhan, convert ke UTC untuk database
+                            // ? FIX: Convert timezone pelabuhan to UTC
+                            // Admin input waktu dalam timezone pelabuhan, convert ke UTC untuk database
                             var waktuLokal = new DateTime(dateToCreate.Year, dateToCreate.Month, dateToCreate.Day, jam, menit, 0);
-                            var waktuBerangkat = waktuLokal.AddHours(-timezoneOffsetHours);
+                            var waktuBerangkat = waktuLokal.AddHours(-timezoneOffsetHours);  // Convert to UTC
                             var waktuTiba = waktuBerangkat.AddHours(durasiJam).AddMinutes(durasiMenit);
+
+                            // Create jadwal for this time slot (all using the same grup_kendaraan_id)
                             jadwals.Add(new Jadwal
                             {
                                 pelabuhan_asal_id = pelabuhan_asal_id,
@@ -1103,6 +1144,8 @@ namespace TiketLaut.Views
                 }
             }
         }
+
+        // Event handler untuk edit harga pada DataGrid Detail Kendaraan
         private void DgDetailKendaraan_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
         {
             if (e.EditAction == DataGridEditAction.Commit)
@@ -1178,6 +1221,8 @@ namespace TiketLaut.Views
                 JamTiba = "";
                 return;
             }
+
+            // Parse jam berangkat
             var parts = JamBerangkat.Split(':');
             if (parts.Length != 2 || 
                 !int.TryParse(parts[0], out int jamBerangkat) ||
@@ -1186,6 +1231,8 @@ namespace TiketLaut.Views
                 JamTiba = "";
                 return;
             }
+
+            // Parse durasi
             if (!int.TryParse(txtDurasiJam?.Text, out int durasiJam) || durasiJam < 0)
                 durasiJam = 0;
             

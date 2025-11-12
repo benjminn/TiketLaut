@@ -50,7 +50,8 @@ namespace TiketLaut.Views
                 var pelabuhan_tujuan = jadwal.pelabuhan_tujuan;
                 var kapal = jadwal.kapal;
 
-                                var offsetAsalHours = pelabuhan_asal?.TimezoneOffsetHours ?? 7;  // Default WIB
+                // ✅ TIMEZONE FIX: Convert UTC to pelabuhan timezone
+                var offsetAsalHours = pelabuhan_asal?.TimezoneOffsetHours ?? 7;  // Default WIB
                 var offsetTujuanHours = pelabuhan_tujuan?.TimezoneOffsetHours ?? 7;
                 
                 var waktuBerangkatLocal = jadwal.waktu_berangkat.AddHours(offsetAsalHours);
@@ -60,7 +61,9 @@ namespace TiketLaut.Views
                 txtKodeTiket.Text = _tiket.kode_tiket;
                 txtPelabuhanAsal.Text = pelabuhan_asal?.nama_pelabuhan ?? "Unknown";
                 txtPelabuhanTujuan.Text = pelabuhan_tujuan?.nama_pelabuhan ?? "Unknown";
-                txtWaktuBerangkat.Text = waktuBerangkatLocal.ToString("HH:mm");                  txtWaktuTiba.Text = waktuTibaLocal.ToString("HH:mm");                  
+                txtWaktuBerangkat.Text = waktuBerangkatLocal.ToString("HH:mm");  // ✅ Gunakan waktu lokal
+                txtWaktuTiba.Text = waktuTibaLocal.ToString("HH:mm");  // ✅ Gunakan waktu lokal
+                
                 // Hitung durasi (actual duration dari UTC)
                 var durasi = jadwal.waktu_tiba - jadwal.waktu_berangkat;
                 txtDurasi.Text = $"{durasi.Hours}j {durasi.Minutes}m";
@@ -113,6 +116,11 @@ namespace TiketLaut.Views
                 Components.CustomDialog.ShowError("Error", $"Gagal memuat data tiket:\n{ex.Message}");
             }
         }
+
+        /// <summary>
+        /// Convert string dari BookingService.GetJenisKendaraanText() ke ID integer
+        /// HARUS MATCH PERSIS dengan BookingService!
+        /// </summary>
         private int GetJenisKendaraanIdFromString(string jenisKendaraanText)
         {
             return jenisKendaraanText switch
@@ -133,6 +141,11 @@ namespace TiketLaut.Views
                 _ => -1 // Unknown
             };
         }
+
+        /// <summary>
+        /// Convert ID integer ke display name
+        /// Mapping langsung dari ID database ke nama di popup ScheduleWindow & HomePage
+        /// </summary>
         private string GetJenisKendaraanDisplayNameById(int id)
         {
             return id switch
@@ -245,6 +258,7 @@ namespace TiketLaut.Views
         {
             try
             {
+                // Create SaveFileDialog
                 var saveDialog = new Microsoft.Win32.SaveFileDialog
                 {
                     FileName = $"E-Tiket_{_tiket?.kode_tiket ?? "TiketLaut"}",
@@ -270,6 +284,8 @@ namespace TiketLaut.Views
                         System.Windows.Media.PixelFormats.Pbgra32);
 
                     renderBitmap.Render(ticketCard);
+
+                    // Save to file
                     using (var fileStream = new System.IO.FileStream(saveDialog.FileName, System.IO.FileMode.Create))
                     {
                         var encoder = new PngBitmapEncoder();

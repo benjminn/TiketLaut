@@ -77,6 +77,8 @@ namespace TiketLaut.Views.Admin
                 }
 
                 txtWaktu.Text = notif.waktu_kirim.ToString("dddd, dd MMMM yyyy HH:mm:ss");
+
+                // Update button state
                 btnTandaiBaca.IsEnabled = !notif.status_baca;
                 if (notif.status_baca)
                 {
@@ -102,6 +104,8 @@ namespace TiketLaut.Views.Admin
                     _context.SaveChanges();
 
                     MessageBox.Show("Notifikasi berhasil ditandai sebagai sudah dibaca!", "Sukses", MessageBoxButton.OK, MessageBoxImage.Information);
+                    
+                    // Update tampilan
                     txtStatusBaca.Text = "✓ Sudah dibaca";
                     txtStatusBaca.Foreground = System.Windows.Media.Brushes.Green;
                     btnTandaiBaca.IsEnabled = false;

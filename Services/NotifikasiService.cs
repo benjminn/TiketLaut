@@ -352,6 +352,11 @@ namespace TiketLaut.Services
         {
             return _context;
         }
+
+        /// <summary>
+        /// (VERSI ADMIN) Cek semua tiket dari SEMUA pengguna.
+        /// Dipanggil oleh AdminDashboard.
+        /// </summary>
         public async Task CekDanKirimNotifikasiJadwalOtomatisAsync()
         {
             System.Diagnostics.Debug.WriteLine("[NotifikasiService] Menjalankan pengecekan notifikasi (untuk SEMUA user)...");
@@ -372,6 +377,11 @@ namespace TiketLaut.Services
 
             await CekJadwalTiket(tiketsBerangkat);
         }
+
+        /// <summary>
+        /// (VERSI USER) Cek semua tiket HANYA untuk satu pengguna.
+        /// Dipanggil oleh LoginWindow.
+        /// </summary>
         public async Task CekDanKirimNotifikasiJadwalOtomatisAsync(int penggunaId)
         {
             System.Diagnostics.Debug.WriteLine($"[NotifikasiService] Menjalankan pengecekan notifikasi (untuk user: {penggunaId})...");
@@ -392,6 +402,10 @@ namespace TiketLaut.Services
 
             await CekJadwalTiket(tiketsBerangkat);
         }
+
+        /// <summary>
+        /// (MESIN UTAMA) Logika inti untuk membandingkan waktu dan mengirim notif
+        /// </summary>
         private async Task CekJadwalTiket(List<Tiket> daftarTiket)
         {
             var now = DateTime.UtcNow;

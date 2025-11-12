@@ -5,6 +5,11 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TiketLaut
 {
+    /// <summary>
+    /// Tabel untuk mengelompokkan 13 DetailKendaraan yang belong to satu set jadwal
+    /// Satu GrupKendaraan berisi 13 DetailKendaraan (1 per golongan)
+    /// Many jadwals bisa share 1 GrupKendaraan jika harga semua golongannya sama
+    /// </summary>
     [Table("GrupKendaraan")]
     public class GrupKendaraan
     {

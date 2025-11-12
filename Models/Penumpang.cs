@@ -18,11 +18,14 @@ namespace TiketLaut
         public string nama { get; set; } = string.Empty;
         
         [Required]
-        public long nomor_identitas { get; set; }          
+        public long nomor_identitas { get; set; }  // ? Changed from int to long (bigint)
+        
         [Required]
-        public string jenis_identitas { get; set; } = string.Empty;          
+        public string jenis_identitas { get; set; } = string.Empty;  // ? Added
+        
         [Required]
-        public string jenis_kelamin { get; set; } = string.Empty;          
+        public string jenis_kelamin { get; set; } = string.Empty;  // ? Added
+        
         // Navigation properties
         [ForeignKey("pengguna_id")]
         public Pengguna Pengguna { get; set; } = null!;
