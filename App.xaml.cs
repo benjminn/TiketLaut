@@ -22,7 +22,7 @@ namespace TiketLaut
             }
         }
 
-        protected override void OnStartup(StartupEventArgs e)
+        protected override async void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
 
@@ -30,13 +30,22 @@ namespace TiketLaut
             PresentationTraceSources.DataBindingSource.Listeners.Add(new ConsoleTraceListener());
             PresentationTraceSources.DataBindingSource.Switch.Level = SourceLevels.Error;
 
+            // ✅ CATCH-UP MISSED NOTIFICATIONS saat aplikasi dibuka
+            try
+            {
+                var notifService = new NotifikasiService();
+                await notifService.CatchUpMissedNotificationsAsync();
+                Debug.WriteLine("[APP] 📧 Missed notifications catch-up completed.");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[APP] ❌ Failed to catch up missed notifications: {ex.Message}");
+            }
+
             // ✅ START BACKGROUND SERVICE
-            // Untuk testing: intervalMinutes: 1
-            // Untuk production: intervalMinutes: 15
             NotifBackgroundService.Start(intervalMinutes: 1);
 
             Debug.WriteLine("[APP] ✅ Application started.");
-            Debug.WriteLine($"[APP] 🔔 Notifikasi Background Service started.");
         }
 
         protected override void OnExit(ExitEventArgs e)

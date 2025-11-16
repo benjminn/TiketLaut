@@ -126,16 +126,17 @@ namespace TiketLaut.Services
         }
 
         public async Task<Notifikasi> SendKeberangkatanNotificationAsync(
-            int penggunaId,
-            string kapalNama,
-            string ruteAsal,
-            string ruteTujuan,
-            DateTime waktuBerangkat,
-            int? jadwalId = null,
-            int? tiketId = null) // <-- TAMBAHKAN tiketId
+    int penggunaId,
+    string kapalNama,
+    string ruteAsal,
+    string ruteTujuan,
+    DateTime waktuBerangkat,
+    int? jadwalId = null,
+    int? tiketId = null) // <-- TAMBAHKAN tiketId
         {
-            var tanggal = waktuBerangkat.ToString("d MMMM yyyy");
-            var jam = waktuBerangkat.ToString("HH:mm");
+            var waktuBerangkatWIB = waktuBerangkat.AddHours(7);
+            var tanggal = waktuBerangkatWIB.ToString("d MMMM yyyy");
+            var jam = waktuBerangkatWIB.ToString("HH:mm");
 
             var judul = "Kapal Anda akan berangkat dalam 24 jam!";
             var pesan = $"⏰  {judul}\n\n" + // Tambah spasi
@@ -161,7 +162,8 @@ namespace TiketLaut.Services
             int? jadwalId = null,
             int? tiketId = null) // <-- TAMBAHKAN tiketId
         {
-            var jam = waktuBerangkat.ToString("HH:mm");
+            var waktuBerangkatWIB = waktuBerangkat.AddHours(7);
+            var jam = waktuBerangkatWIB.ToString("HH:mm");
 
             var judul = "Kapal akan berangkat dalam 2 jam";
             var pesan = $"⏰  {judul}\n\n" + // Tambah spasi
@@ -401,6 +403,89 @@ namespace TiketLaut.Services
             }
 
             await CekJadwalTiket(tiketsBerangkat);
+        }
+
+        /// <summary>
+        /// Catch-up missed notifications that should have been sent when app was closed
+        /// </summary>
+        public async Task CatchUpMissedNotificationsAsync()
+        {
+            System.Diagnostics.Debug.WriteLine("[NOTIF SERVICE] 🔍 Checking for missed notifications...");
+
+            var now = DateTime.UtcNow;
+
+            // Get all active tickets yang mungkin ketinggalan notifikasi
+            var tiketsBerangkat = await _context.Tikets
+                .Where(t => t.status_tiket == "Aktif" && t.Jadwal != null && t.Jadwal.waktu_berangkat > now)
+                .Include(t => t.Pengguna)
+                .Include(t => t.Jadwal).ThenInclude(j => j.kapal)
+                .Include(t => t.Jadwal).ThenInclude(j => j.pelabuhan_asal)
+                .Include(t => t.Jadwal).ThenInclude(j => j.pelabuhan_tujuan)
+                .ToListAsync();
+
+            int missedCount = 0;
+
+            foreach (var tiket in tiketsBerangkat)
+            {
+                var jadwal = tiket.Jadwal;
+                if (jadwal == null) continue;
+
+                var waktuBerangkat = jadwal.waktu_berangkat;
+
+                // ✅ CEK H-24 MISSED: Jika sudah lewat H-25 jam tapi belum ada notif H-24
+                var h24Threshold = now.AddHours(-25); // 25 jam yang lalu
+                if (waktuBerangkat > now.AddHours(23) && waktuBerangkat > h24Threshold)
+                {
+                    bool sudahAda24Jam = await _context.Notifikasis.AnyAsync(n =>
+                        n.tiket_id == tiket.tiket_id &&
+                        n.jenis_notifikasi == "pengingat" &&
+                        n.judul_notifikasi.Contains("24 jam"));
+
+                    if (!sudahAda24Jam)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"[CATCH-UP] 📧 Sending MISSED H-24 for Tiket #{tiket.tiket_id}");
+
+                        await SendKeberangkatanNotificationAsync(
+                            tiket.pengguna_id,
+                            jadwal.kapal?.nama_kapal ?? "Kapal",
+                            jadwal.pelabuhan_asal?.nama_pelabuhan ?? "Pelabuhan Asal",
+                            jadwal.pelabuhan_tujuan?.nama_pelabuhan ?? "Pelabuhan Tujuan",
+                            waktuBerangkat,
+                            jadwal.jadwal_id,
+                            tiket.tiket_id);
+
+                        missedCount++;
+                    }
+                }
+
+                // ✅ CEK H-2 MISSED: Jika sudah lewat H-3 jam tapi belum ada notif H-2  
+                var h2Threshold = now.AddHours(-3); // 3 jam yang lalu
+                if (waktuBerangkat > now.AddHours(1.5) && waktuBerangkat > h2Threshold)
+                {
+                    bool sudahAda2Jam = await _context.Notifikasis.AnyAsync(n =>
+                        n.tiket_id == tiket.tiket_id &&
+                        n.jenis_notifikasi == "pengingat" &&
+                        n.judul_notifikasi.Contains("2 jam"));
+
+                    if (!sudahAda2Jam)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"[CATCH-UP] 📧 Sending MISSED H-2 for Tiket #{tiket.tiket_id}");
+
+                        await SendKeberangkatan2JamNotificationAsync(
+                            tiket.pengguna_id,
+                            tiket.kode_tiket,
+                            jadwal.kapal?.nama_kapal ?? "Kapal",
+                            jadwal.pelabuhan_asal?.nama_pelabuhan ?? "Pelabuhan Asal",
+                            waktuBerangkat,
+                            jadwal.jadwal_id,
+                            tiket.tiket_id);
+
+                        missedCount++;
+                    }
+                }
+            }
+
+            System.Diagnostics.Debug.WriteLine($"[CATCH-UP] 📊 Sent {missedCount} missed notifications.");
         }
 
         /// <summary>
