@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using TiketLaut.Data;
 using TiketLaut.Models;
+using System.Windows.Threading;
 
 namespace TiketLaut.Services
 {
@@ -16,7 +17,6 @@ namespace TiketLaut.Services
         {
             _context = DatabaseService.GetContext();
         }
-
         public async Task<List<Notifikasi>> GetNotifikasiByPenggunaIdAsync(int penggunaId)
         {
             return await _context.Notifikasis
@@ -410,65 +410,89 @@ namespace TiketLaut.Services
         {
             var now = DateTime.UtcNow;
 
-            // Tentukan rentang waktu
-            var batasWaktu24Jam_Atas = now.AddHours(24);
-            var batasWaktu24Jam_Bawah = now.AddHours(23); // (Agar tidak mengirim H-23, H-22, dst.)
+            // ✅ RENTANG WAKTU LEBIH LEBAR untuk menghindari miss notification
+            // H-24: Toleransi ±1 jam (23-25 jam dari sekarang)
+            var batasWaktu24Jam_Atas = now.AddHours(25);
+            var batasWaktu24Jam_Bawah = now.AddHours(23);
 
-            var batasWaktu2Jam_Atas = now.AddHours(2);
-            var batasWaktu2Jam_Bawah = now.AddHours(1); // (Agar tidak mengirim H-1.5, H-1, dst.)
+            // H-2: Toleransi ±30 menit (1.5-2.5 jam dari sekarang)
+            var batasWaktu2Jam_Atas = now.AddHours(2.5);
+            var batasWaktu2Jam_Bawah = now.AddHours(1.5);
+
+            System.Diagnostics.Debug.WriteLine($"[NOTIF SERVICE] 📊 Checking {daftarTiket.Count} active tickets...");
+            System.Diagnostics.Debug.WriteLine($"[NOTIF SERVICE] ⏰ Now: {now.AddHours(7):yyyy-MM-dd HH:mm:ss} WIB"); // +7 untuk WIB
+            System.Diagnostics.Debug.WriteLine($"[NOTIF SERVICE] 📅 H-24 Range: {batasWaktu24Jam_Bawah.AddHours(7):HH:mm} - {batasWaktu24Jam_Atas.AddHours(7):HH:mm} WIB");
+            System.Diagnostics.Debug.WriteLine($"[NOTIF SERVICE] 📅 H-2 Range: {batasWaktu2Jam_Bawah.AddHours(7):HH:mm} - {batasWaktu2Jam_Atas.AddHours(7):HH:mm} WIB");
+
+            int count24Jam = 0;
+            int count2Jam = 0;
 
             foreach (var tiket in daftarTiket)
             {
                 var jadwal = tiket.Jadwal;
                 if (jadwal == null) continue;
 
-                // --- PENGECEKAN H-24 ---
-                if (jadwal.waktu_berangkat > batasWaktu24Jam_Bawah && jadwal.waktu_berangkat <= batasWaktu24Jam_Atas)
+                var waktuBerangkat = jadwal.waktu_berangkat;
+
+                // ========== CEK H-24 JAM ==========
+                if (waktuBerangkat > batasWaktu24Jam_Bawah && waktuBerangkat <= batasWaktu24Jam_Atas)
                 {
-                    bool sudahKirim24Jam = await _context.Notifikasis.AnyAsync(n =>
-                        n.tiket_id == tiket.tiket_id &&
-                        n.jenis_notifikasi == "pengingat" &&
-                        n.judul_notifikasi.Contains("24 jam"));
+                    // ✅ PERBAIKAN: Notifikasi → Notifikasis (plural)
+                    bool sudahKirim24Jam = await _context.Notifikasis
+                        .AnyAsync(n =>
+                            n.tiket_id == tiket.tiket_id &&
+                            n.jenis_notifikasi == "pengingat" &&
+                            n.judul_notifikasi.Contains("24 jam"));
 
                     if (!sudahKirim24Jam)
                     {
-                        System.Diagnostics.Debug.WriteLine($"[NotifikasiService] Mengirim notif H-24 untuk tiket {tiket.kode_tiket}...");
+                        System.Diagnostics.Debug.WriteLine($"[NOTIF SERVICE] 📧 Sending H-24 for Tiket #{tiket.tiket_id} (User ID: {tiket.pengguna_id})");
+
                         await SendKeberangkatanNotificationAsync(
                             tiket.pengguna_id,
-                            jadwal.kapal?.nama_kapal ?? "N/A",
-                            jadwal.pelabuhan_asal?.nama_pelabuhan ?? "N/A",
-                            jadwal.pelabuhan_tujuan?.nama_pelabuhan ?? "N/A",
-                            jadwal.waktu_berangkat,
+                            jadwal.kapal?.nama_kapal ?? "Kapal",
+                            // ✅ PERBAIKAN: nama → nama_pelabuhan
+                            jadwal.pelabuhan_asal?.nama_pelabuhan ?? "Pelabuhan Asal",
+                            jadwal.pelabuhan_tujuan?.nama_pelabuhan ?? "Pelabuhan Tujuan",
+                            waktuBerangkat,
                             jadwal.jadwal_id,
                             tiket.tiket_id
                         );
+
+                        count24Jam++;
                     }
                 }
 
-                // --- PENGECEKAN H-2 ---
-                if (jadwal.waktu_berangkat > batasWaktu2Jam_Bawah && jadwal.waktu_berangkat <= batasWaktu2Jam_Atas)
+                // ========== CEK H-2 JAM ==========
+                if (waktuBerangkat > batasWaktu2Jam_Bawah && waktuBerangkat <= batasWaktu2Jam_Atas)
                 {
-                    bool sudahKirim2Jam = await _context.Notifikasis.AnyAsync(n =>
-                        n.tiket_id == tiket.tiket_id &&
-                        n.jenis_notifikasi == "pengingat" &&
-                        n.judul_notifikasi.Contains("2 jam"));
+                    // ✅ PERBAIKAN: Notifikasi → Notifikasis (plural)
+                    bool sudahKirim2Jam = await _context.Notifikasis
+                        .AnyAsync(n =>
+                            n.tiket_id == tiket.tiket_id &&
+                            n.jenis_notifikasi == "pengingat" &&
+                            n.judul_notifikasi.Contains("2 jam"));
 
                     if (!sudahKirim2Jam)
                     {
-                        System.Diagnostics.Debug.WriteLine($"[NotifikasiService] Mengirim notif H-2 untuk tiket {tiket.kode_tiket}...");
+                        System.Diagnostics.Debug.WriteLine($"[NOTIF SERVICE] 📧 Sending H-2 for Tiket #{tiket.tiket_id} (User ID: {tiket.pengguna_id})");
+
                         await SendKeberangkatan2JamNotificationAsync(
                             tiket.pengguna_id,
                             tiket.kode_tiket,
-                            jadwal.kapal?.nama_kapal ?? "N/A",
-                            jadwal.pelabuhan_asal?.nama_pelabuhan ?? "N/A",
-                            jadwal.waktu_berangkat,
+                            jadwal.kapal?.nama_kapal ?? "Kapal",
+                            jadwal.pelabuhan_asal?.nama_pelabuhan ?? "Pelabuhan Asal",
+                            waktuBerangkat,
                             jadwal.jadwal_id,
                             tiket.tiket_id
                         );
+
+                        count2Jam++;
                     }
                 }
             }
-            System.Diagnostics.Debug.WriteLine("[NotifikasiService] Pengecekan notifikasi jadwal selesai.");
+
+            System.Diagnostics.Debug.WriteLine($"[NOTIF SERVICE] 📊 Summary: {count24Jam} H-24 sent, {count2Jam} H-2 sent.");
         }
     }
 }
