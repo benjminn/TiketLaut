@@ -244,17 +244,6 @@ namespace TiketLaut.Views
         {
             try
             {
-                // Panggil "mesin" pengecek HANYA untuk user ini
-                await new NotifikasiService().CekDanKirimNotifikasiJadwalOtomatisAsync(pengguna.pengguna_id);
-                System.Diagnostics.Debug.WriteLine($"[LoginWindow] Pengecekan notifikasi otomatis untuk user {pengguna.pengguna_id} selesai.");
-            }
-            catch (Exception exNotif)
-            {
-                // Jangan gagalkan login jika pengecekan notif gagal
-                System.Diagnostics.Debug.WriteLine($"[LoginWindow] GAGAL cek notif otomatis: {exNotif.Message}");
-            }
-            try
-            {
                 switch (_loginSource)
                 {
                     case LoginSource.ScheduleWindow:

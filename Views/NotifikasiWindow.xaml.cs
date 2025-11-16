@@ -11,6 +11,8 @@ using TiketLaut.Services;
 using TiketLaut.Views.Components;
 using System.Text.RegularExpressions;
 using TiketLaut.Models;
+using DocumentFormat.OpenXml.Bibliography;
+using System.Windows.Media.Imaging;
 
 namespace TiketLaut.Views
 {
@@ -23,7 +25,7 @@ namespace TiketLaut.Views
         {
             InitializeComponent();
             _service = new NotifikasiService();
-            
+
             // Enable zoom functionality
             ZoomHelper.EnableZoom(this);
 
@@ -95,8 +97,17 @@ namespace TiketLaut.Views
         private void ShowEmpty()
         {
             var panel = new StackPanel { VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0, 100, 0, 0) };
-            panel.Children.Add(new TextBlock { Text = "🔔", FontSize = 64, TextAlignment = TextAlignment.Center });
-            panel.Children.Add(new TextBlock { Text = "Belum ada notifikasi", FontSize = 20, FontWeight = FontWeights.SemiBold, Foreground = Brushes.Gray, TextAlignment = TextAlignment.Center, Margin = new Thickness(0, 20, 0, 0) });
+
+            // Baris ini menggantikan TextBlock emoji 🔔
+            panel.Children.Add(new Image
+            {
+                Source = new BitmapImage(new Uri("pack://application:,,,/Views/Assets/Icons/iconlonceng1.png")),
+                Stretch = Stretch.Uniform,
+                Height = 64, // Menyesuaikan tinggi gambar (sama seperti FontSize emoji)
+                HorizontalAlignment = HorizontalAlignment.Center // Untuk memusatkan gambar
+            });
+
+            panel.Children.Add(new TextBlock { Text = "Belum ada notifikasi", FontSize = 20, FontWeight = FontWeights.SemiBold, Foreground = Brushes.Gray, TextAlignment = TextAlignment.Center, Margin = new Thickness(0, 20, 0, 100) });
             notificationList.Children.Add(panel);
         }
 
