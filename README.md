@@ -477,5 +477,5 @@ Berikut adalah rancangan class diagram yang dibuat
 Berikut adalah rancangan ERD yang dibuat
 
 <div style="text-align: center;">
-  <img alt="ERD" src="./.docs/ERD.jpg" width="550px" style="display: block; margin: auto;"/>
+  <img alt="ERD" src="./.docs/ERD.png" width="550px" style="display: block; margin: auto;"/>
 </div>
