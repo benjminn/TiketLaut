@@ -118,10 +118,6 @@ Copy-Item appsettings.example.json appsettings.json
 }
 ```
 
-> 📖 **Dokumentasi lengkap:** 
-> - [ENVIRONMENT_VARIABLES_GUIDE.md](./ENVIRONMENT_VARIABLES_GUIDE.md)
-> - [REAL_GOOGLE_OAUTH_SETUP.md](./REAL_GOOGLE_OAUTH_SETUP.md)
-
 ### 3. Restore Dependencies
 ```powershell
 dotnet restore
@@ -136,12 +132,6 @@ dotnet build
 ```powershell
 dotnet run
 ```
-
-### 6. Test Google OAuth (Optional)
-- Dengan credentials → Browser akan membuka Google login
-- Tanpa credentials → Manual input dialog akan muncul
-
-> 🔒 **Security Note:** File appsettings.json sudah di .gitignore
 
 ## 🎮 Cara Penggunaan
 
